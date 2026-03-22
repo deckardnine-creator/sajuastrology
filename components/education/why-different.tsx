@@ -1,0 +1,71 @@
+"use client"
+
+import { motion } from "framer-motion"
+import { Target, Layers, Clock } from "lucide-react"
+
+const differences = [
+  {
+    icon: Target,
+    title: "Precision",
+    description:
+      "Zodiac uses your birth month. Saju uses your exact birth hour and True Solar Time — calculated from your birth city's longitude.",
+  },
+  {
+    icon: Layers,
+    title: "Depth",
+    description:
+      "MBTI gives you 16 types. Saju gives you 518,400+ unique combinations, each with distinct life patterns.",
+  },
+  {
+    icon: Clock,
+    title: "Time-Awareness",
+    description:
+      "Your Saju chart interacts with annual and decadal energy cycles, giving you year-by-year and even day-by-day guidance.",
+  },
+]
+
+export function WhyDifferent() {
+  return (
+    <section className="py-24 bg-card">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="font-serif text-3xl sm:text-4xl font-bold mb-4">
+            Why It&apos;s Different
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Three key advantages over traditional astrology systems
+          </p>
+        </motion.div>
+
+        <div className="grid gap-8 md:grid-cols-3">
+          {differences.map((item, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="glass-gold rounded-2xl p-8"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+                <item.icon className="w-7 h-7 text-primary" />
+              </div>
+              <h3 className="font-serif text-xl font-semibold mb-3">
+                {item.title}
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                {item.description}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
