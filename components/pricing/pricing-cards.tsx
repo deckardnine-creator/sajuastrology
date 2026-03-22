@@ -21,9 +21,9 @@ const plans = [
     ],
     cta: "Start Free",
     highlighted: false,
-    glowColor: "rgba(242,202,80,0.15)",
-    borderColor: "rgba(242,202,80,0.5)",
-    accentColor: "#F2CA50",
+    accent: "#F2CA50",
+    glow: "rgba(242,202,80,0.3)",
+    glowSoft: "rgba(242,202,80,0.08)",
   },
   {
     name: "Premium",
@@ -41,9 +41,9 @@ const plans = [
     ],
     cta: "Unlock Premium",
     highlighted: true,
-    glowColor: "rgba(242,202,80,0.25)",
-    borderColor: "rgba(242,202,80,0.8)",
-    accentColor: "#F2CA50",
+    accent: "#F2CA50",
+    glow: "rgba(242,202,80,0.35)",
+    glowSoft: "rgba(242,202,80,0.1)",
   },
   {
     name: "Master",
@@ -59,9 +59,9 @@ const plans = [
     ],
     cta: "Go Master",
     highlighted: false,
-    glowColor: "rgba(167,139,250,0.2)",
-    borderColor: "rgba(167,139,250,0.6)",
-    accentColor: "#a78bfa",
+    accent: "#a78bfa",
+    glow: "rgba(167,139,250,0.35)",
+    glowSoft: "rgba(167,139,250,0.08)",
   },
 ]
 
@@ -71,7 +71,6 @@ export function PricingCards() {
 
   return (
     <div>
-      {/* Billing Toggle */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -81,16 +80,12 @@ export function PricingCards() {
         <span className={`text-sm ${!isAnnual ? "text-foreground" : "text-muted-foreground"}`}>Monthly</span>
         <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
         <span className={`text-sm ${isAnnual ? "text-foreground" : "text-muted-foreground"}`}>Annual</span>
-        {isAnnual && (
-          <Badge className="bg-secondary/20 text-secondary border-0">Save 20%</Badge>
-        )}
+        {isAnnual && <Badge className="bg-secondary/20 text-secondary border-0">Save 20%</Badge>}
       </motion.div>
 
-      {/* Pricing Cards */}
-      <div className="grid gap-6 lg:grid-cols-3 items-start">
+      <div className="grid gap-4 lg:grid-cols-3 lg:items-center">
         {plans.map((plan, index) => {
           const isSelected = selectedPlan === plan.name
-
           return (
             <motion.div
               key={plan.name}
@@ -98,100 +93,77 @@ export function PricingCards() {
               initial={{ opacity: 0, y: 20 }}
               animate={{
                 opacity: 1,
-                y: plan.highlighted ? 0 : isSelected ? -8 : 0,
-                scale: isSelected ? 1.02 : plan.highlighted ? 1 : 0.97,
+                y: isSelected ? -14 : plan.highlighted && !isSelected ? -4 : 0,
+                scale: isSelected ? 1.04 : 1,
+                zIndex: isSelected ? 10 : plan.highlighted ? 5 : 1,
               }}
-              transition={{ duration: 0.4, delay: index * 0.1, type: "spring", stiffness: 300, damping: 30 }}
-              className="relative rounded-2xl p-8 cursor-pointer select-none"
+              transition={{ type: "spring", stiffness: 340, damping: 28, delay: index * 0.08 }}
+              className="relative rounded-2xl cursor-pointer select-none"
               style={{
-                background: plan.highlighted
-                  ? "var(--card-elevated, hsl(var(--card)))"
-                  : isSelected
-                    ? `radial-gradient(ellipse at top, ${plan.glowColor}, transparent 70%), hsl(var(--card))`
-                    : "hsl(var(--card) / 0.5)",
+                padding: isSelected ? "3rem 2rem" : plan.highlighted ? "2.5rem 2rem" : "2rem",
+                background: isSelected
+                  ? `radial-gradient(ellipse at 50% 0%, ${plan.glowSoft} 0%, #1a1a2e 60%, #0f0f1a 100%)`
+                  : plan.highlighted ? "hsl(var(--card))" : "hsl(var(--card) / 0.6)",
                 border: isSelected
-                  ? `1.5px solid ${plan.borderColor}`
-                  : "1px solid hsl(var(--border))",
+                  ? `2px solid ${plan.accent}`
+                  : plan.highlighted ? "1.5px solid rgba(242,202,80,0.4)" : "1px solid hsl(var(--border))",
                 boxShadow: isSelected
-                  ? `0 0 40px ${plan.glowColor}, 0 0 80px ${plan.glowColor.replace("0.2", "0.08").replace("0.15", "0.06")}`
-                  : plan.highlighted
-                    ? `0 0 30px rgba(242,202,80,0.2)`
-                    : "none",
-                backdropFilter: "blur(12px)",
-                paddingTop: plan.highlighted || isSelected ? "3rem" : "2rem",
-                paddingBottom: plan.highlighted || isSelected ? "3rem" : "2rem",
-                marginTop: plan.highlighted ? "-1rem" : "0",
-                marginBottom: plan.highlighted ? "-1rem" : "0",
+                  ? `0 0 0 1px ${plan.accent}22, 0 8px 40px ${plan.glow}, 0 24px 60px ${plan.glowSoft}, inset 0 1px 0 ${plan.accent}30`
+                  : plan.highlighted ? "0 4px 24px rgba(242,202,80,0.15)" : "none",
+                backdropFilter: "blur(16px)",
               }}
             >
-              {/* Badge */}
+              {isSelected && (
+                <div
+                  className="absolute top-0 left-0 right-0 h-px rounded-t-2xl"
+                  style={{ background: `linear-gradient(90deg, transparent, ${plan.accent}, transparent)` }}
+                />
+              )}
               {plan.badge && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge className="gold-gradient text-primary-foreground border-0 px-4">{plan.badge}</Badge>
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                  <Badge className="gold-gradient text-primary-foreground border-0 px-4 text-xs font-semibold">{plan.badge}</Badge>
                 </div>
               )}
-
-              {/* Selected indicator */}
-              {isSelected && !plan.highlighted && (
+              {isSelected && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="absolute top-4 right-4 w-6 h-6 rounded-full flex items-center justify-center"
-                  style={{ background: plan.accentColor }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center"
+                  style={{ background: plan.accent, boxShadow: `0 0 12px ${plan.glow}` }}
                 >
-                  <Check className="w-3.5 h-3.5 text-background" />
+                  <Check className="w-4 h-4 text-background" />
                 </motion.div>
               )}
-
               <div className="text-center mb-6">
                 <motion.h3
+                  animate={{ color: isSelected ? plan.accent : "hsl(var(--foreground))", textShadow: isSelected ? `0 0 20px ${plan.glow}` : "none" }}
+                  transition={{ duration: 0.25 }}
                   className="font-serif text-2xl font-semibold mb-2"
-                  animate={{ color: isSelected ? plan.accentColor : "hsl(var(--foreground))" }}
-                  transition={{ duration: 0.3 }}
                 >
                   {plan.name}
                 </motion.h3>
                 <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-4xl font-bold text-primary">
-                    ${isAnnual ? plan.price.annual : plan.price.monthly}
-                  </span>
-                  <span className="text-muted-foreground">
-                    {plan.price.monthly > 0 ? "/ month" : "/ forever"}
-                  </span>
+                  <span className="text-4xl font-bold text-primary">${isAnnual ? plan.price.annual : plan.price.monthly}</span>
+                  <span className="text-muted-foreground text-sm">{plan.price.monthly > 0 ? "/ month" : "/ forever"}</span>
                 </div>
                 {plan.price.monthly > 0 && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {isAnnual ? "billed annually" : "billed monthly"}
-                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">{isAnnual ? "billed annually" : "billed monthly"}</p>
                 )}
               </div>
-
               <ul className="space-y-3 mb-8">
                 {plan.features.map((feature, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                    <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                     <span className="text-sm text-muted-foreground">{feature}</span>
                   </li>
                 ))}
               </ul>
-
               <Button
-                className="w-full transition-all duration-300"
-                style={
-                  isSelected
-                    ? {
-                        background: `linear-gradient(135deg, ${plan.accentColor}, ${plan.accentColor}cc)`,
-                        color: "#0A0E1A",
-                        border: "none",
-                        fontWeight: 600,
-                      }
-                    : plan.highlighted
-                      ? {}
-                      : {}
-                }
-                variant={plan.highlighted || isSelected ? "default" : "outline"}
+                className="w-full h-12 font-semibold text-sm tracking-wide transition-all duration-300"
                 size="lg"
+                style={isSelected ? { background: `linear-gradient(135deg, ${plan.accent}, ${plan.accent}bb)`, color: "#0A0E1A", border: "none", boxShadow: `0 4px 20px ${plan.glow}` } : {}}
+                variant={isSelected || plan.highlighted ? "default" : "outline"}
               >
                 {plan.cta}
               </Button>
