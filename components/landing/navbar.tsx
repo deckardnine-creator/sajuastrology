@@ -22,7 +22,7 @@ export function Navbar() {
         <div className="flex h-20 items-center justify-between">
 
           <Link href="/" className="flex items-center">
-            <Image src="/logo.jpeg" alt="SajuAstrology" width={180} height={52}
+            <Image src="/logo.png" alt="SajuAstrology" width={180} height={52}
               className="h-12 w-auto object-contain" priority />
           </Link>
 
