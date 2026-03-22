@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     title: 'SajuAstrology — Your Birth Date Holds a 5,000-Year-Old Code',
     description: 'Western astrology gives you 1 of 12 types. Saju gives you 1 of 518,400 unique cosmic profiles. Decode your destiny in 30 seconds.',
     images: [{
-      url: `${BASE_URL}/og-image.png`,
+      url: `${BASE_URL}/og-image1.png`,
       width: 1200,
       height: 630,
       alt: 'SajuAstrology — Decode Your Cosmic Blueprint',
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'SajuAstrology — Your Birth Date Holds a 5,000-Year-Old Code',
     description: 'Western astrology gives you 1 of 12 types. Saju gives you 1 of 518,400 unique cosmic profiles.',
-    images: [`${BASE_URL}/og-image.png`],
+    images: [`${BASE_URL}/og-image1.png`],
   },
   robots: {
     index: true,
