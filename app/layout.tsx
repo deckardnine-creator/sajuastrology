@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/lib/auth-context'
 import { SignInModal } from '@/components/auth/sign-in-modal'
+import { ScrollToTop } from '@/components/ui/scroll-to-top'
 import './globals.css'
 
 const inter = Inter({ 
@@ -21,29 +22,20 @@ const BASE_URL = 'https://sajuastrology.com'
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
-
   title: {
     default: 'SajuAstrology — Decode Your Cosmic Blueprint',
     template: '%s | SajuAstrology',
   },
   description: 'Your birth date holds a 5,000-year-old code. Discover your destiny through Saju, the ancient Korean Four Pillars system. Get personalized readings from 518,400 unique cosmic profiles.',
-
-  keywords: ['saju', 'korean astrology', 'four pillars', 'destiny', 'horoscope', 'birth chart', '사주', '사주팔자', 'bazi', 'four pillars of destiny'],
-
+  keywords: ['saju', 'korean astrology', 'four pillars', 'destiny', 'horoscope', 'birth chart', '사주', '사주팔자', 'bazi'],
   authors: [{ name: 'SajuAstrology', url: BASE_URL }],
   creator: 'SajuAstrology',
   publisher: 'Rimfactory',
-
-  // ── Favicon / Icons ───────────────────────────────────────
   icons: {
-    icon: [
-      { url: '/favicon.png', type: 'image/png' },
-    ],
+    icon: [{ url: '/favicon.png', type: 'image/png' }],
     apple: '/favicon.png',
     shortcut: '/favicon.png',
   },
-
-  // ── Open Graph (카카오톡, Facebook, 슬랙 등) ────────────
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -51,26 +43,20 @@ export const metadata: Metadata = {
     siteName: 'SajuAstrology',
     title: 'SajuAstrology — Your Birth Date Holds a 5,000-Year-Old Code',
     description: 'Western astrology gives you 1 of 12 types. Saju gives you 1 of 518,400 unique cosmic profiles. Decode your destiny in 30 seconds.',
-    images: [
-      {
-        url: '/og-image.jpeg',
-        width: 1200,
-        height: 630,
-        alt: 'SajuAstrology — Decode Your Cosmic Blueprint',
-      },
-    ],
+    images: [{
+      url: `${BASE_URL}/og-image.png`,
+      width: 1200,
+      height: 630,
+      alt: 'SajuAstrology — Decode Your Cosmic Blueprint',
+      type: 'image/png',
+    }],
   },
-
-  // ── Twitter / X 카드 ──────────────────────────────────────
   twitter: {
     card: 'summary_large_image',
     title: 'SajuAstrology — Your Birth Date Holds a 5,000-Year-Old Code',
     description: 'Western astrology gives you 1 of 12 types. Saju gives you 1 of 518,400 unique cosmic profiles.',
-    images: ['/og-image.jpeg'],
-    creator: '@sajuastrology',
+    images: [`${BASE_URL}/og-image.png`],
   },
-
-  // ── Robots ────────────────────────────────────────────────
   robots: {
     index: true,
     follow: true,
@@ -82,11 +68,6 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-
-  // ── Verification (나중에 Google Search Console 연결 시) ───
-  // verification: {
-  //   google: 'YOUR_GOOGLE_VERIFICATION_CODE',
-  // },
 }
 
 export const viewport: Viewport = {
@@ -106,6 +87,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <SignInModal />
+          <ScrollToTop />
         </AuthProvider>
         <Analytics />
       </body>
