@@ -14,15 +14,17 @@ const footerLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-card py-12">
+    <footer className="bg-card py-10 sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center gap-8">
+        <div className="flex flex-col items-center gap-6 sm:gap-8">
 
+          {/* Logo */}
           <Link href="/" className="flex items-center">
             <span className="font-serif text-xl font-bold text-primary">SajuAstrology</span>
           </Link>
 
-          <nav className="flex flex-wrap justify-center gap-6">
+          {/* Nav */}
+          <nav className="flex flex-wrap justify-center gap-x-5 gap-y-3">
             {footerLinks.map(link => (
               <Link key={link.label} href={link.href}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -31,20 +33,35 @@ export function Footer() {
             ))}
           </nav>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 text-sm text-muted-foreground">
-            <button className="flex items-center gap-2 hover:text-foreground transition-colors">
+          {/* Lang + Copyright */}
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <button className="flex items-center gap-1.5 hover:text-foreground transition-colors">
               <Globe className="w-4 h-4" />EN
             </button>
-            <span className="hidden sm:block">|</span>
+            <span>|</span>
             <span>&copy; 2026 SajuAstrology.com</span>
           </div>
 
-          <div className="border-t border-border w-full pt-6 flex flex-col items-center gap-1 text-xs text-muted-foreground/60">
-            <p className="font-medium text-muted-foreground/80">Rimfactory</p>
-            <p>Business Registration No.: 402-44-01247 &nbsp;|&nbsp; CEO: Chandler Yun</p>
-            <p>Email: info@rimfactory.co.kr &nbsp;|&nbsp; Phone: +82-10-4648-6793</p>
-            <p>243, 1F, Sindorim Technomart, 97 Saemallo, Guro-gu, Seoul, Korea</p>
+          {/* Business info — mobile friendly */}
+          <div className="border-t border-border w-full pt-6">
+            <div className="flex flex-col items-center gap-1.5 text-center">
+              <p className="text-xs font-medium text-muted-foreground/80">Rimfactory</p>
+              <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground/55">
+                <span>Reg. No.: 402-44-01247</span>
+                <span className="hidden sm:inline">|</span>
+                <span>CEO: Chandler Yun</span>
+              </div>
+              <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground/55">
+                <span>info@rimfactory.co.kr</span>
+                <span className="hidden sm:inline">|</span>
+                <span>+82-10-4648-6793</span>
+              </div>
+              <p className="text-xs text-muted-foreground/55 max-w-xs sm:max-w-none text-center leading-relaxed">
+                243, 1F, Sindorim Technomart, 97 Saemallo, Guro-gu, Seoul, Korea
+              </p>
+            </div>
           </div>
+
         </div>
       </div>
     </footer>
