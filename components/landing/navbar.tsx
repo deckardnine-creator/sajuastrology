@@ -19,52 +19,32 @@ export function Navbar() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className="font-serif text-xl font-bold text-primary">
-              SajuAstrology
-            </span>
+            <span className="font-serif text-xl font-bold text-primary">SajuAstrology</span>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:gap-8">
-            <Link
-              href="/what-is-saju"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
+            <Link href="/what-is-saju" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
               What is Saju?
             </Link>
-            <Link
-              href="#features"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
+            <Link href="/#features" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
               Features
             </Link>
-            <Link
-              href="/pricing"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
+            <Link href="/pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
               Pricing
             </Link>
           </div>
 
-          {/* User Menu / CTA */}
           <div className="hidden md:block">
             <UserMenu />
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 text-foreground"
-            aria-label="Toggle menu"
-          >
+          <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2 text-foreground" aria-label="Toggle menu">
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isOpen && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
@@ -73,25 +53,13 @@ export function Navbar() {
           className="md:hidden glass"
         >
           <div className="space-y-4 px-4 py-6">
-            <Link
-              href="/what-is-saju"
-              className="block text-sm text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => setIsOpen(false)}
-            >
+            <Link href="/what-is-saju" className="block text-sm text-muted-foreground transition-colors hover:text-foreground" onClick={() => setIsOpen(false)}>
               What is Saju?
             </Link>
-            <Link
-              href="#features"
-              className="block text-sm text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => setIsOpen(false)}
-            >
+            <Link href="/#features" className="block text-sm text-muted-foreground transition-colors hover:text-foreground" onClick={() => setIsOpen(false)}>
               Features
             </Link>
-            <Link
-              href="/pricing"
-              className="block text-sm text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => setIsOpen(false)}
-            >
+            <Link href="/pricing" className="block text-sm text-muted-foreground transition-colors hover:text-foreground" onClick={() => setIsOpen(false)}>
               Pricing
             </Link>
             <Link href="/calculate" onClick={() => setIsOpen(false)}>
