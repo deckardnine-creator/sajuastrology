@@ -5,10 +5,11 @@ import { Globe } from "lucide-react"
 
 const footerLinks = [
   { label: "What is Saju?", href: "/what-is-saju" },
-  { label: "Features", href: "/#features" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "Privacy", href: "/privacy" },
-  { label: "Terms", href: "/terms" },
+  { label: "Features",      href: "/#features" },
+  { label: "Pricing",       href: "/pricing" },
+  { label: "Reviews",       href: "/reviews" },
+  { label: "Privacy",       href: "/privacy" },
+  { label: "Terms",         href: "/terms" },
 ]
 
 export function Footer() {
@@ -22,7 +23,7 @@ export function Footer() {
           </Link>
 
           <nav className="flex flex-wrap justify-center gap-6">
-            {footerLinks.map((link) => (
+            {footerLinks.map(link => (
               <Link key={link.label} href={link.href}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 {link.label}

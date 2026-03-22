@@ -2,502 +2,462 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, X, ChevronRight, PenLine } from "lucide-react";
+import { Star, X, ChevronRight, PenLine, Lock, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+import { supabase, type GuestbookRow } from "@/lib/supabase-client";
+import { useAuth } from "@/lib/auth-context";
+import Link from "next/link";
 
-export interface GuestbookEntry {
-  id: string;
-  rating: number;
-  message: string;
-  displayName: string;
-  archetype: string;
-  element: string;
-  country: string;
-  countryFlag: string;
-  timestamp: number;
-}
-
-// Element colors for accent
+// ── Constants ─────────────────────────────────────────────────
 const elementColors: Record<string, string> = {
-  Wood: "#59DE9B",
-  Fire: "#FF6B6B",
-  Earth: "#F2CA50",
-  Metal: "#B8C5D6",
-  Water: "#4A90D9",
+  Wood: "#59DE9B", Fire: "#FF6B6B", Earth: "#F2CA50",
+  Metal: "#B8C5D6", Water: "#4A90D9",
 };
 
-// Country options
 const countries = [
-  { code: "US", name: "USA", flag: "🇺🇸" },
-  { code: "UK", name: "UK", flag: "🇬🇧" },
-  { code: "DE", name: "Germany", flag: "🇩🇪" },
-  { code: "FR", name: "France", flag: "🇫🇷" },
-  { code: "CA", name: "Canada", flag: "🇨🇦" },
-  { code: "AU", name: "Australia", flag: "🇦🇺" },
-  { code: "JP", name: "Japan", flag: "🇯🇵" },
-  { code: "KR", name: "Korea", flag: "🇰🇷" },
-  { code: "BR", name: "Brazil", flag: "🇧🇷" },
-  { code: "IN", name: "India", flag: "🇮🇳" },
-  { code: "MX", name: "Mexico", flag: "🇲🇽" },
-  { code: "ES", name: "Spain", flag: "🇪🇸" },
-  { code: "IT", name: "Italy", flag: "🇮🇹" },
+  { code: "US", name: "USA",         flag: "🇺🇸" },
+  { code: "GB", name: "UK",          flag: "🇬🇧" },
+  { code: "DE", name: "Germany",     flag: "🇩🇪" },
+  { code: "FR", name: "France",      flag: "🇫🇷" },
+  { code: "CA", name: "Canada",      flag: "🇨🇦" },
+  { code: "AU", name: "Australia",   flag: "🇦🇺" },
+  { code: "JP", name: "Japan",       flag: "🇯🇵" },
+  { code: "KR", name: "Korea",       flag: "🇰🇷" },
+  { code: "BR", name: "Brazil",      flag: "🇧🇷" },
+  { code: "IN", name: "India",       flag: "🇮🇳" },
+  { code: "MX", name: "Mexico",      flag: "🇲🇽" },
+  { code: "ES", name: "Spain",       flag: "🇪🇸" },
+  { code: "IT", name: "Italy",       flag: "🇮🇹" },
   { code: "NL", name: "Netherlands", flag: "🇳🇱" },
-  { code: "SG", name: "Singapore", flag: "🇸🇬" },
+  { code: "SG", name: "Singapore",   flag: "🇸🇬" },
+  { code: "CN", name: "China",       flag: "🇨🇳" },
+  { code: "TW", name: "Taiwan",      flag: "🇹🇼" },
+  { code: "TH", name: "Thailand",    flag: "🇹🇭" },
+  { code: "NZ", name: "New Zealand", flag: "🇳🇿" },
+  { code: "SE", name: "Sweden",      flag: "🇸🇪" },
 ];
 
-// Seed entries
-const seedEntries: GuestbookEntry[] = [
-  {
-    id: "seed-1",
-    rating: 5,
-    message: "This is way more detailed than any horoscope I've tried. The Maverick description is spot on!",
-    displayName: "The Maverick",
-    archetype: "The Maverick",
-    element: "Fire",
-    country: "USA",
-    countryFlag: "🇺🇸",
-    timestamp: Date.now() - 3 * 60 * 60 * 1000,
-  },
-  {
-    id: "seed-2",
-    rating: 5,
-    message: "I showed this to my Korean friend and she was shocked how accurate it was for a free service.",
-    displayName: "The Creator",
-    archetype: "The Creator",
-    element: "Wood",
-    country: "UK",
-    countryFlag: "🇬🇧",
-    timestamp: Date.now() - 5 * 60 * 60 * 1000,
-  },
-  {
-    id: "seed-3",
-    rating: 4,
-    message: "The hourly energy timeline is genius. Never seen that in any astrology app.",
-    displayName: "The Builder",
-    archetype: "The Builder",
-    element: "Earth",
-    country: "Germany",
-    countryFlag: "🇩🇪",
-    timestamp: Date.now() - 8 * 60 * 60 * 1000,
-  },
-  {
-    id: "seed-4",
-    rating: 5,
-    message: "518,400 types vs 12 zodiac signs... no contest. This is the future.",
-    displayName: "The Commander",
-    archetype: "The Commander",
-    element: "Metal",
-    country: "Canada",
-    countryFlag: "🇨🇦",
-    timestamp: Date.now() - 12 * 60 * 60 * 1000,
-  },
-  {
-    id: "seed-5",
-    rating: 4,
-    message: "Interesting how different this is from Western astrology. Very specific career advice.",
-    displayName: "The Leader",
-    archetype: "The Leader",
-    element: "Fire",
-    country: "Australia",
-    countryFlag: "🇦🇺",
-    timestamp: Date.now() - 24 * 60 * 60 * 1000,
-  },
-  {
-    id: "seed-6",
-    rating: 5,
-    message: "My husband and I both tried it. We're showing everyone at dinner tonight!",
-    displayName: "The Mentor",
-    archetype: "The Mentor",
-    element: "Water",
-    country: "France",
-    countryFlag: "🇫🇷",
-    timestamp: Date.now() - 26 * 60 * 60 * 1000,
-  },
-  {
-    id: "seed-7",
-    rating: 5,
-    message: "The Wu Xing diagram helped me understand why I'm so intense. Wood feeding Fire!",
-    displayName: "The Rebel",
-    archetype: "The Rebel",
-    element: "Fire",
-    country: "Japan",
-    countryFlag: "🇯🇵",
-    timestamp: Date.now() - 48 * 60 * 60 * 1000,
-  },
-  {
-    id: "seed-8",
-    rating: 4,
-    message: "Shared my archetype card on Instagram. 10 friends already took the test!",
-    displayName: "The Adventurer",
-    archetype: "The Adventurer",
-    element: "Wood",
-    country: "Brazil",
-    countryFlag: "🇧🇷",
-    timestamp: Date.now() - 50 * 60 * 60 * 1000,
-  },
-  {
-    id: "seed-9",
-    rating: 5,
-    message: "As a data scientist, I appreciate the 518,400 combinations claim. Way more granular than zodiac.",
-    displayName: "The Visionary",
-    archetype: "The Visionary",
-    element: "Water",
-    country: "India",
-    countryFlag: "🇮🇳",
-    timestamp: Date.now() - 72 * 60 * 60 * 1000,
-  },
-  {
-    id: "seed-10",
-    rating: 5,
-    message: "한국 사주가 영어로 이렇게 나오니까 신기하다 ㅋㅋ 정확함!",
-    displayName: "The Ally",
-    archetype: "The Ally",
-    element: "Earth",
-    country: "Korea",
-    countryFlag: "🇰🇷",
-    timestamp: Date.now() - 74 * 60 * 60 * 1000,
-  },
-  {
-    id: "seed-11",
-    rating: 5,
-    message: "Finally something that explains why I'm so drawn to leadership roles. The Commander fits perfectly.",
-    displayName: "The Commander",
-    archetype: "The Commander",
-    element: "Metal",
-    country: "Singapore",
-    countryFlag: "🇸🇬",
-    timestamp: Date.now() - 96 * 60 * 60 * 1000,
-  },
-  {
-    id: "seed-12",
-    rating: 4,
-    message: "Love the daily energy feature. Checking it every morning now!",
-    displayName: "The Creator",
-    archetype: "The Creator",
-    element: "Wood",
-    country: "Netherlands",
-    countryFlag: "🇳🇱",
-    timestamp: Date.now() - 100 * 60 * 60 * 1000,
-  },
-];
-
-// Time ago formatter
-function timeAgo(timestamp: number): string {
-  const seconds = Math.floor((Date.now() - timestamp) / 1000);
-  if (seconds < 60) return "just now";
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} min ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hours ago`;
-  const days = Math.floor(hours / 24);
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  const hrs  = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (mins < 1)  return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  if (hrs  < 24) return `${hrs} hours ago`;
   return `${days} days ago`;
 }
 
-// Single entry card
-function GuestbookCard({ entry }: { entry: GuestbookEntry }) {
-  const borderColor = elementColors[entry.element] || "#F2CA50";
-
+// ── Card ──────────────────────────────────────────────────────
+function GuestbookCard({ entry, index }: { entry: GuestbookRow; index?: number }) {
+  const color = elementColors[entry.element] || "#F2CA50";
   return (
-    <div
-      className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 min-w-[280px] max-w-[320px]"
-      style={{ borderLeftColor: borderColor, borderLeftWidth: "3px" }}
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: (index ?? 0) * 0.05 }}
+      className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 min-w-[280px] max-w-[320px] flex flex-col gap-2"
+      style={{ borderLeftColor: color, borderLeftWidth: "3px" }}
     >
-      {/* Stars */}
-      <div className="flex gap-0.5 mb-2">
+      <div className="flex gap-0.5">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Star
-            key={i}
-            className={`w-4 h-4 ${i < entry.rating ? "fill-primary text-primary" : "text-muted"}`}
-          />
+          <Star key={i} className={`w-4 h-4 ${i < entry.rating ? "fill-primary text-primary" : "text-muted"}`} />
         ))}
       </div>
-      {/* Message */}
-      <p className="text-sm text-foreground mb-3 line-clamp-3">&ldquo;{entry.message}&rdquo;</p>
-      {/* Footer */}
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <span style={{ color: borderColor }}>{entry.archetype}</span>
+      <p className="text-sm text-foreground line-clamp-3 leading-relaxed">"{entry.content}"</p>
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-auto flex-wrap">
+        <span style={{ color }}>{entry.archetype}</span>
         <span>·</span>
-        <span>{entry.countryFlag} {entry.country}</span>
+        <span>{entry.country_flag} {entry.country}</span>
         <span>·</span>
-        <span>{timeAgo(entry.timestamp)}</span>
+        <span>{timeAgo(entry.created_at)}</span>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-// Write entry modal
-function WriteEntryModal({
-  isOpen,
-  onClose,
-  onSubmit,
-  userArchetype,
-  userElement,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (entry: Omit<GuestbookEntry, "id" | "timestamp">) => void;
-  userArchetype?: string;
-  userElement?: string;
-}) {
-  const [rating, setRating] = useState(5);
-  const [message, setMessage] = useState("");
+// ── Write Modal ───────────────────────────────────────────────
+function WriteModal({
+  isOpen, onClose, onSuccess,
+}: { isOpen: boolean; onClose: () => void; onSuccess: () => void }) {
+  const { user, sajuData } = useAuth();
+  const [rating,      setRating]      = useState(5);
+  const [content,     setContent]     = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [country, setCountry] = useState("US");
+  const [countryCode, setCountryCode] = useState("US");
+  const [loading,     setLoading]     = useState(false);
+  const [error,       setError]       = useState("");
 
-  const handleSubmit = () => {
-    if (!message.trim()) {
-      toast.error("Please write a message");
-      return;
-    }
+  const archetype = sajuData?.chart?.archetype ?? "Seeker";
+  const element   = sajuData?.chart?.dayMaster?.element
+    ? sajuData.chart.dayMaster.element.charAt(0).toUpperCase() + sajuData.chart.dayMaster.element.slice(1)
+    : "Earth";
+  const defaultName = user?.name?.split(" ")[0] ?? archetype;
+  const selectedCountry = countries.find(c => c.code === countryCode) ?? countries[0];
 
-    const selectedCountry = countries.find((c) => c.code === country) || countries[0];
-
-    onSubmit({
+  async function handleSubmit() {
+    const name = displayName.trim() || defaultName;
+    if (content.trim().length < 5) { setError("Please write at least 5 characters."); return; }
+    setLoading(true); setError("");
+    const { error: err } = await supabase.from("sj_guestbook").insert({
+      user_id:      user?.id ?? null,
+      user_name:    name,
+      archetype,
+      element,
+      country_code: countryCode,
+      country:      selectedCountry.name,
+      country_flag: selectedCountry.flag,
       rating,
-      message: message.slice(0, 140),
-      displayName: displayName.trim() || userArchetype || "Anonymous Seeker",
-      archetype: userArchetype || "Seeker",
-      element: userElement || "Earth",
-      country: selectedCountry.name,
-      countryFlag: selectedCountry.flag,
+      content:      content.trim(),
     });
-
-    setMessage("");
-    setDisplayName("");
-    setRating(5);
-    onClose();
-    toast.success("Thanks for sharing your impression!");
-  };
+    setLoading(false);
+    if (err) { setError("Failed to submit. Please try again."); return; }
+    setContent(""); setDisplayName(""); setRating(5);
+    onSuccess();
+  }
 
   if (!isOpen) return null;
 
   return (
     <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-          />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
-          >
-            <div className="bg-card border border-border rounded-2xl p-6 m-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-serif text-foreground">Leave Your Cosmic Impression</h3>
-                <button onClick={onClose} className="p-1 text-muted-foreground hover:text-foreground">
-                  <X className="w-5 h-5" />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}
+        onClick={e => e.target === e.currentTarget && onClose()}>
+        <motion.div initial={{ opacity: 0, scale: 0.95, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          className="w-full max-w-md bg-card border border-border rounded-2xl p-6"
+          style={{ boxShadow: "0 0 60px rgba(242,202,80,0.1)" }}>
+
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="font-serif text-lg text-primary">Leave Your Cosmic Impression</h3>
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Archetype badge */}
+          <div className="flex items-center gap-2 mb-4 text-sm">
+            <span className="text-muted-foreground">Posting as</span>
+            <span className="font-medium text-foreground">{defaultName}</span>
+            <span className="text-muted-foreground/40">·</span>
+            <span style={{ color: elementColors[element] ?? "#F2CA50" }}>{archetype}</span>
+          </div>
+
+          {/* Stars */}
+          <div className="mb-4">
+            <label className="text-xs tracking-wider text-muted-foreground uppercase mb-2 block">Rating</label>
+            <div className="flex gap-1">
+              {[1,2,3,4,5].map(s => (
+                <button key={s} type="button" onClick={() => setRating(s)} className="p-1">
+                  <Star className={`w-6 h-6 transition-colors ${s <= rating ? "fill-primary text-primary" : "text-muted hover:text-primary/50"}`} />
                 </button>
-              </div>
-
-              {/* Star Rating */}
-              <div className="mb-4">
-                <label className="text-sm text-muted-foreground mb-2 block">Rating</label>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button key={star} onClick={() => setRating(star)} className="p-1">
-                      <Star
-                        className={`w-6 h-6 transition-colors ${
-                          star <= rating ? "fill-primary text-primary" : "text-muted hover:text-primary/50"
-                        }`}
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Message */}
-              <div className="mb-4">
-                <label className="text-sm text-muted-foreground mb-2 block">Your Impression</label>
-                <Textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value.slice(0, 140))}
-                  placeholder="How accurate was your reading?"
-                  className="resize-none"
-                  rows={3}
-                />
-                <p className="text-xs text-muted-foreground mt-1 text-right">{message.length}/140</p>
-              </div>
-
-              {/* Display Name */}
-              <div className="mb-4">
-                <label className="text-sm text-muted-foreground mb-2 block">Display Name (optional)</label>
-                <Input
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder={userArchetype || "Anonymous Seeker"}
-                />
-              </div>
-
-              {/* Country */}
-              <div className="mb-6">
-                <label className="text-sm text-muted-foreground mb-2 block">Country</label>
-                <Select value={country} onValueChange={setCountry}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countries.map((c) => (
-                      <SelectItem key={c.code} value={c.code}>
-                        {c.flag} {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button onClick={handleSubmit} className="w-full gold-gradient text-primary-foreground">
-                Share Impression
-              </Button>
+              ))}
             </div>
-          </motion.div>
-        </>
-      )}
+          </div>
+
+          {/* Content */}
+          <div className="mb-4">
+            <label className="text-xs tracking-wider text-muted-foreground uppercase mb-2 block">Your Impression</label>
+            <Textarea
+              value={content}
+              onChange={e => setContent(e.target.value.slice(0, 500))}
+              placeholder="How accurate was your reading?"
+              className="resize-none bg-background/50 border-border focus:border-primary"
+              rows={3}
+            />
+            <p className="text-xs text-muted-foreground/50 mt-1 text-right">{content.length}/500</p>
+          </div>
+
+          {/* Display Name */}
+          <div className="mb-4">
+            <label className="text-xs tracking-wider text-muted-foreground uppercase mb-2 block">Display Name (optional)</label>
+            <Input
+              value={displayName}
+              onChange={e => setDisplayName(e.target.value)}
+              placeholder={defaultName}
+              className="bg-background/50 border-border focus:border-primary"
+            />
+          </div>
+
+          {/* Country */}
+          <div className="mb-5">
+            <label className="text-xs tracking-wider text-muted-foreground uppercase mb-2 block">Country</label>
+            <Select value={countryCode} onValueChange={setCountryCode}>
+              <SelectTrigger className="bg-background/50 border-border">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {countries.map(c => (
+                  <SelectItem key={c.code} value={c.code}>{c.flag} {c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {error && <p className="text-xs text-red-400 mb-3">{error}</p>}
+
+          <Button onClick={handleSubmit} disabled={loading}
+            className="w-full gold-gradient text-primary-foreground font-semibold">
+            {loading ? "Submitting..." : "Share Impression"}
+          </Button>
+        </motion.div>
+      </motion.div>
     </AnimatePresence>
   );
 }
 
-// Landing page version (horizontal scroll)
+// ── Auth Gate Banner ──────────────────────────────────────────
+function AuthGateBanner({ label }: { label: string }) {
+  const { openSignInModal } = useAuth();
+  return (
+    <button onClick={openSignInModal}
+      className="inline-flex items-center gap-2 text-sm text-primary/70 hover:text-primary transition-colors border border-primary/20 hover:border-primary/50 rounded-full px-4 py-2">
+      <Lock className="w-3.5 h-3.5" />
+      {label}
+    </button>
+  );
+}
+
+// ── Landing Version (horizontal scroll + auth gate) ───────────
 export function GuestbookLanding() {
-  const [entries, setEntries] = useState<GuestbookEntry[]>([]);
+  const [entries,   setEntries]   = useState<GuestbookRow[]>([]);
+  const [loading,   setLoading]   = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const { user } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  async function load() {
+    setLoading(true);
+    const { data } = await supabase
+      .from("sj_guestbook")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(20);
+    setEntries(data ?? []);
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); }, []);
+
+  // Auto-scroll
   useEffect(() => {
-    // Load from localStorage or use seeds
-    try {
-      const stored = localStorage.getItem("saju-guestbook");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setEntries([...parsed, ...seedEntries].slice(0, 20));
-      } else {
-        setEntries(seedEntries);
+    const el = scrollRef.current;
+    if (!el || loading || entries.length === 0) return;
+    let id: number;
+    let paused = false;
+    const tick = () => {
+      if (!paused) {
+        el.scrollLeft += 0.6;
+        if (el.scrollLeft >= el.scrollWidth - el.clientWidth) el.scrollLeft = 0;
       }
-    } catch {
-      setEntries(seedEntries);
-    }
-  }, []);
-
-  // Auto-scroll effect
-  useEffect(() => {
-    const container = scrollRef.current;
-    if (!container) return;
-
-    let animationId: number;
-    let isPaused = false;
-
-    const scroll = () => {
-      if (!isPaused && container) {
-        container.scrollLeft += 0.5;
-        if (container.scrollLeft >= container.scrollWidth - container.clientWidth) {
-          container.scrollLeft = 0;
-        }
-      }
-      animationId = requestAnimationFrame(scroll);
+      id = requestAnimationFrame(tick);
     };
-
-    animationId = requestAnimationFrame(scroll);
-
-    const handleMouseEnter = () => { isPaused = true; };
-    const handleMouseLeave = () => { isPaused = false; };
-
-    container.addEventListener("mouseenter", handleMouseEnter);
-    container.addEventListener("mouseleave", handleMouseLeave);
-
-    return () => {
-      cancelAnimationFrame(animationId);
-      container?.removeEventListener("mouseenter", handleMouseEnter);
-      container?.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, [entries]);
+    id = requestAnimationFrame(tick);
+    el.addEventListener("mouseenter", () => { paused = true; });
+    el.addEventListener("mouseleave", () => { paused = false; });
+    return () => cancelAnimationFrame(id);
+  }, [loading, entries]);
 
   return (
-    <section className="py-16 bg-background/50">
+    <section className="relative py-16 overflow-hidden">
+      {/* bg glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-1/4 w-[400px] h-[300px] rounded-full bg-amber-500/8 blur-[120px]" />
+        <div className="absolute bottom-0 left-1/4 w-[400px] h-[300px] rounded-full bg-purple-600/8 blur-[120px]" />
+      </div>
+
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h2 className="text-2xl md:text-3xl font-serif text-primary mb-2">What Seekers Are Saying</h2>
-          <p className="text-muted-foreground">Real impressions from people who discovered their cosmic archetype</p>
+          <p className="text-muted-foreground text-sm">Real impressions from people who discovered their cosmic archetype</p>
         </div>
 
-        <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-          {entries.map((entry) => (
-            <GuestbookCard key={entry.id} entry={entry} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="w-7 h-7 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <div ref={scrollRef}
+            className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+            {[...entries, ...entries].map((e, i) => (
+              <GuestbookCard key={`${e.id}-${i}`} entry={e} index={i} />
+            ))}
+          </div>
+        )}
 
-        <div className="text-center mt-6">
-          <a href="/reading#guestbook" className="inline-flex items-center text-primary hover:text-primary/80 transition-colors">
-            See all reviews
-            <ChevronRight className="w-4 h-4 ml-1" />
-          </a>
+        <div className="mt-6 flex flex-col items-center gap-3">
+          {/* Write review */}
+          <AnimatePresence mode="wait">
+            {submitted ? (
+              <motion.p key="thanks" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="text-primary text-sm flex items-center gap-2">
+                <Sparkles className="w-4 h-4" /> Thank you for sharing!
+              </motion.p>
+            ) : user ? (
+              <Button key="write" onClick={() => setShowModal(true)} size="sm"
+                variant="outline" className="border-primary/40 text-primary hover:bg-primary/10">
+                <PenLine className="w-4 h-4 mr-2" /> Write a Review
+              </Button>
+            ) : (
+              <AuthGateBanner key="gate" label="Sign in to write a review" />
+            )}
+          </AnimatePresence>
+
+          {/* See all */}
+          {user ? (
+            <Link href="/reviews" className="inline-flex items-center gap-1 text-sm text-primary/70 hover:text-primary transition-colors">
+              See all reviews <ChevronRight className="w-4 h-4" />
+            </Link>
+          ) : (
+            <button onClick={() => useAuth()} className="inline-flex items-center gap-1 text-sm text-primary/70 hover:text-primary transition-colors">
+              <Link href="/reviews" className="inline-flex items-center gap-1">
+                See all reviews <Lock className="w-3.5 h-3.5" />
+              </Link>
+            </button>
+          )}
         </div>
       </div>
+
+      <WriteModal isOpen={showModal} onClose={() => setShowModal(false)}
+        onSuccess={() => { setShowModal(false); setSubmitted(true); load(); }} />
     </section>
   );
 }
 
-// Reading page version (vertical list)
+// ── Full Reviews Page ─────────────────────────────────────────
+export function GuestbookPage() {
+  const [entries,   setEntries]   = useState<GuestbookRow[]>([]);
+  const [loading,   setLoading]   = useState(true);
+  const [hasMore,   setHasMore]   = useState(true);
+  const [page,      setPage]      = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const { user } = useAuth();
+  const PER = 18;
+
+  async function load(reset = false) {
+    setLoading(true);
+    const from = reset ? 0 : page * PER;
+    const { data } = await supabase
+      .from("sj_guestbook").select("*")
+      .order("created_at", { ascending: false })
+      .range(from, from + PER - 1);
+    const rows = data ?? [];
+    setEntries(prev => reset ? rows : [...prev, ...rows]);
+    setHasMore(rows.length === PER);
+    if (!reset) setPage(p => p + 1);
+    setLoading(false);
+  }
+
+  useEffect(() => { load(true); }, []);
+
+  const avgRating = entries.length
+    ? (entries.reduce((s, e) => s + e.rating, 0) / entries.length).toFixed(1) : "—";
+
+  return (
+    <div className="relative min-h-screen overflow-hidden">
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-amber-500/12 blur-[140px]" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-purple-700/10 blur-[130px]" />
+        <div className="absolute top-1/2 right-0 w-[350px] h-[350px] rounded-full bg-teal-600/8 blur-[120px]" />
+      </div>
+
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-32">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="font-serif text-4xl sm:text-5xl font-bold mb-4">
+            What Seekers Are <span className="gold-gradient-text">Saying</span>
+          </h1>
+          <p className="text-muted-foreground max-w-xl mx-auto mb-6">
+            Real impressions from people who discovered their cosmic archetype
+          </p>
+          {entries.length > 0 && (
+            <div className="inline-flex items-center gap-2 glass px-5 py-2.5 rounded-full text-sm">
+              <div className="flex gap-0.5">
+                {[1,2,3,4,5].map(i => (
+                  <Star key={i} className={`w-4 h-4 ${i <= Math.round(parseFloat(avgRating)) ? "fill-primary text-primary" : "text-muted"}`} />
+                ))}
+              </div>
+              <span className="text-primary font-semibold">{avgRating}</span>
+              <span className="text-muted-foreground">· {entries.length}+ reviews</span>
+            </div>
+          )}
+        </div>
+
+        {/* Write CTA */}
+        <div className="flex justify-center mb-10">
+          <AnimatePresence mode="wait">
+            {submitted ? (
+              <motion.p key="ok" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="text-primary flex items-center gap-2">
+                <Sparkles className="w-4 h-4" /> Your review has been posted!
+              </motion.p>
+            ) : user ? (
+              <Button key="btn" onClick={() => setShowModal(true)}
+                className="gold-gradient text-primary-foreground font-semibold">
+                <PenLine className="w-4 h-4 mr-2" /> Write a Review
+              </Button>
+            ) : (
+              <AuthGateBanner key="gate" label="Sign in to write a review" />
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {entries.map((e, i) => (
+            <div key={e.id} className="w-auto max-w-none">
+              <GuestbookCard entry={{ ...e }} index={i} />
+            </div>
+          ))}
+        </div>
+
+        {/* Load more */}
+        {hasMore && !loading && (
+          <div className="flex justify-center mt-10">
+            <Button onClick={() => load()} variant="outline"
+              className="border-primary/40 text-primary hover:bg-primary/10">
+              <ChevronDown className="w-4 h-4 mr-2" /> Load More
+            </Button>
+          </div>
+        )}
+        {loading && (
+          <div className="flex justify-center mt-10">
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+      </div>
+
+      <WriteModal isOpen={showModal} onClose={() => setShowModal(false)}
+        onSuccess={() => { setShowModal(false); setSubmitted(true); load(true); }} />
+    </div>
+  );
+}
+
+// ── Reading Page Embedded Version ─────────────────────────────
 export function GuestbookReading({
-  userArchetype,
-  userElement,
-}: {
-  userArchetype?: string;
-  userElement?: string;
-}) {
-  const [entries, setEntries] = useState<GuestbookEntry[]>([]);
-  const [showAll, setShowAll] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  userArchetype, userElement,
+}: { userArchetype?: string; userElement?: string }) {
+  const [entries,   setEntries]   = useState<GuestbookRow[]>([]);
+  const [showAll,   setShowAll]   = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("saju-guestbook");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setEntries([...parsed, ...seedEntries].slice(0, 30));
-      } else {
-        setEntries(seedEntries);
-      }
-    } catch {
-      setEntries(seedEntries);
-    }
+    supabase.from("sj_guestbook").select("*")
+      .order("created_at", { ascending: false }).limit(30)
+      .then(({ data }) => setEntries(data ?? []));
   }, []);
 
-  const handleSubmitEntry = (newEntry: Omit<GuestbookEntry, "id" | "timestamp">) => {
-    const entry: GuestbookEntry = {
-      ...newEntry,
-      id: `user-${Date.now()}`,
-      timestamp: Date.now(),
-    };
-
-    const updated = [entry, ...entries];
-    setEntries(updated);
-
-    // Save user entries to localStorage
-    try {
-      const stored = localStorage.getItem("saju-guestbook");
-      const userEntries = stored ? JSON.parse(stored) : [];
-      localStorage.setItem("saju-guestbook", JSON.stringify([entry, ...userEntries]));
-    } catch {
-      // Ignore storage errors
-    }
-  };
-
-  const displayedEntries = showAll ? entries : entries.slice(0, 6);
+  const displayed = showAll ? entries : entries.slice(0, 6);
 
   return (
     <section id="guestbook" className="mb-8">
@@ -507,15 +467,18 @@ export function GuestbookReading({
             <h2 className="text-xl font-serif text-primary">Cosmic Guestbook</h2>
             <p className="text-sm text-muted-foreground">What others are saying about their readings</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
-            <PenLine className="w-4 h-4 mr-2" />
-            Write Impression
-          </Button>
+          {user ? (
+            <Button variant="outline" size="sm" onClick={() => setShowModal(true)}>
+              <PenLine className="w-4 h-4 mr-2" /> Write Impression
+            </Button>
+          ) : (
+            <AuthGateBanner label="Sign in to write" />
+          )}
         </div>
 
         <div className="grid md:grid-cols-2 gap-4 mb-6">
-          {displayedEntries.map((entry) => (
-            <GuestbookCard key={entry.id} entry={entry} />
+          {displayed.map((e, i) => (
+            <GuestbookCard key={e.id} entry={e} index={i} />
           ))}
         </div>
 
@@ -528,13 +491,13 @@ export function GuestbookReading({
         )}
       </div>
 
-      <WriteEntryModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleSubmitEntry}
-        userArchetype={userArchetype}
-        userElement={userElement}
-      />
+      <WriteModal isOpen={showModal} onClose={() => setShowModal(false)}
+        onSuccess={() => {
+          setShowModal(false);
+          supabase.from("sj_guestbook").select("*")
+            .order("created_at", { ascending: false }).limit(30)
+            .then(({ data }) => setEntries(data ?? []));
+        }} />
     </section>
   );
 }
