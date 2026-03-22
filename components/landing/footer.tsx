@@ -74,6 +74,14 @@ export function Footer() {
             <span className="hidden sm:block">|</span>
             <span>&copy; 2026 SajuAstrology.com</span>
           </div>
+
+          {/* Business Registration Info */}
+          <div className="border-t border-border w-full pt-6 flex flex-col items-center gap-1 text-xs text-muted-foreground/60">
+            <p className="font-medium text-muted-foreground/80">Rimfactory</p>
+            <p>Business Registration No.: 402-44-01247 &nbsp;|&nbsp; CEO: Chandler Yun</p>
+            <p>Email: info@rimfactory.co.kr &nbsp;|&nbsp; Phone: +82-10-4648-6793</p>
+            <p>243, 1F, Sindorim Technomart, 97 Saemallo, Guro-gu, Seoul, Korea</p>
+          </div>
         </div>
       </div>
     </footer>
