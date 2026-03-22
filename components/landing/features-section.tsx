@@ -32,8 +32,41 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section id="features" className="relative py-24 overflow-hidden">
+
+      {/* === Five-element themed orbs === */}
+      {/* Wood — green, top left */}
+      <motion.div
+        animate={{ y: [0, -30, 0], x: [0, 20, 0] }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-0 left-0 w-[400px] h-[400px] rounded-full bg-green-600/20 blur-[120px] pointer-events-none"
+      />
+      {/* Fire — red/orange, top right */}
+      <motion.div
+        animate={{ y: [0, -25, 0], x: [0, -15, 0] }}
+        transition={{ duration: 13, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute top-0 right-0 w-[350px] h-[350px] rounded-full bg-orange-500/20 blur-[120px] pointer-events-none"
+      />
+      {/* Earth — gold, center */}
+      <motion.div
+        animate={{ y: [0, 20, 0] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] rounded-full bg-yellow-500/10 blur-[130px] pointer-events-none"
+      />
+      {/* Metal — cyan/silver, bottom right */}
+      <motion.div
+        animate={{ y: [0, -20, 0], x: [0, -20, 0] }}
+        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        className="absolute bottom-0 right-0 w-[350px] h-[350px] rounded-full bg-cyan-400/15 blur-[110px] pointer-events-none"
+      />
+      {/* Water — deep blue, bottom left */}
+      <motion.div
+        animate={{ y: [0, 25, 0], x: [0, 15, 0] }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+        className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-blue-700/20 blur-[110px] pointer-events-none"
+      />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

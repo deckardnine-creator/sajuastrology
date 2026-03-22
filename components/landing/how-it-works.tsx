@@ -26,8 +26,26 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="relative py-24 overflow-hidden">
+
+      {/* === Teal / blue water-wisdom orbs === */}
+      <motion.div
+        animate={{ y: [0, -35, 0], x: [0, -20, 0] }}
+        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-teal-500/20 blur-[130px] pointer-events-none"
+      />
+      <motion.div
+        animate={{ y: [0, 25, 0], x: [0, 15, 0] }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-cyan-600/15 blur-[120px] pointer-events-none"
+      />
+      <motion.div
+        animate={{ y: [0, -15, 0] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-blue-500/10 blur-[100px] pointer-events-none"
+      />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

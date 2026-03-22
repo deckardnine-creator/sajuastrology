@@ -19,8 +19,26 @@ const sajuFeatures = [
 
 export function ComparisonSection() {
   return (
-    <section className="py-24 bg-card">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="relative py-24 bg-card overflow-hidden">
+
+      {/* === Violet / rose contrast orbs === */}
+      <motion.div
+        animate={{ y: [0, -40, 0], x: [0, 30, 0] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -top-20 left-1/4 w-[450px] h-[450px] rounded-full bg-violet-600/20 blur-[130px] pointer-events-none"
+      />
+      <motion.div
+        animate={{ y: [0, 30, 0], x: [0, -20, 0] }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full bg-rose-500/10 blur-[120px] pointer-events-none"
+      />
+      <motion.div
+        animate={{ y: [0, -20, 0] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+        className="absolute top-1/2 right-0 w-[300px] h-[300px] rounded-full bg-yellow-500/10 blur-[100px] pointer-events-none"
+      />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

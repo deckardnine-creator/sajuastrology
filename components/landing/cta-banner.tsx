@@ -6,8 +6,21 @@ import Link from "next/link"
 
 export function CTABanner() {
   return (
-    <section className="py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="relative py-24 overflow-hidden">
+
+      {/* === Warm gold / amber CTA orbs === */}
+      <motion.div
+        animate={{ y: [0, -30, 0], x: [0, 20, 0] }}
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-0 left-1/4 w-[400px] h-[400px] rounded-full bg-amber-500/20 blur-[130px] pointer-events-none"
+      />
+      <motion.div
+        animate={{ y: [0, 25, 0], x: [0, -15, 0] }}
+        transition={{ duration: 17, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        className="absolute bottom-0 right-1/4 w-[350px] h-[350px] rounded-full bg-yellow-400/15 blur-[120px] pointer-events-none"
+      />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}

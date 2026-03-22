@@ -16,6 +16,33 @@ const pillars = [
 export function HeroSection() {
   return (
     <section className="relative min-h-screen pt-24 pb-16 overflow-hidden">
+
+      {/* === Atmospheric glow orbs === */}
+      {/* Deep purple — top left */}
+      <motion.div
+        animate={{ y: [0, -40, 0], x: [0, 20, 0] }}
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full bg-purple-700/25 blur-[140px] pointer-events-none"
+      />
+      {/* Gold — center right */}
+      <motion.div
+        animate={{ y: [0, 30, 0], x: [0, -25, 0] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        className="absolute top-1/3 -right-24 w-[480px] h-[480px] rounded-full bg-yellow-500/20 blur-[130px] pointer-events-none"
+      />
+      {/* Indigo — bottom center */}
+      <motion.div
+        animate={{ y: [0, -20, 0], x: [0, 30, 0] }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+        className="absolute bottom-0 left-1/3 w-[400px] h-[400px] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none"
+      />
+      {/* Teal accent — far right */}
+      <motion.div
+        animate={{ y: [0, 25, 0] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute top-1/2 right-1/4 w-[200px] h-[200px] rounded-full bg-teal-400/15 blur-[90px] pointer-events-none"
+      />
+
       {/* Background particles effect */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(20)].map((_, i) => (
@@ -70,7 +97,7 @@ export function HeroSection() {
                 </Button>
               </Link>
             </div>
-            
+
             {/* Live Counter */}
             <motion.div
               initial={{ opacity: 0 }}
