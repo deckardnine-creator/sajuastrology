@@ -44,7 +44,20 @@ export default function DailyEnergyPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background overflow-hidden">
+
+      {/* Daily Energy — ohaeng sun glow */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        {/* Gold/amber — daily sun energy, top center */}
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[500px] rounded-full bg-amber-500/15 blur-[140px]" />
+        {/* Teal — wisdom/water, bottom left */}
+        <div className="absolute bottom-0 -left-20 w-[500px] h-[500px] rounded-full bg-teal-600/12 blur-[130px]" />
+        {/* Purple — cosmic, top right */}
+        <div className="absolute top-1/4 right-0 w-[400px] h-[400px] rounded-full bg-purple-700/12 blur-[130px]" />
+        {/* Orange — fire element, mid */}
+        <div className="absolute top-1/2 left-1/3 w-[350px] h-[350px] rounded-full bg-orange-500/8 blur-[120px]" />
+      </div>
+
       {/* Desktop Layout */}
       <div className="hidden md:flex">
         <DashboardSidebar />
