@@ -1,6 +1,7 @@
 "use client";
 
-import { Heart, Users, Sparkles, Calendar } from "lucide-react";
+import { Heart } from "lucide-react";
+import { Sparkles, Calendar } from "lucide-react";
 import { PremiumPreviewLayout } from "@/components/premium/premium-preview-layout";
 
 export default function LovePage() {
@@ -10,25 +11,16 @@ export default function LovePage() {
       height: "240px",
       content: (
         <div className="flex flex-col items-center justify-center h-full">
-          {/* Fake synergy meter */}
           <div className="relative w-48 h-48">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
               <circle
-                cx="50"
-                cy="50"
-                r="40"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="8"
+                cx="50" cy="50" r="40"
+                fill="none" stroke="currentColor" strokeWidth="8"
                 className="text-muted/20"
               />
               <circle
-                cx="50"
-                cy="50"
-                r="40"
-                fill="none"
-                stroke="url(#heartGradient)"
-                strokeWidth="8"
+                cx="50" cy="50" r="40"
+                fill="none" stroke="url(#heartGradient)" strokeWidth="8"
                 strokeLinecap="round"
                 strokeDasharray={`${94 * 2.51} ${100 * 2.51}`}
               />
@@ -78,12 +70,20 @@ export default function LovePage() {
   ];
 
   return (
-    <PremiumPreviewLayout
-      title="Love Synergy"
-      icon={<Heart className="w-6 h-6" />}
-      blurredCards={blurredCards}
-      unlockBullets={unlockBullets}
-      featureName="Love Synergy"
-    />
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Pink / rose love glow */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[500px] rounded-full bg-pink-600/18 blur-[140px]" />
+        <div className="absolute bottom-1/4 -left-20 w-[450px] h-[450px] rounded-full bg-rose-700/15 blur-[130px]" />
+        <div className="absolute top-1/2 right-0 w-[400px] h-[400px] rounded-full bg-purple-600/15 blur-[130px]" />
+      </div>
+      <PremiumPreviewLayout
+        title="Love Synergy"
+        icon={<Heart className="w-6 h-6" />}
+        blurredCards={blurredCards}
+        unlockBullets={unlockBullets}
+        featureName="Love Synergy"
+      />
+    </div>
   );
 }

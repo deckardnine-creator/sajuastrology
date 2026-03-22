@@ -5,7 +5,18 @@ import { PricingFAQ } from "@/components/pricing/pricing-faq"
 
 export default function PricingPage() {
   return (
-    <main className="min-h-screen">
+    <main className="relative min-h-screen overflow-hidden">
+
+      {/* Gold / cosmic pricing glow */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        {/* Gold top-center */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full bg-yellow-500/15 blur-[140px]" />
+        {/* Amber bottom-left */}
+        <div className="absolute bottom-1/4 -left-20 w-[500px] h-[500px] rounded-full bg-amber-600/12 blur-[130px]" />
+        {/* Purple bottom-right */}
+        <div className="absolute bottom-0 right-0 w-[450px] h-[450px] rounded-full bg-purple-700/15 blur-[130px]" />
+      </div>
+
       <Navbar />
       <section className="pt-32 pb-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
