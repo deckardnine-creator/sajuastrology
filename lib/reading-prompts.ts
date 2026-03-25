@@ -155,29 +155,22 @@ export function buildPaidReadingPrompt(chart: SajuChart): string {
 
   const elementStr = `Wood: ${chart.elements.wood}, Fire: ${chart.elements.fire}, Earth: ${chart.elements.earth}, Metal: ${chart.elements.metal}, Water: ${chart.elements.water}`;
 
-  return `You are a master of Saju (사주, Four Pillars of Destiny) with 40 years of experience. Continue the reading for ${chart.name}.
+  return `You are a master of Saju (사주) with 40 years of experience. Generate a PAID premium reading for ${chart.name}.
 
-CHART DATA:
-- Day Master: ${dm.zh} ${dm.en} (${dm.element}, ${dm.yinYang})
-- Archetype: ${chart.archetype} (${chart.tenGod})
-- Age: ~${age}, Gender: ${chart.gender}
-- Elements: ${elementStr}
-- Dominant: ${chart.dominantElement}, Weakest: ${chart.weakestElement}
-- Harmony: ${chart.harmonyScore}/100
-- Pillars: Year ${chart.pillars.year.stem.zh}${chart.pillars.year.branch.zh}, Month ${chart.pillars.month.stem.zh}${chart.pillars.month.branch.zh}, Day ${chart.pillars.day.stem.zh}${chart.pillars.day.branch.zh}, Hour ${chart.pillars.hour.stem.zh}${chart.pillars.hour.branch.zh}
+CHART: Day Master ${dm.zh} ${dm.en}, Archetype ${chart.archetype}, Age ~${age}, ${chart.gender}. Elements: ${elementStr}. Dominant: ${chart.dominantElement}, Weakest: ${chart.weakestElement}. Harmony: ${chart.harmonyScore}/100. Pillars: Y${chart.pillars.year.stem.zh}${chart.pillars.year.branch.zh} M${chart.pillars.month.stem.zh}${chart.pillars.month.branch.zh} D${chart.pillars.day.stem.zh}${chart.pillars.day.branch.zh} H${chart.pillars.hour.stem.zh}${chart.pillars.hour.branch.zh}
 
-RULES: Write in English. No generic phrases. Every insight must trace back to THIS chart. Flowing prose, no bullets. Warm but authoritative. NEVER mention AI.
+RULES: English. No generic phrases. Anchor every insight to THIS chart. Flowing prose. Warm, authoritative. No AI mentions. Be CONCISE but profound.
 
-GENERATE FIVE SECTIONS as JSON:
+GENERATE as JSON:
 {
-  "career": "3-4 paragraphs. Deep analysis of career trajectory based on their pillars and element interactions. Specific industries, work styles, and timing for career moves. Reference their archetype's natural professional strengths. ~300-400 words.",
-  "love": "3-4 paragraphs. Relationship patterns based on their Day Master and element balance. What kind of partner complements their energy. Specific relational dynamics they likely experience. Timing windows for meaningful connections. ~300-400 words.",
-  "health": "2-3 paragraphs. Health tendencies based on their element balance — which organ systems need attention (Wood=liver, Fire=heart, Earth=stomach, Metal=lungs, Water=kidneys). Seasonal vulnerabilities. Practical wellness recommendations tied to their chart. ~200-280 words.",
-  "decade_forecast": "4-5 paragraphs covering the next 10 years (${currentYear}-${currentYear + 10}). Year-by-year energy shifts. Peak years and challenging years. Major transition points. This should feel like a roadmap. ~400-500 words.",
-  "monthly_energy": "Brief but specific energy reading for each of the next 6 months. Format as a flowing narrative, NOT a list. Weave the months together as a story arc. ~250-350 words."
+  "career": "2 paragraphs about career path, ideal industries, timing for moves. ~150 words.",
+  "love": "2 paragraphs about relationship patterns, ideal partner type, timing. ~150 words.",
+  "health": "1-2 paragraphs about health tendencies based on elements (Wood=liver, Fire=heart, Earth=stomach, Metal=lungs, Water=kidneys). ~100 words.",
+  "decade_forecast": "2-3 paragraphs covering ${currentYear}-${currentYear + 10}. Peak years, challenging years, key transitions. ~200 words.",
+  "monthly_energy": "One flowing paragraph covering the next 6 months as a story arc. ~120 words."
 }
 
-RESPOND WITH ONLY THE JSON. No markdown, no backticks.`;
+JSON ONLY. No markdown, no backticks.`;
 }
 
 // Generate a unique share slug

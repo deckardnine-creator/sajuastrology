@@ -1,7 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildPaidReadingPrompt } from "@/lib/reading-prompts";
+import { buildPaidPromptPart1, buildPaidPromptPart2, buildPaidPromptPart3, buildChartSummary } from "@/lib/paid-prompts";
 
 export const runtime = "edge";
+
+async function callClaude(prompt: string, apiKey: string): Promise<string> {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 2000,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Claude ${res.status}: ${errText.substring(0, 200)}`);
+  }
+
+  const data = await res.json();
+  return data.content?.[0]?.text || "";
+}
+
+function parseJSON(raw: string): any {
+  const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+  return JSON.parse(cleaned);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,8 +41,9 @@ export async function POST(request: NextRequest) {
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+    const anthropicKey = process.env.ANTHROPIC_API_KEY || "";
 
-    // 1. Fetch reading data
+    // 1. Fetch reading
     const readingRes = await fetch(
       `${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}&select=*`,
       { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
@@ -21,82 +51,40 @@ export async function POST(request: NextRequest) {
     const readings = await readingRes.json();
     const reading = readings?.[0];
 
-    if (!reading) {
-      return NextResponse.json({ error: "Reading not found" }, { status: 404 });
+    if (!reading) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (reading.paid_reading_career) return NextResponse.json({ success: true, alreadyGenerated: true });
+
+    // 2. Build shared chart summary
+    const chartSummary = buildChartSummary(reading);
+    const currentYear = new Date().getFullYear();
+
+    // 3. THREE parallel Sonnet calls (~15s each, total ~15s because parallel)
+    const [raw1, raw2, raw3] = await Promise.all([
+      callClaude(buildPaidPromptPart1(chartSummary), anthropicKey),
+      callClaude(buildPaidPromptPart2(chartSummary, currentYear), anthropicKey),
+      callClaude(buildPaidPromptPart3(chartSummary), anthropicKey),
+    ]);
+
+    // 4. Parse all three results
+    let part1: { career: string; love: string };
+    let part2: { health: string; decade_forecast: string };
+    let part3: { monthly_energy: string; hidden_talent: string };
+
+    try { part1 = parseJSON(raw1); } catch {
+      console.error("Part1 parse:", raw1.substring(0, 300));
+      return NextResponse.json({ error: "Parse error: career/love" }, { status: 500 });
+    }
+    try { part2 = parseJSON(raw2); } catch {
+      console.error("Part2 parse:", raw2.substring(0, 300));
+      return NextResponse.json({ error: "Parse error: health/decade" }, { status: 500 });
+    }
+    try { part3 = parseJSON(raw3); } catch {
+      console.error("Part3 parse:", raw3.substring(0, 300));
+      return NextResponse.json({ error: "Parse error: monthly/talent" }, { status: 500 });
     }
 
-    if (reading.paid_reading_career) {
-      return NextResponse.json({ success: true, alreadyGenerated: true });
-    }
-
-    // 2. Build chart for prompt
-    const chart = {
-      name: reading.name,
-      gender: reading.gender,
-      birthDate: new Date(reading.birth_date),
-      birthCity: reading.birth_city,
-      dayMaster: {
-        element: reading.day_master_element,
-        yinYang: reading.day_master_yinyang,
-        zh: reading.day_stem,
-        en: `${reading.day_master_yinyang === "yang" ? "Yang" : "Yin"} ${reading.day_master_element.charAt(0).toUpperCase() + reading.day_master_element.slice(1)}`,
-      },
-      archetype: reading.archetype,
-      tenGod: reading.ten_god,
-      harmonyScore: reading.harmony_score,
-      dominantElement: reading.dominant_element,
-      weakestElement: reading.weakest_element,
-      elements: { wood: reading.elements_wood, fire: reading.elements_fire, earth: reading.elements_earth, metal: reading.elements_metal, water: reading.elements_water },
-      pillars: {
-        year: { stem: { zh: reading.year_stem }, branch: { zh: reading.year_branch } },
-        month: { stem: { zh: reading.month_stem }, branch: { zh: reading.month_branch } },
-        day: { stem: { zh: reading.day_stem }, branch: { zh: reading.day_branch } },
-        hour: { stem: { zh: reading.hour_stem }, branch: { zh: reading.hour_branch } },
-      },
-    };
-
-    // 3. Generate with Haiku (fast, under 15s)
-    const prompt = buildPaidReadingPrompt(chart as any);
-
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY || "",
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 4000,
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
-
-    if (!anthropicRes.ok) {
-      return NextResponse.json({ error: "AI generation failed" }, { status: 500 });
-    }
-
-    const aiData = await anthropicRes.json();
-    const rawText = aiData.content?.[0]?.text || "";
-
-    let paidReading: {
-      career: string;
-      love: string;
-      health: string;
-      decade_forecast: string;
-      monthly_energy: string;
-    };
-
-    try {
-      const cleaned = rawText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-      paidReading = JSON.parse(cleaned);
-    } catch {
-      console.error("Parse error:", rawText.substring(0, 300));
-      return NextResponse.json({ error: "Failed to parse paid reading" }, { status: 500 });
-    }
-
-    // 4. Save to Supabase
-    await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
+    // 5. Save all to Supabase
+    const patchRes = await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -104,17 +92,24 @@ export async function POST(request: NextRequest) {
         Authorization: `Bearer ${supabaseKey}`,
       },
       body: JSON.stringify({
-        paid_reading_career: paidReading.career,
-        paid_reading_love: paidReading.love,
-        paid_reading_health: paidReading.health,
-        paid_reading_decade: paidReading.decade_forecast,
-        paid_reading_monthly: paidReading.monthly_energy,
+        paid_reading_career: part1.career,
+        paid_reading_love: part1.love,
+        paid_reading_health: part2.health,
+        paid_reading_decade: part2.decade_forecast,
+        paid_reading_monthly: part3.monthly_energy,
+        paid_reading_hidden_talent: part3.hidden_talent,
       }),
     });
+
+    if (!patchRes.ok) {
+      const dbErr = await patchRes.text();
+      console.error("DB error:", dbErr);
+      return NextResponse.json({ error: "DB save failed" }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
     console.error("Generate paid error:", err?.message || err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ error: err?.message || "Server error" }, { status: 500 });
   }
 }

@@ -49,6 +49,8 @@ interface ReadingData {
   paid_reading_love: string | null;
   paid_reading_health: string | null;
   paid_reading_decade: string | null;
+  paid_reading_monthly: string | null;
+  paid_reading_hidden_talent: string | null;
   is_paid: boolean;
   share_slug: string;
   created_at: string;
@@ -120,8 +122,8 @@ export default function ReadingPageClient() {
         })
           .then((res) => res.json())
           .then(() => {
-            // Reload to show paid content
-            window.location.href = `/reading/${slug}`;
+            // Reload to show paid content, scroll to it
+            window.location.href = `/reading/${slug}#paid-content`;
           })
           .catch(() => setPaidContentLoading(false));
       }
@@ -158,12 +160,12 @@ export default function ReadingPageClient() {
         .then((res) => res.json())
         .then(() => {
           // Step 3: Reload to show paid content
-          window.location.href = `/reading/${slug}`;
+          window.location.href = `/reading/${slug}#paid-content`;
         })
         .catch((err) => {
           console.error("Payment flow error:", err);
           // Still reload - is_paid is set, content can be generated later
-          window.location.href = `/reading/${slug}`;
+          window.location.href = `/reading/${slug}#paid-content`;
         });
     }
   }, [slug]);
@@ -378,7 +380,7 @@ export default function ReadingPageClient() {
 
           {/* Paid Content (visible after payment) */}
           {reading.is_paid && reading.paid_reading_career && (
-            <>
+            <div id="paid-content">
               <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
                 <h2 className="font-serif text-xl font-semibold mb-4">Career & Wealth Blueprint</h2>
                 <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
@@ -428,7 +430,39 @@ export default function ReadingPageClient() {
                   </div>
                 </motion.section>
               )}
-            </>
+
+              {reading.paid_reading_monthly && (
+                <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }} className="mb-10">
+                  <h2 className="font-serif text-xl font-semibold mb-4">Next 6 Months Energy Flow</h2>
+                  <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
+                    <div className="prose prose-invert prose-sm max-w-none">
+                      {reading.paid_reading_monthly.split("\n\n").map((para, i) => (
+                        <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
+                      ))}
+                    </div>
+                  </div>
+                </motion.section>
+              )}
+
+              {reading.paid_reading_hidden_talent && (
+                <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.95 }} className="mb-10">
+                  <div className="bg-gradient-to-br from-primary/5 via-card/80 to-purple-500/5 backdrop-blur border border-primary/30 rounded-2xl p-6 md:p-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Sparkles className="w-6 h-6 text-primary" />
+                      <div>
+                        <h2 className="font-serif text-xl font-semibold">Bonus: Your Hidden Talent & Life Purpose</h2>
+                        <p className="text-xs text-primary/60">A special gift from the cosmos</p>
+                      </div>
+                    </div>
+                    <div className="prose prose-invert prose-sm max-w-none">
+                      {reading.paid_reading_hidden_talent.split("\n\n").map((para, i) => (
+                        <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
+                      ))}
+                    </div>
+                  </div>
+                </motion.section>
+              )}
+            </div>
           )}
 
           {/* Locked Premium Content (visible when NOT paid) */}
