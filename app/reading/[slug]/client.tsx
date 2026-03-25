@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Share2, Lock, Sparkles } from "lucide-react";
+import { ArrowLeft, Share2, Lock, Sparkles, Mail, Copy, Bookmark } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
@@ -248,6 +248,19 @@ export default function ReadingPageClient() {
     }
   };
 
+  const handleCopyUrl = async () => {
+    await navigator.clipboard.writeText(shareUrl);
+    alert("Reading URL copied! Save it to access your reading anytime.");
+  };
+
+  const handleEmailReading = () => {
+    const subject = encodeURIComponent(`Your Saju Reading — ${reading.archetype}`);
+    const body = encodeURIComponent(
+      `Your personalized cosmic blueprint is ready!\n\nArchetype: ${reading.archetype}\nDay Master: ${dmDisplay.en}\nHarmony: ${reading.harmony_score}%\n\nView your full reading anytime:\n${shareUrl}\n\nThis link is permanent — bookmark it or save this email.`
+    );
+    window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
+  };
+
   return (
     <main className="min-h-screen">
       <Navbar />
@@ -262,6 +275,26 @@ export default function ReadingPageClient() {
             <Button variant="outline" size="sm" onClick={handleShare}>
               <Share2 className="w-4 h-4 mr-2" /> Share
             </Button>
+          </motion.div>
+
+          {/* Save Your Reading Banner */}
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+            className="mb-6 bg-card/80 border border-primary/20 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <Bookmark className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium mb-1">Save your reading</p>
+                <p className="text-xs text-muted-foreground mb-3">This page is your permanent reading. Bookmark it or email the link to yourself.</p>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm" onClick={handleCopyUrl} className="text-xs h-8">
+                    <Copy className="w-3 h-3 mr-1.5" /> Copy Link
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleEmailReading} className="text-xs h-8">
+                    <Mail className="w-3 h-3 mr-1.5" /> Email to Myself
+                  </Button>
+                </div>
+              </div>
+            </div>
           </motion.div>
 
           {/* Title */}

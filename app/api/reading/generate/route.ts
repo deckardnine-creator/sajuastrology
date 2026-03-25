@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildFreeReadingPrompt, generateShareSlug } from "@/lib/reading-prompts";
 import type { SajuChart } from "@/lib/saju-calculator";
 
-// Edge runtime for longer timeout on Vercel Hobby
 export const runtime = "edge";
 
 export async function POST(request: NextRequest) {
@@ -14,12 +13,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid chart data" }, { status: 400 });
     }
 
-    // Fix Date serialization from JSON
     if (typeof chart.birthDate === "string") {
       chart.birthDate = new Date(chart.birthDate);
     }
 
-    // 1. Generate AI reading via Claude API
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+
+    const birthDateStr = chart.birthDate instanceof Date
+      ? chart.birthDate.toISOString().split("T")[0]
+      : new Date(chart.birthDate).toISOString().split("T")[0];
+
+    // ═══ DUPLICATE CHECK ═══
+    // Same name + gender + birth_date + birth_city = same person = return existing reading
+    const checkUrl = `${supabaseUrl}/rest/v1/readings?name=eq.${encodeURIComponent(chart.name)}&gender=eq.${chart.gender}&birth_date=eq.${birthDateStr}&birth_city=eq.${encodeURIComponent(chart.birthCity)}&select=share_slug,free_reading_personality&limit=1`;
+    
+    const checkRes = await fetch(checkUrl, {
+      headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+    });
+
+    if (checkRes.ok) {
+      const existing = await checkRes.json();
+      if (existing?.length > 0 && existing[0].free_reading_personality) {
+        // Found existing reading → return it directly (no AI call, no cost)
+        return NextResponse.json({
+          success: true,
+          shareSlug: existing[0].share_slug,
+          existing: true,
+        });
+      }
+    }
+
+    // ═══ NEW READING ═══
     const prompt = buildFreeReadingPrompt(chart);
 
     const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
@@ -48,7 +73,6 @@ export async function POST(request: NextRequest) {
     const aiData = await anthropicRes.json();
     const rawText = aiData.content?.[0]?.text || "";
 
-    // 2. Parse JSON response
     let aiReading: {
       personality: string;
       year_forecast: string;
@@ -63,14 +87,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
     }
 
-    // 3. Save to Supabase via REST API (no SDK needed in Edge)
     const shareSlug = generateShareSlug();
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-
-    const birthDateStr = chart.birthDate instanceof Date
-      ? chart.birthDate.toISOString().split("T")[0]
-      : new Date(chart.birthDate).toISOString().split("T")[0];
 
     const insertBody = {
       name: chart.name,
@@ -125,7 +142,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. Success
     return NextResponse.json({
       success: true,
       shareSlug,

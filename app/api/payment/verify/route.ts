@@ -30,7 +30,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Payment not completed" }, { status: 400 });
     }
 
-    // 2. Mark as paid in Supabase (fast, no AI)
+    // 2. Mark as paid + save customer email
+    const customerEmail = session.customer_details?.email || session.customer_email || "";
+
     await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
       method: "PATCH",
       headers: {
@@ -38,7 +40,7 @@ export async function POST(request: NextRequest) {
         apikey: supabaseKey,
         Authorization: `Bearer ${supabaseKey}`,
       },
-      body: JSON.stringify({ is_paid: true }),
+      body: JSON.stringify({ is_paid: true, customer_email: customerEmail }),
     });
 
     return NextResponse.json({ success: true });
