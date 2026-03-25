@@ -357,19 +357,28 @@ export function ConsultationClient() {
               </div>
             </div>
 
-            {!sajuData.chart && (
-              <div className="mb-8 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center">
-                <p className="text-amber-200 text-sm mb-2">
-                  For the most accurate consultation, generate your Saju reading first.
+            {!sajuData.chart ? (
+              <div className="bg-card/50 border border-border rounded-2xl p-8 text-center">
+                <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h2 className="font-serif text-xl font-semibold mb-2">
+                  Generate Your Chart First
+                </h2>
+                <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
+                  Your Saju consultation requires your birth chart data to deliver a truly personalized reading.
+                  Generate your free Saju reading first — it only takes a minute.
                 </p>
                 <Link href="/calculate">
-                  <Button variant="outline" size="sm">
-                    Generate My Chart
+                  <Button className="gold-gradient text-primary-foreground font-semibold" size="lg">
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate My Free Reading
                   </Button>
                 </Link>
+                <p className="text-xs text-muted-foreground/50 mt-4">
+                  Free · No credit card required · Takes 1 minute
+                </p>
               </div>
-            )}
-
+            ) : (
+              <>
             {/* Category Selection */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-foreground mb-3">
@@ -468,6 +477,8 @@ export function ConsultationClient() {
                 </>
               )}
             </Button>
+              </>
+            )}
           </motion.div>
         )}
 
@@ -840,7 +851,22 @@ function NoCreditsCTA({
         ))}
       </ul>
 
-      {isLoggedIn ? (
+      {isLoggedIn && !hasChart ? (
+        <>
+          <Link href="/calculate">
+            <Button
+              className="w-full max-w-sm h-12 gold-gradient text-primary-foreground font-semibold"
+              size="lg"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Generate My Free Reading First
+            </Button>
+          </Link>
+          <p className="text-xs text-muted-foreground/50 mt-4">
+            Your birth chart is required for personalized consultations.
+          </p>
+        </>
+      ) : isLoggedIn ? (
         <Button
           onClick={onPurchase}
           disabled={isSubmitting}
@@ -866,12 +892,6 @@ function NoCreditsCTA({
         >
           Sign In to Get Started
         </Button>
-      )}
-
-      {!hasChart && isLoggedIn && (
-        <p className="text-xs text-muted-foreground/50 mt-4">
-          Tip: <Link href="/calculate" className="text-primary hover:underline">Generate your free Saju reading</Link> first for more accurate consultations.
-        </p>
       )}
     </div>
   );
