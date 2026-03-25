@@ -88,6 +88,16 @@ function loadSajuData(): UserSajuData {
   }
 }
 
+/* ─── Day Master character lookup ─── */
+
+const DAY_MASTER_ZH: Record<string, string> = {
+  "wood-yang": "甲", "wood-yin": "乙",
+  "fire-yang": "丙", "fire-yin": "丁",
+  "earth-yang": "戊", "earth-yin": "己",
+  "metal-yang": "庚", "metal-yin": "辛",
+  "water-yang": "壬", "water-yin": "癸",
+};
+
 /* ─── Claim unclaimed readings after sign-in ─── */
 
 async function claimReadings(userId: string) {
@@ -166,6 +176,78 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setSajuData(loadSajuData());
   }, []);
+
+  /* — If localStorage has no chart but user has readings in DB, restore it — */
+  useEffect(() => {
+    if (!user) return;
+    const local = loadSajuData();
+    if (local.chart) return; // Already have chart data
+
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("readings")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        if (data && data.length > 0) {
+          const r = data[0];
+          const reconstructed: SajuChart = {
+            name: r.name,
+            gender: r.gender as "male" | "female",
+            birthDate: new Date(r.birth_date),
+            birthCity: r.birth_city,
+            dayMaster: {
+              zh: DAY_MASTER_ZH[`${r.day_master_element}-${r.day_master_yinyang}`] || "?",
+              en: `${r.day_master_yinyang === "yang" ? "Yang" : "Yin"} ${r.day_master_element.charAt(0).toUpperCase() + r.day_master_element.slice(1)}`,
+              element: r.day_master_element,
+              yinYang: r.day_master_yinyang,
+            },
+            pillars: {
+              year: { stem: { zh: r.year_stem, en: "", element: "" }, branch: { zh: r.year_branch, en: "", element: "" } },
+              month: { stem: { zh: r.month_stem, en: "", element: "" }, branch: { zh: r.month_branch, en: "", element: "" } },
+              day: { stem: { zh: r.day_stem, en: "", element: "" }, branch: { zh: r.day_branch, en: "", element: "" } },
+              hour: { stem: { zh: r.hour_stem, en: "", element: "" }, branch: { zh: r.hour_branch, en: "", element: "" } },
+            },
+            archetype: r.archetype,
+            tenGod: r.ten_god,
+            harmonyScore: r.harmony_score,
+            dominantElement: r.dominant_element,
+            weakestElement: r.weakest_element,
+            elements: {
+              wood: r.elements_wood,
+              fire: r.elements_fire,
+              earth: r.elements_earth,
+              metal: r.elements_metal,
+              water: r.elements_water,
+            },
+            elementBalance: {
+              wood: r.elements_wood,
+              fire: r.elements_fire,
+              earth: r.elements_earth,
+              metal: r.elements_metal,
+              water: r.elements_water,
+            },
+          } as any;
+
+          const newSajuData: UserSajuData = {
+            chart: reconstructed,
+            birthDate: new Date(r.birth_date),
+            birthTime: "12:00",
+            birthCity: r.birth_city,
+            gender: r.gender as "male" | "female",
+            readingGeneratedAt: new Date(r.created_at),
+          };
+          setSajuData(newSajuData);
+          localStorage.setItem("saju-data", JSON.stringify(newSajuData));
+        }
+      } catch (err) {
+        console.error("Chart recovery error:", err);
+      }
+    })();
+  }, [user]);
 
   /* — Modal controls — */
   const openSignInModal = useCallback(() => setIsSignInModalOpen(true), []);

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Lock, Sparkles, Bookmark, Share2, Check } from "lucide-react";
+import { ArrowLeft, Lock, Sparkles, Bookmark, Share2, Check, Crown } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
@@ -617,6 +617,26 @@ export default function ReadingPageClient() {
               </div>
             </motion.section>
           )}
+
+          {/* Master Consultation Promo */}
+          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
+            <div className="bg-card/50 border border-purple-500/20 rounded-2xl p-6 text-center">
+              <Crown className="w-10 h-10 text-purple-400 mx-auto mb-3" />
+              <h3 className="font-serif text-lg font-semibold mb-2">Want Deeper Guidance?</h3>
+              <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
+                Ask any life question — career, love, timing, wealth — and get a personalized 3,000+ word consultation based on your birth chart.
+              </p>
+              <Link href="/consultation">
+                <Button
+                  className="font-semibold px-6"
+                  style={{ background: "linear-gradient(135deg, #a78bfa, #7c3aed)", color: "white" }}
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  Master Consultation — $29.99 for 5 sessions
+                </Button>
+              </Link>
+            </div>
+          </motion.section>
 
           {/* Payment processing — Step-by-step generation progress */}
           {paidContentLoading && (
