@@ -4,64 +4,9 @@ import type { SajuChart } from "@/lib/saju-calculator";
 
 export const runtime = "edge";
 
-// Call Anthropic with a timeout — returns null on timeout instead of throwing
-async function callAnthropic(
-  apiKey: string,
-  model: string,
-  prompt: string,
-  maxTokens: number,
-  timeoutMs: number
-): Promise<{ personality: string; year_forecast: string; element_guidance: string } | null> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: maxTokens,
-        messages: [{ role: "user", content: prompt }],
-      }),
-      signal: controller.signal,
-    });
-
-    clearTimeout(timer);
-
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error(`Anthropic error (${model}):`, res.status, errText.substring(0, 200));
-      return null;
-    }
-
-    const data = await res.json();
-    const rawText = data.content?.[0]?.text || "";
-    const cleaned = rawText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-    const parsed = JSON.parse(cleaned);
-
-    if (!parsed.personality || !parsed.year_forecast || !parsed.element_guidance) {
-      console.error(`Incomplete response from ${model}:`, cleaned.substring(0, 200));
-      return null;
-    }
-
-    return parsed;
-  } catch (err: any) {
-    clearTimeout(timer);
-    if (err?.name === "AbortError") {
-      console.log(`${model} timed out after ${timeoutMs}ms — will fallback`);
-    } else {
-      console.error(`${model} error:`, err?.message);
-    }
-    return null;
-  }
-}
-
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+
   try {
     const body = await request.json();
     const chart = body.chart as SajuChart;
@@ -157,6 +102,9 @@ export async function POST(request: NextRequest) {
     const exactData = exactResult.status === "fulfilled" ? exactResult.value : null;
     const pillarData = pillarResult.status === "fulfilled" ? pillarResult.value : null;
 
+    const cacheTime = Date.now() - startTime;
+    console.log(`Cache check took ${cacheTime}ms`);
+
     // ═══ CHECK 1: Exact same person ═══
     if (exactData?.length > 0 && exactData[0].free_reading_personality) {
       return NextResponse.json({
@@ -222,39 +170,118 @@ export async function POST(request: NextRequest) {
     }
 
     // ═══ NO CACHE: Generate fresh AI reading ═══
-    // Vercel Edge Runtime = 25s hard limit
-    // Budget: ~1.5s cache check + 14s Sonnet + 7s Haiku fallback + 1.5s DB = ~24s max
     const apiKey = process.env.ANTHROPIC_API_KEY || "";
     if (!apiKey) {
       return NextResponse.json({ error: "AI service not configured" }, { status: 500 });
     }
 
     const prompt = buildFreeReadingPrompt(chart);
+    const aiStartTime = Date.now();
 
-    // Try Sonnet first (14s timeout)
-    let aiReading = await callAnthropic(
-      apiKey,
-      "claude-sonnet-4-20250514",
-      prompt,
-      2000,
-      14000
-    );
+    // Strategy: Race Sonnet vs delayed Haiku
+    // - Sonnet starts immediately (best quality)
+    // - After 10s, Haiku also starts (fast backup)
+    // - First valid response wins
+    const controller1 = new AbortController();
+    const controller2 = new AbortController();
 
-    // Sonnet failed or timed out → Haiku fallback (7s timeout)
-    if (!aiReading) {
-      console.log("Sonnet unavailable, falling back to Haiku 4.5");
-      aiReading = await callAnthropic(
-        apiKey,
-        "claude-haiku-4-5-20251001",
-        prompt,
-        2000,
-        7000
-      );
+    const makeCall = async (
+      model: string,
+      signal: AbortSignal,
+      delayMs: number = 0
+    ): Promise<{ result: any; model: string } | null> => {
+      try {
+        if (delayMs > 0) {
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+          // Check if already aborted during delay
+          if (signal.aborted) return null;
+        }
+
+        const res = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey,
+            "anthropic-version": "2023-06-01",
+          },
+          body: JSON.stringify({
+            model,
+            max_tokens: 2000,
+            messages: [{ role: "user", content: prompt }],
+          }),
+          signal,
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          console.error(`${model} API error: ${res.status} ${errText.substring(0, 200)}`);
+          return null;
+        }
+
+        const data = await res.json();
+        const rawText = data.content?.[0]?.text || "";
+        const cleaned = rawText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+        const parsed = JSON.parse(cleaned);
+
+        if (!parsed.personality || !parsed.year_forecast || !parsed.element_guidance) {
+          console.error(`${model} incomplete response`);
+          return null;
+        }
+
+        return { result: parsed, model };
+      } catch (err: any) {
+        if (err?.name !== "AbortError") {
+          console.error(`${model} error:`, err?.message);
+        }
+        return null;
+      }
+    };
+
+    // Race: Sonnet (immediate) vs Haiku (starts after 10s delay)
+    // If Sonnet finishes in <10s → Haiku never even starts the API call
+    // If Sonnet is slow → Haiku response arrives at ~13-15s mark
+    let aiReading: any = null;
+    let usedModel = "";
+
+    try {
+      const winner = await Promise.any([
+        makeCall("claude-sonnet-4-20250514", controller1.signal, 0)
+          .then((r) => { if (!r) throw new Error("sonnet-fail"); return r; }),
+        makeCall("claude-haiku-4-5-20251001", controller2.signal, 10000)
+          .then((r) => { if (!r) throw new Error("haiku-fail"); return r; }),
+      ]);
+
+      aiReading = winner.result;
+      usedModel = winner.model;
+
+      // Cancel the loser
+      controller1.abort();
+      controller2.abort();
+    } catch {
+      // Both failed — try one more time with Haiku only, no race
+      console.error("Race failed. Last-resort Haiku attempt...");
+      try {
+        const lastResort = await makeCall(
+          "claude-haiku-4-5-20251001",
+          new AbortController().signal,
+          0
+        );
+        if (lastResort) {
+          aiReading = lastResort.result;
+          usedModel = lastResort.model;
+        }
+      } catch {
+        // Give up
+      }
     }
 
+    const aiTime = Date.now() - aiStartTime;
+    console.log(`AI generation took ${aiTime}ms using ${usedModel || "none"}`);
+
     if (!aiReading) {
+      const totalTime = Date.now() - startTime;
       return NextResponse.json(
-        { error: "AI generation failed — please try again" },
+        { error: `AI generation failed after ${Math.round(totalTime / 1000)}s — please try again` },
         { status: 500 }
       );
     }
@@ -303,6 +330,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const totalTime = Date.now() - startTime;
+    console.log(`Total request: ${totalTime}ms (cache: ${cacheTime}ms, AI: ${aiTime}ms, model: ${usedModel})`);
+
     return NextResponse.json({
       success: true,
       shareSlug,
@@ -313,9 +343,10 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (err: any) {
-    console.error("Unhandled error in /api/reading/generate:", err?.message || err);
+    const totalTime = Date.now() - startTime;
+    console.error(`Unhandled error after ${totalTime}ms:`, err?.message || err);
     return NextResponse.json(
-      { error: "Server error: " + (err?.message || "unknown") },
+      { error: `Server error after ${Math.round(totalTime / 1000)}s: ${err?.message || "unknown"}` },
       { status: 500 }
     );
   }
