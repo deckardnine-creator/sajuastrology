@@ -54,6 +54,30 @@ export async function POST(request: NextRequest) {
     if (!reading) return NextResponse.json({ error: "Not found" }, { status: 404 });
     if (reading.paid_reading_career) return NextResponse.json({ success: true, alreadyGenerated: true });
 
+    // ═══ PILLAR CACHE: Check if same saju already has paid content ═══
+    const pillarCacheUrl = `${supabaseUrl}/rest/v1/readings?year_stem=eq.${encodeURIComponent(reading.year_stem)}&year_branch=eq.${encodeURIComponent(reading.year_branch)}&month_stem=eq.${encodeURIComponent(reading.month_stem)}&month_branch=eq.${encodeURIComponent(reading.month_branch)}&day_stem=eq.${encodeURIComponent(reading.day_stem)}&day_branch=eq.${encodeURIComponent(reading.day_branch)}&hour_stem=eq.${encodeURIComponent(reading.hour_stem)}&hour_branch=eq.${encodeURIComponent(reading.hour_branch)}&not.paid_reading_career=is.null&select=paid_reading_career,paid_reading_love,paid_reading_health,paid_reading_decade,paid_reading_monthly,paid_reading_hidden_talent&limit=1`;
+
+    const cacheRes = await fetch(pillarCacheUrl, { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } });
+    if (cacheRes.ok) {
+      const cached = await cacheRes.json();
+      if (cached?.length > 0 && cached[0].paid_reading_career) {
+        // Same saju already has paid reading → copy it
+        await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+          body: JSON.stringify({
+            paid_reading_career: cached[0].paid_reading_career,
+            paid_reading_love: cached[0].paid_reading_love,
+            paid_reading_health: cached[0].paid_reading_health,
+            paid_reading_decade: cached[0].paid_reading_decade,
+            paid_reading_monthly: cached[0].paid_reading_monthly,
+            paid_reading_hidden_talent: cached[0].paid_reading_hidden_talent,
+          }),
+        });
+        return NextResponse.json({ success: true, cached: true });
+      }
+    }
+
     // 2. Build shared chart summary
     const chartSummary = buildChartSummary(reading);
     const currentYear = new Date().getFullYear();
