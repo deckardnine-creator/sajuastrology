@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// export const runtime = "edge"; // Use Node.js for longer timeout
+// Node.js runtime for longer timeout (no edge)
 export const maxDuration = 120;
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
@@ -10,7 +10,7 @@ const supabaseKey =
   "";
 const anthropicKey = process.env.ANTHROPIC_API_KEY || "";
 
-/* ?€?€?€ helpers ?€?€?€ */
+/* --- helpers --- */
 
 async function sbFetch(path: string, opts: RequestInit = {}) {
   return fetch(`${supabaseUrl}/rest/v1/${path}`, {
@@ -48,7 +48,7 @@ async function callClaude(systemPrompt: string, userPrompt: string) {
   return data.content?.[0]?.text || "";
 }
 
-/* ?€?€?€ main handler ?€?€?€ */
+/* --- main handler --- */
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/* ?€?€?€ Check Credits ?€?€?€ */
+/* --- Check Credits --- */
 
 async function handleCheckCredits({ userId }: { userId: string }) {
   const res = await sbFetch(
@@ -85,7 +85,7 @@ async function handleCheckCredits({ userId }: { userId: string }) {
   return NextResponse.json({ remaining });
 }
 
-/* ?€?€?€ Start Consultation ?€?€?€ */
+/* --- Start Consultation --- */
 
 async function handleStart({
   userId,
@@ -124,7 +124,7 @@ async function handleStart({
   // 3. Ask Claude whether clarification is needed
   const chartSummary = formatChartSummary(birthData);
 
-  const systemPrompt = `You are a master of Saju (?›æŸ±, Korean Four Pillars of Destiny), with deep expertise in analyzing birth charts for personalized guidance. You are reviewing a consultation question.
+  const systemPrompt = `You are a master of Saju (Korean Four Pillars of Destiny), with deep expertise in analyzing birth charts for personalized guidance. You are reviewing a consultation question.
 
 Your task: Decide whether the question needs clarification before you can deliver a precise, personalized reading.
 
@@ -215,7 +215,7 @@ Analyze whether this question needs clarification for a precise Saju consultatio
   });
 }
 
-/* ?€?€?€ Submit Answers & Generate ?€?€?€ */
+/* --- Submit Answers & Generate --- */
 
 async function handleSubmitAnswers({
   consultationId,
@@ -272,7 +272,7 @@ async function handleSubmitAnswers({
   });
 }
 
-/* ?€?€?€ Report Generator ?€?€?€ */
+/* --- Report Generator --- */
 
 async function generateReport({
   category,
@@ -298,26 +298,26 @@ async function generateReport({
         .join("\n\n")
     : "";
 
-  const systemPrompt = `You are a master-level Saju (?›æŸ±) consultant with decades of experience interpreting the Korean Four Pillars of Destiny. You provide deep, personalized consultations that weave together the querent's birth chart elements, current cosmic cycles, and specific life circumstances.
+  const systemPrompt = `You are a master-level Saju consultant with decades of experience interpreting the Korean Four Pillars of Destiny. You provide deep, personalized consultations that weave together the querent's birth chart elements, current cosmic cycles, and specific life circumstances.
 
 YOUR STYLE:
-- Authoritative yet warm ??like a trusted advisor who genuinely cares
+- Authoritative yet warm, like a trusted advisor who genuinely cares
 - Reference specific elements of their chart (Day Master, pillar interactions, element balance)
 - Give concrete, actionable timing guidance (favorable months, seasons, years)
 - Use the Five Elements (Wood, Fire, Earth, Metal, Water) relationships to explain dynamics
-- Include both opportunities and cautions ??balanced, honest guidance
+- Include both opportunities and cautions, balanced and honest guidance
 - Write in clear, flowing English with occasional Korean/Chinese Saju terms in parentheses for authenticity
 - NEVER mention that you are an AI or that this is AI-generated
 
 REPORT STRUCTURE:
 1. Title (compelling, specific to their question)
-2. Opening ??acknowledge their question and set context
-3. Chart Analysis ??how their birth chart relates to this question (Day Master, element balance, pillar dynamics)
-4. Current Cycle Reading ??what the current year/period means for this area
-5. Detailed Guidance ??3-5 specific insights with timing recommendations
-6. Favorable & Challenging Periods ??specific months or seasons ahead
-7. Elemental Remedies ??practical suggestions aligned with their element needs
-8. Closing Reflection ??empowering summary
+2. Opening: acknowledge their question and set context
+3. Chart Analysis: how their birth chart relates to this question (Day Master, element balance, pillar dynamics)
+4. Current Cycle Reading: what the current year/period means for this area
+5. Detailed Guidance: 3-5 specific insights with timing recommendations
+6. Favorable and Challenging Periods: specific months or seasons ahead
+7. Elemental Remedies: practical suggestions aligned with their element needs
+8. Closing Reflection: empowering summary
 
 TARGET LENGTH: 2,500-3,500 words. Be thorough and specific. Every paragraph should reference their unique chart data.
 
@@ -343,7 +343,7 @@ Generate a comprehensive, personalized Saju consultation report. Start with a co
   return { title, content };
 }
 
-/* ?€?€?€ Chart Formatter ?€?€?€ */
+/* --- Chart Formatter --- */
 
 function formatChartSummary(birthData: any): string {
   if (!birthData) return "Birth data not available";
