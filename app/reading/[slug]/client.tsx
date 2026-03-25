@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Lock, Sparkles, Bookmark } from "lucide-react";
+import { ArrowLeft, Lock, Sparkles, Bookmark, Share2, Check } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@supabase/supabase-js";
 import { ELEMENTS, type Element } from "@/lib/saju-calculator";
+import { useAuth } from "@/lib/auth-context";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -54,6 +55,7 @@ interface ReadingData {
   is_paid: boolean;
   share_slug: string;
   created_at: string;
+  user_id: string | null;
 }
 
 const ELEMENT_COLORS: Record<string, string> = {
@@ -88,12 +90,36 @@ const DAY_MASTER_DISPLAY: Record<string, { zh: string; en: string }> = {
 export default function ReadingPageClient() {
   const params = useParams();
   const slug = params.slug as string;
+  const { user, openSignInModal } = useAuth();
   const [reading, setReading] = useState<ReadingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paidContentLoading, setPaidContentLoading] = useState(false);
   const [generationStep, setGenerationStep] = useState(0);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [claimed, setClaimed] = useState(false);
+
+  // Claim reading for logged-in user
+  useEffect(() => {
+    if (!user || !reading || claimed) return;
+    (async () => {
+      try {
+        await supabase
+          .from("readings")
+          .update({ user_id: user.id })
+          .eq("id", reading.id)
+          .is("user_id", null);
+        setClaimed(true);
+      } catch {}
+    })();
+  }, [user, reading, claimed]);
+
+  const handleShareLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
 
   // Warn user before leaving during generation
   useEffect(() => {
@@ -299,21 +325,37 @@ export default function ReadingPageClient() {
             </Link>
           </motion.div>
 
-          {/* Save & Share Banner — Google Sign In */}
+          {/* Save & Share Banner */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
             className="mb-6 bg-card/80 border border-primary/20 rounded-xl p-4">
-            <div className="flex items-start gap-3">
-              <Bookmark className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-medium mb-1">Save & share your reading</p>
-                <p className="text-xs text-muted-foreground mb-3">Sign in to save this reading to your dashboard, revisit anytime, and share with friends.</p>
-                <Button variant="outline" size="sm" className="text-xs h-9 gap-2">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                  Continue with Google
+            {user ? (
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <Bookmark className="w-5 h-5 text-primary shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">Saved to your dashboard</p>
+                    <p className="text-xs text-muted-foreground">You can revisit this reading anytime.</p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" className="text-xs h-9 gap-2 shrink-0" onClick={handleShareLink}>
+                  {linkCopied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+                  {linkCopied ? "Copied!" : "Share Link"}
                 </Button>
-                <p className="text-[10px] text-muted-foreground/50 mt-2">Free — takes 3 seconds</p>
               </div>
-            </div>
+            ) : (
+              <div className="flex items-start gap-3">
+                <Bookmark className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium mb-1">Save & share your reading</p>
+                  <p className="text-xs text-muted-foreground mb-3">Sign in to save this reading to your dashboard, revisit anytime, and share with friends.</p>
+                  <Button variant="outline" size="sm" className="text-xs h-9 gap-2" onClick={openSignInModal}>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                    Continue with Google
+                  </Button>
+                  <p className="text-[10px] text-muted-foreground/50 mt-2">Free — takes 3 seconds</p>
+                </div>
+              </div>
+            )}
           </motion.div>
 
           {/* Title */}
@@ -664,16 +706,37 @@ export default function ReadingPageClient() {
             </motion.section>
           )}
 
-          {/* Share CTA — Google Sign In */}
+          {/* Bottom CTA */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="mb-10">
-            <div className="gold-gradient rounded-2xl p-8 text-center">
-              <h3 className="font-serif text-2xl font-bold text-primary-foreground mb-2">Share Your Cosmic Identity</h3>
-              <p className="text-primary-foreground/80 mb-4">Sign in to save your reading and share it with friends</p>
-              <Button variant="secondary" className="bg-background text-foreground hover:bg-background/90 gap-2">
-                <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                Continue with Google
-              </Button>
-            </div>
+            {user ? (
+              <div className="bg-card/80 border border-border rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-4">
+                <div className="flex-1 text-center sm:text-left">
+                  <h3 className="font-serif text-lg font-semibold mb-1">Share this reading</h3>
+                  <p className="text-sm text-muted-foreground">Send the link to friends or family</p>
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" className="gap-2" onClick={handleShareLink}>
+                    {linkCopied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+                    {linkCopied ? "Copied!" : "Copy Link"}
+                  </Button>
+                  <Link href="/dashboard">
+                    <Button variant="outline" className="gap-2">
+                      <Bookmark className="w-4 h-4" />
+                      Dashboard
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="gold-gradient rounded-2xl p-8 text-center">
+                <h3 className="font-serif text-2xl font-bold text-primary-foreground mb-2">Share Your Cosmic Identity</h3>
+                <p className="text-primary-foreground/80 mb-4">Sign in to save your reading and share it with friends</p>
+                <Button variant="secondary" className="bg-background text-foreground hover:bg-background/90 gap-2" onClick={openSignInModal}>
+                  <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                  Continue with Google
+                </Button>
+              </div>
+            )}
           </motion.section>
 
         </div>
