@@ -94,7 +94,6 @@ export async function POST(request: NextRequest) {
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
     if (!supabaseUrl || !supabaseKey) {
-      console.error("Missing Supabase env vars");
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
@@ -223,35 +222,33 @@ export async function POST(request: NextRequest) {
     }
 
     // ═══ NO CACHE: Generate fresh AI reading ═══
-    // Strategy: Try Sonnet 4 (20s timeout) → fallback to Haiku 4.5 (8s timeout)
-    // Sonnet produces noticeably better personalized creative writing,
-    // which is critical for free→paid conversion. Haiku is the safety net.
+    // Vercel Edge Runtime = 25s hard limit
+    // Budget: ~1.5s cache check + 14s Sonnet + 7s Haiku fallback + 1.5s DB = ~24s max
     const apiKey = process.env.ANTHROPIC_API_KEY || "";
     if (!apiKey) {
-      console.error("Missing ANTHROPIC_API_KEY");
       return NextResponse.json({ error: "AI service not configured" }, { status: 500 });
     }
 
     const prompt = buildFreeReadingPrompt(chart);
 
-    // Try Sonnet first with 20s timeout (leaves ~8s for DB write + overhead)
+    // Try Sonnet first (14s timeout)
     let aiReading = await callAnthropic(
       apiKey,
       "claude-sonnet-4-20250514",
       prompt,
       2000,
-      20000
+      14000
     );
 
-    // If Sonnet timed out or failed, fallback to Haiku (fast, still good)
+    // Sonnet failed or timed out → Haiku fallback (7s timeout)
     if (!aiReading) {
-      console.log("Falling back to Haiku 4.5");
+      console.log("Sonnet unavailable, falling back to Haiku 4.5");
       aiReading = await callAnthropic(
         apiKey,
         "claude-haiku-4-5-20251001",
         prompt,
         2000,
-        8000
+        7000
       );
     }
 
