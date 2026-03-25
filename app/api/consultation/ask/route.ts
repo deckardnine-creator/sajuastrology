@@ -385,7 +385,24 @@ REPORT STRUCTURE:
 
 TARGET LENGTH: 2,500-3,500 words. Be thorough and specific. Every paragraph should reference their unique chart data.
 
-Format the report in clean Markdown with ## headers for sections.`;
+CRITICAL FORMATTING RULES — YOU MUST FOLLOW THESE EXACTLY:
+- Start with the title as: # Title Text
+- Every section MUST begin with: ## Section Name
+- Use **bold** for key terms and important phrases
+- Use bullet lists with - for lists of recommendations
+- Use ### for subsections within a section
+- Separate sections with blank lines
+- Example of correct format:
+  # Your Career Crossroads: Navigating Change in 2026
+  
+  ## Opening
+  Your question about...
+  
+  ## Chart Analysis
+  Your Day Master is...
+  
+  ## Current Cycle Reading
+  ...`;
 
   const userPrompt = `CONSULTATION REQUEST
 Category: ${category}

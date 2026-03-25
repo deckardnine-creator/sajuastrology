@@ -163,11 +163,15 @@ export function ConsultationClient() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      checkCredits();
+      // Don't override if we're loading a saved report
+      const viewId = searchParams.get("view");
+      if (!viewId) {
+        checkCredits();
+      }
     } else if (!authLoading && !user) {
       setStep("no-credits");
     }
-  }, [authLoading, user, checkCredits]);
+  }, [authLoading, user, checkCredits, searchParams]);
 
   /* ─── Start consultation ─── */
   const handleStartConsultation = async () => {
@@ -544,29 +548,8 @@ export function ConsultationClient() {
             key="generating"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center min-h-[40vh] text-center"
           >
-            <div className="relative mb-6">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-primary animate-pulse" />
-              </div>
-              <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-            </div>
-            <h3 className="font-serif text-xl mb-2">Consulting the Four Pillars</h3>
-            <p className="text-sm text-muted-foreground max-w-sm">
-              Analyzing your birth chart in relation to your question.
-              This may take 30–60 seconds...
-            </p>
-            <div className="mt-6 flex gap-2">
-              {[0, 1, 2].map((i) => (
-                <motion.div
-                  key={i}
-                  className="w-2 h-2 rounded-full bg-primary"
-                  animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.3 }}
-                />
-              ))}
-            </div>
+            <ConsultationLoader category={category} />
           </motion.div>
         )}
 
@@ -634,6 +617,177 @@ export function ConsultationClient() {
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+/* ─── Consultation Loader ─── */
+
+const CONSULTATION_STEPS: Record<string, { icon: string; label: string; sub: string }[]> = {
+  career: [
+    { icon: "🏛", label: "Reading your Four Pillars", sub: "Mapping the cosmic blueprint of your career" },
+    { icon: "⚖", label: "Analyzing element balance", sub: "Finding strengths and growth areas" },
+    { icon: "💼", label: "Consulting the Career Palace", sub: "직업궁 (Jigeopgung) — your professional destiny" },
+    { icon: "🔄", label: "Checking current cycles", sub: "How 2026 shapes your work path" },
+    { icon: "✦", label: "Identifying favorable timing", sub: "Best months for bold moves" },
+    { icon: "📜", label: "Weaving your consultation report", sub: "Crafting personalized guidance…" },
+  ],
+  love: [
+    { icon: "🏛", label: "Reading your Four Pillars", sub: "Mapping the cosmic blueprint of your heart" },
+    { icon: "💧", label: "Analyzing element harmony", sub: "Water, Fire, and the dance of connection" },
+    { icon: "💕", label: "Consulting the Relationship Palace", sub: "배우자궁 (Baeujagang) — your love destiny" },
+    { icon: "🔄", label: "Checking current cycles", sub: "Romantic energy in your current phase" },
+    { icon: "✦", label: "Finding auspicious timing", sub: "When the stars favor the heart" },
+    { icon: "📜", label: "Weaving your consultation report", sub: "Crafting personalized guidance…" },
+  ],
+  default: [
+    { icon: "🏛", label: "Reading your Four Pillars", sub: "Year · Month · Day · Hour" },
+    { icon: "🌊", label: "Mapping the Five Elements", sub: "Wood · Fire · Earth · Metal · Water" },
+    { icon: "✦", label: "Analyzing your Day Master", sub: "The core of who you are" },
+    { icon: "🔄", label: "Consulting current cycles", sub: "What this period holds for you" },
+    { icon: "⚖", label: "Weighing cosmic influences", sub: "Balancing opportunities and caution" },
+    { icon: "📜", label: "Weaving your consultation report", sub: "Crafting personalized guidance…" },
+  ],
+};
+
+function ConsultationLoader({ category }: { category: string }) {
+  const [activeStep, setActiveStep] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  const steps = CONSULTATION_STEPS[category] || CONSULTATION_STEPS.default;
+
+  useEffect(() => {
+    const stepInterval = setInterval(() => {
+      setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
+    }, 6000);
+
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 92) return 92;
+        const increment = prev < 30 ? 1.8 : prev < 60 ? 0.9 : 0.3;
+        return Math.min(prev + increment, 92);
+      });
+    }, 400);
+
+    const timerInterval = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+    }, 1000);
+
+    return () => {
+      clearInterval(stepInterval);
+      clearInterval(progressInterval);
+      clearInterval(timerInterval);
+    };
+  }, [steps.length]);
+
+  const formatTime = (s: number) => {
+    const mins = Math.floor(s / 60);
+    const secs = s % 60;
+    return mins > 0 ? `${mins}:${secs.toString().padStart(2, "0")}` : `${secs}s`;
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[50vh]">
+      <div className="w-full max-w-md">
+        {/* Ambient glow */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] rounded-full bg-purple-500/15 blur-[100px] pointer-events-none" />
+
+        {/* Rotating mandala */}
+        <div className="flex justify-center mb-8">
+          <div className="relative w-24 h-24">
+            <motion.div
+              className="absolute inset-0 rounded-full border border-purple-500/20"
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+            />
+            <motion.div
+              className="absolute inset-2 rounded-full border border-amber-500/20"
+              animate={{ rotate: -360 }}
+              transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
+            />
+            <motion.div
+              className="absolute inset-4 rounded-full border border-purple-400/30"
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <motion.div
+                animate={{ scale: [1, 1.15, 1], opacity: [0.7, 1, 0.7] }}
+                transition={{ repeat: Infinity, duration: 2.5 }}
+              >
+                <Crown className="w-8 h-8 text-purple-400" />
+              </motion.div>
+            </div>
+          </div>
+        </div>
+
+        <h3 className="font-serif text-xl text-center mb-1">Consulting the Four Pillars</h3>
+        <p className="text-xs text-center text-muted-foreground/60 mb-6">
+          {formatTime(elapsedSeconds)} elapsed · Deep analysis in progress
+        </p>
+
+        {/* Progress bar */}
+        <div className="relative h-1.5 bg-white/5 rounded-full mb-8 overflow-hidden">
+          <motion.div
+            className="absolute inset-y-0 left-0 rounded-full"
+            style={{
+              width: `${progress}%`,
+              background: "linear-gradient(90deg, #a78bfa66, #a78bfa)",
+            }}
+            transition={{ duration: 0.4 }}
+          />
+        </div>
+
+        {/* Steps */}
+        <div className="space-y-3">
+          {steps.map((s, i) => {
+            const isActive = i === activeStep;
+            const isDone = i < activeStep;
+            const isFuture = i > activeStep;
+
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{
+                  opacity: isFuture ? 0.15 : isDone ? 0.45 : 1,
+                  x: isActive ? 4 : 0,
+                }}
+                transition={{ duration: 0.5, delay: isFuture ? 0 : i * 0.1 }}
+                className="flex items-center gap-3"
+              >
+                <span className="text-lg w-7 text-center flex-shrink-0">
+                  {isDone ? "✓" : s.icon}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-sm font-medium ${isActive ? "text-purple-300" : "text-muted-foreground"}`}>
+                    {s.label}
+                  </p>
+                  {isActive && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-xs text-muted-foreground/70 mt-0.5"
+                    >
+                      {s.sub}
+                    </motion.p>
+                  )}
+                </div>
+                {isActive && (
+                  <div className="ml-auto flex-shrink-0">
+                    <div className="w-4 h-4 rounded-full border-2 border-purple-400 border-t-transparent animate-spin" />
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
+        </div>
+
+        <p className="text-center text-[11px] text-muted-foreground/40 mt-8">
+          Your consultation is crafted uniquely — this takes 30–60 seconds
+        </p>
+      </div>
     </div>
   );
 }

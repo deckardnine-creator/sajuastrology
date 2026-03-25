@@ -307,7 +307,22 @@ export default function CalculatePage() {
       </div>
 
       {phase === "input" && (
-        <BirthDataForm onCalculate={handleCalculate} />
+        <>
+          <div className="fixed top-0 left-0 right-0 z-40 px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl flex h-16 items-center">
+              <button
+                onClick={() => router.back()}
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                </svg>
+                Back
+              </button>
+            </div>
+          </div>
+          <BirthDataForm onCalculate={handleCalculate} />
+        </>
       )}
       {phase === "calculating" && sajuChart && (
         <CalculationAnimation

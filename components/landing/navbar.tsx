@@ -29,6 +29,7 @@ export function Navbar() {
           <div className="hidden md:flex md:items-center md:gap-8">
             <Link href="/what-is-saju" className="text-sm text-muted-foreground transition-colors hover:text-foreground">What is Saju?</Link>
             <Link href="/pricing"      className="text-sm text-muted-foreground transition-colors hover:text-foreground">Pricing</Link>
+            <Link href="/consultation" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Consultation</Link>
           </div>
 
           <div className="hidden md:block"><UserMenu /></div>
@@ -45,6 +46,7 @@ export function Navbar() {
           <div className="space-y-4 px-4 py-6">
             <Link href="/what-is-saju" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsOpen(false)}>What is Saju?</Link>
             <Link href="/pricing"      className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsOpen(false)}>Pricing</Link>
+            <Link href="/consultation" className="block text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsOpen(false)}>Consultation</Link>
             <Link href="/calculate" onClick={() => setIsOpen(false)}>
               <Button className="w-full gold-gradient text-primary-foreground font-medium">Get Your Reading — Free</Button>
             </Link>
