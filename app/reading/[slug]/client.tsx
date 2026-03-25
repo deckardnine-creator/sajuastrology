@@ -121,19 +121,32 @@ export default function ReadingPageClient() {
 
     if (payment === "success" && sessionId && slug) {
       setPaidContentLoading(true);
-      // Verify payment and generate paid reading
+
+      // Step 1: Verify payment (fast)
       fetch("/api/payment/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId, shareSlug: slug }),
       })
         .then((res) => res.json())
+        .then((data) => {
+          if (!data.success) throw new Error("Verification failed");
+          // Step 2: Generate paid reading (separate call)
+          return fetch("/api/reading/generate-paid", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ shareSlug: slug }),
+          });
+        })
+        .then((res) => res.json())
         .then(() => {
-          // Reload reading data to get paid content
+          // Step 3: Reload to show paid content
           window.location.href = `/reading/${slug}`;
         })
-        .catch(() => {
-          setPaidContentLoading(false);
+        .catch((err) => {
+          console.error("Payment flow error:", err);
+          // Still reload - is_paid is set, content can be generated later
+          window.location.href = `/reading/${slug}`;
         });
     }
   }, [slug]);
