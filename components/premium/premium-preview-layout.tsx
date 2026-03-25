@@ -162,7 +162,7 @@ function PremiumContent({
           {/* CTA Buttons */}
           <Link href="/pricing">
             <Button className="gold-gradient text-primary-foreground px-8 py-6 text-lg font-medium mb-4">
-              Upgrade to Premium — $9.99/mo
+              Unlock Premium — $9.99 one-time
             </Button>
           </Link>
           <div>

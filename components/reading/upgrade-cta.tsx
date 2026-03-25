@@ -29,7 +29,7 @@ export function UpgradeCTA() {
               size="lg"
               className="gold-gradient text-primary-foreground font-semibold"
             >
-              Upgrade to Premium — $9.99/mo
+              Unlock Premium — $9.99 one-time
             </Button>
           </Link>
           <Link
