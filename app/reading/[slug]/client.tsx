@@ -93,6 +93,19 @@ export default function ReadingPageClient() {
   const [error, setError] = useState<string | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paidContentLoading, setPaidContentLoading] = useState(false);
+  const [generationStep, setGenerationStep] = useState(0);
+
+  // Warn user before leaving during generation
+  useEffect(() => {
+    if (!paidContentLoading) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "Your reading is being generated. If you leave now, you may need to wait again.";
+      return e.returnValue;
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [paidContentLoading]);
 
   useEffect(() => {
     async function fetchReading() {
@@ -115,6 +128,14 @@ export default function ReadingPageClient() {
       const r = data as ReadingData;
       if (r.is_paid && !r.paid_reading_career) {
         setPaidContentLoading(true);
+        setGenerationStep(0);
+        setTimeout(() => {
+          document.getElementById("generation-progress")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 300);
+        const stepTimer = setInterval(() => {
+          setGenerationStep((prev) => Math.min(prev + 1, 5));
+        }, 3500);
+
         fetch("/api/reading/generate-paid", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -122,10 +143,16 @@ export default function ReadingPageClient() {
         })
           .then((res) => res.json())
           .then(() => {
-            // Reload to show paid content, scroll to it
-            window.location.href = `/reading/${slug}#paid-content`;
+            clearInterval(stepTimer);
+            setGenerationStep(6);
+            setTimeout(() => {
+              window.location.href = `/reading/${slug}#paid-content`;
+            }, 800);
           })
-          .catch(() => setPaidContentLoading(false));
+          .catch(() => {
+            clearInterval(stepTimer);
+            setPaidContentLoading(false);
+          });
       }
     }
 
@@ -140,6 +167,17 @@ export default function ReadingPageClient() {
 
     if (payment === "success" && sessionId && slug) {
       setPaidContentLoading(true);
+      setGenerationStep(0);
+
+      // Scroll to loading section
+      setTimeout(() => {
+        document.getElementById("generation-progress")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+
+      // Progress step timer (cosmetic - shows what's happening)
+      const stepTimer = setInterval(() => {
+        setGenerationStep((prev) => Math.min(prev + 1, 5));
+      }, 3500);
 
       // Step 1: Verify payment (fast)
       fetch("/api/payment/verify", {
@@ -150,7 +188,8 @@ export default function ReadingPageClient() {
         .then((res) => res.json())
         .then((data) => {
           if (!data.success) throw new Error("Verification failed");
-          // Step 2: Generate paid reading (separate call)
+          setGenerationStep(1);
+          // Step 2: Generate paid reading (3x parallel Sonnet)
           return fetch("/api/reading/generate-paid", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -159,12 +198,15 @@ export default function ReadingPageClient() {
         })
         .then((res) => res.json())
         .then(() => {
-          // Step 3: Reload to show paid content
-          window.location.href = `/reading/${slug}#paid-content`;
+          clearInterval(stepTimer);
+          setGenerationStep(6); // Complete
+          setTimeout(() => {
+            window.location.href = `/reading/${slug}#paid-content`;
+          }, 800);
         })
         .catch((err) => {
+          clearInterval(stepTimer);
           console.error("Payment flow error:", err);
-          // Still reload - is_paid is set, content can be generated later
           window.location.href = `/reading/${slug}#paid-content`;
         });
     }
@@ -557,13 +599,90 @@ export default function ReadingPageClient() {
             </motion.section>
           )}
 
-          {/* Payment processing overlay */}
+          {/* Payment processing — Step-by-step generation progress */}
           {paidContentLoading && (
-            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-10">
-              <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-2xl p-8 text-center">
-                <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-primary font-serif text-lg mb-2">Generating your full reading...</p>
-                <p className="text-muted-foreground text-sm">Your personalized career, love, and 10-year forecast is being crafted.</p>
+            <motion.section id="generation-progress" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-10">
+              <div className="bg-card/80 backdrop-blur border border-primary/30 rounded-2xl p-6 md:p-10 overflow-hidden relative">
+                {/* Background glow */}
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-primary/10 blur-[100px]" />
+                </div>
+
+                <div className="relative">
+                  <div className="text-center mb-8">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                      className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-primary/30 flex items-center justify-center"
+                    >
+                      <div className="w-12 h-12 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                    </motion.div>
+                    <h3 className="font-serif text-xl text-primary mb-1">Crafting Your Full Destiny Reading</h3>
+                    <p className="text-xs text-muted-foreground">Three cosmic scholars are reading your pillars simultaneously</p>
+                  </div>
+
+                  {/* Progress steps */}
+                  <div className="space-y-3 max-w-md mx-auto">
+                    {[
+                      { icon: "💰", title: "Career & Wealth Blueprint", sub: "Mapping your professional destiny..." },
+                      { icon: "💕", title: "Love & Relationships", sub: "Decoding your heart's cosmic pattern..." },
+                      { icon: "🌿", title: "Health & Wellness", sub: "Reading your elemental body map..." },
+                      { icon: "🔮", title: "10-Year Fortune Cycle", sub: "Charting your decade ahead..." },
+                      { icon: "📅", title: "6-Month Energy Flow", sub: "Weaving your near-future story..." },
+                      { icon: "✨", title: "Hidden Talent & Life Purpose", sub: "Unveiling your cosmic gift..." },
+                    ].map((step, i) => {
+                      const isActive = generationStep === i;
+                      const isDone = generationStep > i;
+                      return (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: isDone || isActive ? 1 : 0.3, x: 0 }}
+                          transition={{ delay: i * 0.1, duration: 0.3 }}
+                          className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-500 ${
+                            isActive ? "bg-primary/10 border border-primary/30" : isDone ? "bg-primary/5" : ""
+                          }`}
+                        >
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+                            {isDone ? (
+                              <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-lg">✅</motion.span>
+                            ) : isActive ? (
+                              <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1, repeat: Infinity }} className="text-lg">{step.icon}</motion.span>
+                            ) : (
+                              <span className="text-lg opacity-30">{step.icon}</span>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-medium ${isDone ? "text-primary" : isActive ? "text-foreground" : "text-muted-foreground"}`}>
+                              {step.title}
+                            </p>
+                            {isActive && (
+                              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-muted-foreground truncate">
+                                {step.sub}
+                              </motion.p>
+                            )}
+                          </div>
+                          {isDone && (
+                            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-primary/60">Done</motion.span>
+                          )}
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="mt-6 h-1 bg-muted/30 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-primary rounded-full"
+                      initial={{ width: "0%" }}
+                      animate={{ width: `${Math.min((generationStep / 6) * 100, 100)}%` }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  </div>
+                  <p className="text-center text-xs text-muted-foreground/50 mt-3">
+                    This takes about 15-20 seconds — your reading is being personally crafted, not pulled from a template.
+                  </p>
+                </div>
               </div>
             </motion.section>
           )}
