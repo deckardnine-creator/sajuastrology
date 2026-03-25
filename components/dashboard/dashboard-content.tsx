@@ -292,7 +292,8 @@ export function DashboardContent() {
             {savedReadings.map((r) => {
               const elColor = ELEMENTS[(r.day_master_element as Element) || "water"]?.color || "#6B7280";
               return (
-                <div key={r.id} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 flex items-center gap-3">
+                <Link key={r.id} href={`/reading/${r.share_slug}`}
+                  className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 flex items-center gap-3 hover:border-primary/40 transition-colors cursor-pointer">
                   <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
                     style={{ backgroundColor: `${elColor}20` }}
@@ -313,7 +314,9 @@ export function DashboardContent() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         navigator.clipboard.writeText(`${window.location.origin}/reading/${r.share_slug}`);
                       }}
                       className="p-2 text-muted-foreground hover:text-foreground transition-colors"
@@ -321,14 +324,9 @@ export function DashboardContent() {
                     >
                       <Share2 className="w-4 h-4" />
                     </button>
-                    <Link
-                      href={`/reading/${r.share_slug}`}
-                      className="p-2 text-primary hover:text-foreground transition-colors"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </Link>
+                    <ExternalLink className="w-4 h-4 text-muted-foreground" />
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
