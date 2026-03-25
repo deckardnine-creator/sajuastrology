@@ -5,11 +5,9 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   Sparkles,
-  Zap,
   ArrowRight,
   Crown,
   FileText,
-  BarChart3,
   ExternalLink,
   Share2,
 } from "lucide-react";
@@ -34,6 +32,7 @@ export function DashboardContent() {
   const [dailyScore, setDailyScore] = useState(72);
   const [mounted, setMounted] = useState(false);
   const [savedReadings, setSavedReadings] = useState<SavedReading[]>([]);
+  const [showAllReadings, setShowAllReadings] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -289,7 +288,7 @@ export function DashboardContent() {
             </Link>
           </div>
           <div className="space-y-2">
-            {savedReadings.map((r) => {
+            {(showAllReadings ? savedReadings : savedReadings.slice(0, 3)).map((r) => {
               const elColor = ELEMENTS[(r.day_master_element as Element) || "water"]?.color || "#6B7280";
               return (
                 <Link key={r.id} href={`/reading/${r.share_slug}`}
@@ -329,6 +328,14 @@ export function DashboardContent() {
                 </Link>
               );
             })}
+            {savedReadings.length > 3 && !showAllReadings && (
+              <button
+                onClick={() => setShowAllReadings(true)}
+                className="w-full py-2 text-sm text-primary hover:underline"
+              >
+                Show all {savedReadings.length} readings
+              </button>
+            )}
           </div>
         </motion.section>
       )}
@@ -371,88 +378,6 @@ export function DashboardContent() {
         </div>
       </motion.section>
 
-      {/* Your Profile */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="mb-8"
-      >
-        <h2 className="text-sm tracking-wider text-muted-foreground uppercase mb-4">
-          Your Profile
-        </h2>
-        <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 space-y-3">
-          <div className="flex items-center gap-3 text-sm">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-muted-foreground">
-              Archetype: <span className="text-foreground font-medium">{sajuData.chart.archetype}</span>
-            </span>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <Zap className="w-4 h-4 text-accent" />
-            <span className="text-muted-foreground">
-              Reading generated:{" "}
-              <span className="text-foreground">{sajuData.readingGeneratedAt?.toLocaleDateString() || "Recently"}</span>
-            </span>
-          </div>
-          <Link
-            href="/consultation"
-            className="flex items-center gap-3 text-sm text-purple-400 hover:underline"
-          >
-            <Crown className="w-4 h-4" />
-            <span>Get a personalized Master Consultation</span>
-            <ArrowRight className="w-3 h-3" />
-          </Link>
-        </div>
-      </motion.section>
-
-      {/* Quick Actions */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-      >
-        <h2 className="text-sm tracking-wider text-muted-foreground uppercase mb-4">
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <QuickAction
-            href="/consultation"
-            icon={<Crown className="w-5 h-5" />}
-            label="Saju Consultation"
-          />
-          <QuickAction
-            href="/calculate"
-            icon={<Sparkles className="w-5 h-5" />}
-            label="View My Chart"
-          />
-          <QuickAction
-            href="/pricing"
-            icon={<BarChart3 className="w-5 h-5" />}
-            label="View Pricing"
-          />
-        </div>
-      </motion.section>
     </div>
-  );
-}
-
-function QuickAction({
-  href,
-  icon,
-  label,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  label: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex flex-col items-center gap-2 p-4 bg-card/50 backdrop-blur border border-border rounded-xl hover:border-primary/50 transition-colors"
-    >
-      <div className="text-primary">{icon}</div>
-      <span className="text-xs text-muted-foreground text-center">{label}</span>
-    </Link>
   );
 }

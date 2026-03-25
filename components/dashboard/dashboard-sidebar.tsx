@@ -1,32 +1,44 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  TrendingUp,
-  Compass,
   Sparkles,
   Crown,
+  Plus,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { ELEMENTS, type Element } from "@/lib/saju-calculator";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase-client";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/calculate", label: "My Saju Chart", icon: Sparkles },
+  { href: "/calculate", label: "New Reading", icon: Plus },
   { href: "/consultation", label: "Consultation", icon: Crown, master: true },
-  { href: "/pricing", label: "Pricing", icon: TrendingUp },
-  { href: "/what-is-saju", label: "What is Saju?", icon: Compass },
 ];
 
 export function DashboardSidebar() {
   const pathname = usePathname();
   const { user, sajuData, isPremium } = useAuth();
+  const [credits, setCredits] = useState(0);
 
   const dayMasterElement = sajuData.chart?.dayMaster.element as Element | undefined;
-  const dayMasterColor = dayMasterElement ? ELEMENTS[dayMasterElement].color : "#F2CA50";
+  const dayMasterColor = dayMasterElement ? ELEMENTS[dayMasterElement]?.color : "#F2CA50";
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from("consultation_credits")
+        .select("total_credits, used_credits")
+        .eq("user_id", user.id);
+      const remaining = (data || []).reduce((sum, c) => sum + (c.total_credits - c.used_credits), 0);
+      setCredits(remaining);
+    })();
+  }, [user]);
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-card/50 backdrop-blur-xl border-r border-border flex flex-col">
@@ -127,7 +139,7 @@ export function DashboardSidebar() {
             style={{ background: "linear-gradient(135deg, #a78bfa, #7c3aed)" }}
           >
             <Crown className="w-4 h-4 mr-2" />
-            Saju Consultation
+            {credits > 0 ? `Ask (${credits} left)` : "Get Consultation"}
           </Button>
         </Link>
       </div>

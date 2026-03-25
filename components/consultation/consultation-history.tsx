@@ -56,6 +56,7 @@ export function ConsultationHistory() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [expandedReport, setExpandedReport] = useState<string | null>(null);
   const [loadingReport, setLoadingReport] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -190,7 +191,7 @@ export function ConsultationHistory() {
       {/* Consultation List */}
       {consultations.length > 0 && (
         <div className="space-y-2">
-          {consultations.map((c) => {
+          {(showAll ? consultations : consultations.slice(0, 3)).map((c) => {
             const Icon = CATEGORY_ICONS[c.category] || HelpCircle;
             const color = CATEGORY_COLORS[c.category] || "#6B7280";
             const isExpanded = expandedId === c.id;
@@ -274,6 +275,14 @@ export function ConsultationHistory() {
               </div>
             );
           })}
+          {consultations.length > 3 && !showAll && (
+            <button
+              onClick={() => setShowAll(true)}
+              className="w-full py-2 text-sm text-primary hover:underline"
+            >
+              Show all {consultations.length} consultations
+            </button>
+          )}
         </div>
       )}
     </motion.section>
