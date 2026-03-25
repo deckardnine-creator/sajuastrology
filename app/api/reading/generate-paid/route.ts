@@ -3,50 +3,27 @@ import { buildPaidPromptPart1, buildPaidPromptPart2, buildPaidPromptPart3, build
 
 export const runtime = "edge";
 
-// Call Claude with timeout + Haiku fallback
-async function callClaudeWithFallback(
+// Race Sonnet vs delayed Haiku for a single prompt
+// Sonnet starts immediately; Haiku starts after delayMs
+// First valid response wins, loser is aborted
+async function raceModels(
   prompt: string,
   apiKey: string,
   label: string
 ): Promise<string> {
-  // Try Sonnet first (18s timeout — 3 parallel calls share the 25s budget)
-  const sonnetResult = await callWithTimeout(
-    prompt,
-    apiKey,
-    "claude-sonnet-4-20250514",
-    18000
-  );
-  if (sonnetResult) {
-    console.log(`${label}: Sonnet succeeded`);
-    return sonnetResult;
-  }
+  const controller1 = new AbortController();
+  const controller2 = new AbortController();
 
-  // Fallback to Haiku (5s timeout)
-  console.log(`${label}: Sonnet failed, trying Haiku`);
-  const haikuResult = await callWithTimeout(
-    prompt,
-    apiKey,
-    "claude-haiku-4-5-20251001",
-    5000
-  );
-  if (haikuResult) {
-    console.log(`${label}: Haiku succeeded`);
-    return haikuResult;
-  }
+  const callModel = async (
+    model: string,
+    signal: AbortSignal,
+    delayMs: number
+  ): Promise<{ text: string; model: string }> => {
+    if (delayMs > 0) {
+      await new Promise((r) => setTimeout(r, delayMs));
+      if (signal.aborted) throw new Error("aborted-during-delay");
+    }
 
-  throw new Error(`${label}: Both models failed`);
-}
-
-async function callWithTimeout(
-  prompt: string,
-  apiKey: string,
-  model: string,
-  timeoutMs: number
-): Promise<string | null> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -59,27 +36,42 @@ async function callWithTimeout(
         max_tokens: 2000,
         messages: [{ role: "user", content: prompt }],
       }),
-      signal: controller.signal,
+      signal,
     });
-
-    clearTimeout(timer);
 
     if (!res.ok) {
       const errText = await res.text();
-      console.error(`${model} error: ${res.status} ${errText.substring(0, 200)}`);
-      return null;
+      throw new Error(`${model} ${res.status}: ${errText.substring(0, 100)}`);
     }
 
     const data = await res.json();
-    return data.content?.[0]?.text || "";
+    const text = data.content?.[0]?.text || "";
+    if (!text) throw new Error(`${model}: empty response`);
+
+    return { text, model };
+  };
+
+  try {
+    // Race: Sonnet (immediate) vs Haiku (12s delayed)
+    // If Sonnet finishes in <12s → Haiku never makes API call
+    // If Sonnet is slow → Haiku starts at t=12s, typically finishes by t=15s
+    const winner = await Promise.any([
+      callModel("claude-sonnet-4-20250514", controller1.signal, 0)
+        .catch((e) => { throw e; }),
+      callModel("claude-haiku-4-5-20251001", controller2.signal, 12000)
+        .catch((e) => { throw e; }),
+    ]);
+
+    // Cancel the loser
+    controller1.abort();
+    controller2.abort();
+    console.log(`${label}: ${winner.model} won`);
+    return winner.text;
   } catch (err: any) {
-    clearTimeout(timer);
-    if (err?.name === "AbortError") {
-      console.log(`${model} timed out after ${timeoutMs}ms`);
-    } else {
-      console.error(`${model} error:`, err?.message);
-    }
-    return null;
+    // Both failed
+    controller1.abort();
+    controller2.abort();
+    throw new Error(`${label}: Both models failed — ${err?.message || "unknown"}`);
   }
 }
 
@@ -117,7 +109,7 @@ export async function POST(request: NextRequest) {
     if (!reading) return NextResponse.json({ error: "Not found" }, { status: 404 });
     if (reading.paid_reading_career) return NextResponse.json({ success: true, alreadyGenerated: true });
 
-    // ═══ PILLAR CACHE: Check if same saju already has paid content ═══
+    // ═══ PILLAR CACHE ═══
     const pillarParams = new URLSearchParams({
       year_stem: `eq.${reading.year_stem}`,
       year_branch: `eq.${reading.year_branch}`,
@@ -132,38 +124,49 @@ export async function POST(request: NextRequest) {
       limit: "1",
     });
 
-    const cacheRes = await fetch(`${supabaseUrl}/rest/v1/readings?${pillarParams}`, { headers: dbHeaders });
-    if (cacheRes.ok) {
-      const cached = await cacheRes.json();
-      if (cached?.length > 0 && cached[0].paid_reading_career) {
-        await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
-          method: "PATCH",
-          headers: dbHeaders,
-          body: JSON.stringify({
-            paid_reading_career: cached[0].paid_reading_career,
-            paid_reading_love: cached[0].paid_reading_love,
-            paid_reading_health: cached[0].paid_reading_health,
-            paid_reading_decade: cached[0].paid_reading_decade,
-            paid_reading_monthly: cached[0].paid_reading_monthly,
-            paid_reading_hidden_talent: cached[0].paid_reading_hidden_talent,
-          }),
-        });
-        console.log(`Paid reading cached in ${Date.now() - startTime}ms`);
-        return NextResponse.json({ success: true, cached: true });
+    try {
+      const cacheRes = await fetch(`${supabaseUrl}/rest/v1/readings?${pillarParams}`, { headers: dbHeaders });
+      if (cacheRes.ok) {
+        const cached = await cacheRes.json();
+        if (cached?.length > 0 && cached[0].paid_reading_career) {
+          await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
+            method: "PATCH",
+            headers: dbHeaders,
+            body: JSON.stringify({
+              paid_reading_career: cached[0].paid_reading_career,
+              paid_reading_love: cached[0].paid_reading_love,
+              paid_reading_health: cached[0].paid_reading_health,
+              paid_reading_decade: cached[0].paid_reading_decade,
+              paid_reading_monthly: cached[0].paid_reading_monthly,
+              paid_reading_hidden_talent: cached[0].paid_reading_hidden_talent,
+            }),
+          });
+          console.log(`Paid reading cached in ${Date.now() - startTime}ms`);
+          return NextResponse.json({ success: true, cached: true });
+        }
       }
+    } catch {
+      // Cache miss — continue to generate
     }
 
     // 2. Build prompts
     const chartSummary = buildChartSummary(reading);
     const currentYear = new Date().getFullYear();
 
-    // 3. THREE parallel calls with Sonnet→Haiku fallback each
+    // 3. THREE parallel race calls
+    // Each call: Sonnet starts immediately, Haiku starts at t=12s
+    // All 3 races run in parallel
+    // Best case: all 3 Sonnet win → ~15-20s total
+    // Worst case: all 3 Haiku win → ~15s total (12s delay + 3s generation)
+    // Total budget: ~20s AI + 2s DB + 1s overhead = 23s < 25s limit
     const aiStartTime = Date.now();
+
     const [raw1, raw2, raw3] = await Promise.all([
-      callClaudeWithFallback(buildPaidPromptPart1(chartSummary), anthropicKey, "Part1-Career+Love"),
-      callClaudeWithFallback(buildPaidPromptPart2(chartSummary, currentYear), anthropicKey, "Part2-Health+Decade"),
-      callClaudeWithFallback(buildPaidPromptPart3(chartSummary), anthropicKey, "Part3-Monthly+Talent"),
+      raceModels(buildPaidPromptPart1(chartSummary), anthropicKey, "Part1-Career+Love"),
+      raceModels(buildPaidPromptPart2(chartSummary, currentYear), anthropicKey, "Part2-Health+Decade"),
+      raceModels(buildPaidPromptPart3(chartSummary), anthropicKey, "Part3-Monthly+Talent"),
     ]);
+
     console.log(`AI generation took ${Date.now() - aiStartTime}ms`);
 
     // 4. Parse
