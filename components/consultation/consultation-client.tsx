@@ -820,78 +820,119 @@ function NoCreditsCTA({
 }) {
   return (
     <div className="bg-card/50 border border-border rounded-2xl p-8 text-center">
-      <Crown className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-      <h2 className="font-serif text-2xl font-semibold mb-2">
-        Unlock Master Consultations
-      </h2>
-      <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-        Get 5 in-depth Saju consultations for any life question — career, love, timing, and more.
-        Each session produces a personalized 2,000–4,000 word analysis based on your birth chart.
-      </p>
-
-      <div className="flex items-baseline justify-center gap-1 mb-1">
-        <span className="text-4xl font-bold text-primary">$29.99</span>
-        <span className="text-muted-foreground text-sm">one-time</span>
-      </div>
-      <p className="text-xs text-muted-foreground/60 mb-6">
-        $6 per consultation · No subscription
-      </p>
-
-      <ul className="text-sm text-muted-foreground space-y-2 mb-8 max-w-sm mx-auto text-left">
-        {[
-          "5 personalized consultation sessions",
-          "Ask about any area of life",
-          "Detailed analysis through your birth chart",
-          "All reports saved to your dashboard",
-        ].map((f, i) => (
-          <li key={i} className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-            {f}
-          </li>
-        ))}
-      </ul>
-
-      {isLoggedIn && !hasChart ? (
+      {!isLoggedIn || !hasChart ? (
         <>
-          <Link href="/calculate">
+          {/* Flow: Free Reading → Consultation */}
+          <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
+          <h2 className="font-serif text-2xl font-semibold mb-2">
+            Discover Your Cosmic Blueprint
+          </h2>
+          <p className="text-muted-foreground text-sm mb-8 max-w-md mx-auto">
+            Start with your free Saju reading to reveal your Four Pillars, then unlock
+            in-depth consultations for any life question.
+          </p>
+
+          {/* Step cards */}
+          <div className="flex flex-col gap-4 max-w-sm mx-auto mb-8">
+            <div className="flex items-start gap-4 text-left p-4 rounded-xl bg-primary/5 border border-primary/20">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-primary font-bold text-sm">1</span>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">Get Your Free Saju Reading</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Enter your birth details to generate your Four Pillars chart — takes 1 minute, completely free.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 text-left p-4 rounded-xl bg-card/30 border border-border">
+              <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-purple-400 font-bold text-sm">2</span>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">Unlock Master Consultations</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  5 personalized sessions for $29.99 — ask about career, love, timing, and more.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {isLoggedIn ? (
+            <Link href="/calculate">
+              <Button
+                className="w-full max-w-sm h-12 gold-gradient text-primary-foreground font-semibold"
+                size="lg"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Generate My Free Reading
+              </Button>
+            </Link>
+          ) : (
             <Button
+              onClick={onSignIn}
               className="w-full max-w-sm h-12 gold-gradient text-primary-foreground font-semibold"
               size="lg"
             >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Generate My Free Reading First
+              Sign In &amp; Get Your Free Reading
             </Button>
-          </Link>
+          )}
           <p className="text-xs text-muted-foreground/50 mt-4">
-            Your birth chart is required for personalized consultations.
+            Free · No credit card required
           </p>
         </>
-      ) : isLoggedIn ? (
-        <Button
-          onClick={onPurchase}
-          disabled={isSubmitting}
-          className="w-full max-w-sm h-12 font-semibold"
-          style={{
-            background: "linear-gradient(135deg, #a78bfa, #7c3aed)",
-            color: "white",
-          }}
-          size="lg"
-        >
-          {isSubmitting ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <Crown className="w-4 h-4 mr-2" />
-          )}
-          Get 5 Consultations
-        </Button>
       ) : (
-        <Button
-          onClick={onSignIn}
-          className="w-full max-w-sm h-12 gold-gradient text-primary-foreground font-semibold"
-          size="lg"
-        >
-          Sign In to Get Started
-        </Button>
+        <>
+          {/* Has chart, needs credits */}
+          <Crown className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+          <h2 className="font-serif text-2xl font-semibold mb-2">
+            Unlock Master Consultations
+          </h2>
+          <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
+            Get 5 in-depth Saju consultations for any life question — career, love, timing, and more.
+            Each session produces a personalized 2,000–4,000 word analysis based on your birth chart.
+          </p>
+
+          <div className="flex items-baseline justify-center gap-1 mb-1">
+            <span className="text-4xl font-bold text-primary">$29.99</span>
+            <span className="text-muted-foreground text-sm">one-time</span>
+          </div>
+          <p className="text-xs text-muted-foreground/60 mb-6">
+            $6 per consultation · No subscription
+          </p>
+
+          <ul className="text-sm text-muted-foreground space-y-2 mb-8 max-w-sm mx-auto text-left">
+            {[
+              "5 personalized consultation sessions",
+              "Ask about any area of life",
+              "Detailed analysis through your birth chart",
+              "All reports saved to your dashboard",
+            ].map((f, i) => (
+              <li key={i} className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                {f}
+              </li>
+            ))}
+          </ul>
+
+          <Button
+            onClick={onPurchase}
+            disabled={isSubmitting}
+            className="w-full max-w-sm h-12 font-semibold"
+            style={{
+              background: "linear-gradient(135deg, #a78bfa, #7c3aed)",
+              color: "white",
+            }}
+            size="lg"
+          >
+            {isSubmitting ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Crown className="w-4 h-4 mr-2" />
+            )}
+            Get 5 Consultations
+          </Button>
+        </>
       )}
     </div>
   );
