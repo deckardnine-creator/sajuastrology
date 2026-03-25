@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildPaidPromptPart1, buildPaidPromptPart2, buildPaidPromptPart3, buildChartSummary } from "@/lib/paid-prompts";
 
-export const runtime = "edge";
+// Serverless runtime = 60s timeout on Vercel Pro (Edge is only 25s even on Pro)
+export const maxDuration = 60;
 
 async function callClaude(prompt: string, apiKey: string, label: string): Promise<string> {
   const start = Date.now();

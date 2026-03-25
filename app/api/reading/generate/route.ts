@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildFreeReadingPrompt, generateShareSlug } from "@/lib/reading-prompts";
 import type { SajuChart } from "@/lib/saju-calculator";
 
-export const runtime = "edge";
+// Serverless runtime = 60s timeout on Vercel Pro (Edge is only 25s even on Pro)
+export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
