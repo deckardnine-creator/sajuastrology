@@ -52,17 +52,18 @@ const plans = [
   {
     name: "Master Consultation",
     price: 29.99,
-    description: "Personal guidance for life decisions",
+    description: "5 personal Saju consultations",
     features: [
       "Everything in Full Destiny, plus:",
-      "Submit your personal question or dilemma",
-      "3,000–5,000 word in-depth analysis",
-      "Saju-based timing recommendations",
-      "Actionable Five Elements guidance",
-      "Delivered to your dashboard within 24h",
+      "5 one-on-one AI Saju consultations",
+      "Ask about career, love, timing, or any life question",
+      "AI clarifies your question for precision",
+      "2,000–4,000 word personalized Saju report per session",
+      "All consultations saved to your dashboard",
     ],
-    cta: "Ask the Master",
-    href: "/calculate",
+    priceNote: "$6 per consultation",
+    cta: "Get 5 Consultations",
+    href: "/pricing",
     highlighted: false,
     accent: "#a78bfa",
     glow: "rgba(167,139,250,0.35)",
@@ -146,7 +147,11 @@ export function PricingCards() {
                 )}
               </div>
               {plan.price > 0 && (
-                <p className="text-xs text-muted-foreground/60 mt-1">No subscription. Pay once, keep forever.</p>
+                <p className="text-xs text-muted-foreground/60 mt-1">
+                  {"priceNote" in plan && plan.priceNote
+                    ? plan.priceNote
+                    : "No subscription. Pay once, keep forever."}
+                </p>
               )}
             </div>
             <ul className="space-y-3 mb-8">
