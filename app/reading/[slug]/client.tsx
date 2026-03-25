@@ -108,6 +108,23 @@ export default function ReadingPageClient() {
 
       setReading(data as ReadingData);
       setLoading(false);
+
+      // Auto-generate paid content if paid but not yet generated
+      const r = data as ReadingData;
+      if (r.is_paid && !r.paid_reading_career) {
+        setPaidContentLoading(true);
+        fetch("/api/reading/generate-paid", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ shareSlug: slug }),
+        })
+          .then((res) => res.json())
+          .then(() => {
+            // Reload to show paid content
+            window.location.href = `/reading/${slug}`;
+          })
+          .catch(() => setPaidContentLoading(false));
+      }
     }
 
     if (slug) fetchReading();
