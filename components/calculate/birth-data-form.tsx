@@ -29,7 +29,7 @@ const STARS = Array.from({ length: 70 }, (_, i) => {
 const CONST_LINES = [[2,9],[9,18],[18,28],[28,2],[5,14],[14,23],[23,5],[1,8],[8,20]];
 
 // ── Drum Roller ──────────────────────────────────────────────
-const ITEM_H = 56;
+const ITEM_H = 40;
 const VISIBLE = 5;
 
 interface DrumRollerProps {
@@ -45,20 +45,17 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
   const y = useMotionValue((-selectedIndex + 2) * ITEM_H);
   const longPressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const longPressTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const didLongPress = useRef(false);
+  const indexRef = useRef(selectedIndex);
 
-  // Sync selectedIndex → y with spring + mid-bounce tension
-  const snapTo = useCallback((idx: number, fromTap = false) => {
+  // Keep ref in sync
+  useEffect(() => { indexRef.current = selectedIndex; }, [selectedIndex]);
+
+  const snapTo = useCallback((idx: number) => {
     const clamped = Math.max(0, Math.min(values.length - 1, idx));
-    if (fromTap) {
-      // Quick spring with slight overshoot for tactile feel
-      animate(y, (-clamped + 2) * ITEM_H, {
-        type: "spring", stiffness: 500, damping: 30, velocity: 200,
-      });
-    } else {
-      animate(y, (-clamped + 2) * ITEM_H, {
-        type: "spring", stiffness: 320, damping: 32,
-      });
-    }
+    animate(y, (-clamped + 2) * ITEM_H, {
+      type: "spring", stiffness: 400, damping: 30,
+    });
     onChange(clamped);
   }, [y, values.length, onChange]);
 
@@ -69,11 +66,13 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
   }, [selectedIndex, y]);
 
   const startLongPress = (direction: 1 | -1) => {
-    // Initial delay before fast scroll
+    didLongPress.current = false;
     longPressTimeout.current = setTimeout(() => {
+      didLongPress.current = true;
       longPressTimer.current = setInterval(() => {
-        onChange(Math.max(0, Math.min(values.length - 1, selectedIndex + direction)));
-        selectedIndex += direction; // local tracking for interval closure
+        const next = Math.max(0, Math.min(values.length - 1, indexRef.current + direction));
+        indexRef.current = next;
+        onChange(next);
       }, 60);
     }, 400);
   };
@@ -85,75 +84,54 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
     longPressTimer.current = null;
   };
 
-  const handleTap = (e: React.MouseEvent | React.TouchEvent, direction: 1 | -1) => {
-    e.preventDefault();
-    snapTo(selectedIndex + direction, true);
-  };
-
-  // Tap on roller body: upper half = prev, lower half = next
-  const handleRollerTap = (e: React.MouseEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const relY = e.clientY - rect.top;
-    if (relY < containerH / 2) {
-      snapTo(selectedIndex - 1, true);
-    } else {
-      snapTo(selectedIndex + 1, true);
-    }
+  // Single click: only fire if NOT a long press
+  const handleClick = (direction: 1 | -1) => {
+    if (didLongPress.current) return;
+    snapTo(selectedIndex + direction);
   };
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <span className="text-[10px] tracking-[0.18em] uppercase" style={{ color: "rgba(242,202,80,0.5)" }}>
+    <div className="flex flex-col items-center gap-0.5">
+      <span className="text-[10px] tracking-[0.18em] uppercase mb-0.5" style={{ color: "rgba(242,202,80,0.5)" }}>
         {label}
       </span>
 
       {/* Up arrow button */}
-      <motion.button
+      <button
         type="button"
-        className="w-full flex justify-center py-1 text-primary/40 hover:text-primary/80 transition-colors active:text-primary"
+        className="w-full flex justify-center py-1 text-primary/40 hover:text-primary/70 transition-colors active:text-primary active:scale-90"
         style={{ width }}
-        onMouseDown={(e) => { handleTap(e, -1); startLongPress(-1); }}
+        onClick={() => handleClick(-1)}
+        onMouseDown={() => startLongPress(-1)}
         onMouseUp={stopLongPress}
         onMouseLeave={stopLongPress}
-        onTouchStart={(e) => { e.preventDefault(); handleTap(e, -1); startLongPress(-1); }}
-        onTouchEnd={stopLongPress}
-        whileTap={{ scale: 0.85 }}
+        onTouchStart={() => startLongPress(-1)}
+        onTouchEnd={(e) => { e.preventDefault(); stopLongPress(); handleClick(-1); }}
       >
         <ChevronUp className="w-4 h-4" />
-      </motion.button>
+      </button>
 
       {/* Roller body */}
       <div
-        style={{ height: containerH, width, overflow: "hidden", position: "relative", borderRadius: 14, cursor: "pointer" }}
-        className="border border-primary/20 bg-black/40 backdrop-blur-sm"
-        onClick={handleRollerTap}
+        style={{ height: containerH, width, overflow: "hidden", position: "relative", borderRadius: 12 }}
+        className="border border-primary/15 bg-black/30 backdrop-blur-sm"
       >
         {/* Top fade */}
         <div className="absolute inset-x-0 top-0 z-20 pointer-events-none"
-          style={{ height: ITEM_H * 2.2, background: "linear-gradient(to bottom, #060810 0%, #060810 15%, transparent 100%)" }} />
+          style={{ height: ITEM_H * 2, background: "linear-gradient(to bottom, #060810 0%, #060810 10%, transparent 100%)" }} />
         {/* Bottom fade */}
         <div className="absolute inset-x-0 bottom-0 z-20 pointer-events-none"
-          style={{ height: ITEM_H * 2.2, background: "linear-gradient(to top, #060810 0%, #060810 15%, transparent 100%)" }} />
+          style={{ height: ITEM_H * 2, background: "linear-gradient(to top, #060810 0%, #060810 10%, transparent 100%)" }} />
 
         {/* Selection ring */}
         <div className="absolute inset-x-0 z-10 pointer-events-none"
           style={{
             top: ITEM_H * 2, height: ITEM_H,
-            borderTop: "1px solid rgba(242,202,80,0.4)",
-            borderBottom: "1px solid rgba(242,202,80,0.4)",
-            background: "linear-gradient(90deg, transparent, rgba(242,202,80,0.07), transparent)",
+            borderTop: "1px solid rgba(242,202,80,0.35)",
+            borderBottom: "1px solid rgba(242,202,80,0.35)",
+            background: "linear-gradient(90deg, transparent, rgba(242,202,80,0.06), transparent)",
           }}
         />
-        {/* Glow behind selected */}
-        <div className="absolute inset-x-0 z-0 pointer-events-none"
-          style={{
-            top: ITEM_H * 1.5, height: ITEM_H * 2,
-            background: "radial-gradient(ellipse at center, rgba(242,202,80,0.1) 0%, transparent 70%)",
-          }}
-        />
-
-        {/* Tap zones hint — top/bottom subtle gradient */}
-        <div className="absolute inset-x-0 top-0 z-5 pointer-events-none" style={{ height: "50%", background: "linear-gradient(to bottom, rgba(255,255,255,0.01), transparent)" }} />
 
         <motion.div style={{ y }}>
           {values.map((val, i) => {
@@ -162,18 +140,18 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
               <div key={val} style={{ height: ITEM_H }} className="flex items-center justify-center">
                 <motion.span
                   animate={{
-                    opacity: dist === 0 ? 1 : dist === 1 ? 0.35 : dist === 2 ? 0.12 : 0.04,
-                    scale: dist === 0 ? 1.2 : dist === 1 ? 0.9 : 0.78,
+                    opacity: dist === 0 ? 1 : dist === 1 ? 0.35 : dist === 2 ? 0.1 : 0.03,
+                    scale: dist === 0 ? 1.15 : dist === 1 ? 0.88 : 0.75,
                     color: dist === 0 ? "#F2CA50" : "#888780",
                   }}
                   transition={{ duration: 0.15 }}
                   style={{
-                    fontSize: dist === 0 ? 22 : 15,
+                    fontSize: dist === 0 ? 20 : 14,
                     fontWeight: dist === 0 ? 600 : 400,
                     fontFamily: "var(--font-mono, monospace)",
                     userSelect: "none",
                     letterSpacing: "0.04em",
-                    textShadow: dist === 0 ? "0 0 18px rgba(242,202,80,0.7)" : "none",
+                    textShadow: dist === 0 ? "0 0 14px rgba(242,202,80,0.6)" : "none",
                     pointerEvents: "none",
                   }}
                 >
@@ -186,19 +164,19 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
       </div>
 
       {/* Down arrow button */}
-      <motion.button
+      <button
         type="button"
-        className="w-full flex justify-center py-1 text-primary/40 hover:text-primary/80 transition-colors active:text-primary"
+        className="w-full flex justify-center py-1 text-primary/40 hover:text-primary/70 transition-colors active:text-primary active:scale-90"
         style={{ width }}
-        onMouseDown={(e) => { handleTap(e, 1); startLongPress(1); }}
+        onClick={() => handleClick(1)}
+        onMouseDown={() => startLongPress(1)}
         onMouseUp={stopLongPress}
         onMouseLeave={stopLongPress}
-        onTouchStart={(e) => { e.preventDefault(); handleTap(e, 1); startLongPress(1); }}
-        onTouchEnd={stopLongPress}
-        whileTap={{ scale: 0.85 }}
+        onTouchStart={() => startLongPress(1)}
+        onTouchEnd={(e) => { e.preventDefault(); stopLongPress(); handleClick(1); }}
       >
         <ChevronDown className="w-4 h-4" />
-      </motion.button>
+      </button>
     </div>
   );
 }
