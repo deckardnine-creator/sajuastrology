@@ -107,6 +107,68 @@ export default function ReadingPageClient() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [paidContentLoading]);
 
+  // Re-fetch reading from Supabase (used after generation completes)
+  const refreshReading = async () => {
+    const { data } = await supabase
+      .from("readings")
+      .select("*")
+      .eq("share_slug", slug)
+      .single();
+    if (data) {
+      setReading(data as ReadingData);
+    }
+    return data as ReadingData | null;
+  };
+
+  // Generate paid content and update state in-place (no page reload)
+  const generatePaidContent = async () => {
+    setPaidContentLoading(true);
+    setGenerationStep(0);
+
+    setTimeout(() => {
+      document.getElementById("generation-progress")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+
+    const stepTimer = setInterval(() => {
+      setGenerationStep((prev) => Math.min(prev + 1, 5));
+    }, 3500);
+
+    try {
+      const res = await fetch("/api/reading/generate-paid", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareSlug: slug }),
+      });
+      const data = await res.json();
+
+      clearInterval(stepTimer);
+
+      if (!res.ok || data.error) {
+        console.error("Paid generation failed:", data.error);
+        setPaidContentLoading(false);
+        return;
+      }
+
+      setGenerationStep(6);
+
+      // Wait for animation to show "complete" state, then refresh data
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      // Re-fetch reading with paid content from DB
+      await refreshReading();
+      setPaidContentLoading(false);
+
+      // Scroll to paid content after state update
+      setTimeout(() => {
+        document.getElementById("paid-content")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 300);
+    } catch (err) {
+      clearInterval(stepTimer);
+      console.error("Paid generation error:", err);
+      setPaidContentLoading(false);
+    }
+  };
+
   useEffect(() => {
     async function fetchReading() {
       const { data, error: fetchError } = await supabase
@@ -127,32 +189,7 @@ export default function ReadingPageClient() {
       // Auto-generate paid content if paid but not yet generated
       const r = data as ReadingData;
       if (r.is_paid && !r.paid_reading_career) {
-        setPaidContentLoading(true);
-        setGenerationStep(0);
-        setTimeout(() => {
-          document.getElementById("generation-progress")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        }, 300);
-        const stepTimer = setInterval(() => {
-          setGenerationStep((prev) => Math.min(prev + 1, 5));
-        }, 3500);
-
-        fetch("/api/reading/generate-paid", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ shareSlug: slug }),
-        })
-          .then((res) => res.json())
-          .then(() => {
-            clearInterval(stepTimer);
-            setGenerationStep(6);
-            setTimeout(() => {
-              window.location.href = `/reading/${slug}#paid-content`;
-            }, 800);
-          })
-          .catch(() => {
-            clearInterval(stepTimer);
-            setPaidContentLoading(false);
-          });
+        generatePaidContent();
       }
     }
 
@@ -166,20 +203,10 @@ export default function ReadingPageClient() {
     const sessionId = urlParams.get("session_id");
 
     if (payment === "success" && sessionId && slug) {
-      setPaidContentLoading(true);
-      setGenerationStep(0);
+      // Clean URL to prevent re-triggering on refresh
+      window.history.replaceState({}, "", `/reading/${slug}`);
 
-      // Scroll to loading section
-      setTimeout(() => {
-        document.getElementById("generation-progress")?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 300);
-
-      // Progress step timer (cosmetic - shows what's happening)
-      const stepTimer = setInterval(() => {
-        setGenerationStep((prev) => Math.min(prev + 1, 5));
-      }, 3500);
-
-      // Step 1: Verify payment (fast)
+      // Step 1: Verify payment
       fetch("/api/payment/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -188,26 +215,13 @@ export default function ReadingPageClient() {
         .then((res) => res.json())
         .then((data) => {
           if (!data.success) throw new Error("Verification failed");
-          setGenerationStep(1);
-          // Step 2: Generate paid reading (3x parallel Sonnet)
-          return fetch("/api/reading/generate-paid", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ shareSlug: slug }),
-          });
-        })
-        .then((res) => res.json())
-        .then(() => {
-          clearInterval(stepTimer);
-          setGenerationStep(6); // Complete
-          setTimeout(() => {
-            window.location.href = `/reading/${slug}#paid-content`;
-          }, 800);
+          // Step 2: Generate paid content (uses shared function)
+          generatePaidContent();
         })
         .catch((err) => {
-          clearInterval(stepTimer);
-          console.error("Payment flow error:", err);
-          window.location.href = `/reading/${slug}#paid-content`;
+          console.error("Payment verification error:", err);
+          // Even if verify fails, try generating (might already be marked paid)
+          generatePaidContent();
         });
     }
   }, [slug]);
