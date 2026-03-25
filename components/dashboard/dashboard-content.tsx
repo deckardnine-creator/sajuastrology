@@ -106,8 +106,8 @@ export function DashboardContent() {
     );
   }
 
-  const dayMasterElement = sajuData.chart.dayMaster.element as Element;
-  const dayMasterColor = ELEMENTS[dayMasterElement].color;
+  const dayMasterElement = (sajuData.chart.dayMaster.element || "water") as Element;
+  const dayMasterColor = ELEMENTS[dayMasterElement]?.color || "#F2CA50";
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -249,7 +249,7 @@ export function DashboardContent() {
           {(["hour", "day", "month", "year"] as const).map((pillarName) => {
             const pillar = sajuData.chart!.pillars[pillarName];
             const isDay = pillarName === "day";
-            const stemColor = ELEMENTS[pillar.stem.element as Element].color;
+            const stemColor = ELEMENTS[pillar.stem.element as Element]?.color || dayMasterColor;
 
             return (
               <div
