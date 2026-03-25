@@ -21,9 +21,23 @@ import { supabase } from "@/lib/supabase-client";
 interface SavedReading {
   id: string;
   name: string;
+  gender: string;
+  birth_date: string;
+  birth_city: string;
   share_slug: string;
   archetype: string;
+  ten_god: string;
+  harmony_score: number;
   day_master_element: string;
+  day_master_yinyang: string;
+  dominant_element: string;
+  weakest_element: string;
+  year_stem: string; year_branch: string;
+  month_stem: string; month_branch: string;
+  day_stem: string; day_branch: string;
+  hour_stem: string; hour_branch: string;
+  elements_wood: number; elements_fire: number; elements_earth: number;
+  elements_metal: number; elements_water: number;
   is_paid: boolean;
   created_at: string;
 }
@@ -54,7 +68,7 @@ export function DashboardContent() {
     (async () => {
       const { data } = await supabase
         .from("readings")
-        .select("id, name, share_slug, archetype, day_master_element, is_paid, created_at")
+        .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(20);
@@ -68,16 +82,10 @@ export function DashboardContent() {
     "water-yang": "壬", "water-yin": "癸",
   };
 
-  const setAsMyChart = async (readingId: string) => {
-    // Fetch full reading data
-    const { data } = await supabase
-      .from("readings")
-      .select("*")
-      .eq("id", readingId)
-      .single();
-    if (!data) return;
+  const setAsMyChart = (readingId: string) => {
+    const r = savedReadings.find((rd) => rd.id === readingId);
+    if (!r) return;
 
-    const r = data;
     const dmKey = `${r.day_master_element}-${r.day_master_yinyang}`;
     const reconstructed = {
       name: r.name,
@@ -108,7 +116,6 @@ export function DashboardContent() {
     saveSajuChart(reconstructed);
     setPrimaryReadingId(readingId);
     localStorage.setItem("primary-reading-id", readingId);
-    // Immediately recalculate energy score
     const newScore = calculateDailyEnergy(reconstructed, new Date());
     setDailyScore(newScore);
   };
