@@ -134,6 +134,46 @@
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Mobile safe area support */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Prevent mobile text size inflation */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Mobile-friendly scrolling */
+@media (max-width: 768px) {
+  body {
+    overscroll-behavior-y: none;
+  }
+  
+  /* Dashboard mobile bottom padding for nav */
+  .pb-mobile-nav {
+    padding-bottom: 4.5rem;
+  }
+  
+  /* Smoother font rendering on mobile */
+  h1, h2, h3, .font-serif {
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Fix overflow on mobile */
+  main {
+    overflow-x: hidden;
   }
 }
 
