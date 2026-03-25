@@ -1,25 +1,37 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { BirthDataForm } from "@/components/calculate/birth-data-form";
 import { CalculationAnimation } from "@/components/calculate/calculation-animation";
 import type { SajuChart } from "@/lib/saju-calculator";
 
-type Phase = "input" | "calculating";
+type Phase = "input" | "calculating" | "waiting";
 
 export default function CalculatePage() {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("input");
   const [sajuChart, setSajuChart] = useState<SajuChart | null>(null);
   const [birthCity, setBirthCity] = useState<string>("");
-  const apiResultRef = useRef<{ shareSlug: string } | null>(null);
+  const shareSlugRef = useRef<string | null>(null);
+  const apiDoneRef = useRef(false);
   const apiErrorRef = useRef<string | null>(null);
+  const animDoneRef = useRef(false);
+
+  const tryNavigate = useCallback(() => {
+    if (shareSlugRef.current && (animDoneRef.current || apiDoneRef.current)) {
+      router.push(`/reading/${shareSlugRef.current}`);
+    }
+  }, [router]);
 
   const handleCalculate = async (chart: SajuChart, city: string) => {
     setSajuChart(chart);
     setBirthCity(city);
     setPhase("calculating");
+    shareSlugRef.current = null;
+    apiDoneRef.current = false;
+    apiErrorRef.current = null;
+    animDoneRef.current = false;
 
     // Call AI API in background while animation plays
     try {
@@ -30,44 +42,59 @@ export default function CalculatePage() {
       });
 
       if (!res.ok) {
-        const errData = await res.json();
-        apiErrorRef.current = errData.error || "Failed to generate reading";
+        const errData = await res.json().catch(() => ({ error: "Unknown error" }));
+        console.error("API error:", errData);
+        apiErrorRef.current = errData.error || "Failed";
+        apiDoneRef.current = true;
         return;
       }
 
       const data = await res.json();
-      apiResultRef.current = { shareSlug: data.shareSlug };
+      shareSlugRef.current = data.shareSlug;
+      apiDoneRef.current = true;
+      tryNavigate();
     } catch (err) {
       console.error("API call failed:", err);
       apiErrorRef.current = "Network error";
+      apiDoneRef.current = true;
     }
   };
 
   const handleAnimationComplete = () => {
-    if (apiResultRef.current?.shareSlug) {
-      // AI reading ready → go to personalized reading page
-      router.push(`/reading/${apiResultRef.current.shareSlug}`);
-    } else if (apiErrorRef.current) {
-      // API failed → still go to reading page with fallback
-      alert("Reading generation took longer than expected. Please try again.");
-      setPhase("input");
-    } else {
-      // API still loading → wait a bit more then redirect
-      const checkInterval = setInterval(() => {
-        if (apiResultRef.current?.shareSlug) {
-          clearInterval(checkInterval);
-          router.push(`/reading/${apiResultRef.current.shareSlug}`);
-        }
-      }, 500);
-      // Timeout after 30 more seconds
-      setTimeout(() => {
-        clearInterval(checkInterval);
-        if (!apiResultRef.current?.shareSlug) {
-          alert("Reading generation is taking longer than usual. Please try again.");
-          setPhase("input");
-        }
-      }, 30000);
+    animDoneRef.current = true;
+
+    if (shareSlugRef.current) {
+      // API already done → navigate immediately
+      router.push(`/reading/${shareSlugRef.current}`);
+      return;
     }
+
+    if (apiErrorRef.current) {
+      setPhase("input");
+      return;
+    }
+
+    // API still loading → show waiting state
+    setPhase("waiting");
+
+    // Poll for completion
+    const checkInterval = setInterval(() => {
+      if (shareSlugRef.current) {
+        clearInterval(checkInterval);
+        router.push(`/reading/${shareSlugRef.current}`);
+      } else if (apiErrorRef.current) {
+        clearInterval(checkInterval);
+        setPhase("input");
+      }
+    }, 300);
+
+    // Give up after 25 more seconds
+    setTimeout(() => {
+      clearInterval(checkInterval);
+      if (!shareSlugRef.current) {
+        setPhase("input");
+      }
+    }, 25000);
   };
 
   return (
@@ -89,6 +116,15 @@ export default function CalculatePage() {
           birthCity={birthCity}
           onComplete={handleAnimationComplete}
         />
+      )}
+      {phase === "waiting" && (
+        <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
+          <div className="text-center px-6">
+            <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+            <p className="text-xl font-serif text-primary mb-2">Reading the stars for you...</p>
+            <p className="text-sm text-muted-foreground">Your personalized reading is being crafted. Just a few more seconds.</p>
+          </div>
+        </div>
       )}
     </main>
   );
