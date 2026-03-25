@@ -62,6 +62,8 @@ export async function POST(request: NextRequest) {
         return handleStart(body);
       case "submit-answers":
         return handleSubmitAnswers(body);
+      case "get-report":
+        return handleGetReport(body);
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
@@ -83,6 +85,30 @@ async function handleCheckCredits({ userId }: { userId: string }) {
     0
   );
   return NextResponse.json({ remaining });
+}
+
+/* --- Get Saved Report --- */
+
+async function handleGetReport({ consultationId, userId }: { consultationId: string; userId: string }) {
+  if (!consultationId || !userId) {
+    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  }
+
+  const res = await sbFetch(
+    `consultations?id=eq.${consultationId}&user_id=eq.${userId}&select=report_title,report,status`
+  );
+  const [consultation] = await res.json();
+
+  if (!consultation || consultation.status !== "completed") {
+    return NextResponse.json({ error: "Report not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({
+    report: {
+      title: consultation.report_title || "Consultation Report",
+      content: consultation.report,
+    },
+  });
 }
 
 /* --- Start Consultation --- */
@@ -115,11 +141,9 @@ async function handleStart({
     return NextResponse.json({ error: "No credits remaining" }, { status: 403 });
   }
 
-  // 2. Use one credit
-  await sbFetch(`consultation_credits?id=eq.${availableCredit.id}`, {
-    method: "PATCH",
-    body: JSON.stringify({ used_credits: availableCredit.used_credits + 1 }),
-  });
+  // 2. Reserve credit (don't deduct yet — deduct only on success)
+  const creditId = availableCredit.id;
+  const currentUsed = availableCredit.used_credits;
 
   // 3. Ask Claude whether clarification is needed
   const chartSummary = formatChartSummary(birthData);
@@ -160,10 +184,10 @@ Analyze whether this question needs clarification for a precise Saju consultatio
     parsed = { needsClarification: false };
   }
 
-  // 4. Create consultation record
+  // 4. Create consultation record (credit not yet deducted)
   const consultationData: any = {
     user_id: userId,
-    credit_id: availableCredit.id,
+    credit_id: creditId,
     category,
     initial_question: question,
     birth_data: birthData,
@@ -181,6 +205,12 @@ Analyze whether this question needs clarification for a precise Saju consultatio
   const [consultation] = await insertRes.json();
 
   if (parsed.needsClarification) {
+    // Deduct credit now — clarification flow started, consultation is reserved
+    await sbFetch(`consultation_credits?id=eq.${creditId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ used_credits: currentUsed + 1 }),
+    });
+
     return NextResponse.json({
       consultationId: consultation.id,
       needsClarification: true,
@@ -188,31 +218,51 @@ Analyze whether this question needs clarification for a precise Saju consultatio
     });
   }
 
-  // 5. Generate report directly
-  const report = await generateReport({
-    category,
-    question,
-    birthData,
-    clarifyingQuestions: null,
-    clarifyingAnswers: null,
-  });
+  // 5. Generate report directly — deduct credit only AFTER success
+  try {
+    const report = await generateReport({
+      category,
+      question,
+      birthData,
+      clarifyingQuestions: null,
+      clarifyingAnswers: null,
+    });
 
-  // Save report
-  await sbFetch(`consultations?id=eq.${consultation.id}`, {
-    method: "PATCH",
-    body: JSON.stringify({
-      report_title: report.title,
-      report: report.content,
-      status: "completed",
-      completed_at: new Date().toISOString(),
-    }),
-  });
+    // Success! Now deduct credit
+    await sbFetch(`consultation_credits?id=eq.${creditId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ used_credits: currentUsed + 1 }),
+    });
 
-  return NextResponse.json({
-    consultationId: consultation.id,
-    needsClarification: false,
-    report: { title: report.title, content: report.content },
-  });
+    // Save report
+    await sbFetch(`consultations?id=eq.${consultation.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        report_title: report.title,
+        report: report.content,
+        status: "completed",
+        completed_at: new Date().toISOString(),
+      }),
+    });
+
+    return NextResponse.json({
+      consultationId: consultation.id,
+      needsClarification: false,
+      report: { title: report.title, content: report.content },
+    });
+  } catch (genError: any) {
+    // Generation failed — do NOT deduct credit, mark consultation as failed
+    await sbFetch(`consultations?id=eq.${consultation.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "failed" }),
+    });
+
+    console.error("Report generation failed:", genError?.message || genError);
+    return NextResponse.json(
+      { error: "Report generation failed. Your credit was not used. Please try again." },
+      { status: 500 }
+    );
+  }
 }
 
 /* --- Submit Answers & Generate --- */
@@ -248,28 +298,42 @@ async function handleSubmitAnswers({
   });
 
   // 3. Generate report
-  const report = await generateReport({
-    category: consultation.category,
-    question: consultation.initial_question,
-    birthData: consultation.birth_data,
-    clarifyingQuestions: consultation.clarifying_questions,
-    clarifyingAnswers: answers,
-  });
+  try {
+    const report = await generateReport({
+      category: consultation.category,
+      question: consultation.initial_question,
+      birthData: consultation.birth_data,
+      clarifyingQuestions: consultation.clarifying_questions,
+      clarifyingAnswers: answers,
+    });
 
-  // 4. Save report
-  await sbFetch(`consultations?id=eq.${consultationId}`, {
-    method: "PATCH",
-    body: JSON.stringify({
-      report_title: report.title,
-      report: report.content,
-      status: "completed",
-      completed_at: new Date().toISOString(),
-    }),
-  });
+    // 4. Save report
+    await sbFetch(`consultations?id=eq.${consultationId}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        report_title: report.title,
+        report: report.content,
+        status: "completed",
+        completed_at: new Date().toISOString(),
+      }),
+    });
 
-  return NextResponse.json({
-    report: { title: report.title, content: report.content },
-  });
+    return NextResponse.json({
+      report: { title: report.title, content: report.content },
+    });
+  } catch (genError: any) {
+    // Generation failed — revert status so user can retry
+    await sbFetch(`consultations?id=eq.${consultationId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "clarifying" }),
+    });
+
+    console.error("Report generation failed:", genError?.message || genError);
+    return NextResponse.json(
+      { error: "Report generation failed. Please try again — your credit is safe." },
+      { status: 500 }
+    );
+  }
 }
 
 /* --- Report Generator --- */

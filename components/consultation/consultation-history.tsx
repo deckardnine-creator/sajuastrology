@@ -245,7 +245,17 @@ export function ConsultationHistory() {
                     ) : expandedReport ? (
                       <div className="p-4">
                         <div className="text-xs text-muted-foreground line-clamp-4 mb-3 whitespace-pre-line">
-                          {expandedReport.replace(/[#*]/g, "").slice(0, 500)}...
+                          {expandedReport
+                            .replace(/^#+ .+$/gm, "")
+                            .replace(/\*\*(.+?)\*\*/g, "$1")
+                            .replace(/\*(.+?)\*/g, "$1")
+                            .replace(/^[-•] /gm, "• ")
+                            .replace(/^\d+\.\s/gm, "")
+                            .replace(/---+/g, "")
+                            .replace(/\n{3,}/g, "\n\n")
+                            .trim()
+                            .slice(0, 500)}
+                          ...
                         </div>
                         <Link href={`/consultation?view=${c.id}`}>
                           <Button size="sm" variant="outline" className="text-xs">

@@ -101,6 +101,31 @@ export function ConsultationClient() {
     }
   }, [searchParams, user]);
 
+  /* ─── View saved report ─── */
+  useEffect(() => {
+    const viewId = searchParams.get("view");
+    if (viewId && user) {
+      loadSavedReport(viewId);
+    }
+  }, [searchParams, user]);
+
+  const loadSavedReport = async (consultationId: string) => {
+    try {
+      const res = await fetch("/api/consultation/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "get-report", consultationId, userId: user!.id }),
+      });
+      const data = await res.json();
+      if (data.report) {
+        setReport(data.report);
+        setStep("report");
+      }
+    } catch (err) {
+      console.error("Load report error:", err);
+    }
+  };
+
   const verifyPayment = async (sessionId: string) => {
     try {
       const res = await fetch("/api/payment/verify-consultation", {
@@ -701,27 +726,50 @@ function NoCreditsCTA({
 /* ─── Simple Markdown → HTML renderer ─── */
 
 function renderMarkdown(md: string): string {
-  return md
-    // Headers
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm, '<h2>$1</h2>')
-    // Bold & italic
-    .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // Bullet lists
-    .replace(/^[-•] (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-    // Numbered lists
-    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-    // Line breaks → paragraphs
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/^(?!<[hul])(.+)$/gm, '<p>$1</p>')
-    // Clean up empty tags
-    .replace(/<p><\/p>/g, '')
-    .replace(/<p>(<h[23]>)/g, '$1')
-    .replace(/(<\/h[23]>)<\/p>/g, '$1')
-    .replace(/<p>(<ul>)/g, '$1')
-    .replace(/(<\/ul>)<\/p>/g, '$1');
+  // Strip the first # heading (already shown in report header)
+  let text = md.replace(/^#\s+.+\n*/m, "").trim();
+
+  // Horizontal rules
+  text = text.replace(/^---+$/gm, '<hr class="my-6 border-border/50" />');
+
+  // Headers (process ### before ## before #)
+  text = text.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  text = text.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  text = text.replace(/^# (.+)$/gm, '<h2>$1</h2>');
+
+  // Bold & italic (order matters)
+  text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  text = text.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+
+  // Bullet lists — wrap consecutive <li> items in <ul>
+  text = text.replace(/^[-•] (.+)$/gm, '{{LI}}$1{{/LI}}');
+  text = text.replace(/({{LI}}[\s\S]*?{{\/LI}}\n?)+/g, (match) => {
+    const items = match.replace(/{{LI}}([\s\S]*?){{\/LI}}/g, '<li>$1</li>');
+    return `<ul>${items}</ul>`;
+  });
+
+  // Numbered lists
+  text = text.replace(/^\d+\.\s+(.+)$/gm, '{{OLI}}$1{{/OLI}}');
+  text = text.replace(/({{OLI}}[\s\S]*?{{\/OLI}}\n?)+/g, (match) => {
+    const items = match.replace(/{{OLI}}([\s\S]*?){{\/OLI}}/g, '<li>$1</li>');
+    return `<ol>${items}</ol>`;
+  });
+
+  // Paragraphs — split by double newlines, wrap non-tag lines
+  text = text
+    .split(/\n{2,}/)
+    .map((block) => {
+      const trimmed = block.trim();
+      if (!trimmed) return "";
+      // Don't wrap blocks that already start with HTML tags
+      if (/^<(h[1-6]|ul|ol|li|hr|p|div|blockquote)/.test(trimmed)) return trimmed;
+      return `<p>${trimmed.replace(/\n/g, "<br />")}</p>`;
+    })
+    .join("\n");
+
+  // Clean up any stray empty paragraphs
+  text = text.replace(/<p>\s*<\/p>/g, "");
+
+  return text;
 }
