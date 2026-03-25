@@ -1,24 +1,18 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  type ReactNode,
+} from "react";
+import { supabase } from "./supabase-client";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { SajuChart } from "./saju-calculator";
 
-// Demo user data for testing
-const DEMO_USER = {
-  id: "demo-user-1",
-  name: "Demo User",
-  email: "demo@sajuastrology.com",
-  image: "/api/placeholder/100/100",
-  subscription: "free" as const,
-};
-
-// Demo birth data
-const DEMO_BIRTH_DATA = {
-  birthDate: new Date(1990, 4, 15), // May 15, 1990
-  birthTime: "14:00",
-  birthCity: "Seoul",
-  gender: "female" as const,
-};
+/* ─── Types ─── */
 
 export interface User {
   id: string;
@@ -52,77 +46,121 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/* ─── Helpers ─── */
+
+function mapSupabaseUser(su: SupabaseUser): User {
+  const meta = su.user_metadata ?? {};
+  return {
+    id: su.id,
+    name: meta.full_name || meta.name || "User",
+    email: su.email || "",
+    image: meta.avatar_url || meta.picture || undefined,
+    subscription: "free", // Default to free; upgrade logic can query DB later
+  };
+}
+
+const EMPTY_SAJU: UserSajuData = {
+  chart: null,
+  birthDate: null,
+  birthTime: null,
+  birthCity: null,
+  gender: null,
+  readingGeneratedAt: null,
+};
+
+function loadSajuData(): UserSajuData {
+  try {
+    const raw = localStorage.getItem("saju-data");
+    if (!raw) return EMPTY_SAJU;
+    const parsed = JSON.parse(raw);
+    return {
+      ...parsed,
+      birthDate: parsed.birthDate ? new Date(parsed.birthDate) : null,
+      readingGeneratedAt: parsed.readingGeneratedAt
+        ? new Date(parsed.readingGeneratedAt)
+        : null,
+      chart: parsed.chart
+        ? { ...parsed.chart, birthDate: new Date(parsed.chart.birthDate) }
+        : null,
+    };
+  } catch {
+    return EMPTY_SAJU;
+  }
+}
+
+/* ─── Provider ─── */
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [sajuData, setSajuData] = useState<UserSajuData>({
-    chart: null,
-    birthDate: null,
-    birthTime: null,
-    birthCity: null,
-    gender: null,
-    readingGeneratedAt: null,
-  });
+  const [sajuData, setSajuData] = useState<UserSajuData>(EMPTY_SAJU);
   const [isLoading, setIsLoading] = useState(true);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
 
+  /* — Session bootstrap & auth listener — */
   useEffect(() => {
-    // Check for existing session in localStorage
-    const savedUser = localStorage.getItem("saju-user");
-    const savedSajuData = localStorage.getItem("saju-data");
-    
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    if (savedSajuData) {
-      const parsed = JSON.parse(savedSajuData);
-      setSajuData({
-        ...parsed,
-        birthDate: parsed.birthDate ? new Date(parsed.birthDate) : null,
-        readingGeneratedAt: parsed.readingGeneratedAt ? new Date(parsed.readingGeneratedAt) : null,
-        // Restore the chart's birthDate as a Date object
-        chart: parsed.chart ? {
-          ...parsed.chart,
-          birthDate: new Date(parsed.chart.birthDate),
-        } : null,
-      });
-    }
-    setIsLoading(false);
+    // 1. Restore existing session (fast)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(mapSupabaseUser(session.user));
+      }
+      setIsLoading(false);
+    });
+
+    // 2. Listen for future auth changes (sign-in, sign-out, token refresh)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        setUser(mapSupabaseUser(session.user));
+        setIsSignInModalOpen(false);
+        setIsLoading(false);
+      } else if (event === "SIGNED_OUT") {
+        setUser(null);
+      } else if (event === "TOKEN_REFRESHED" && session?.user) {
+        setUser(mapSupabaseUser(session.user));
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const openSignInModal = () => setIsSignInModalOpen(true);
-  const closeSignInModal = () => setIsSignInModalOpen(false);
+  /* — Restore saju chart data from localStorage — */
+  useEffect(() => {
+    setSajuData(loadSajuData());
+  }, []);
 
+  /* — Modal controls — */
+  const openSignInModal = useCallback(() => setIsSignInModalOpen(true), []);
+  const closeSignInModal = useCallback(() => setIsSignInModalOpen(false), []);
+
+  /* — Sign in via Google OAuth — */
   const signIn = async () => {
     setIsLoading(true);
-    
-    // Simulate Google OAuth - in production, use NextAuth.js
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // Set demo user
-    setUser(DEMO_USER);
-    localStorage.setItem("saju-user", JSON.stringify(DEMO_USER));
-    
-    // If no saju data exists, populate with demo data
-    const savedSajuData = localStorage.getItem("saju-data");
-    if (!savedSajuData) {
-      // User will need to generate their reading
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) {
+      console.error("Google OAuth error:", error.message);
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
-    closeSignInModal();
+    // Browser will redirect to Google → Supabase → /auth/callback
   };
 
-  const signOut = () => {
+  /* — Sign out — */
+  const signOut = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem("saju-user");
-    // Keep saju data for convenience
   };
 
+  /* — Save saju chart to localStorage — */
   const saveSajuChart = (chart: SajuChart) => {
     const newSajuData: UserSajuData = {
       chart,
       birthDate: chart.birthDate,
-      birthTime: "12:00", // From calculation
+      birthTime: "12:00",
       birthCity: chart.birthCity,
       gender: chart.gender,
       readingGeneratedAt: new Date(),
@@ -131,7 +169,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("saju-data", JSON.stringify(newSajuData));
   };
 
-  const isPremium = user?.subscription === "premium" || user?.subscription === "master";
+  const isPremium =
+    user?.subscription === "premium" || user?.subscription === "master";
 
   return (
     <AuthContext.Provider
