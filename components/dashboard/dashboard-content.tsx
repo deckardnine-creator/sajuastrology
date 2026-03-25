@@ -6,13 +6,10 @@ import { motion } from "framer-motion";
 import {
   Sparkles,
   Zap,
-  Calendar,
-  MessageCircle,
-  Share2,
-  UserPlus,
   ArrowRight,
-  TrendingUp,
   Crown,
+  FileText,
+  BarChart3,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { ELEMENTS, calculateDailyEnergy, type Element } from "@/lib/saju-calculator";
@@ -150,7 +147,7 @@ export function DashboardContent() {
           </div>
         </motion.div>
 
-        {/* Lucky Elements */}
+        {/* Favorable Elements */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -158,24 +155,25 @@ export function DashboardContent() {
           className="bg-card/50 backdrop-blur border border-border rounded-xl p-5"
         >
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">
-            Lucky Elements Today
+            Your Day Master
           </p>
-          <div className="flex gap-3">
-            {["water", "wood"].map((el) => (
-              <div
-                key={el}
-                className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold"
-                style={{
-                  backgroundColor: `${ELEMENTS[el as Element].color}20`,
-                  color: ELEMENTS[el as Element].color,
-                }}
-              >
-                {el.charAt(0).toUpperCase()}
-              </div>
-            ))}
+          <div className="flex items-center gap-3 mb-3">
+            <div
+              className="w-12 h-12 rounded-lg flex items-center justify-center text-xl font-serif"
+              style={{
+                backgroundColor: `${dayMasterColor}20`,
+                color: dayMasterColor,
+              }}
+            >
+              {sajuData.chart.dayMaster.zh}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground">{sajuData.chart.dayMaster.en}</p>
+              <p className="text-xs text-muted-foreground capitalize">{dayMasterElement} element</p>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground mt-3">
-            Water supports your day master
+          <p className="text-xs text-muted-foreground">
+            {sajuData.chart.archetype}
           </p>
         </motion.div>
 
@@ -187,11 +185,16 @@ export function DashboardContent() {
           className="bg-card/50 backdrop-blur border border-border rounded-xl p-5"
         >
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">
-            Quick Guidance
+            Today&apos;s Guidance
           </p>
           <p className="text-sm text-foreground leading-relaxed">
-            Morning hours favor creative work. Afternoon brings opportunities for connection
-            and collaboration.
+            {dailyScore >= 75
+              ? "Strong cosmic alignment today. Trust your instincts and take action on important decisions."
+              : dailyScore >= 60
+              ? "Balanced energy today. Good for steady progress — focus on relationships and collaboration."
+              : dailyScore >= 45
+              ? "Mixed energies today. Take time for reflection before making major commitments."
+              : "Gentle day ahead. Rest, recharge, and plan rather than push forward."}
           </p>
         </motion.div>
       </div>
@@ -208,7 +211,7 @@ export function DashboardContent() {
             Your Four Pillars
           </h2>
           <Link
-            href="/reading"
+            href="/calculate"
             className="text-sm text-primary hover:underline flex items-center gap-1"
           >
             View Full Reading <ArrowRight className="w-3 h-3" />
@@ -278,7 +281,7 @@ export function DashboardContent() {
         </div>
       </motion.section>
 
-      {/* Recent Activity */}
+      {/* Your Profile */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -286,20 +289,20 @@ export function DashboardContent() {
         className="mb-8"
       >
         <h2 className="text-sm tracking-wider text-muted-foreground uppercase mb-4">
-          Recent Activity
+          Your Profile
         </h2>
         <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 space-y-3">
           <div className="flex items-center gap-3 text-sm">
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-muted-foreground">
-              Your reading generated:{" "}
-              {sajuData.readingGeneratedAt?.toLocaleDateString() || "Recently"}
+              Archetype: <span className="text-foreground font-medium">{sajuData.chart.archetype}</span>
             </span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <Zap className="w-4 h-4 text-accent" />
             <span className="text-muted-foreground">
-              Archetype identified: <span className="text-foreground">{sajuData.chart.archetype}</span>
+              Reading generated:{" "}
+              <span className="text-foreground">{sajuData.readingGeneratedAt?.toLocaleDateString() || "Recently"}</span>
             </span>
           </div>
           <Link
@@ -307,7 +310,7 @@ export function DashboardContent() {
             className="flex items-center gap-3 text-sm text-purple-400 hover:underline"
           >
             <Crown className="w-4 h-4" />
-            <span>Ask a personal question with Master Consultation</span>
+            <span>Get a personalized Master Consultation</span>
             <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
@@ -322,26 +325,21 @@ export function DashboardContent() {
         <h2 className="text-sm tracking-wider text-muted-foreground uppercase mb-4">
           Quick Actions
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <QuickAction
             href="/consultation"
             icon={<Crown className="w-5 h-5" />}
             label="Saju Consultation"
           />
           <QuickAction
-            href="/oracle"
-            icon={<MessageCircle className="w-5 h-5" />}
-            label="Ask the Oracle"
+            href="/calculate"
+            icon={<Sparkles className="w-5 h-5" />}
+            label="View My Chart"
           />
           <QuickAction
-            href="/share"
-            icon={<Share2 className="w-5 h-5" />}
-            label="Share My Archetype"
-          />
-          <QuickAction
-            href="#invite"
-            icon={<UserPlus className="w-5 h-5" />}
-            label="Invite a Friend"
+            href="/pricing"
+            icon={<BarChart3 className="w-5 h-5" />}
+            label="View Pricing"
           />
         </div>
       </motion.section>

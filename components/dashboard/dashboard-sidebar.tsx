@@ -4,13 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Zap,
   TrendingUp,
-  Heart,
   Compass,
-  Calendar,
-  MessageCircle,
-  Settings,
   Sparkles,
   Crown,
 } from "lucide-react";
@@ -20,14 +15,10 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/daily", label: "Daily Energy", icon: Zap },
-  { href: "/wealth", label: "Wealth Path", icon: TrendingUp, locked: true },
-  { href: "/love", label: "Love Synergy", icon: Heart, locked: true },
-  { href: "/career", label: "Career Blueprint", icon: Compass, locked: true },
-  { href: "/yearly", label: "Yearly Forecast", icon: Calendar, locked: true },
-  { href: "/oracle", label: "Oracle Chat", icon: MessageCircle, pro: true },
+  { href: "/calculate", label: "My Saju Chart", icon: Sparkles },
   { href: "/consultation", label: "Consultation", icon: Crown, master: true },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/pricing", label: "Pricing", icon: TrendingUp },
+  { href: "/what-is-saju", label: "What is Saju?", icon: Compass },
 ];
 
 export function DashboardSidebar() {
@@ -100,8 +91,6 @@ export function DashboardSidebar() {
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
-            const isLocked = item.locked && !isPremium;
-            const isPro = item.pro && !isPremium;
             const isMaster = "master" in item && item.master;
 
             return (
@@ -113,25 +102,15 @@ export function DashboardSidebar() {
                       ? isMaster
                         ? "bg-purple-500/20 text-purple-300"
                         : "bg-primary/20 text-primary"
-                      : isLocked
-                      ? "text-muted-foreground/50 cursor-not-allowed"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
                   <Icon className="w-5 h-5" />
                   <span className="flex-1">{item.label}</span>
-                  {isPro && (
-                    <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">
-                      PRO
-                    </span>
-                  )}
                   {isMaster && (
                     <span className="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full">
                       MASTER
                     </span>
-                  )}
-                  {isLocked && (
-                    <span className="text-[10px] text-muted-foreground">Locked</span>
                   )}
                 </Link>
               </li>
