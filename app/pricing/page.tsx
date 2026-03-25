@@ -9,11 +9,8 @@ export default function PricingPage() {
 
       {/* Gold / cosmic pricing glow */}
       <div className="pointer-events-none fixed inset-0 -z-10">
-        {/* Gold top-center */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full bg-yellow-500/15 blur-[140px]" />
-        {/* Amber bottom-left */}
         <div className="absolute bottom-1/4 -left-20 w-[500px] h-[500px] rounded-full bg-amber-600/12 blur-[130px]" />
-        {/* Purple bottom-right */}
         <div className="absolute bottom-0 right-0 w-[450px] h-[450px] rounded-full bg-purple-700/15 blur-[130px]" />
       </div>
 
@@ -25,8 +22,7 @@ export default function PricingPage() {
               Choose Your <span className="gold-gradient-text">Path</span>
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Start free, upgrade when you&apos;re ready to unlock your full cosmic
-              potential.
+              Start free. Pay once when you&apos;re ready — no subscriptions, no recurring fees.
             </p>
           </div>
           <PricingCards />

@@ -10,24 +10,34 @@ import {
 
 const faqs = [
   {
-    question: "Can I cancel anytime?",
+    question: "Is there really no subscription?",
     answer:
-      "Yes, cancel instantly from Settings. No questions asked. Your access continues until the end of your billing period.",
+      "Correct. The Free Reading is completely free with no account required. The Full Destiny Reading is a one-time $9.99 payment — you pay once, and your reading is yours forever. No recurring charges, no hidden fees.",
+  },
+  {
+    question: "What do I get for free vs. paid?",
+    answer:
+      "The Free Reading gives you your Four Pillars, Day Master archetype, Five Elements balance, and a this-year overview. The $9.99 Full Destiny Reading unlocks your complete 10-year fortune cycle, detailed wealth/career/love analysis, health timing, and a permanent shareable page.",
+  },
+  {
+    question: "What is the Master Consultation?",
+    answer:
+      "It's a personalized, in-depth analysis of a specific life question — like a career change, relationship decision, or major life move. You submit your question, and within 24 hours you receive a 3,000–5,000 word Saju-based consultation delivered to your dashboard.",
   },
   {
     question: "What payment methods do you accept?",
     answer:
-      "All major credit cards and PayPal via Stripe. We also support Apple Pay and Google Pay for convenience.",
+      "All major credit cards via Stripe, plus Apple Pay and Google Pay. Your payment information is handled securely by Stripe — we never see or store your card details.",
   },
   {
     question: "Is my birth data private?",
     answer:
-      "Absolutely. We use bank-grade encryption (AES-256). Your data is never shared or sold. You can delete your account and all data at any time.",
+      "Absolutely. We use bank-grade encryption (AES-256). Your birth data is never shared or sold. You can delete your account and all data at any time from your dashboard.",
   },
   {
-    question: "What's Oracle Chat?",
+    question: "Can I share my reading with friends?",
     answer:
-      "It's like having a personal Saju master available 24/7. Ask about career timing, relationship decisions, or any life question. Our AI combines traditional Saju wisdom with modern analysis for personalized guidance.",
+      "Yes! Every reading generates a shareable card with your archetype and a teaser. Share it on Facebook, Twitter, Reddit, or any messenger. Your friends can click through to get their own free reading.",
   },
 ]
 
