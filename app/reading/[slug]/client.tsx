@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Share2, Lock, Sparkles, Bookmark } from "lucide-react";
+import { ArrowLeft, Lock, Sparkles, Bookmark } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
@@ -280,18 +280,6 @@ export default function ReadingPageClient() {
 
   const maxElement = Math.max(...Object.values(elements));
 
-  const shareUrl = `https://sajuastrology.com/reading/${reading.share_slug}`;
-  const shareText = `I just discovered I'm "${reading.archetype}" in Korean astrology (Saju). My Day Master is ${dmDisplay.en}. Get your free reading:`;
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      await navigator.share({ title: `${reading.name}'s Saju Reading`, text: shareText, url: shareUrl });
-    } else {
-      await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
-      alert("Link copied to clipboard!");
-    }
-  };
-
   return (
     <main className="min-h-screen">
       <Navbar />
@@ -299,13 +287,10 @@ export default function ReadingPageClient() {
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
 
           {/* Header */}
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
             <Link href="/calculate" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="w-4 h-4" /> New Reading
             </Link>
-            <Button variant="outline" size="sm" onClick={handleShare}>
-              <Share2 className="w-4 h-4 mr-2" /> Share
-            </Button>
           </motion.div>
 
           {/* Save & Share Banner — Google Sign In */}
