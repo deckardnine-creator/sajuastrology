@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Node.js runtime for longer timeout (no edge)
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey =
