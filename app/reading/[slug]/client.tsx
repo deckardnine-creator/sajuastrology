@@ -151,9 +151,15 @@ export default function ReadingPageClient() {
       await refreshReading();
       setPaidContentLoading(false);
 
+      // Wait for React to render paid sections, then scroll
       setTimeout(() => {
-        document.getElementById("paid-content")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 300);
+        const el = document.getElementById("paid-content");
+        if (el) {
+          const yOffset = -80; // Account for navbar
+          const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          window.scrollTo({ top: y, behavior: "smooth" });
+        }
+      }, 600);
     } catch (err) {
       clearInterval(stepTimer);
       console.error("Paid generation error:", err);
