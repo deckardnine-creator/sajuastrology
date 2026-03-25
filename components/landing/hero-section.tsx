@@ -4,7 +4,6 @@ import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { LiveCounterSimple } from "./live-counter"
 
 const pillars = [
   { chinese: "甲", english: "Wood", element: "wood", color: "text-secondary" },
@@ -78,23 +77,11 @@ export function HeroSection() {
                   size="lg"
                   className="gold-gradient text-primary-foreground font-semibold text-base px-7 group w-full sm:w-auto"
                 >
-                  Decode My Destiny
+                  See My Reading — Free
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
             </div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="flex items-center gap-2 text-sm text-muted-foreground"
-            >
-              <span className="font-semibold text-foreground">
-                <LiveCounterSimple startValue={2347892} />
-              </span>
-              <span>Readings Delivered</span>
-            </motion.div>
           </motion.div>
 
           {/* Right: Four Pillars — 모바일에서 작게, 데스크탑에서 크게 */}

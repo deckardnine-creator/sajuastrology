@@ -5,9 +5,7 @@ import { Globe } from "lucide-react"
 
 const footerLinks = [
   { label: "What is Saju?", href: "/what-is-saju" },
-  { label: "Features",      href: "/#features" },
   { label: "Pricing",       href: "/pricing" },
-  { label: "Reviews",       href: "/reviews" },
   { label: "Privacy",       href: "/privacy" },
   { label: "Terms",         href: "/terms" },
 ]
