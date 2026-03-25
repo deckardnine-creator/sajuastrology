@@ -49,18 +49,23 @@ export function DashboardContent() {
   const [savedReadings, setSavedReadings] = useState<SavedReading[]>([]);
   const [showAllReadings, setShowAllReadings] = useState(false);
   const [primaryReadingId, setPrimaryReadingId] = useState<string | null>(null);
+  const [canChangeToday, setCanChangeToday] = useState(true);
+  const [changeMessage, setChangeMessage] = useState("");
+
+  const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     setMounted(true);
-    // Load primary reading preference
     const savedPrimary = localStorage.getItem("primary-reading-id");
+    const lastChanged = localStorage.getItem("primary-changed-date");
     if (savedPrimary) setPrimaryReadingId(savedPrimary);
+    if (lastChanged === todayStr) setCanChangeToday(false);
 
     if (sajuData.chart) {
       const score = calculateDailyEnergy(sajuData.chart, new Date());
       setDailyScore(score);
     }
-  }, [sajuData.chart]);
+  }, [sajuData.chart, todayStr]);
 
   // Fetch user's saved readings from Supabase
   useEffect(() => {
@@ -83,6 +88,14 @@ export function DashboardContent() {
   };
 
   const setAsMyChart = (readingId: string) => {
+    if (primaryReadingId === readingId) return;
+
+    if (!canChangeToday) {
+      setChangeMessage("You can change your primary chart once per day. Try again tomorrow.");
+      setTimeout(() => setChangeMessage(""), 3000);
+      return;
+    }
+
     const r = savedReadings.find((rd) => rd.id === readingId);
     if (!r) return;
 
@@ -115,9 +128,13 @@ export function DashboardContent() {
 
     saveSajuChart(reconstructed);
     setPrimaryReadingId(readingId);
+    setCanChangeToday(false);
     localStorage.setItem("primary-reading-id", readingId);
-    // Force full reload to guarantee all components update
-    window.location.reload();
+    localStorage.setItem("primary-changed-date", todayStr);
+
+    // Instant score update
+    const newScore = calculateDailyEnergy(reconstructed, new Date());
+    setDailyScore(newScore);
   };
 
   const today = new Date();
@@ -353,8 +370,11 @@ export function DashboardContent() {
           </div>
           {!primaryReadingId && savedReadings.length > 0 && (
             <p className="text-xs text-amber-400/80 mb-3 flex items-center gap-1.5">
-              <Star className="w-3 h-3" /> Tap the star to set which reading is yours — it&apos;ll be used for your daily energy score.
+              <Star className="w-3 h-3" /> Tap the star to set which reading is yours — it powers your daily energy score. You can change once per day.
             </p>
+          )}
+          {changeMessage && (
+            <p className="text-xs text-red-400/80 mb-3">{changeMessage}</p>
           )}
           <div className="space-y-2">
             {(showAllReadings ? savedReadings : savedReadings.slice(0, 3)).map((r) => {
@@ -390,8 +410,8 @@ export function DashboardContent() {
                         e.stopPropagation();
                         setAsMyChart(r.id);
                       }}
-                      className={`p-2 transition-colors ${primaryReadingId === r.id ? "text-yellow-400" : "text-muted-foreground/30 hover:text-yellow-400/60"}`}
-                      title={primaryReadingId === r.id ? "This is your chart" : "Set as my chart"}
+                      className={`p-2 transition-colors ${primaryReadingId === r.id ? "text-yellow-400" : !canChangeToday ? "text-muted-foreground/20 cursor-not-allowed" : "text-muted-foreground/30 hover:text-yellow-400/60"}`}
+                      title={primaryReadingId === r.id ? "This is your chart" : !canChangeToday ? "You can change once per day" : "Set as my chart"}
                     >
                       <Star className="w-4 h-4" fill={primaryReadingId === r.id ? "currentColor" : "none"} />
                     </button>
