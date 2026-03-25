@@ -13,10 +13,7 @@ export async function POST(request: NextRequest) {
 
     // ═══ VALIDATION ═══
     if (!chart || !chart.name || !chart.dayMaster) {
-      return NextResponse.json(
-        { error: "Invalid chart data: missing name or dayMaster" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid chart data" }, { status: 400 });
     }
 
     if (
@@ -25,10 +22,7 @@ export async function POST(request: NextRequest) {
       !chart.pillars?.day?.stem?.zh ||
       !chart.pillars?.hour?.stem?.zh
     ) {
-      return NextResponse.json(
-        { error: "Invalid chart data: incomplete pillar information" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Incomplete pillar data" }, { status: 400 });
     }
 
     if (typeof chart.birthDate === "string") {
@@ -92,69 +86,47 @@ export async function POST(request: NextRequest) {
 
     const [exactResult, pillarResult] = await Promise.allSettled([
       fetch(`${supabaseUrl}/rest/v1/readings?${exactParams}`, { headers: dbHeaders })
-        .then(async (r) => (r.ok ? r.json() : null))
-        .catch(() => null),
+        .then(async (r) => (r.ok ? r.json() : null)).catch(() => null),
       fetch(`${supabaseUrl}/rest/v1/readings?${pillarParams}`, { headers: dbHeaders })
-        .then(async (r) => (r.ok ? r.json() : null))
-        .catch(() => null),
+        .then(async (r) => (r.ok ? r.json() : null)).catch(() => null),
     ]);
 
     const exactData = exactResult.status === "fulfilled" ? exactResult.value : null;
     const pillarData = pillarResult.status === "fulfilled" ? pillarResult.value : null;
 
-    const cacheTime = Date.now() - startTime;
-    console.log(`Cache check took ${cacheTime}ms`);
-
-    // ═══ CHECK 1: Exact same person ═══
+    // CHECK 1: Exact same person
     if (exactData?.length > 0 && exactData[0].free_reading_personality) {
-      return NextResponse.json({
-        success: true,
-        shareSlug: exactData[0].share_slug,
-        existing: true,
-      });
+      return NextResponse.json({ success: true, shareSlug: exactData[0].share_slug, existing: true });
     }
 
-    // ═══ CHECK 2: Same pillars → reuse cached AI text ═══
+    // CHECK 2: Same pillars → reuse cached AI text
     if (pillarData?.length > 0 && pillarData[0].free_reading_personality) {
       const shareSlug = generateShareSlug();
-      const cachedReading = pillarData[0];
+      const c = pillarData[0];
 
       const insertBody: Record<string, any> = {
-        name: chart.name,
-        gender: chart.gender,
-        birth_date: birthDateStr,
-        birth_hour: 12,
-        birth_city: chart.birthCity,
-        year_stem: ys, year_branch: yb,
-        month_stem: ms, month_branch: mb,
-        day_stem: ds, day_branch: db,
-        hour_stem: hs, hour_branch: hb,
-        day_master_element: chart.dayMaster.element,
-        day_master_yinyang: chart.dayMaster.yinYang,
-        archetype: chart.archetype,
-        ten_god: chart.tenGod,
-        harmony_score: chart.harmonyScore,
-        dominant_element: chart.dominantElement,
-        weakest_element: chart.weakestElement,
-        elements_wood: chart.elements.wood,
-        elements_fire: chart.elements.fire,
-        elements_earth: chart.elements.earth,
-        elements_metal: chart.elements.metal,
+        name: chart.name, gender: chart.gender, birth_date: birthDateStr,
+        birth_hour: 12, birth_city: chart.birthCity,
+        year_stem: ys, year_branch: yb, month_stem: ms, month_branch: mb,
+        day_stem: ds, day_branch: db, hour_stem: hs, hour_branch: hb,
+        day_master_element: chart.dayMaster.element, day_master_yinyang: chart.dayMaster.yinYang,
+        archetype: chart.archetype, ten_god: chart.tenGod, harmony_score: chart.harmonyScore,
+        dominant_element: chart.dominantElement, weakest_element: chart.weakestElement,
+        elements_wood: chart.elements.wood, elements_fire: chart.elements.fire,
+        elements_earth: chart.elements.earth, elements_metal: chart.elements.metal,
         elements_water: chart.elements.water,
-        free_reading_personality: cachedReading.free_reading_personality,
-        free_reading_year: cachedReading.free_reading_year,
-        free_reading_element: cachedReading.free_reading_element,
-        share_slug: shareSlug,
-        is_paid: false,
+        free_reading_personality: c.free_reading_personality,
+        free_reading_year: c.free_reading_year,
+        free_reading_element: c.free_reading_element,
+        share_slug: shareSlug, is_paid: false,
       };
-
-      if (cachedReading.paid_reading_career) {
-        insertBody.paid_reading_career = cachedReading.paid_reading_career;
-        insertBody.paid_reading_love = cachedReading.paid_reading_love;
-        insertBody.paid_reading_health = cachedReading.paid_reading_health;
-        insertBody.paid_reading_decade = cachedReading.paid_reading_decade;
-        insertBody.paid_reading_monthly = cachedReading.paid_reading_monthly;
-        insertBody.paid_reading_hidden_talent = cachedReading.paid_reading_hidden_talent;
+      if (c.paid_reading_career) {
+        insertBody.paid_reading_career = c.paid_reading_career;
+        insertBody.paid_reading_love = c.paid_reading_love;
+        insertBody.paid_reading_health = c.paid_reading_health;
+        insertBody.paid_reading_decade = c.paid_reading_decade;
+        insertBody.paid_reading_monthly = c.paid_reading_monthly;
+        insertBody.paid_reading_hidden_talent = c.paid_reading_hidden_talent;
       }
 
       const dbRes = await fetch(`${supabaseUrl}/rest/v1/readings`, {
@@ -162,176 +134,81 @@ export async function POST(request: NextRequest) {
         headers: { ...dbHeaders, Prefer: "return=minimal" },
         body: JSON.stringify(insertBody),
       });
-
-      if (dbRes.ok) {
-        return NextResponse.json({ success: true, shareSlug, cached: true });
-      }
-      console.error("Cached insert failed:", dbRes.status, await dbRes.text());
+      if (dbRes.ok) return NextResponse.json({ success: true, shareSlug, cached: true });
     }
 
-    // ═══ NO CACHE: Generate fresh AI reading ═══
+    // ═══ GENERATE: Sonnet 4 with 45s timeout (Vercel Pro = 60s limit) ═══
     const apiKey = process.env.ANTHROPIC_API_KEY || "";
-    if (!apiKey) {
-      return NextResponse.json({ error: "AI service not configured" }, { status: 500 });
-    }
+    if (!apiKey) return NextResponse.json({ error: "AI not configured" }, { status: 500 });
 
     const prompt = buildFreeReadingPrompt(chart);
-    const aiStartTime = Date.now();
 
-    // Strategy: Race Sonnet vs delayed Haiku
-    // - Sonnet starts immediately (best quality)
-    // - After 10s, Haiku also starts (fast backup)
-    // - First valid response wins
-    const controller1 = new AbortController();
-    const controller2 = new AbortController();
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 45000);
 
-    const makeCall = async (
-      model: string,
-      signal: AbortSignal,
-      delayMs: number = 0
-    ): Promise<{ result: any; model: string } | null> => {
-      try {
-        if (delayMs > 0) {
-          await new Promise((resolve) => setTimeout(resolve, delayMs));
-          // Check if already aborted during delay
-          if (signal.aborted) return null;
-        }
+    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 2500,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      signal: controller.signal,
+    });
 
-        const res = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": apiKey,
-            "anthropic-version": "2023-06-01",
-          },
-          body: JSON.stringify({
-            model,
-            max_tokens: 2000,
-            messages: [{ role: "user", content: prompt }],
-          }),
-          signal,
-        });
+    clearTimeout(timer);
 
-        if (!res.ok) {
-          const errText = await res.text();
-          console.error(`${model} API error: ${res.status} ${errText.substring(0, 200)}`);
-          return null;
-        }
-
-        const data = await res.json();
-        const rawText = data.content?.[0]?.text || "";
-        const cleaned = rawText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-        const parsed = JSON.parse(cleaned);
-
-        if (!parsed.personality || !parsed.year_forecast || !parsed.element_guidance) {
-          console.error(`${model} incomplete response`);
-          return null;
-        }
-
-        return { result: parsed, model };
-      } catch (err: any) {
-        if (err?.name !== "AbortError") {
-          console.error(`${model} error:`, err?.message);
-        }
-        return null;
-      }
-    };
-
-    // Race: Sonnet (immediate) vs Haiku (starts after 10s delay)
-    // If Sonnet finishes in <10s → Haiku never even starts the API call
-    // If Sonnet is slow → Haiku response arrives at ~13-15s mark
-    let aiReading: any = null;
-    let usedModel = "";
-
-    try {
-      const winner = await Promise.any([
-        makeCall("claude-sonnet-4-20250514", controller1.signal, 0)
-          .then((r) => { if (!r) throw new Error("sonnet-fail"); return r; }),
-        makeCall("claude-haiku-4-5-20251001", controller2.signal, 10000)
-          .then((r) => { if (!r) throw new Error("haiku-fail"); return r; }),
-      ]);
-
-      aiReading = winner.result;
-      usedModel = winner.model;
-
-      // Cancel the loser
-      controller1.abort();
-      controller2.abort();
-    } catch {
-      // Both failed — try one more time with Haiku only, no race
-      console.error("Race failed. Last-resort Haiku attempt...");
-      try {
-        const lastResort = await makeCall(
-          "claude-haiku-4-5-20251001",
-          new AbortController().signal,
-          0
-        );
-        if (lastResort) {
-          aiReading = lastResort.result;
-          usedModel = lastResort.model;
-        }
-      } catch {
-        // Give up
-      }
+    if (!anthropicRes.ok) {
+      const errText = await anthropicRes.text();
+      console.error("Anthropic error:", anthropicRes.status, errText.substring(0, 200));
+      return NextResponse.json({ error: `AI error (${anthropicRes.status})` }, { status: 500 });
     }
 
-    const aiTime = Date.now() - aiStartTime;
-    console.log(`AI generation took ${aiTime}ms using ${usedModel || "none"}`);
+    const aiData = await anthropicRes.json();
+    const rawText = aiData.content?.[0]?.text || "";
 
-    if (!aiReading) {
-      const totalTime = Date.now() - startTime;
-      return NextResponse.json(
-        { error: `AI generation failed after ${Math.round(totalTime / 1000)}s — please try again` },
-        { status: 500 }
-      );
+    let aiReading: { personality: string; year_forecast: string; element_guidance: string };
+    try {
+      const cleaned = rawText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+      aiReading = JSON.parse(cleaned);
+    } catch {
+      console.error("Parse error:", rawText.substring(0, 500));
+      return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
+    }
+
+    if (!aiReading.personality || !aiReading.year_forecast || !aiReading.element_guidance) {
+      return NextResponse.json({ error: "Incomplete AI response" }, { status: 500 });
     }
 
     const shareSlug = generateShareSlug();
 
-    const dbRes = await fetch(`${supabaseUrl}/rest/v1/readings`, {
+    await fetch(`${supabaseUrl}/rest/v1/readings`, {
       method: "POST",
       headers: { ...dbHeaders, Prefer: "return=minimal" },
       body: JSON.stringify({
-        name: chart.name,
-        gender: chart.gender,
-        birth_date: birthDateStr,
-        birth_hour: 12,
-        birth_city: chart.birthCity,
-        year_stem: ys, year_branch: yb,
-        month_stem: ms, month_branch: mb,
-        day_stem: ds, day_branch: db,
-        hour_stem: hs, hour_branch: hb,
-        day_master_element: chart.dayMaster.element,
-        day_master_yinyang: chart.dayMaster.yinYang,
-        archetype: chart.archetype,
-        ten_god: chart.tenGod,
-        harmony_score: chart.harmonyScore,
-        dominant_element: chart.dominantElement,
-        weakest_element: chart.weakestElement,
-        elements_wood: chart.elements.wood,
-        elements_fire: chart.elements.fire,
-        elements_earth: chart.elements.earth,
-        elements_metal: chart.elements.metal,
+        name: chart.name, gender: chart.gender, birth_date: birthDateStr,
+        birth_hour: 12, birth_city: chart.birthCity,
+        year_stem: ys, year_branch: yb, month_stem: ms, month_branch: mb,
+        day_stem: ds, day_branch: db, hour_stem: hs, hour_branch: hb,
+        day_master_element: chart.dayMaster.element, day_master_yinyang: chart.dayMaster.yinYang,
+        archetype: chart.archetype, ten_god: chart.tenGod, harmony_score: chart.harmonyScore,
+        dominant_element: chart.dominantElement, weakest_element: chart.weakestElement,
+        elements_wood: chart.elements.wood, elements_fire: chart.elements.fire,
+        elements_earth: chart.elements.earth, elements_metal: chart.elements.metal,
         elements_water: chart.elements.water,
         free_reading_personality: aiReading.personality,
         free_reading_year: aiReading.year_forecast,
         free_reading_element: aiReading.element_guidance,
-        share_slug: shareSlug,
-        is_paid: false,
+        share_slug: shareSlug, is_paid: false,
       }),
     });
 
-    if (!dbRes.ok) {
-      const dbErr = await dbRes.text();
-      console.error("Supabase insert error:", dbRes.status, dbErr);
-      return NextResponse.json(
-        { error: `Database error: ${dbErr.substring(0, 200)}` },
-        { status: 500 }
-      );
-    }
-
-    const totalTime = Date.now() - startTime;
-    console.log(`Total request: ${totalTime}ms (cache: ${cacheTime}ms, AI: ${aiTime}ms, model: ${usedModel})`);
+    console.log(`Free reading: ${Date.now() - startTime}ms (Sonnet)`);
 
     return NextResponse.json({
       success: true,
@@ -343,11 +220,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (err: any) {
-    const totalTime = Date.now() - startTime;
-    console.error(`Unhandled error after ${totalTime}ms:`, err?.message || err);
-    return NextResponse.json(
-      { error: `Server error after ${Math.round(totalTime / 1000)}s: ${err?.message || "unknown"}` },
-      { status: 500 }
-    );
+    console.error(`Free reading error after ${Date.now() - startTime}ms:`, err?.message || err);
+    return NextResponse.json({ error: "Server error: " + (err?.message || "unknown") }, { status: 500 });
   }
 }
