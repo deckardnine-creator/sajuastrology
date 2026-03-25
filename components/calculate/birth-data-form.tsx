@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, useMotionValue, animate, AnimatePresence } from "framer-motion";
-import { MapPin, User, Sparkles, Check, Globe, Clock, ChevronUp, ChevronDown } from "lucide-react";
+import { MapPin, User, Sparkles, Check, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { calculateSaju, type SajuChart } from "@/lib/saju-calculator";
-import { searchCities, formatLongitude, calculateSolarVariance, type City } from "@/lib/cities-data";
+import { searchCities, type City } from "@/lib/cities-data";
 
 const CUR_YEAR = new Date().getFullYear();
 const YEARS   = Array.from({ length: CUR_YEAR - 1919 }, (_, i) => String(1920 + i));
@@ -310,33 +310,27 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
         <div className="relative z-10">
           <motion.div initial={{ opacity:0,y:20 }} animate={{ opacity:1,y:0 }} transition={{ duration:0.7 }}>
-            <h1 className="font-serif text-3xl lg:text-5xl text-primary mb-2">Consult the Oracle</h1>
-            <p className="text-muted-foreground text-sm tracking-[0.22em] uppercase mb-10">Input Birth Chronology</p>
+            <h1 className="font-serif text-3xl lg:text-5xl text-primary mb-2">Discover Your Destiny</h1>
+            <p className="text-muted-foreground text-sm tracking-[0.22em] uppercase mb-10">Enter Your Birth Details</p>
           </motion.div>
           <motion.div className="space-y-6" initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.3, duration:0.7 }}>
-            <div className="flex items-center gap-3">
-              <Globe className="w-5 h-5 text-primary" />
-              <div>
-                <p className="text-[10px] text-muted-foreground tracking-[0.15em] uppercase">Longitude</p>
-                <p className="text-xl font-mono text-foreground">{selectedCity ? formatLongitude(selectedCity.longitude) : "----.----° -"}</p>
-              </div>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Western astrology gives you <span className="text-foreground font-medium">1 of 12</span> types.
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Saju maps <span className="text-primary font-semibold">518,400</span> unique cosmic profiles from the exact moment and place you were born.
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Your reading will be ready in <span className="text-foreground font-medium">30 seconds</span>.
+              </p>
             </div>
-            <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-accent" />
-              <div>
-                <p className="text-[10px] text-muted-foreground tracking-[0.15em] uppercase">Solar Variance</p>
-                <p className="text-xl font-mono text-foreground">{selectedCity ? calculateSolarVariance(selectedCity.longitude) : "--m --s"}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {selectedCity
-                ? <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center"><Check className="w-3 h-3 text-accent" /></div>
-                : <div className="w-5 h-5 rounded-full border border-muted-foreground/30" />}
-              <div>
-                <p className="text-[10px] text-muted-foreground tracking-[0.15em] uppercase">Solar Noon Sync</p>
-                <p className={`text-sm ${selectedCity ? "text-accent" : "text-muted-foreground"}`}>{selectedCity ? "Calibrated" : "Awaiting coordinates"}</p>
-              </div>
-            </div>
+            {selectedCity && (
+              <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} className="flex items-center gap-3 pt-2">
+                <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center"><Check className="w-3 h-3 text-accent" /></div>
+                <p className="text-sm text-accent">{selectedCity.name} coordinates locked</p>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </div>
@@ -357,7 +351,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
               {/* Name */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Seeker's Name</label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Your Name</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input type="text" placeholder="Enter your name..." value={name} onChange={(e)=>setName(e.target.value)} className="pl-10 bg-background/50 border-border focus:border-primary" />
@@ -366,12 +360,12 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
               {/* Gender */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Biological Polarity</label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Gender</label>
                 <div className="flex gap-3">
                   {(["male","female"] as const).map((g)=>(
                     <button key={g} type="button" onClick={()=>setGender(g)}
                       className={`flex-1 py-3 px-4 rounded-lg border text-sm transition-all duration-200 ${gender===g ? "bg-primary/15 border-primary text-primary shadow-[0_0_16px_rgba(242,202,80,0.15)]" : "bg-background/50 border-border text-muted-foreground hover:border-primary/40"}`}>
-                      {g==="male"?"♂ YANG / MALE":"♀ YIN / FEMALE"}
+                      {g==="male"?"Male":"Female"}
                     </button>
                   ))}
                 </div>
@@ -379,7 +373,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
               {/* Date drums */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Solar Cycle (Date)</label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Birthday</label>
                 <div className="flex gap-2 justify-center items-center">
                   <DrumRoller values={YEARS}  selectedIndex={yearIdx}  onChange={setYearIdx}  label="Year"  width={88} />
                   <span className="text-primary/25 text-2xl font-light select-none pb-1">·</span>
@@ -391,7 +385,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
               {/* Time drums */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Moment (Time)</label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Birth Time</label>
                 <AnimatePresence>
                   {!unknownTime && (
                     <motion.div initial={{opacity:0,height:0}} animate={{opacity:1,height:"auto"}} exit={{opacity:0,height:0}}
@@ -413,7 +407,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
               {/* City */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Origin Coordinates</label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Birth City</label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input type="text" placeholder="City of birth..." value={cityQuery}
@@ -442,9 +436,8 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                 className="w-full h-14 gold-gradient text-primary-foreground font-semibold text-base tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{ letterSpacing:"0.12em" }}>
                 <Sparkles className="w-4 h-4 mr-2" />
-                CALCULATE DESTINY
+                See My Reading
               </Button>
-              <p className="text-center text-[10px] text-muted-foreground/40 tracking-[0.18em]">ENCRYPTION GRADE: HIGH-SEC METAPHYSICAL</p>
             </form>
           </div>
         </motion.div>
