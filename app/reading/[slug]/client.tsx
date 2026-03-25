@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, Lock, Sparkles, Bookmark, Share2, Check, Crown } from "lucide-react";
@@ -89,6 +89,7 @@ const DAY_MASTER_DISPLAY: Record<string, { zh: string; en: string }> = {
 
 export default function ReadingPageClient() {
   const params = useParams();
+  const router = useRouter();
   const slug = params.slug as string;
   const { user, openSignInModal } = useAuth();
   const [reading, setReading] = useState<ReadingData | null>(null);
@@ -320,9 +321,9 @@ export default function ReadingPageClient() {
 
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <Link href="/calculate" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft className="w-4 h-4" /> New Reading
-            </Link>
+            <button onClick={() => router.back()} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowLeft className="w-4 h-4" /> Back
+            </button>
           </motion.div>
 
           {/* Save & Share Banner */}
