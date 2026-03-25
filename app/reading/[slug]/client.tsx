@@ -89,6 +89,8 @@ export default function ReadingPageClient() {
   const [reading, setReading] = useState<ReadingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paidContentLoading, setPaidContentLoading] = useState(false);
 
   useEffect(() => {
     async function fetchReading() {
@@ -110,6 +112,49 @@ export default function ReadingPageClient() {
 
     if (slug) fetchReading();
   }, [slug]);
+
+  // Handle payment success redirect
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const payment = urlParams.get("payment");
+    const sessionId = urlParams.get("session_id");
+
+    if (payment === "success" && sessionId && slug) {
+      setPaidContentLoading(true);
+      // Verify payment and generate paid reading
+      fetch("/api/payment/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, shareSlug: slug }),
+      })
+        .then((res) => res.json())
+        .then(() => {
+          // Reload reading data to get paid content
+          window.location.href = `/reading/${slug}`;
+        })
+        .catch(() => {
+          setPaidContentLoading(false);
+        });
+    }
+  }, [slug]);
+
+  const handleUnlock = async () => {
+    if (!reading) return;
+    setPaymentLoading(true);
+    try {
+      const res = await fetch("/api/payment/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareSlug: reading.share_slug, readingName: reading.name }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      setPaymentLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -301,7 +346,62 @@ export default function ReadingPageClient() {
             </div>
           </motion.section>
 
-          {/* Locked Premium Content */}
+          {/* Paid Content (visible after payment) */}
+          {reading.is_paid && reading.paid_reading_career && (
+            <>
+              <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
+                <h2 className="font-serif text-xl font-semibold mb-4">Career & Wealth Blueprint</h2>
+                <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
+                  <div className="prose prose-invert prose-sm max-w-none">
+                    {reading.paid_reading_career.split("\n\n").map((para, i) => (
+                      <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
+                    ))}
+                  </div>
+                </div>
+              </motion.section>
+
+              {reading.paid_reading_love && (
+                <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }} className="mb-10">
+                  <h2 className="font-serif text-xl font-semibold mb-4">Love & Relationships</h2>
+                  <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
+                    <div className="prose prose-invert prose-sm max-w-none">
+                      {reading.paid_reading_love.split("\n\n").map((para, i) => (
+                        <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
+                      ))}
+                    </div>
+                  </div>
+                </motion.section>
+              )}
+
+              {reading.paid_reading_health && (
+                <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="mb-10">
+                  <h2 className="font-serif text-xl font-semibold mb-4">Health & Wellness</h2>
+                  <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
+                    <div className="prose prose-invert prose-sm max-w-none">
+                      {reading.paid_reading_health.split("\n\n").map((para, i) => (
+                        <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
+                      ))}
+                    </div>
+                  </div>
+                </motion.section>
+              )}
+
+              {reading.paid_reading_decade && (
+                <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }} className="mb-10">
+                  <h2 className="font-serif text-xl font-semibold mb-4">10-Year Fortune Cycle</h2>
+                  <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
+                    <div className="prose prose-invert prose-sm max-w-none">
+                      {reading.paid_reading_decade.split("\n\n").map((para, i) => (
+                        <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
+                      ))}
+                    </div>
+                  </div>
+                </motion.section>
+              )}
+            </>
+          )}
+
+          {/* Locked Premium Content (visible when NOT paid) */}
           {!reading.is_paid && (
             <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
               <div className="relative overflow-hidden rounded-2xl border border-border">
@@ -336,13 +436,37 @@ export default function ReadingPageClient() {
                     <p className="text-muted-foreground text-sm mb-4 max-w-sm mx-auto">
                       10-year forecast, career blueprint, love analysis, health guidance — all personalized to your chart.
                     </p>
-                    <Button className="gold-gradient text-primary-foreground font-semibold px-8">
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Unlock Full Reading — $9.99
+                    <Button 
+                      className="gold-gradient text-primary-foreground font-semibold px-8"
+                      onClick={handleUnlock}
+                      disabled={paymentLoading}
+                    >
+                      {paymentLoading ? (
+                        <span className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                          Processing...
+                        </span>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Unlock Full Reading — $9.99
+                        </>
+                      )}
                     </Button>
                     <p className="text-xs text-muted-foreground/50 mt-2">One-time payment. Yours forever.</p>
                   </div>
                 </div>
+              </div>
+            </motion.section>
+          )}
+
+          {/* Payment processing overlay */}
+          {paidContentLoading && (
+            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-10">
+              <div className="bg-card/50 backdrop-blur border border-primary/30 rounded-2xl p-8 text-center">
+                <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-primary font-serif text-lg mb-2">Generating your full reading...</p>
+                <p className="text-muted-foreground text-sm">Your personalized career, love, and 10-year forecast is being crafted.</p>
               </div>
             </motion.section>
           )}
