@@ -108,6 +108,9 @@ export function DashboardContent() {
     saveSajuChart(reconstructed);
     setPrimaryReadingId(readingId);
     localStorage.setItem("primary-reading-id", readingId);
+    // Immediately recalculate energy score
+    const newScore = calculateDailyEnergy(reconstructed, new Date());
+    setDailyScore(newScore);
   };
 
   const today = new Date();
