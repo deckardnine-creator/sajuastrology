@@ -26,6 +26,7 @@ const navItems = [
   { href: "/career", label: "Career Blueprint", icon: Compass, locked: true },
   { href: "/yearly", label: "Yearly Forecast", icon: Calendar, locked: true },
   { href: "/oracle", label: "Oracle Chat", icon: MessageCircle, pro: true },
+  { href: "/consultation", label: "Consultation", icon: Crown, master: true },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -101,6 +102,7 @@ export function DashboardSidebar() {
             const Icon = item.icon;
             const isLocked = item.locked && !isPremium;
             const isPro = item.pro && !isPremium;
+            const isMaster = "master" in item && item.master;
 
             return (
               <li key={item.href}>
@@ -108,7 +110,9 @@ export function DashboardSidebar() {
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
                     isActive
-                      ? "bg-primary/20 text-primary"
+                      ? isMaster
+                        ? "bg-purple-500/20 text-purple-300"
+                        : "bg-primary/20 text-primary"
                       : isLocked
                       ? "text-muted-foreground/50 cursor-not-allowed"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -121,6 +125,11 @@ export function DashboardSidebar() {
                       PRO
                     </span>
                   )}
+                  {isMaster && (
+                    <span className="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full">
+                      MASTER
+                    </span>
+                  )}
                   {isLocked && (
                     <span className="text-[10px] text-muted-foreground">Locked</span>
                   )}
@@ -131,12 +140,15 @@ export function DashboardSidebar() {
         </ul>
       </nav>
 
-      {/* Oracle CTA */}
+      {/* Consultation CTA */}
       <div className="p-4 border-t border-border">
-        <Link href="/oracle">
-          <Button className="w-full gold-gradient text-primary-foreground">
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Consult Oracle
+        <Link href="/consultation">
+          <Button
+            className="w-full text-white font-medium"
+            style={{ background: "linear-gradient(135deg, #a78bfa, #7c3aed)" }}
+          >
+            <Crown className="w-4 h-4 mr-2" />
+            Saju Consultation
           </Button>
         </Link>
       </div>

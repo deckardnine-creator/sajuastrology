@@ -12,10 +12,12 @@ import {
   UserPlus,
   ArrowRight,
   TrendingUp,
+  Crown,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { ELEMENTS, calculateDailyEnergy, type Element } from "@/lib/saju-calculator";
 import { Button } from "@/components/ui/button";
+import { ConsultationHistory } from "@/components/consultation/consultation-history";
 
 export function DashboardContent() {
   const { user, sajuData } = useAuth();
@@ -238,6 +240,9 @@ export function DashboardContent() {
         </div>
       </motion.section>
 
+      {/* ★ My Consultations — NEW SECTION ★ */}
+      <ConsultationHistory />
+
       {/* Weekly Outlook */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
@@ -298,11 +303,11 @@ export function DashboardContent() {
             </span>
           </div>
           <Link
-            href="/pricing"
-            className="flex items-center gap-3 text-sm text-primary hover:underline"
+            href="/consultation"
+            className="flex items-center gap-3 text-sm text-purple-400 hover:underline"
           >
-            <TrendingUp className="w-4 h-4" />
-            <span>Next: Unlock your 10-year Wealth Path forecast</span>
+            <Crown className="w-4 h-4" />
+            <span>Ask a personal question with Master Consultation</span>
             <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
@@ -319,9 +324,9 @@ export function DashboardContent() {
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <QuickAction
-            href="/compatibility"
-            icon={<Calendar className="w-5 h-5" />}
-            label="Check Compatibility"
+            href="/consultation"
+            icon={<Crown className="w-5 h-5" />}
+            label="Saju Consultation"
           />
           <QuickAction
             href="/oracle"

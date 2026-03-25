@@ -12,37 +12,42 @@ const faqs = [
   {
     question: "Is there really no subscription?",
     answer:
-      "Correct. The Free Reading is completely free with no account required. The Full Destiny Reading is a one-time $9.99 payment — you pay once, and your reading is yours forever. The Master Consultation is $29.99 for 5 sessions. No recurring charges, no hidden fees.",
+      "None at all. The Free Reading is completely free — no account needed, no credit card. The Full Destiny Reading is a one-time $9.99 payment, and your reading page is permanent. The Master Consultation is $29.99 for 5 sessions. Once you pay, you own it. No recurring charges, no auto-renewal, no hidden fees.",
   },
   {
     question: "What do I get for free vs. paid?",
     answer:
-      "The Free Reading gives you your Four Pillars, Day Master archetype, Five Elements balance, and a this-year overview. The $9.99 Full Destiny Reading unlocks your complete 10-year fortune cycle, detailed wealth/career/love analysis, health timing, and a permanent shareable page.",
+      "The Free Reading decodes your Four Pillars (사주팔자), reveals your Day Master archetype, shows your Five Elements balance chart, and gives you a snapshot of this year's fortune — plus a shareable cosmic profile card. The $9.99 Full Destiny Reading unlocks everything: a detailed 10-year fortune cycle (대운) analysis, wealth and career blueprint, love and relationship insights, health timing guidance, a monthly energy calendar, and a permanent reading page that's yours forever.",
   },
   {
     question: "What is the Master Consultation?",
     answer:
-      "It's a personal AI Saju consultation service. You get 5 sessions for $29.99 ($6 each). Submit a life question — career change, relationship timing, investment decisions — and our AI analyzes it through your Saju chart. If your question needs more detail, the AI will ask follow-up questions first. Each session produces a 2,000–4,000 word personalized report, saved to your dashboard.",
+      "Think of it as a personal Saju advisor session. You submit a specific life question — about career moves, relationship timing, financial decisions, or anything weighing on your mind — and receive a 2,000–4,000 word personalized analysis grounded in your unique birth chart. Each reading examines how your Four Pillars, element balance, and current cosmic cycles relate to your specific situation, with concrete timing guidance and actionable insights.",
   },
   {
     question: "How does the consultation process work?",
     answer:
-      "1) Choose a topic and write your question. 2) If your question is broad, the AI asks clarifying questions to ensure precision. 3) Once enough context is gathered, the AI generates a detailed Saju-based report analyzing your question through your birth chart. 4) Your report is saved to your dashboard and can be revisited anytime.",
+      "It's straightforward. First, choose a topic area and describe your question in detail. If your question would benefit from more specifics, you'll get a couple of clarifying questions to help narrow the focus — this ensures a precise, relevant reading rather than generic advice. Once enough context is gathered, your full report is generated and saved to your dashboard. You can revisit it anytime.",
+  },
+  {
+    question: "How accurate is Saju analysis?",
+    answer:
+      "Saju (四柱命理) is a centuries-old system rooted in the interactions of the Five Elements, Heavenly Stems, and Earthly Branches — the same framework that has guided decisions in Korean, Chinese, and East Asian cultures for over a thousand years. The accuracy of your reading depends on the precision of your birth data. With the correct birth date, time, and location, Saju maps out 518,400 unique cosmic profiles — far more nuanced than Western astrology's 12 types.",
   },
   {
     question: "What payment methods do you accept?",
     answer:
-      "All major credit cards via Stripe, plus Apple Pay and Google Pay. In the mobile app, payments are processed through Apple App Store or Google Play Store. Your payment information is always handled securely.",
+      "We accept all major credit and debit cards (Visa, Mastercard, Amex) processed securely through Stripe. Apple Pay and Google Pay are also available. All transactions are encrypted and your payment details are never stored on our servers.",
   },
   {
     question: "Is my birth data private?",
     answer:
-      "Absolutely. We use bank-grade encryption (AES-256). Your birth data is never shared or sold. You can delete your account and all data at any time from your dashboard.",
+      "Yes. Your birth data is encrypted with AES-256 and is never shared with third parties or used for any purpose other than generating your readings. You have full control — you can delete your account and all associated data at any time from your dashboard settings.",
   },
   {
     question: "Can I share my reading with friends?",
     answer:
-      "Yes! Every reading generates a shareable card with your archetype and a teaser. Share it on social media or any messenger. Your friends can click through to get their own free reading.",
+      "Absolutely. Every reading comes with a shareable cosmic profile card featuring your archetype and a preview. Share it anywhere — social media, messaging apps, or email. When your friends click through, they can discover their own Four Pillars with a free reading.",
   },
 ]
 
