@@ -98,7 +98,8 @@ export function buildFreeReadingPrompt(chart: SajuChart): string {
   const elementDynamic = getElementDynamic(dominant, weakest, dm.element as Element);
   
   const currentYear = new Date().getFullYear();
-  const birthYear = chart.birthDate.getFullYear();
+  const bd = typeof chart.birthDate === "string" ? new Date(chart.birthDate) : chart.birthDate;
+  const birthYear = bd.getFullYear();
   const age = currentYear - birthYear;
 
   // Build element distribution description
@@ -148,7 +149,8 @@ RESPOND WITH ONLY THE JSON. No markdown, no backticks, no explanation.`;
 export function buildPaidReadingPrompt(chart: SajuChart): string {
   const dm = chart.dayMaster;
   const currentYear = new Date().getFullYear();
-  const birthYear = chart.birthDate.getFullYear();
+  const bd2 = typeof chart.birthDate === "string" ? new Date(chart.birthDate) : chart.birthDate;
+  const birthYear = bd2.getFullYear();
   const age = currentYear - birthYear;
 
   const elementStr = `Wood: ${chart.elements.wood}, Fire: ${chart.elements.fire}, Earth: ${chart.elements.earth}, Metal: ${chart.elements.metal}, Water: ${chart.elements.water}`;
