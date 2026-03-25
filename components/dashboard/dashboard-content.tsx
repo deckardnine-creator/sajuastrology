@@ -10,6 +10,7 @@ import {
   FileText,
   ExternalLink,
   Share2,
+  Star,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { ELEMENTS, calculateDailyEnergy, type Element } from "@/lib/saju-calculator";
@@ -28,14 +29,19 @@ interface SavedReading {
 }
 
 export function DashboardContent() {
-  const { user, sajuData } = useAuth();
+  const { user, sajuData, saveSajuChart } = useAuth();
   const [dailyScore, setDailyScore] = useState(72);
   const [mounted, setMounted] = useState(false);
   const [savedReadings, setSavedReadings] = useState<SavedReading[]>([]);
   const [showAllReadings, setShowAllReadings] = useState(false);
+  const [primaryReadingId, setPrimaryReadingId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
+    // Load primary reading preference
+    const savedPrimary = localStorage.getItem("primary-reading-id");
+    if (savedPrimary) setPrimaryReadingId(savedPrimary);
+
     if (sajuData.chart) {
       const score = calculateDailyEnergy(sajuData.chart, new Date());
       setDailyScore(score);
@@ -55,6 +61,54 @@ export function DashboardContent() {
       setSavedReadings(data || []);
     })();
   }, [user]);
+
+  const DAY_MASTER_ZH: Record<string, string> = {
+    "wood-yang": "甲", "wood-yin": "乙", "fire-yang": "丙", "fire-yin": "丁",
+    "earth-yang": "戊", "earth-yin": "己", "metal-yang": "庚", "metal-yin": "辛",
+    "water-yang": "壬", "water-yin": "癸",
+  };
+
+  const setAsMyChart = async (readingId: string) => {
+    // Fetch full reading data
+    const { data } = await supabase
+      .from("readings")
+      .select("*")
+      .eq("id", readingId)
+      .single();
+    if (!data) return;
+
+    const r = data;
+    const dmKey = `${r.day_master_element}-${r.day_master_yinyang}`;
+    const reconstructed = {
+      name: r.name,
+      gender: r.gender as "male" | "female",
+      birthDate: new Date(r.birth_date),
+      birthCity: r.birth_city,
+      dayMaster: {
+        zh: DAY_MASTER_ZH[dmKey] || "?",
+        en: `${r.day_master_yinyang === "yang" ? "Yang" : "Yin"} ${r.day_master_element.charAt(0).toUpperCase() + r.day_master_element.slice(1)}`,
+        element: r.day_master_element,
+        yinYang: r.day_master_yinyang,
+      },
+      pillars: {
+        year:  { stem: { zh: r.year_stem,  en: "", element: "" }, branch: { zh: r.year_branch,  en: "", element: "" } },
+        month: { stem: { zh: r.month_stem, en: "", element: "" }, branch: { zh: r.month_branch, en: "", element: "" } },
+        day:   { stem: { zh: r.day_stem,   en: "", element: "" }, branch: { zh: r.day_branch,   en: "", element: "" } },
+        hour:  { stem: { zh: r.hour_stem,  en: "", element: "" }, branch: { zh: r.hour_branch,  en: "", element: "" } },
+      },
+      archetype: r.archetype,
+      tenGod: r.ten_god,
+      harmonyScore: r.harmony_score,
+      dominantElement: r.dominant_element,
+      weakestElement: r.weakest_element,
+      elements: { wood: r.elements_wood, fire: r.elements_fire, earth: r.elements_earth, metal: r.elements_metal, water: r.elements_water },
+      elementBalance: { wood: r.elements_wood, fire: r.elements_fire, earth: r.elements_earth, metal: r.elements_metal, water: r.elements_water },
+    } as any;
+
+    saveSajuChart(reconstructed);
+    setPrimaryReadingId(readingId);
+    localStorage.setItem("primary-reading-id", readingId);
+  };
 
   const today = new Date();
   const formattedDate = today.toLocaleDateString("en-US", {
@@ -287,6 +341,11 @@ export function DashboardContent() {
               New Reading <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
+          {!primaryReadingId && savedReadings.length > 0 && (
+            <p className="text-xs text-amber-400/80 mb-3 flex items-center gap-1.5">
+              <Star className="w-3 h-3" /> Tap the star to set which reading is yours — it&apos;ll be used for your daily energy score.
+            </p>
+          )}
           <div className="space-y-2">
             {(showAllReadings ? savedReadings : savedReadings.slice(0, 3)).map((r) => {
               const elColor = ELEMENTS[(r.day_master_element as Element) || "water"]?.color || "#6B7280";
@@ -302,6 +361,9 @@ export function DashboardContent() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">
                       {r.name}&apos;s Reading
+                      {primaryReadingId === r.id && (
+                        <span className="ml-2 text-[10px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded-full">MY CHART</span>
+                      )}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {r.archetype}
@@ -311,7 +373,18 @@ export function DashboardContent() {
                       </span>
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setAsMyChart(r.id);
+                      }}
+                      className={`p-2 transition-colors ${primaryReadingId === r.id ? "text-yellow-400" : "text-muted-foreground/30 hover:text-yellow-400/60"}`}
+                      title={primaryReadingId === r.id ? "This is your chart" : "Set as my chart"}
+                    >
+                      <Star className="w-4 h-4" fill={primaryReadingId === r.id ? "currentColor" : "none"} />
+                    </button>
                     <button
                       onClick={(e) => {
                         e.preventDefault();
