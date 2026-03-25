@@ -7,9 +7,6 @@ import {
   User,
   LayoutDashboard,
   Sparkles,
-  Calendar,
-  MessageCircle,
-  Settings,
   LogOut,
   Crown,
 } from "lucide-react";
@@ -107,28 +104,15 @@ export function UserMenu() {
                   onClick={() => setIsOpen(false)}
                 />
                 <MenuItem
-                  href="/reading"
+                  href="/calculate"
                   icon={<Sparkles className="w-4 h-4" />}
-                  label="My Reading"
+                  label="My Saju Chart"
                   onClick={() => setIsOpen(false)}
                 />
                 <MenuItem
-                  href="/daily"
-                  icon={<Calendar className="w-4 h-4" />}
-                  label="Daily Energy"
-                  onClick={() => setIsOpen(false)}
-                />
-                <MenuItem
-                  href="/oracle"
-                  icon={<MessageCircle className="w-4 h-4" />}
-                  label="Oracle Chat"
-                  badge={!isPremium ? "PRO" : undefined}
-                  onClick={() => setIsOpen(false)}
-                />
-                <MenuItem
-                  href="/settings"
-                  icon={<Settings className="w-4 h-4" />}
-                  label="Settings"
+                  href="/consultation"
+                  icon={<Crown className="w-4 h-4" />}
+                  label="Consultation"
                   onClick={() => setIsOpen(false)}
                 />
               </div>

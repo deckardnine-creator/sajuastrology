@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BirthDataForm } from "@/components/calculate/birth-data-form";
 import { CalculationAnimation } from "@/components/calculate/calculation-animation";
+import { useAuth } from "@/lib/auth-context";
 import type { SajuChart } from "@/lib/saju-calculator";
 
 type Phase = "input" | "calculating" | "waiting" | "error";
@@ -180,6 +181,7 @@ function ReadingLoader({ chart }: { chart: SajuChart | null }) {
 
 export default function CalculatePage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [phase, setPhase] = useState<Phase>("input");
   const [sajuChart, setSajuChart] = useState<SajuChart | null>(null);
   const [birthCity, setBirthCity] = useState<string>("");
@@ -209,7 +211,7 @@ export default function CalculatePage() {
       const res = await fetch("/api/reading/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chart }),
+        body: JSON.stringify({ chart, userId: user?.id || null }),
       });
 
       if (!res.ok) {
@@ -307,22 +309,7 @@ export default function CalculatePage() {
       </div>
 
       {phase === "input" && (
-        <>
-          <div className="fixed top-0 left-0 right-0 z-40 px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-7xl flex h-16 items-center">
-              <button
-                onClick={() => router.back()}
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-                </svg>
-                Back
-              </button>
-            </div>
-          </div>
-          <BirthDataForm onCalculate={handleCalculate} />
-        </>
+        <BirthDataForm onCalculate={handleCalculate} />
       )}
       {phase === "calculating" && sajuChart && (
         <CalculationAnimation

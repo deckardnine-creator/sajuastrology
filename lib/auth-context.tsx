@@ -88,6 +88,42 @@ function loadSajuData(): UserSajuData {
   }
 }
 
+/* ─── Claim unclaimed readings after sign-in ─── */
+
+async function claimReadings(userId: string) {
+  try {
+    const raw = localStorage.getItem("saju-data");
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    const chart = parsed.chart;
+    if (!chart?.name || !chart?.birthDate) return;
+
+    // Find unclaimed readings matching this chart data
+    const birthDate = new Date(chart.birthDate);
+    const birthDateStr = `${birthDate.getFullYear()}-${String(birthDate.getMonth() + 1).padStart(2, "0")}-${String(birthDate.getDate()).padStart(2, "0")}`;
+
+    const { data: unclaimed } = await supabase
+      .from("readings")
+      .select("id")
+      .eq("name", chart.name)
+      .eq("birth_date", birthDateStr)
+      .is("user_id", null)
+      .limit(5);
+
+    if (unclaimed && unclaimed.length > 0) {
+      for (const reading of unclaimed) {
+        await supabase
+          .from("readings")
+          .update({ user_id: userId })
+          .eq("id", reading.id)
+          .is("user_id", null);
+      }
+    }
+  } catch (err) {
+    console.error("Claim readings error:", err);
+  }
+}
+
 /* ─── Provider ─── */
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -114,6 +150,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(mapSupabaseUser(session.user));
         setIsSignInModalOpen(false);
         setIsLoading(false);
+        // Claim any unclaimed readings
+        claimReadings(session.user.id);
       } else if (event === "SIGNED_OUT") {
         setUser(null);
       } else if (event === "TOKEN_REFRESHED" && session?.user) {

@@ -10,16 +10,30 @@ import {
   Crown,
   FileText,
   BarChart3,
+  ExternalLink,
+  Share2,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { ELEMENTS, calculateDailyEnergy, type Element } from "@/lib/saju-calculator";
 import { Button } from "@/components/ui/button";
 import { ConsultationHistory } from "@/components/consultation/consultation-history";
+import { supabase } from "@/lib/supabase-client";
+
+interface SavedReading {
+  id: string;
+  name: string;
+  share_slug: string;
+  archetype: string;
+  day_master_element: string;
+  is_paid: boolean;
+  created_at: string;
+}
 
 export function DashboardContent() {
   const { user, sajuData } = useAuth();
   const [dailyScore, setDailyScore] = useState(72);
   const [mounted, setMounted] = useState(false);
+  const [savedReadings, setSavedReadings] = useState<SavedReading[]>([]);
 
   useEffect(() => {
     setMounted(true);
@@ -28,6 +42,20 @@ export function DashboardContent() {
       setDailyScore(score);
     }
   }, [sajuData.chart]);
+
+  // Fetch user's saved readings from Supabase
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from("readings")
+        .select("id, name, share_slug, archetype, day_master_element, is_paid, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      setSavedReadings(data || []);
+    })();
+  }, [user]);
 
   const today = new Date();
   const formattedDate = today.toLocaleDateString("en-US", {
@@ -243,7 +271,71 @@ export function DashboardContent() {
         </div>
       </motion.section>
 
-      {/* ★ My Consultations — NEW SECTION ★ */}
+      {/* ★ My Saved Readings ★ */}
+      {savedReadings.length > 0 && (
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45 }}
+          className="mb-8"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm tracking-wider text-muted-foreground uppercase flex items-center gap-2">
+              <FileText className="w-4 h-4 text-primary" />
+              My Readings
+            </h2>
+            <Link href="/calculate" className="text-sm text-primary hover:underline flex items-center gap-1">
+              New Reading <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {savedReadings.map((r) => {
+              const elColor = ELEMENTS[(r.day_master_element as Element) || "water"]?.color || "#6B7280";
+              return (
+                <div key={r.id} className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: `${elColor}20` }}
+                  >
+                    <Sparkles className="w-5 h-5" style={{ color: elColor }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {r.name}&apos;s Reading
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {r.archetype}
+                      {r.is_paid && <span className="ml-2 text-primary">· Premium</span>}
+                      <span className="ml-2">
+                        · {new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/reading/${r.share_slug}`);
+                      }}
+                      className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                      title="Copy share link"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                    <Link
+                      href={`/reading/${r.share_slug}`}
+                      className="p-2 text-primary hover:text-foreground transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </motion.section>
+      )}
+
+      {/* ★ My Consultations ★ */}
       <ConsultationHistory />
 
       {/* Weekly Outlook */}

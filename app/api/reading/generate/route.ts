@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const chart = body.chart as SajuChart;
+    const userId = body.userId || null; // Optional: link reading to user account
 
     if (!chart || !chart.name || !chart.dayMaster) {
       return NextResponse.json({ error: "Invalid chart data" }, { status: 400 });
@@ -64,6 +65,14 @@ export async function POST(request: NextRequest) {
     const pillarData = pillarResult.status === "fulfilled" ? pillarResult.value : null;
 
     if (exactData?.length > 0 && exactData[0].free_reading_personality) {
+      // If user is logged in and reading isn't claimed yet, claim it
+      if (userId) {
+        await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${exactData[0].share_slug}&user_id=is.null`, {
+          method: "PATCH",
+          headers: { ...dbHeaders, Prefer: "return=minimal" },
+          body: JSON.stringify({ user_id: userId }),
+        }).catch(() => {}); // Non-critical
+      }
       return NextResponse.json({ success: true, shareSlug: exactData[0].share_slug, existing: true });
     }
 
@@ -82,6 +91,7 @@ export async function POST(request: NextRequest) {
         elements_earth: chart.elements.earth, elements_metal: chart.elements.metal, elements_water: chart.elements.water,
         free_reading_personality: c.free_reading_personality, free_reading_year: c.free_reading_year,
         free_reading_element: c.free_reading_element, share_slug: shareSlug, is_paid: false,
+        ...(userId ? { user_id: userId } : {}),
       };
       if (c.paid_reading_career) {
         insertBody.paid_reading_career = c.paid_reading_career; insertBody.paid_reading_love = c.paid_reading_love;
@@ -144,6 +154,7 @@ export async function POST(request: NextRequest) {
         elements_earth: chart.elements.earth, elements_metal: chart.elements.metal, elements_water: chart.elements.water,
         free_reading_personality: aiReading.personality, free_reading_year: aiReading.year_forecast,
         free_reading_element: aiReading.element_guidance, share_slug: shareSlug, is_paid: false,
+        ...(userId ? { user_id: userId } : {}),
       }),
     });
 
