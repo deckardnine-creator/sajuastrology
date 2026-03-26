@@ -23,6 +23,7 @@ import { getDailyFortune } from "@/lib/daily-fortune";
 import { Button } from "@/components/ui/button";
 import { ConsultationHistory } from "@/components/consultation/consultation-history";
 import { supabase } from "@/lib/supabase-client";
+import { safeGet, safeSet } from "@/lib/safe-storage";
 
 interface SavedReading {
   id: string;
@@ -67,9 +68,9 @@ export function DashboardContent() {
 
   useEffect(() => {
     setMounted(true);
-    const savedPrimary = localStorage.getItem("primary-reading-id");
+    const savedPrimary = safeGet("primary-reading-id");
     if (savedPrimary) setPrimaryReadingId(savedPrimary);
-    const lastChanged = localStorage.getItem("primary-changed-date");
+    const lastChanged = safeGet("primary-changed-date");
     if (lastChanged === todayLocal) setCanChangeToday(false);
   }, [todayLocal]);
 
@@ -89,13 +90,13 @@ export function DashboardContent() {
       const readings = data || [];
       setSavedReadings(readings);
       setReadingsLoaded(true);
-      const currentPrimary = localStorage.getItem("primary-reading-id");
+      const currentPrimary = safeGet("primary-reading-id");
       if (readings.length > 0) {
         const primaryExists = readings.some((r) => r.id === currentPrimary);
         if (!currentPrimary || !primaryExists) {
           const d = readings[0];
           setPrimaryReadingId(d.id);
-          localStorage.setItem("primary-reading-id", d.id);
+          safeSet("primary-reading-id", d.id);
           if (!sajuData.chart) saveSajuChart(reconstructChartFromReading(d) as SajuChart);
         }
       }
@@ -116,8 +117,8 @@ export function DashboardContent() {
     saveSajuChart(reconstructed as SajuChart);
     setPrimaryReadingId(readingId);
     setCanChangeToday(false);
-    localStorage.setItem("primary-reading-id", readingId);
-    localStorage.setItem("primary-changed-date", todayLocal);
+    safeSet("primary-reading-id", readingId);
+    safeSet("primary-changed-date", todayLocal);
     setDailyScore(calculateDailyEnergy(reconstructed as SajuChart, new Date()));
     setSwitchMessage(`Switched to ${r.name}'s chart!`);
     setTimeout(() => setSwitchMessage(""), 2500);

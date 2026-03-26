@@ -6,18 +6,10 @@ import { useRouter } from "next/navigation";
 import { BirthDataForm } from "@/components/calculate/birth-data-form";
 import { CalculationAnimation } from "@/components/calculate/calculation-animation";
 import { useAuth } from "@/lib/auth-context";
+import { ELEMENT_COLORS } from "@/lib/constants";
 import type { SajuChart } from "@/lib/saju-calculator";
 
 type Phase = "input" | "calculating" | "waiting" | "error";
-
-// Element colors for visual effects
-const ELEMENT_COLORS: Record<string, string> = {
-  wood: "#59DE9B",
-  fire: "#EF4444",
-  earth: "#F59E0B",
-  metal: "#94A3B8",
-  water: "#3B82F6",
-};
 
 // Reading generation steps — each shown progressively while waiting
 const READING_STEPS = [

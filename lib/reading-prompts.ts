@@ -161,33 +161,6 @@ GENERATE THREE SECTIONS in this exact JSON format:
 RESPOND WITH ONLY THE JSON. No markdown, no backticks, no explanation.`;
 }
 
-export function buildPaidReadingPrompt(chart: SajuChart): string {
-  const dm = chart.dayMaster;
-  const currentYear = new Date().getFullYear();
-  const bd2 = typeof chart.birthDate === "string" ? new Date(chart.birthDate) : chart.birthDate;
-  const birthYear = bd2.getFullYear();
-  const age = currentYear - birthYear;
-
-  const elementStr = `Wood: ${chart.elements.wood}, Fire: ${chart.elements.fire}, Earth: ${chart.elements.earth}, Metal: ${chart.elements.metal}, Water: ${chart.elements.water}`;
-
-  return `You are a master of Saju (사주) with 40 years of experience. Generate a PAID premium reading for ${chart.name}.
-
-CHART: Day Master ${dm.zh} ${dm.en}, Archetype ${chart.archetype}, Age ~${age}, ${chart.gender}. Elements: ${elementStr}. Dominant: ${chart.dominantElement}, Weakest: ${chart.weakestElement}. Harmony: ${chart.harmonyScore}/100. Pillars: Y${chart.pillars.year.stem.zh}${chart.pillars.year.branch.zh} M${chart.pillars.month.stem.zh}${chart.pillars.month.branch.zh} D${chart.pillars.day.stem.zh}${chart.pillars.day.branch.zh} H${chart.pillars.hour.stem.zh}${chart.pillars.hour.branch.zh}
-
-RULES: English. No generic phrases. Anchor every insight to THIS chart. Flowing prose. Warm, authoritative. No AI mentions. Be CONCISE but profound.
-
-GENERATE as JSON:
-{
-  "career": "2 paragraphs about career path, ideal industries, timing for moves. ~150 words.",
-  "love": "2 paragraphs about relationship patterns, ideal partner type, timing. ~150 words.",
-  "health": "1-2 paragraphs about health tendencies based on elements (Wood=liver, Fire=heart, Earth=stomach, Metal=lungs, Water=kidneys). ~100 words.",
-  "decade_forecast": "2-3 paragraphs covering ${currentYear}-${currentYear + 10}. Peak years, challenging years, key transitions. ~200 words.",
-  "monthly_energy": "One flowing paragraph covering the next 6 months as a story arc. ~120 words."
-}
-
-JSON ONLY. No markdown, no backticks.`;
-}
-
 // Generate a unique share slug
 export function generateShareSlug(): string {
   const chars = "abcdefghjkmnpqrstuvwxyz23456789";

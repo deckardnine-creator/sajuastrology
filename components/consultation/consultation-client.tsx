@@ -20,6 +20,7 @@ import {
   FileText,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { safeSet } from "@/lib/safe-storage";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -396,7 +397,7 @@ export function ConsultationClient() {
                   Your Saju consultation requires your birth chart data to deliver a truly personalized reading.
                   Generate your free Saju reading first — it only takes a minute.
                 </p>
-                <Link href="/calculate" onClick={() => localStorage.setItem("return-to-consultation", "true")}>
+                <Link href="/calculate" onClick={() => safeSet("return-to-consultation", "true")}>
                   <Button className="gold-gradient text-primary-foreground font-semibold" size="lg">
                     <Sparkles className="w-4 h-4 mr-2" />
                     Generate My Free Reading
@@ -1014,6 +1015,15 @@ function NoCreditsCTA({
 function renderMarkdown(md: string): string {
   // Strip the first # heading (already shown in report header)
   let text = md.replace(/^#\s+.+\n*/m, "").trim();
+
+  // ── XSS sanitization — remove dangerous tags/attributes ──
+  text = text.replace(/<script[\s\S]*?<\/script>/gi, "");
+  text = text.replace(/<iframe[\s\S]*?<\/iframe>/gi, "");
+  text = text.replace(/<object[\s\S]*?<\/object>/gi, "");
+  text = text.replace(/<embed[\s\S]*?>/gi, "");
+  text = text.replace(/<link[\s\S]*?>/gi, "");
+  text = text.replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, "");
+  text = text.replace(/javascript\s*:/gi, "");
 
   // Horizontal rules
   text = text.replace(/^---+$/gm, '<hr class="my-6 border-border/50" />');

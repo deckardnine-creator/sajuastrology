@@ -10,6 +10,7 @@ import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase-client";
 import { ELEMENTS, type Element } from "@/lib/saju-calculator";
+import { DAY_MASTER_DISPLAY } from "@/lib/constants";
 import { useAuth } from "@/lib/auth-context";
 import { safeGet, safeSet, safeRemove } from "@/lib/safe-storage";
 
@@ -70,18 +71,6 @@ const ELEMENT_LABELS: Record<string, string> = {
   water: "Water 水",
 };
 
-const DAY_MASTER_DISPLAY: Record<string, { zh: string; en: string }> = {
-  "wood-yang": { zh: "甲", en: "Yang Wood" },
-  "wood-yin": { zh: "乙", en: "Yin Wood" },
-  "fire-yang": { zh: "丙", en: "Yang Fire" },
-  "fire-yin": { zh: "丁", en: "Yin Fire" },
-  "earth-yang": { zh: "戊", en: "Yang Earth" },
-  "earth-yin": { zh: "己", en: "Yin Earth" },
-  "metal-yang": { zh: "庚", en: "Yang Metal" },
-  "metal-yin": { zh: "辛", en: "Yin Metal" },
-  "water-yang": { zh: "壬", en: "Yang Water" },
-  "water-yin": { zh: "癸", en: "Yin Water" },
-};
 
 export default function ReadingPageClient() {
   const params = useParams();

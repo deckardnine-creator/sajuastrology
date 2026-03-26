@@ -522,15 +522,6 @@ function formatChartSummary(birthData: any): string {
         lines.push(`  ${el}: ${val}`);
       }
     }
-    if (birthData.birthDate) {
-      lines.push(`\nBirth Date: ${birthData.birthDate}`);
-    }
-    if (birthData.gender) {
-      lines.push(`Gender: ${birthData.gender}`);
-    }
-    if (birthData.birthCity) {
-      lines.push(`Birth City: ${birthData.birthCity}`);
-    }
 
     return lines.join("\n") || "Chart data provided but could not be formatted";
   } catch {
