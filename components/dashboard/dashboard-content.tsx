@@ -78,7 +78,8 @@ export function DashboardContent() {
 
   useEffect(() => {
     if (!user) return;
-    (async () => {
+    let retried = false;
+    const fetchReadings = async () => {
       const { data } = await supabase
         .from("readings")
         .select("id,name,gender,birth_date,birth_city,share_slug,archetype,ten_god,harmony_score,day_master_element,day_master_yinyang,dominant_element,weakest_element,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,is_paid,created_at")
@@ -86,6 +87,12 @@ export function DashboardContent() {
         .order("created_at", { ascending: false })
         .limit(20);
       const readings = data || [];
+      // If 0 readings and haven't retried, wait for claimReadings to finish then retry
+      if (readings.length === 0 && !retried) {
+        retried = true;
+        setTimeout(fetchReadings, 2000);
+        return;
+      }
       setSavedReadings(readings);
       const currentPrimary = localStorage.getItem("primary-reading-id");
       if (readings.length > 0) {
@@ -97,7 +104,8 @@ export function DashboardContent() {
           if (!sajuData.chart) saveSajuChart(reconstructChartFromReading(d) as SajuChart);
         }
       }
-    })();
+    };
+    fetchReadings();
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setAsMyChart = (readingId: string) => {

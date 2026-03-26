@@ -355,7 +355,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
               {/* Date drums */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Birthday</label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Birthday <span className="normal-case tracking-normal text-muted-foreground/50">(Solar / Gregorian calendar)</span></label>
                 <div className="flex gap-2 justify-center items-center">
                   <DrumRoller values={YEARS}  selectedIndex={yearIdx}  onChange={setYearIdx}  label="Year"  width={88} />
                   <span className="text-primary/25 text-2xl font-light select-none pb-1">·</span>
@@ -396,7 +396,6 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                     onChange={(e)=>{setCityQuery(e.target.value);setSelectedCity(null);}}
                     onFocus={(e)=>{
                       if(cityResults.length>0) setShowCityDropdown(true);
-                      // Scroll input into view on mobile so keyboard doesn't cover dropdown
                       setTimeout(()=>e.target.scrollIntoView({behavior:"smooth",block:"center"}),300);
                     }}
                     className="pl-10 bg-background/50 border-border focus:border-primary" />
@@ -404,7 +403,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                     <motion.div initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}} className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-xl overflow-y-auto max-h-48">
                       {cityResults.map((city)=>(
                         <button key={`${city.name}-${city.country}`} type="button" onClick={()=>handleCitySelect(city)}
-                          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-primary/10 transition-colors text-left min-h-[44px]">
+                          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-primary/10 transition-colors text-left">
                           <span className="text-lg">{getFlagEmoji(city.countryCode)}</span>
                           <div>
                             <p className="text-sm font-medium">{city.name}</p>
