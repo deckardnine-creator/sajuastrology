@@ -123,7 +123,7 @@ export default function ReadingPageClient() {
       const raw = localStorage.getItem("saju-data");
       if (!raw) return;
       const parsed = JSON.parse(raw);
-      if (parsed.chart?.name !== reading.name) return; // Not their reading — don't claim
+      if (parsed.chart?.name !== reading.name) return;
     } catch { return; }
     (async () => {
       try {
@@ -136,6 +136,14 @@ export default function ReadingPageClient() {
       } catch {}
     })();
   }, [user, reading, claimed]);
+
+  // Check consultation return flag
+  const [showConsultationReturn, setShowConsultationReturn] = useState(false);
+  useEffect(() => {
+    if (reading && localStorage.getItem("return-to-consultation") === "true") {
+      setShowConsultationReturn(true);
+    }
+  }, [reading]);
 
   const handleShareLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -360,7 +368,6 @@ export default function ReadingPageClient() {
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
             className="mb-6 bg-card/80 border border-primary/20 rounded-xl p-4">
             {user && (reading.user_id === user.id || claimed) ? (
-              /* Own reading — saved to dashboard */
               <div className="flex items-center justify-between gap-3">
                 <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                   <Bookmark className="w-5 h-5 text-primary shrink-0" />
@@ -375,7 +382,6 @@ export default function ReadingPageClient() {
                 </Button>
               </div>
             ) : user ? (
-              /* Logged in but viewing someone else's reading */
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <Sparkles className="w-5 h-5 text-primary shrink-0" />
@@ -385,13 +391,10 @@ export default function ReadingPageClient() {
                   </div>
                 </div>
                 <Link href="/calculate">
-                  <Button size="sm" className="text-xs h-9 gold-gradient text-primary-foreground shrink-0">
-                    Get Mine Free
-                  </Button>
+                  <Button size="sm" className="text-xs h-9 gold-gradient text-primary-foreground shrink-0">Get Mine Free</Button>
                 </Link>
               </div>
             ) : (
-              /* Not logged in */
               <div className="flex items-start gap-3">
                 <Bookmark className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <div className="flex-1">
@@ -742,6 +745,17 @@ export default function ReadingPageClient() {
                   </p>
                 </div>
               </div>
+            </motion.section>
+          )}
+
+          {/* Consultation Return Banner */}
+          {showConsultationReturn && (
+            <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+              <Link href="/consultation" onClick={() => localStorage.removeItem("return-to-consultation")}
+                className="block bg-gradient-to-r from-purple-500/10 to-purple-500/5 border border-purple-500/30 rounded-2xl p-6 text-center hover:border-purple-500/50 transition-colors">
+                <p className="text-sm text-purple-300 mb-1">Your chart is ready!</p>
+                <p className="text-lg font-serif font-semibold text-foreground">Continue to Consultation →</p>
+              </Link>
             </motion.section>
           )}
 

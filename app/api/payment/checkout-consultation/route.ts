@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     );
     params.append(
       "cancel_url",
-      `https://sajuastrology.com/pricing?payment=cancelled`
+      `https://sajuastrology.com/consultation?payment=cancelled`
     );
     params.append("line_items[0][price_data][currency]", "usd");
     params.append("line_items[0][price_data][unit_amount]", "2999"); // $29.99

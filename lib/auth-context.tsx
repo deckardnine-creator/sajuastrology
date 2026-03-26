@@ -118,12 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
         await claimReadings(session.user.id);
         setClaimTrigger(prev => prev + 1);
-        // ★ #10: Return to the page user was on before sign-in
-        const returnUrl = localStorage.getItem("auth-return-url");
-        if (returnUrl) {
-          localStorage.removeItem("auth-return-url");
-          setTimeout(() => { window.location.href = returnUrl; }, 300);
-        }
+        // returnUrl redirect is handled by /auth/callback page, not here
       } else if (event === "SIGNED_OUT") {
         setUser(null);
       } else if (event === "TOKEN_REFRESHED" && session?.user) {
@@ -163,8 +158,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async () => {
     setIsLoading(true);
-    // ★ #10: Save current URL for return after OAuth
-    localStorage.setItem("auth-return-url", window.location.href);
+    // Only set return URL if not already set by another flow (pricing, reading, etc.)
+    if (!localStorage.getItem("auth-return-url")) {
+      localStorage.setItem("auth-return-url", window.location.href);
+    }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/auth/callback` },

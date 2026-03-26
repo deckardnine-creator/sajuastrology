@@ -43,7 +43,7 @@ const plans = [
       "Monthly energy calendar",
       "Permanent reading page — yours forever",
     ],
-    cta: "Unlock Full Reading",
+    cta: "Start Free → Upgrade to Full",
     href: "/calculate",
     highlighted: true,
     accent: "#F2CA50",
@@ -81,17 +81,14 @@ export function PricingCards() {
 
   const handlePlanClick = (plan: typeof plans[0]) => {
     if (plan.price === 0) {
-      // Free plan — always go to calculate
       router.push(plan.href)
       return
     }
     if (!user) {
-      // Paid plan + not logged in → sign in first, then redirect
       localStorage.setItem("auth-return-url", window.location.origin + plan.href)
       openSignInModal()
       return
     }
-    // Paid plan + logged in → go directly
     router.push(plan.href)
   }
 

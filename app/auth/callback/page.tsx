@@ -8,41 +8,52 @@ export default function AuthCallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Supabase JS detects the auth code/hash in the URL automatically
-    // via detectSessionInUrl: true in the client config.
-    // We just need to wait for the session to be established, then redirect.
-
     const handleCallback = async () => {
-      // Wait for Supabase to process the URL params
-      const { data: { session }, error } = await supabase.auth.getSession();
+      // Wait for Supabase to process the URL params (code exchange)
+      const { data: { session } } = await supabase.auth.getSession();
 
-      if (error) {
-        console.error("Auth callback error:", error);
-        router.replace("/");
+      if (session) {
+        // Claim readings before redirect
+        try {
+          const pendingSlug = localStorage.getItem("pending-claim-slug");
+          if (pendingSlug) {
+            localStorage.removeItem("pending-claim-slug");
+            await fetch("/api/reading/claim", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ shareSlug: pendingSlug, userId: session.user.id }),
+            }).catch(() => {});
+          }
+        } catch {}
+
+        const returnUrl = localStorage.getItem("auth-return-url");
+        if (returnUrl) {
+          localStorage.removeItem("auth-return-url");
+          window.location.href = returnUrl;
+        } else {
+          router.replace("/dashboard");
+        }
         return;
       }
 
-      if (session) {
-        // Session established — the AuthProvider's onAuthStateChange
-        // will handle claimReadings and return URL redirect.
-        // Just go to home; the auth-context will redirect to return URL if set.
-        router.replace("/");
-      } else {
-        // No session yet — might need a moment for the exchange
-        // Poll briefly then redirect
-        let attempts = 0;
-        const poll = setInterval(async () => {
-          attempts++;
-          const { data } = await supabase.auth.getSession();
-          if (data.session || attempts > 10) {
-            clearInterval(poll);
-            router.replace("/");
+      // No session yet — poll briefly
+      let attempts = 0;
+      const poll = setInterval(async () => {
+        attempts++;
+        const { data } = await supabase.auth.getSession();
+        if (data.session || attempts > 10) {
+          clearInterval(poll);
+          const returnUrl = localStorage.getItem("auth-return-url");
+          if (returnUrl) {
+            localStorage.removeItem("auth-return-url");
+            window.location.href = returnUrl;
+          } else {
+            router.replace("/dashboard");
           }
-        }, 500);
-      }
+        }
+      }, 500);
     };
 
-    // Small delay to let Supabase JS process URL params first
     setTimeout(handleCallback, 100);
   }, [router]);
 
