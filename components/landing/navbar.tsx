@@ -11,18 +11,13 @@ import Image from "next/image"
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
-  const { user, openSignInModal } = useAuth()
+  const { user, openSignInModal, signOut } = useAuth()
 
-  // Lock body scroll when mobile menu is open
+  // Lock body scroll when mobile menu open
   useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add("menu-open")
-    } else {
-      document.body.classList.remove("menu-open")
-    }
-    return () => {
-      document.body.classList.remove("menu-open")
-    }
+    if (isOpen) document.body.classList.add("menu-open")
+    else document.body.classList.remove("menu-open")
+    return () => { document.body.classList.remove("menu-open") }
   }, [isOpen])
 
   const closeMenu = () => setIsOpen(false)
@@ -38,7 +33,7 @@ export function Navbar() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 md:h-20 items-center justify-between">
 
-            <Link href="/" className="flex items-center" onClick={closeMenu}>
+            <Link href="/" className="flex items-center">
               <Image src="/logo1.png" alt="SajuAstrology" width={150} height={44}
                 className="h-10 md:h-12 w-auto object-contain" priority />
             </Link>
@@ -52,13 +47,8 @@ export function Navbar() {
 
             <div className="hidden md:block"><UserMenu /></div>
 
-            {/* Mobile hamburger — min 44px touch target */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden p-2.5 text-foreground z-50 min-w-[44px] min-h-[44px] flex items-center justify-center"
-              aria-label={isOpen ? "Close menu" : "Open menu"}
-              aria-expanded={isOpen}
-            >
+            {/* Mobile hamburger */}
+            <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2 text-foreground z-50" aria-label="Toggle menu">
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
@@ -72,8 +62,7 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-background md:hidden"
+            className="fixed inset-0 z-40 bg-background/98 backdrop-blur-sm md:hidden"
           >
             <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6">
               <Link href="/what-is-saju"
@@ -93,11 +82,18 @@ export function Navbar() {
               </Link>
 
               {user ? (
-                <Link href="/dashboard"
-                  className="text-lg text-primary font-medium min-h-[44px] flex items-center"
-                  onClick={closeMenu}>
-                  My Dashboard
-                </Link>
+                <>
+                  <Link href="/dashboard"
+                    className="text-lg text-primary font-medium min-h-[44px] flex items-center"
+                    onClick={closeMenu}>
+                    My Dashboard
+                  </Link>
+                  <button
+                    onClick={() => { closeMenu(); signOut(); }}
+                    className="text-lg text-muted-foreground font-medium min-h-[44px]">
+                    Sign Out
+                  </button>
+                </>
               ) : (
                 <button
                   onClick={() => { closeMenu(); openSignInModal(); }}

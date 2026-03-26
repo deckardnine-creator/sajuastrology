@@ -66,28 +66,31 @@ export function ConsultationHistory() {
   const loadData = async () => {
     if (!user) return;
     setLoading(true);
+    try {
+      const { data: consults } = await supabase
+        .from("consultations")
+        .select("id, category, initial_question, report_title, status, created_at, completed_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
 
-    // Load consultations
-    const { data: consults } = await supabase
-      .from("consultations")
-      .select("id, category, initial_question, report_title, status, created_at, completed_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(10);
+      setConsultations(consults || []);
 
-    setConsultations(consults || []);
+      const { data: creds } = await supabase
+        .from("consultation_credits")
+        .select("total_credits, used_credits")
+        .eq("user_id", user.id);
 
-    // Load credits
-    const { data: creds } = await supabase
-      .from("consultation_credits")
-      .select("total_credits, used_credits")
-      .eq("user_id", user.id);
-
-    const remaining = (creds || []).reduce(
-      (sum, c) => sum + (c.total_credits - c.used_credits),
-      0
-    );
-    setCredits(remaining);
+      const remaining = (creds || []).reduce(
+        (sum, c) => sum + (c.total_credits - c.used_credits),
+        0
+      );
+      setCredits(remaining);
+    } catch {
+      // Query failed — show empty state rather than infinite spinner
+      setConsultations([]);
+      setCredits(0);
+    }
     setLoading(false);
   };
 

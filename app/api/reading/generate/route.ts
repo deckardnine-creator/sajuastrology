@@ -46,9 +46,7 @@ export async function POST(request: NextRequest) {
 
     // Cache validity: from November, forecasts target next year — don't reuse old ones
     const now = new Date();
-    const cacheAfter = now.getMonth() >= 10
-      ? `${now.getFullYear()}-11-01`
-      : `${now.getFullYear()}-01-01`;
+    const cacheAfter = now.getMonth() >= 10 ? `${now.getFullYear()}-11-01` : `${now.getFullYear()}-01-01`;
 
     // ═══ PARALLEL CACHE CHECK ═══
     const [exactResult, pillarResult] = await Promise.allSettled([

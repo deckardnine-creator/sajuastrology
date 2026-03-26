@@ -99,7 +99,7 @@ export function buildFreeReadingPrompt(chart: SajuChart): string {
   
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
-  // From November, forecast focuses on the upcoming year
+  // From November, forecast targets the upcoming year
   const forecastYear = currentMonth >= 11 ? currentYear + 1 : currentYear;
   const bd = typeof chart.birthDate === "string" ? new Date(chart.birthDate) : chart.birthDate;
   const birthYear = bd.getFullYear();
