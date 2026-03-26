@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Sparkles, Heart, Loader2, Users } from "lucide-react";
@@ -57,6 +57,18 @@ const emptyPerson = (): PersonData => ({
 });
 
 export default function CompatibilityPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
+      </main>
+    }>
+      <CompatibilityContent />
+    </Suspense>
+  );
+}
+
+function CompatibilityContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, sajuData } = useAuth();
