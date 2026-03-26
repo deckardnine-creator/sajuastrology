@@ -98,6 +98,9 @@ export function buildFreeReadingPrompt(chart: SajuChart): string {
   const elementDynamic = getElementDynamic(dominant, weakest, dm.element as Element);
   
   const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1;
+  // From November, forecast focuses on the upcoming year
+  const forecastYear = currentMonth >= 11 ? currentYear + 1 : currentYear;
   const bd = typeof chart.birthDate === "string" ? new Date(chart.birthDate) : chart.birthDate;
   const birthYear = bd.getFullYear();
   const age = currentYear - birthYear;
@@ -139,7 +142,7 @@ THE SEEKER'S CHART:
 GENERATE THREE SECTIONS in this exact JSON format:
 {
   "personality": "2-3 paragraphs about who this person truly is at their core. Start with their Day Master metaphor (${dmSeed.metaphor}) but make it deeply personal. Weave in their archetype (${archetype}), their elemental balance, and their shadow side. This section should make them feel SEEN — as if someone finally described what they've always felt but couldn't articulate. Approximately 200-280 words.",
-  "year_forecast": "2-3 paragraphs about ${currentYear} specifically for this person. Reference how this year's energy interacts with their Day Master and elements. Be specific about timing (first half vs second half, or specific seasons). Include one concrete piece of actionable advice. This should feel like insider information about their year, not generic positivity. Approximately 180-250 words.",
+  "year_forecast": "2-3 paragraphs about ${forecastYear} specifically for this person. Reference how this year's energy interacts with their Day Master and elements. Be specific about timing (first half vs second half, or specific seasons). Include one concrete piece of actionable advice. This should feel like insider information about their year, not generic positivity. Approximately 180-250 words.",
   "element_guidance": "1-2 paragraphs of practical wisdom based on their element balance. Their dominant element is ${dominant} and weakest is ${weakest}. Give specific, actionable advice — colors to incorporate, environments to seek, habits to build. Make it feel like a prescription from a wise doctor, not a horoscope. Approximately 120-180 words."
 }
 

@@ -120,7 +120,7 @@ async function claimReadings(userId: string) {
       }
     }
   } catch {
-    // Non-critical: silently ignore claim failures
+    // Non-critical
   }
 }
 
@@ -143,12 +143,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
         setUser(mapSupabaseUser(session.user));
         setIsSignInModalOpen(false);
         setIsLoading(false);
-        claimReadings(session.user.id);
+
+        // Claim any unclaimed readings from localStorage
+        await claimReadings(session.user.id);
+
+        // ★ #10 FIX: Redirect back to the page user was on before sign-in
+        const returnUrl = localStorage.getItem("auth-return-url");
+        if (returnUrl) {
+          localStorage.removeItem("auth-return-url");
+          // Small delay to let claim complete, then redirect
+          setTimeout(() => {
+            window.location.href = returnUrl;
+          }, 300);
+        }
       } else if (event === "SIGNED_OUT") {
         setUser(null);
       } else if (event === "TOKEN_REFRESHED" && session?.user) {
@@ -195,7 +207,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           localStorage.setItem("saju-data", JSON.stringify(newSajuData));
         }
       } catch {
-        // Non-critical: chart recovery can fail silently
+        // Non-critical
       }
     })();
   }, [user]);
@@ -207,6 +219,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* — Sign in via Google OAuth — */
   const signIn = async () => {
     setIsLoading(true);
+    // ★ #10 FIX: Save current page so we can return after OAuth
+    localStorage.setItem("auth-return-url", window.location.href);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -214,6 +228,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
     if (error) {
+      localStorage.removeItem("auth-return-url");
       setIsLoading(false);
     }
   };

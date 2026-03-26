@@ -9,6 +9,7 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@supabase/supabase-js";
+import { ELEMENTS, type Element } from "@/lib/saju-calculator";
 import { useAuth } from "@/lib/auth-context";
 
 const supabase = createClient(
@@ -97,11 +98,10 @@ export default function ReadingPageClient() {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paidContentLoading, setPaidContentLoading] = useState(false);
   const [generationStep, setGenerationStep] = useState(0);
-  const [generationError, setGenerationError] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
   const [claimed, setClaimed] = useState(false);
 
-  // ★ BUG #3 FIX: Use ref to prevent duplicate generation triggers
+  // ★ BUG #3 FIX: Prevent duplicate generation triggers
   const generationTriggeredRef = useRef(false);
 
   // Claim reading for logged-in user
@@ -137,7 +137,7 @@ export default function ReadingPageClient() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [paidContentLoading]);
 
-  // Re-fetch reading from Supabase
+  // Re-fetch reading from Supabase (used after generation completes)
   const refreshReading = async () => {
     const { data } = await supabase
       .from("readings")
@@ -148,14 +148,12 @@ export default function ReadingPageClient() {
     return data as ReadingData | null;
   };
 
-  // Generate paid content — guarded by ref to prevent duplicate calls
+  // Generate paid content and update state in-place (no page reload)
   const generatePaidContent = async () => {
-    if (generationTriggeredRef.current) return; // Already triggered this session
+    if (generationTriggeredRef.current) return;
     generationTriggeredRef.current = true;
-
     setPaidContentLoading(true);
     setGenerationStep(0);
-    setGenerationError(null);
 
     setTimeout(() => {
       document.getElementById("generation-progress")?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -175,13 +173,12 @@ export default function ReadingPageClient() {
       clearInterval(stepTimer);
 
       if (!res.ok || data.error) {
-        setGenerationError(data.error || "Generation failed. Please refresh the page to try again.");
+        console.error("Paid generation failed:", data.error);
         setPaidContentLoading(false);
-        generationTriggeredRef.current = false; // Allow retry
+        generationTriggeredRef.current = false;
         return;
       }
 
-      // Success — either freshly generated or already existed (alreadyGenerated/cached)
       setGenerationStep(6);
       await new Promise((resolve) => setTimeout(resolve, 800));
       await refreshReading();
@@ -191,20 +188,19 @@ export default function ReadingPageClient() {
       setTimeout(() => {
         const el = document.getElementById("paid-content");
         if (el) {
-          const yOffset = -80;
+          const yOffset = -80; // Account for navbar
           const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
           window.scrollTo({ top: y, behavior: "smooth" });
         }
       }, 600);
-    } catch {
+    } catch (err) {
       clearInterval(stepTimer);
-      setGenerationError("Network error. Please refresh the page to try again.");
+      console.error("Paid generation error:", err);
       setPaidContentLoading(false);
-      generationTriggeredRef.current = false; // Allow retry
+      generationTriggeredRef.current = false;
     }
   };
 
-  // Fetch reading on mount
   useEffect(() => {
     async function fetchReading() {
       const { data, error: fetchError } = await supabase
@@ -221,18 +217,16 @@ export default function ReadingPageClient() {
 
       setReading(data as ReadingData);
       setLoading(false);
-      window.scrollTo({ top: 0 });
+      window.scrollTo({ top: 0 }); // Always start at top
 
       const r = data as ReadingData;
-      // ★ BUG #3 FIX: Only auto-generate if paid but content missing
-      // The ref guard inside generatePaidContent prevents double-firing
-      if (r.is_paid && !r.paid_reading_career) {
+      // Only auto-generate if paid but content missing AND not already generating
+      if (r.is_paid && !r.paid_reading_career && !paidContentLoading) {
         generatePaidContent();
       }
     }
 
     if (slug) fetchReading();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   // Handle payment success redirect
@@ -255,12 +249,11 @@ export default function ReadingPageClient() {
           if (!data.success && !data.alreadyPaid) throw new Error("Verification failed");
           generatePaidContent();
         })
-        .catch(() => {
-          // Even if verification fails, try generating (API has its own paid check)
+        .catch((err) => {
+          console.error("Payment verification error:", err);
           generatePaidContent();
         });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   const handleUnlock = async () => {
@@ -296,7 +289,7 @@ export default function ReadingPageClient() {
     return (
       <main className="min-h-screen">
         <Navbar />
-        <div className="pt-32 text-center px-4">
+        <div className="pt-32 text-center">
           <h1 className="text-2xl font-serif text-primary mb-4">Reading Not Found</h1>
           <p className="text-muted-foreground mb-8">This reading may have been removed or the link is incorrect.</p>
           <Link href="/calculate">
@@ -332,15 +325,12 @@ export default function ReadingPageClient() {
   return (
     <main className="min-h-screen">
       <Navbar />
-      <div className="pt-20 md:pt-24 pb-16">
+      <div className="pt-24 pb-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
 
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <button
-              onClick={() => router.back()}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors min-h-[44px]"
-            >
+            <button onClick={() => router.back()} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="w-4 h-4" /> Back
             </button>
           </motion.div>
@@ -380,20 +370,20 @@ export default function ReadingPageClient() {
 
           {/* Title */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-center mb-10">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif mb-2">
+            <h1 className="text-3xl md:text-4xl font-serif mb-2">
               {reading.name}&apos;s <span className="gold-gradient-text">Cosmic Blueprint</span>
             </h1>
-            <p className="text-muted-foreground text-sm mb-3">
+            <p className="text-muted-foreground mb-3">
               Born {new Date(reading.birth_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} in {reading.birth_city}
             </p>
-            <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap text-[11px] sm:text-xs">
-              <span className="tracking-wider text-muted-foreground uppercase">
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <span className="text-xs tracking-wider text-muted-foreground uppercase">
                 Day Master: <span style={{ color: dmColor }} className="font-semibold">{dmDisplay.zh} {dmDisplay.en}</span>
               </span>
-              <span className="tracking-wider text-muted-foreground uppercase">
+              <span className="text-xs tracking-wider text-muted-foreground uppercase">
                 Archetype: <span className="text-primary font-semibold">{reading.archetype}</span>
               </span>
-              <span className="tracking-wider text-muted-foreground uppercase">
+              <span className="text-xs tracking-wider text-muted-foreground uppercase">
                 Harmony: <span className="text-primary font-semibold">{reading.harmony_score}%</span>
               </span>
             </div>
@@ -402,13 +392,13 @@ export default function ReadingPageClient() {
           {/* Four Pillars */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-10">
             <h2 className="text-sm tracking-wider text-muted-foreground uppercase mb-4 text-center">The Four Pillars of Destiny</h2>
-            <div className="grid grid-cols-4 gap-2 sm:gap-3">
-              {pillars.map((p) => (
+            <div className="grid grid-cols-4 gap-3">
+              {pillars.map((p, i) => (
                 <div key={p.name}
-                  className={`bg-card/60 backdrop-blur border rounded-xl p-3 sm:p-4 text-center ${p.name === "Day" ? "border-primary/50 ring-1 ring-primary/20" : "border-border"}`}>
-                  <p className="text-xs text-muted-foreground mb-1 sm:mb-2">{p.name}</p>
-                  <p className="text-xl sm:text-2xl font-serif text-primary">{p.stem}</p>
-                  <p className="text-base sm:text-lg text-muted-foreground">{p.branch}</p>
+                  className={`bg-card/60 backdrop-blur border rounded-xl p-4 text-center ${p.name === "Day" ? "border-primary/50 ring-1 ring-primary/20" : "border-border"}`}>
+                  <p className="text-xs text-muted-foreground mb-2">{p.name}</p>
+                  <p className="text-2xl font-serif text-primary">{p.stem}</p>
+                  <p className="text-lg text-muted-foreground">{p.branch}</p>
                   {p.name === "Day" && <p className="text-[10px] text-primary/60 mt-1">Day Master</p>}
                 </div>
               ))}
@@ -417,13 +407,13 @@ export default function ReadingPageClient() {
 
           {/* AI Personality Reading */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mb-10">
-            <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-5 sm:p-6 md:p-8">
+            <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <span className="text-lg font-serif" style={{ color: dmColor }}>{dmDisplay.zh}</span>
                 </div>
                 <div>
-                  <h2 className="font-serif text-lg sm:text-xl font-semibold">{reading.archetype}</h2>
+                  <h2 className="font-serif text-xl font-semibold">{reading.archetype}</h2>
                   <p className="text-xs text-muted-foreground">{dmDisplay.en} · {reading.ten_god}</p>
                 </div>
               </div>
@@ -437,8 +427,8 @@ export default function ReadingPageClient() {
 
           {/* Five Elements Balance */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-10">
-            <h2 className="font-serif text-lg sm:text-xl font-semibold mb-4">Five Elements Balance</h2>
-            <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-5 sm:p-6">
+            <h2 className="font-serif text-xl font-semibold mb-4">Five Elements Balance</h2>
+            <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6">
               <div className="space-y-3 mb-6">
                 {(["wood", "fire", "earth", "metal", "water"] as const).map((el) => (
                   <div key={el} className="flex items-center gap-3">
@@ -467,8 +457,8 @@ export default function ReadingPageClient() {
 
           {/* This Year's Fortune */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-10">
-            <h2 className="font-serif text-lg sm:text-xl font-semibold mb-4">{new Date().getFullYear()} Fortune Forecast</h2>
-            <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-5 sm:p-6 md:p-8">
+            <h2 className="font-serif text-xl font-semibold mb-4">{new Date().getMonth() >= 10 ? new Date().getFullYear() + 1 : new Date().getFullYear()} Fortune Forecast</h2>
+            <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
               <div className="prose prose-invert prose-sm max-w-none">
                 {reading.free_reading_year.split("\n\n").map((para, i) => (
                   <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
@@ -496,8 +486,8 @@ export default function ReadingPageClient() {
           {reading.is_paid && reading.paid_reading_career && (
             <div id="paid-content">
               <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
-                <h2 className="font-serif text-lg sm:text-xl font-semibold mb-4">Career & Wealth Blueprint</h2>
-                <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-5 sm:p-6 md:p-8">
+                <h2 className="font-serif text-xl font-semibold mb-4">Career & Wealth Blueprint</h2>
+                <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
                   <div className="prose prose-invert prose-sm max-w-none">
                     {reading.paid_reading_career.split("\n\n").map((para, i) => (
                       <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
@@ -508,8 +498,8 @@ export default function ReadingPageClient() {
 
               {reading.paid_reading_love && (
                 <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }} className="mb-10">
-                  <h2 className="font-serif text-lg sm:text-xl font-semibold mb-4">Love & Relationships</h2>
-                  <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-5 sm:p-6 md:p-8">
+                  <h2 className="font-serif text-xl font-semibold mb-4">Love & Relationships</h2>
+                  <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
                     <div className="prose prose-invert prose-sm max-w-none">
                       {reading.paid_reading_love.split("\n\n").map((para, i) => (
                         <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
@@ -521,8 +511,8 @@ export default function ReadingPageClient() {
 
               {reading.paid_reading_health && (
                 <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="mb-10">
-                  <h2 className="font-serif text-lg sm:text-xl font-semibold mb-4">Health & Wellness</h2>
-                  <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-5 sm:p-6 md:p-8">
+                  <h2 className="font-serif text-xl font-semibold mb-4">Health & Wellness</h2>
+                  <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
                     <div className="prose prose-invert prose-sm max-w-none">
                       {reading.paid_reading_health.split("\n\n").map((para, i) => (
                         <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
@@ -534,8 +524,8 @@ export default function ReadingPageClient() {
 
               {reading.paid_reading_decade && (
                 <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }} className="mb-10">
-                  <h2 className="font-serif text-lg sm:text-xl font-semibold mb-4">10-Year Fortune Cycle</h2>
-                  <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-5 sm:p-6 md:p-8">
+                  <h2 className="font-serif text-xl font-semibold mb-4">10-Year Fortune Cycle</h2>
+                  <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
                     <div className="prose prose-invert prose-sm max-w-none">
                       {reading.paid_reading_decade.split("\n\n").map((para, i) => (
                         <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
@@ -547,8 +537,8 @@ export default function ReadingPageClient() {
 
               {reading.paid_reading_monthly && (
                 <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }} className="mb-10">
-                  <h2 className="font-serif text-lg sm:text-xl font-semibold mb-4">Next 6 Months Energy Flow</h2>
-                  <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-5 sm:p-6 md:p-8">
+                  <h2 className="font-serif text-xl font-semibold mb-4">Next 6 Months Energy Flow</h2>
+                  <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
                     <div className="prose prose-invert prose-sm max-w-none">
                       {reading.paid_reading_monthly.split("\n\n").map((para, i) => (
                         <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
@@ -560,11 +550,11 @@ export default function ReadingPageClient() {
 
               {reading.paid_reading_hidden_talent && (
                 <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.95 }} className="mb-10">
-                  <div className="bg-gradient-to-br from-primary/5 via-card/80 to-purple-500/5 backdrop-blur border border-primary/30 rounded-2xl p-5 sm:p-6 md:p-8">
+                  <div className="bg-gradient-to-br from-primary/5 via-card/80 to-purple-500/5 backdrop-blur border border-primary/30 rounded-2xl p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-4">
                       <Sparkles className="w-6 h-6 text-primary" />
                       <div>
-                        <h2 className="font-serif text-lg sm:text-xl font-semibold">Bonus: Your Hidden Talent & Life Purpose</h2>
+                        <h2 className="font-serif text-xl font-semibold">Bonus: Your Hidden Talent & Life Purpose</h2>
                         <p className="text-xs text-primary/60">A special gift from the cosmos</p>
                       </div>
                     </div>
@@ -582,40 +572,29 @@ export default function ReadingPageClient() {
           {/* Locked Premium Content (visible when NOT paid) */}
           {!reading.is_paid && (
             <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
-              <div className="relative overflow-hidden rounded-2xl border border-border">
-                {/* Blurred preview */}
+              <div className="relative overflow-hidden rounded-2xl border border-border" style={{ maxHeight: "320px" }}>
                 <div className="p-5 sm:p-6 md:p-8 blur-sm select-none pointer-events-none">
-                  <h2 className="font-serif text-xl font-semibold mb-3">10-Year Fortune Cycle</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Your next decade holds remarkable potential. The years {new Date().getFullYear() + 2}-{new Date().getFullYear() + 4} mark a significant 
-                    turning point in your career trajectory. The elemental shifts in your luck pillars suggest a period of consolidation 
-                    followed by rapid expansion. Pay particular attention to opportunities that arise in late spring of {new Date().getFullYear() + 1}, 
-                    as your Day Master energy aligns powerfully with the annual pillar...
-                  </p>
-                  <h2 className="font-serif text-xl font-semibold mb-3 mt-6">Career & Wealth Blueprint</h2>
+                  <h2 className="font-serif text-xl font-semibold mb-3">Career & Wealth Blueprint</h2>
                   <p className="text-muted-foreground leading-relaxed">
                     Your unique combination of elements creates a natural affinity for roles that require both vision and execution.
-                    The presence of strong resource energy in your chart suggests that financial stability comes through building 
-                    lasting systems rather than chasing quick wins...
+                    Financial stability comes through building lasting systems rather than chasing quick wins...
                   </p>
-                  <h2 className="font-serif text-xl font-semibold mb-3 mt-6">Love & Relationships</h2>
+                  <h2 className="font-serif text-xl font-semibold mb-3 mt-6">10-Year Fortune Cycle</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    In matters of the heart, your Day Master seeks a partner whose energy complements rather than mirrors your own.
-                    The elemental dynamics in your relationship house suggest deep connections form through shared creative pursuits...
+                    Your next decade holds remarkable potential. The years {new Date().getFullYear() + 2}-{new Date().getFullYear() + 4} mark a significant turning point...
                   </p>
                 </div>
-                {/* Lock overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/80 to-background flex items-end justify-center pb-8">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/70 to-background flex items-end justify-center pb-6 sm:pb-8">
                   <div className="text-center px-4">
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                      <Lock className="w-7 h-7 text-primary" />
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                      <Lock className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
                     </div>
-                    <h3 className="font-serif text-xl font-semibold mb-2">Unlock Your Full Destiny</h3>
-                    <p className="text-muted-foreground text-sm mb-4 max-w-sm mx-auto">
-                      10-year forecast, career blueprint, love analysis, health guidance — all personalized to your chart.
+                    <h3 className="font-serif text-lg sm:text-xl font-semibold mb-2">Unlock Your Full Destiny</h3>
+                    <p className="text-muted-foreground text-xs sm:text-sm mb-4 max-w-sm mx-auto">
+                      Career · Love · Health · 10-Year Forecast · Hidden Talent
                     </p>
                     <Button 
-                      className="gold-gradient text-primary-foreground font-semibold px-8"
+                      className="gold-gradient text-primary-foreground font-semibold px-6 sm:px-8"
                       onClick={handleUnlock}
                       disabled={paymentLoading}
                     >
@@ -631,7 +610,7 @@ export default function ReadingPageClient() {
                         </>
                       )}
                     </Button>
-                    <p className="text-xs text-muted-foreground/50 mt-2">One-time payment. Yours forever.</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground/50 mt-2">One-time payment. Yours forever.</p>
                   </div>
                 </div>
               </div>
@@ -640,7 +619,7 @@ export default function ReadingPageClient() {
 
           {/* Master Consultation Promo */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
-            <div className="bg-card/50 border border-purple-500/20 rounded-2xl p-5 sm:p-6 text-center">
+            <div className="bg-card/50 border border-purple-500/20 rounded-2xl p-6 text-center">
               <Crown className="w-10 h-10 text-purple-400 mx-auto mb-3" />
               <h3 className="font-serif text-lg font-semibold mb-2">Want Deeper Guidance?</h3>
               <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
@@ -648,20 +627,21 @@ export default function ReadingPageClient() {
               </p>
               <Link href="/consultation">
                 <Button
-                  className="font-semibold px-4 sm:px-6 text-sm"
+                  className="font-semibold px-6"
                   style={{ background: "linear-gradient(135deg, #a78bfa, #7c3aed)", color: "white" }}
                 >
                   <Crown className="w-4 h-4 mr-2" />
-                  <span className="hidden sm:inline">Master Consultation — </span>$29.99 for 5 sessions
+                  Master Consultation — $29.99 for 5 sessions
                 </Button>
               </Link>
             </div>
           </motion.section>
 
-          {/* Generation progress indicator */}
+          {/* Payment processing — Step-by-step generation progress */}
           {paidContentLoading && (
             <motion.section id="generation-progress" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-10">
-              <div className="bg-card/80 backdrop-blur border border-primary/30 rounded-2xl p-5 sm:p-6 md:p-10 overflow-hidden relative">
+              <div className="bg-card/80 backdrop-blur border border-primary/30 rounded-2xl p-6 md:p-10 overflow-hidden relative">
+                {/* Background glow */}
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-primary/10 blur-[100px]" />
                 </div>
@@ -679,6 +659,7 @@ export default function ReadingPageClient() {
                     <p className="text-xs text-muted-foreground">Three cosmic scholars are reading your pillars simultaneously</p>
                   </div>
 
+                  {/* Progress steps */}
                   <div className="space-y-3 max-w-md mx-auto">
                     {[
                       { icon: "💰", title: "Career & Wealth Blueprint", sub: "Mapping your professional destiny..." },
@@ -727,6 +708,7 @@ export default function ReadingPageClient() {
                     })}
                   </div>
 
+                  {/* Progress bar */}
                   <div className="mt-6 h-1 bg-muted/30 rounded-full overflow-hidden">
                     <motion.div
                       className="h-full bg-primary rounded-full"
@@ -743,29 +725,10 @@ export default function ReadingPageClient() {
             </motion.section>
           )}
 
-          {/* Generation error */}
-          {generationError && (
-            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-10">
-              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-5 text-center">
-                <p className="text-sm text-red-400 mb-3">{generationError}</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setGenerationError(null);
-                    generatePaidContent();
-                  }}
-                >
-                  Try Again
-                </Button>
-              </div>
-            </motion.section>
-          )}
-
           {/* Bottom CTA */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="mb-10">
             {user ? (
-              <div className="bg-card/80 border border-border rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-4">
+              <div className="bg-card/80 border border-border rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-4">
                 <div className="flex-1 text-center sm:text-left">
                   <h3 className="font-serif text-lg font-semibold mb-1">Share this reading</h3>
                   <p className="text-sm text-muted-foreground">Send the link to friends or family</p>
@@ -784,9 +747,9 @@ export default function ReadingPageClient() {
                 </div>
               </div>
             ) : (
-              <div className="gold-gradient rounded-2xl p-6 sm:p-8 text-center">
-                <h3 className="font-serif text-xl sm:text-2xl font-bold text-primary-foreground mb-2">Share Your Cosmic Identity</h3>
-                <p className="text-primary-foreground/80 text-sm mb-4">Sign in to save your reading and share it with friends</p>
+              <div className="gold-gradient rounded-2xl p-8 text-center">
+                <h3 className="font-serif text-2xl font-bold text-primary-foreground mb-2">Share Your Cosmic Identity</h3>
+                <p className="text-primary-foreground/80 mb-4">Sign in to save your reading and share it with friends</p>
                 <Button variant="secondary" className="bg-background text-foreground hover:bg-background/90 gap-2" onClick={openSignInModal}>
                   <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
                   Continue with Google
@@ -794,6 +757,15 @@ export default function ReadingPageClient() {
               </div>
             )}
           </motion.section>
+
+          {/* Disclaimer */}
+          <div className="text-center text-[11px] text-muted-foreground/40 leading-relaxed mb-6 px-2">
+            <p>
+              This reading is based on traditional Saju principles interpreted through AI technology
+              and is for entertainment and self-reflection purposes only.
+              See our <Link href="/terms" className="underline hover:text-muted-foreground/60">Terms</Link> for details.
+            </p>
+          </div>
 
         </div>
       </div>

@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildFreeReadingPrompt, generateShareSlug } from "@/lib/reading-prompts";
 import type { SajuChart } from "@/lib/saju-calculator";
 
+// Serverless = 60s on Pro (Edge is always 25s even on Pro)
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const chart = body.chart as SajuChart;
-    const userId = body.userId || null;
+    const userId = body.userId || null; // Optional: link reading to user account
 
     if (!chart || !chart.name || !chart.dayMaster) {
       return NextResponse.json({ error: "Invalid chart data" }, { status: 400 });
@@ -43,41 +44,48 @@ export async function POST(request: NextRequest) {
     const ds = chart.pillars.day.stem.zh, db = chart.pillars.day.branch.zh;
     const hs = chart.pillars.hour.stem.zh, hb = chart.pillars.hour.branch.zh;
 
-    // Parallel cache check: exact match + pillar match
+    // Cache validity: from November, forecasts target next year — don't reuse old ones
+    const now = new Date();
+    const cacheAfter = now.getMonth() >= 10
+      ? `${now.getFullYear()}-11-01`
+      : `${now.getFullYear()}-01-01`;
+
+    // ═══ PARALLEL CACHE CHECK ═══
     const [exactResult, pillarResult] = await Promise.allSettled([
       fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
         name: `eq.${chart.name}`, gender: `eq.${chart.gender}`,
         birth_date: `eq.${birthDateStr}`, birth_city: `eq.${chart.birthCity}`,
         select: "share_slug,free_reading_personality", limit: "1",
+        created_at: `gte.${cacheAfter}`,
       })}`, { headers: dbHeaders }).then(r => r.ok ? r.json() : null).catch(() => null),
       fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
         year_stem: `eq.${ys}`, year_branch: `eq.${yb}`, month_stem: `eq.${ms}`, month_branch: `eq.${mb}`,
         day_stem: `eq.${ds}`, day_branch: `eq.${db}`, hour_stem: `eq.${hs}`, hour_branch: `eq.${hb}`,
         select: "free_reading_personality,free_reading_year,free_reading_element,paid_reading_career,paid_reading_love,paid_reading_health,paid_reading_decade,paid_reading_monthly,paid_reading_hidden_talent",
         "free_reading_personality": "not.is.null", limit: "1",
+        created_at: `gte.${cacheAfter}`,
       })}`, { headers: dbHeaders }).then(r => r.ok ? r.json() : null).catch(() => null),
     ]);
 
     const exactData = exactResult.status === "fulfilled" ? exactResult.value : null;
     const pillarData = pillarResult.status === "fulfilled" ? pillarResult.value : null;
 
-    // Exact match found — return existing reading
     if (exactData?.length > 0 && exactData[0].free_reading_personality) {
+      // If user is logged in and reading isn't claimed yet, claim it
       if (userId) {
         await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${exactData[0].share_slug}&user_id=is.null`, {
           method: "PATCH",
           headers: { ...dbHeaders, Prefer: "return=minimal" },
           body: JSON.stringify({ user_id: userId }),
-        }).catch(() => {});
+        }).catch(() => {}); // Non-critical
       }
       return NextResponse.json({ success: true, shareSlug: exactData[0].share_slug, existing: true });
     }
 
-    // Pillar match found — clone reading content
     if (pillarData?.length > 0 && pillarData[0].free_reading_personality) {
       const shareSlug = generateShareSlug();
       const c = pillarData[0];
-      const insertBody: Record<string, unknown> = {
+      const insertBody: Record<string, any> = {
         name: chart.name, gender: chart.gender, birth_date: birthDateStr,
         birth_hour: 12, birth_city: chart.birthCity,
         year_stem: ys, year_branch: yb, month_stem: ms, month_branch: mb,
@@ -102,7 +110,7 @@ export async function POST(request: NextRequest) {
       if (dbRes.ok) return NextResponse.json({ success: true, shareSlug, cached: true });
     }
 
-    // Generate new reading via Claude API
+    // ═══ GENERATE: Sonnet 4 — no timeout, Vercel handles 60s limit ═══
     const apiKey = process.env.ANTHROPIC_API_KEY || "";
     if (!apiKey) return NextResponse.json({ error: "AI not configured" }, { status: 500 });
 
