@@ -18,7 +18,7 @@ export function EducationCTA() {
           <h2 className="font-serif text-3xl sm:text-4xl font-bold mb-6">
             Ready to decode yours?
           </h2>
-          <Link href="/reading">
+          <Link href="/calculate">
             <Button
               size="lg"
               className="gold-gradient text-primary-foreground font-semibold text-lg px-8 group"

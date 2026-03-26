@@ -393,7 +393,7 @@ export function ConsultationClient() {
                   Your Saju consultation requires your birth chart data to deliver a truly personalized reading.
                   Generate your free Saju reading first — it only takes a minute.
                 </p>
-                <Link href="/calculate">
+                <Link href="/calculate" onClick={() => localStorage.setItem("return-to-consultation", "true")}>
                   <Button className="gold-gradient text-primary-foreground font-semibold" size="lg">
                     <Sparkles className="w-4 h-4 mr-2" />
                     Generate My Free Reading
