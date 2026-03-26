@@ -93,8 +93,10 @@ export default function ReadingPageClient() {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paidContentLoading, setPaidContentLoading] = useState(false);
   const [generationStep, setGenerationStep] = useState(0);
+  const [paidGenerationFailed, setPaidGenerationFailed] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [claimed, setClaimed] = useState(false);
+  const [showConsultationReturn, setShowConsultationReturn] = useState(false);
 
   // Reset payment loading when user returns from Stripe (browser tab regains focus)
   useEffect(() => {
@@ -138,7 +140,6 @@ export default function ReadingPageClient() {
   }, [user, reading, claimed]);
 
   // Check consultation return flag
-  const [showConsultationReturn, setShowConsultationReturn] = useState(false);
   useEffect(() => {
     if (reading && localStorage.getItem("return-to-consultation") === "true") {
       setShowConsultationReturn(true);
@@ -177,6 +178,7 @@ export default function ReadingPageClient() {
   // Generate paid content and update state in-place (no page reload)
   const generatePaidContent = async () => {
     setPaidContentLoading(true);
+    setPaidGenerationFailed(false);
     setGenerationStep(0);
 
     setTimeout(() => {
@@ -199,6 +201,7 @@ export default function ReadingPageClient() {
       if (!res.ok || data.error) {
         console.error("Paid generation failed:", data.error);
         setPaidContentLoading(false);
+        setPaidGenerationFailed(true);
         return;
       }
 
@@ -220,6 +223,7 @@ export default function ReadingPageClient() {
       clearInterval(stepTimer);
       console.error("Paid generation error:", err);
       setPaidContentLoading(false);
+      setPaidGenerationFailed(true);
     }
   };
 
@@ -609,6 +613,32 @@ export default function ReadingPageClient() {
                 </motion.section>
               )}
             </div>
+          )}
+
+          {/* Paid content generation failed — retry button */}
+          {reading.is_paid && !reading.paid_reading_career && !paidContentLoading && paidGenerationFailed && (
+            <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+              <div className="bg-card/80 border border-red-500/30 rounded-2xl p-8 text-center">
+                <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-7 h-7 text-red-400" />
+                </div>
+                <h3 className="font-serif text-xl font-semibold mb-2">Generation Failed</h3>
+                <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
+                  Your payment was successful, but the AI reading generation encountered an issue.
+                  Don&apos;t worry — your purchase is saved. Tap below to try again.
+                </p>
+                <Button
+                  className="gold-gradient text-primary-foreground font-semibold px-8"
+                  onClick={generatePaidContent}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Retry Generation
+                </Button>
+                <p className="text-xs text-muted-foreground/50 mt-3">
+                  If this persists, your reading will be generated automatically on your next visit.
+                </p>
+              </div>
+            </motion.section>
           )}
 
           {/* Locked Premium Content (visible when NOT paid) */}

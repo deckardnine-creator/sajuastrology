@@ -197,7 +197,13 @@ export default function CalculatePage() {
     }
   }, [router]);
 
+  const isSubmittingRef = useRef(false);
+
   const handleCalculate = async (chart: SajuChart, city: string) => {
+    // Double-click protection
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
     setSajuChart(chart);
     setBirthCity(city);
     setPhase("calculating");
@@ -257,6 +263,13 @@ export default function CalculatePage() {
       }
     }
   };
+
+  // Reset submit lock when user can try again
+  useEffect(() => {
+    if (phase === "error" || phase === "input") {
+      isSubmittingRef.current = false;
+    }
+  }, [phase]);
 
   const handleAnimationComplete = () => {
     animDoneRef.current = true;
