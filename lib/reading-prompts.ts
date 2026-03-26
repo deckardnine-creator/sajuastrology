@@ -2,6 +2,7 @@
 // This is the HEART of the product. Every reading must feel uniquely personal.
 
 import type { SajuChart, Element } from "./saju-calculator";
+import { calculateAdvancedSaju, formatAdvancedDataForPrompt } from "./saju-calculator";
 
 // Day Master personality seeds - unique metaphors per element+polarity
 const DAY_MASTER_SEEDS: Record<string, { metaphor: string; energy: string; shadow: string }> = {
@@ -138,6 +139,9 @@ THE SEEKER'S CHART:
   Day: ${chart.pillars.day.stem.zh}${chart.pillars.day.branch.zh} (${chart.pillars.day.stem.en} / ${chart.pillars.day.branch.en})
   Hour: ${chart.pillars.hour.stem.zh}${chart.pillars.hour.branch.zh} (${chart.pillars.hour.stem.en} / ${chart.pillars.hour.branch.en})
 - Element Dynamic: ${elementDynamic}
+
+ADVANCED CHART ANALYSIS (대운/합충/지장간/신살):
+${(() => { try { return formatAdvancedDataForPrompt(calculateAdvancedSaju(chart)); } catch { return "Advanced data not available"; } })()}
 
 GENERATE THREE SECTIONS in this exact JSON format:
 {

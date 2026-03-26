@@ -1,6 +1,10 @@
 // Paid reading: 3 parallel calls, each producing ~1000 words
 // Total paid content: ~3000 words (5x the ~600 word free reading)
 
+import { calculateAdvancedSaju, formatAdvancedDataForPrompt } from "./saju-calculator";
+import { reconstructChartFromReading } from "./constants";
+import type { SajuChart } from "./saju-calculator";
+
 export function buildPaidPromptPart1(chartSummary: string): string {
   return `You are a master of Saju (사주) with 40 years of experience. You have studied under three different Korean masters and have read over 50,000 charts. Your readings are legendary for their specificity and uncanny accuracy.
 
@@ -76,6 +80,14 @@ export function buildChartSummary(reading: any): string {
   const birthYear = new Date(reading.birth_date).getFullYear();
   const age = currentYear - birthYear;
 
+  let advancedSection = "";
+  try {
+    const chart = reconstructChartFromReading(reading) as SajuChart;
+    chart.gender = reading.gender;
+    const advData = calculateAdvancedSaju(chart);
+    advancedSection = "\n\nADVANCED CHART ANALYSIS:\n" + formatAdvancedDataForPrompt(advData);
+  } catch { advancedSection = ""; }
+
   return `CHART DATA FOR ${reading.name}:
 - Day Master: ${reading.day_stem} ${dmEn} (${reading.day_master_element}, ${reading.day_master_yinyang})
 - Archetype: ${reading.archetype} (${reading.ten_god})
@@ -83,5 +95,5 @@ export function buildChartSummary(reading: any): string {
 - Elements: Wood ${reading.elements_wood}, Fire ${reading.elements_fire}, Earth ${reading.elements_earth}, Metal ${reading.elements_metal}, Water ${reading.elements_water}
 - Dominant Element: ${reading.dominant_element}, Weakest: ${reading.weakest_element}
 - Harmony Score: ${reading.harmony_score}/100
-- Four Pillars: Year ${reading.year_stem}${reading.year_branch}, Month ${reading.month_stem}${reading.month_branch}, Day ${reading.day_stem}${reading.day_branch}, Hour ${reading.hour_stem}${reading.hour_branch}`;
+- Four Pillars: Year ${reading.year_stem}${reading.year_branch}, Month ${reading.month_stem}${reading.month_branch}, Day ${reading.day_stem}${reading.day_branch}, Hour ${reading.hour_stem}${reading.hour_branch}${advancedSection}`;
 }
