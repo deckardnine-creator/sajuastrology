@@ -67,8 +67,7 @@ export async function POST(request: NextRequest) {
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
-  } catch (err: any) {
-    console.error("Consultation API error:", err?.message || err);
+  } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
@@ -145,8 +144,46 @@ async function handleStart({
   const creditId = availableCredit.id;
   const currentUsed = availableCredit.used_credits;
 
-  // 3. Ask Claude whether clarification is needed
-  const chartSummary = formatChartSummary(birthData);
+  // 3. Get fresh chart data from DB (localStorage can be stale after calculation fixes)
+  let chartData = birthData;
+  try {
+    const readingRes = await sbFetch(
+      `readings?user_id=eq.${userId}&select=name,gender,birth_date,birth_city,day_master_element,day_master_yinyang,archetype,ten_god,harmony_score,dominant_element,weakest_element,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch&order=created_at.desc&limit=1`
+    );
+    const readings = await readingRes.json();
+    if (readings?.length > 0) {
+      const r = readings[0];
+      chartData = {
+        name: r.name,
+        gender: r.gender,
+        birthDate: r.birth_date,
+        birthCity: r.birth_city,
+        dayMaster: {
+          element: r.day_master_element,
+          yinYang: r.day_master_yinyang,
+          en: `${r.day_master_yinyang === "yang" ? "Yang" : "Yin"} ${r.day_master_element.charAt(0).toUpperCase() + r.day_master_element.slice(1)}`,
+          zh: "",
+        },
+        archetype: r.archetype,
+        tenGod: r.ten_god,
+        harmonyScore: r.harmony_score,
+        dominantElement: r.dominant_element,
+        weakestElement: r.weakest_element,
+        elements: { wood: r.elements_wood, fire: r.elements_fire, earth: r.elements_earth, metal: r.elements_metal, water: r.elements_water },
+        elementBalance: { wood: r.elements_wood, fire: r.elements_fire, earth: r.elements_earth, metal: r.elements_metal, water: r.elements_water },
+        pillars: {
+          year: { stem: { zh: r.year_stem, en: "" }, branch: { zh: r.year_branch, en: "" } },
+          month: { stem: { zh: r.month_stem, en: "" }, branch: { zh: r.month_branch, en: "" } },
+          day: { stem: { zh: r.day_stem, en: "" }, branch: { zh: r.day_branch, en: "" } },
+          hour: { stem: { zh: r.hour_stem, en: "" }, branch: { zh: r.hour_branch, en: "" } },
+        },
+      };
+    }
+  } catch {
+    // Fall back to client-provided data
+  }
+
+  const chartSummary = formatChartSummary(chartData);
 
   const systemPrompt = `You are a master of Saju (Korean Four Pillars of Destiny), with deep expertise in analyzing birth charts for personalized guidance. You are reviewing a consultation question.
 
@@ -190,7 +227,7 @@ Analyze whether this question needs clarification for a precise Saju consultatio
     credit_id: creditId,
     category,
     initial_question: question,
-    birth_data: birthData,
+    birth_data: chartData,
     status: parsed.needsClarification ? "clarifying" : "generating",
   };
 
@@ -218,7 +255,7 @@ Analyze whether this question needs clarification for a precise Saju consultatio
     const report = await generateReport({
       category,
       question,
-      birthData,
+      birthData: chartData,
       clarifyingQuestions: null,
       clarifyingAnswers: null,
     });
@@ -245,14 +282,11 @@ Analyze whether this question needs clarification for a precise Saju consultatio
       needsClarification: false,
       report: { title: report.title, content: report.content },
     });
-  } catch (genError: any) {
-    // Generation failed — do NOT deduct credit, mark consultation as failed
+  } catch {
     await sbFetch(`consultations?id=eq.${consultation.id}`, {
       method: "PATCH",
       body: JSON.stringify({ status: "failed" }),
     });
-
-    console.error("Report generation failed:", genError?.message || genError);
     return NextResponse.json(
       { error: "Report generation failed. Your credit was not used. Please try again." },
       { status: 500 }
@@ -330,14 +364,11 @@ async function handleSubmitAnswers({
     return NextResponse.json({
       report: { title: report.title, content: report.content },
     });
-  } catch (genError: any) {
-    // Generation failed — revert status so user can retry
+  } catch {
     await sbFetch(`consultations?id=eq.${consultationId}`, {
       method: "PATCH",
       body: JSON.stringify({ status: "clarifying" }),
     });
-
-    console.error("Report generation failed:", genError?.message || genError);
     return NextResponse.json(
       { error: "Report generation failed. Please try again — your credit is safe." },
       { status: 500 }
