@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Lock, Sparkles, Bookmark, Share2, Check, Crown } from "lucide-react";
+import { ArrowLeft, Lock, Sparkles, Bookmark, Share2, Check } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
@@ -111,25 +111,18 @@ export default function ReadingPageClient() {
     };
   }, []);
 
-  // Claim reading for logged-in user — only if it matches their own chart data
+  // Claim reading for logged-in user via server API (bypasses RLS)
   useEffect(() => {
     if (!user || !reading || claimed) return;
-    if (reading.user_id) return; // Already claimed by someone
-    // Only claim if the reading name matches the user's localStorage chart
-    try {
-      const raw = localStorage.getItem("saju-data");
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (parsed.chart?.name !== reading.name) return; // Not their reading
-    } catch { return; }
+    if (reading.user_id) { setClaimed(true); return; } // Already claimed
     (async () => {
       try {
-        await supabase
-          .from("readings")
-          .update({ user_id: user.id })
-          .eq("id", reading.id)
-          .is("user_id", null);
-        setClaimed(true);
+        const res = await fetch("/api/reading/claim", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ shareSlug: reading.share_slug, userId: user.id }),
+        });
+        if (res.ok) setClaimed(true);
       } catch {}
     })();
   }, [user, reading, claimed]);
@@ -247,9 +240,7 @@ export default function ReadingPageClient() {
     const sessionId = urlParams.get("session_id");
 
     if (payment === "success" && sessionId && slug) {
-      // Clean URL to prevent re-triggering
       window.history.replaceState({}, "", `/reading/${slug}`);
-
       fetch("/api/payment/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -265,7 +256,6 @@ export default function ReadingPageClient() {
           generatePaidContent();
         });
     } else if (payment === "cancelled") {
-      // User cancelled payment on Stripe — clean URL and reset loading state
       window.history.replaceState({}, "", `/reading/${slug}`);
       setPaymentLoading(false);
     }
@@ -587,37 +577,27 @@ export default function ReadingPageClient() {
           {/* Locked Premium Content (visible when NOT paid) */}
           {!reading.is_paid && (
             <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
-              <div className="relative overflow-hidden rounded-2xl border border-border">
-                {/* Blurred preview */}
-                <div className="p-6 md:p-8 blur-sm select-none pointer-events-none">
-                  <h2 className="font-serif text-xl font-semibold mb-3">10-Year Fortune Cycle</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Your next decade holds remarkable potential. The years {new Date().getFullYear() + 2}-{new Date().getFullYear() + 4} mark a significant 
-                    turning point in your career trajectory. The elemental shifts in your luck pillars suggest a period of consolidation 
-                    followed by rapid expansion. Pay particular attention to opportunities that arise in late spring of {new Date().getFullYear() + 1}, 
-                    as your Day Master energy aligns powerfully with the annual pillar...
+              <div className="relative overflow-hidden rounded-2xl border border-border" style={{ minHeight: 280 }}>
+                {/* Blurred preview — compact */}
+                <div className="p-6 blur-sm select-none pointer-events-none">
+                  <h2 className="font-serif text-lg font-semibold mb-2">10-Year Fortune Cycle</h2>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    Your next decade holds remarkable potential. The elemental shifts in your luck pillars suggest...
                   </p>
-                  <h2 className="font-serif text-xl font-semibold mb-3 mt-6">Career & Wealth Blueprint</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Your unique combination of elements creates a natural affinity for roles that require both vision and execution.
-                    The presence of strong resource energy in your chart suggests that financial stability comes through building 
-                    lasting systems rather than chasing quick wins...
-                  </p>
-                  <h2 className="font-serif text-xl font-semibold mb-3 mt-6">Love & Relationships</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    In matters of the heart, your Day Master seeks a partner whose energy complements rather than mirrors your own.
-                    The elemental dynamics in your relationship house suggest deep connections form through shared creative pursuits...
+                  <h2 className="font-serif text-lg font-semibold mb-2 mt-4">Career · Love · Health</h2>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    Your unique combination of elements creates a natural affinity for roles that require both vision and execution...
                   </p>
                 </div>
                 {/* Lock overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/80 to-background flex items-end justify-center pb-8">
-                  <div className="text-center">
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                      <Lock className="w-7 h-7 text-primary" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/70 to-background flex items-end justify-center pb-6">
+                  <div className="text-center px-4">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                      <Lock className="w-6 h-6 text-primary" />
                     </div>
-                    <h3 className="font-serif text-xl font-semibold mb-2">Unlock Your Full Destiny</h3>
-                    <p className="text-muted-foreground text-sm mb-4 max-w-sm mx-auto">
-                      10-year forecast, career blueprint, love analysis, health guidance — all personalized to your chart.
+                    <h3 className="font-serif text-lg font-semibold mb-1">Unlock Your Full Destiny</h3>
+                    <p className="text-muted-foreground text-xs mb-3 max-w-xs mx-auto">
+                      10-year forecast · Career · Love · Health · Hidden Talent — all personalized to your chart.
                     </p>
                     <Button 
                       className="gold-gradient text-primary-foreground font-semibold px-8"
@@ -642,26 +622,6 @@ export default function ReadingPageClient() {
               </div>
             </motion.section>
           )}
-
-          {/* Master Consultation Promo */}
-          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
-            <div className="bg-card/50 border border-purple-500/20 rounded-2xl p-6 text-center">
-              <Crown className="w-10 h-10 text-purple-400 mx-auto mb-3" />
-              <h3 className="font-serif text-lg font-semibold mb-2">Want Deeper Guidance?</h3>
-              <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
-                Ask any life question — career, love, timing, wealth — and get a personalized 3,000+ word consultation based on your birth chart.
-              </p>
-              <Link href="/consultation">
-                <Button
-                  className="font-semibold px-6"
-                  style={{ background: "linear-gradient(135deg, #a78bfa, #7c3aed)", color: "white" }}
-                >
-                  <Crown className="w-4 h-4 mr-2" />
-                  Master Consultation — $29.99 for 5 sessions
-                </Button>
-              </Link>
-            </div>
-          </motion.section>
 
           {/* Payment processing — Step-by-step generation progress */}
           {paidContentLoading && (

@@ -64,10 +64,16 @@ async function claimReadings(userId: string) {
     if (!chart?.name || !chart?.birthDate) return;
     const bd = new Date(chart.birthDate);
     const bds = `${bd.getFullYear()}-${String(bd.getMonth() + 1).padStart(2, "0")}-${String(bd.getDate()).padStart(2, "0")}`;
-    const { data } = await supabase.from("readings").select("id").eq("name", chart.name).eq("birth_date", bds).is("user_id", null).limit(5);
+    // Find unclaimed readings matching this chart via read-only query
+    const { data } = await supabase.from("readings").select("share_slug").eq("name", chart.name).eq("birth_date", bds).is("user_id", null).limit(5);
     if (data && data.length > 0) {
+      // Use server API to claim (bypasses RLS restrictions on UPDATE)
       for (const r of data) {
-        await supabase.from("readings").update({ user_id: userId }).eq("id", r.id).is("user_id", null);
+        await fetch("/api/reading/claim", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ shareSlug: r.share_slug, userId }),
+        }).catch(() => {});
       }
     }
   } catch {}
