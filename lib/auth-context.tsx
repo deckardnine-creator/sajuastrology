@@ -23,6 +23,7 @@ interface AuthContextType {
   isSignInModalOpen: boolean; openSignInModal: () => void; closeSignInModal: () => void;
   signIn: () => Promise<void>; signOut: () => void; saveSajuChart: (chart: SajuChart) => void;
   isPremium: boolean;
+  claimTrigger: number; // Increments after claimReadings completes — dashboard watches this
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -77,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [sajuData, setSajuData] = useState<UserSajuData>(EMPTY_SAJU);
   const [isLoading, setIsLoading] = useState(true);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+  const [claimTrigger, setClaimTrigger] = useState(0);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -89,7 +91,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(mapSupabaseUser(session.user));
         setIsSignInModalOpen(false);
         setIsLoading(false);
+        // Claim readings THEN signal dashboard to re-fetch
         await claimReadings(session.user.id);
+        setClaimTrigger(prev => prev + 1);
         // ★ #10: Return to the page user was on before sign-in
         const returnUrl = localStorage.getItem("auth-return-url");
         if (returnUrl) {
@@ -158,7 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isPremium = user?.subscription === "premium" || user?.subscription === "master";
 
   return (
-    <AuthContext.Provider value={{ user, sajuData, isLoading, isSignInModalOpen, openSignInModal, closeSignInModal, signIn, signOut, saveSajuChart, isPremium }}>
+    <AuthContext.Provider value={{ user, sajuData, isLoading, isSignInModalOpen, openSignInModal, closeSignInModal, signIn, signOut, saveSajuChart, isPremium, claimTrigger }}>
       {children}
     </AuthContext.Provider>
   );

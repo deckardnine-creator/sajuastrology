@@ -618,15 +618,32 @@ export function ConsultationClient() {
 
               {/* Chart Info Bar */}
               {sajuData.chart && (
-                <div className="px-6 py-3 border-b border-border bg-card/30 flex items-center gap-4 flex-wrap text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1.5">
-                    <span className="text-base font-serif text-primary">{sajuData.chart.dayMaster.zh}</span>
-                    {sajuData.chart.dayMaster.en}
-                  </span>
-                  <span>·</span>
-                  <span>{sajuData.chart.archetype}</span>
-                  <span>·</span>
-                  <span className="capitalize">{sajuData.chart.dayMaster.element} element</span>
+                <div className="px-6 py-3 border-b border-border bg-card/30 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-4 flex-wrap mb-1.5">
+                    <span className="text-sm font-medium text-foreground">{sajuData.chart.name}</span>
+                    {sajuData.chart.birthDate && (
+                      <>
+                        <span>·</span>
+                        <span>{new Date(sajuData.chart.birthDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
+                      </>
+                    )}
+                    {sajuData.chart.birthCity && (
+                      <>
+                        <span>·</span>
+                        <span>{sajuData.chart.birthCity}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <span className="flex items-center gap-1.5">
+                      <span className="text-base font-serif text-primary">{sajuData.chart.dayMaster.zh}</span>
+                      {sajuData.chart.dayMaster.en}
+                    </span>
+                    <span>·</span>
+                    <span>{sajuData.chart.archetype}</span>
+                    <span>·</span>
+                    <span className="capitalize">{sajuData.chart.dayMaster.element} element</span>
+                  </div>
                 </div>
               )}
 

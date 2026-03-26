@@ -261,6 +261,10 @@ export default function ReadingPageClient() {
           console.error("Payment verification error:", err);
           generatePaidContent();
         });
+    } else if (payment === "cancelled") {
+      // User cancelled payment on Stripe — clean URL and reset loading state
+      window.history.replaceState({}, "", `/reading/${slug}`);
+      setPaymentLoading(false);
     }
   }, [slug]);
 
@@ -348,13 +352,13 @@ export default function ReadingPageClient() {
             className="mb-6 bg-card/80 border border-primary/20 rounded-xl p-4">
             {user ? (
               <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
+                <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                   <Bookmark className="w-5 h-5 text-primary shrink-0" />
                   <div>
                     <p className="text-sm font-medium">Saved to your dashboard</p>
-                    <p className="text-xs text-muted-foreground">You can revisit this reading anytime.</p>
+                    <p className="text-xs text-muted-foreground">Tap to view your dashboard →</p>
                   </div>
-                </div>
+                </Link>
                 <Button variant="outline" size="sm" className="text-xs h-9 gap-2 shrink-0" onClick={handleShareLink}>
                   {linkCopied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
                   {linkCopied ? "Copied!" : "Share Link"}

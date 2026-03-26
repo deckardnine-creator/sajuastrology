@@ -49,7 +49,7 @@ interface SavedReading {
 }
 
 export function DashboardContent() {
-  const { user, sajuData, saveSajuChart } = useAuth();
+  const { user, sajuData, saveSajuChart, claimTrigger } = useAuth();
   const [dailyScore, setDailyScore] = useState(72);
   const [mounted, setMounted] = useState(false);
   const [savedReadings, setSavedReadings] = useState<SavedReading[]>([]);
@@ -78,7 +78,6 @@ export function DashboardContent() {
 
   useEffect(() => {
     if (!user) return;
-    let retried = false;
     const fetchReadings = async () => {
       const { data } = await supabase
         .from("readings")
@@ -87,12 +86,6 @@ export function DashboardContent() {
         .order("created_at", { ascending: false })
         .limit(20);
       const readings = data || [];
-      // If 0 readings and haven't retried, wait for claimReadings to finish then retry
-      if (readings.length === 0 && !retried) {
-        retried = true;
-        setTimeout(fetchReadings, 2000);
-        return;
-      }
       setSavedReadings(readings);
       const currentPrimary = localStorage.getItem("primary-reading-id");
       if (readings.length > 0) {
@@ -106,7 +99,7 @@ export function DashboardContent() {
       }
     };
     fetchReadings();
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user, claimTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setAsMyChart = (readingId: string) => {
     if (primaryReadingId === readingId) return;

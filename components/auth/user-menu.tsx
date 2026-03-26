@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User,
@@ -16,6 +17,7 @@ import { Button } from "@/components/ui/button";
 
 export function UserMenu() {
   const { user, signOut, openSignInModal, isPremium, isLoading } = useAuth();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -140,9 +142,10 @@ export function UserMenu() {
               {/* Sign Out */}
               <div className="border-t border-border p-2">
                 <button
-                  onClick={() => {
-                    signOut();
+                  onClick={async () => {
                     setIsOpen(false);
+                    await signOut();
+                    router.push("/");
                   }}
                   className="w-full flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors min-h-[44px]"
                   role="menuitem"
