@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { safeSet } from "@/lib/safe-storage";
 import { useRouter } from "next/navigation";
 import { BirthDataForm } from "@/components/calculate/birth-data-form";
 import { CalculationAnimation } from "@/components/calculate/calculation-animation";
@@ -248,7 +249,7 @@ export default function CalculatePage() {
 
       shareSlugRef.current = data.shareSlug;
       // Store slug for claiming after login (if user signs in later)
-      localStorage.setItem("pending-claim-slug", data.shareSlug);
+      safeSet("pending-claim-slug", data.shareSlug);
       apiDoneRef.current = true;
       tryNavigate();
     } catch (err: any) {

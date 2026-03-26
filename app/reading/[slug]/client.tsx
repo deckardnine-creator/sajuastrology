@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase-client";
 import { ELEMENTS, type Element } from "@/lib/saju-calculator";
 import { useAuth } from "@/lib/auth-context";
+import { safeGet, safeSet, safeRemove } from "@/lib/safe-storage";
 
 interface ReadingData {
   id: string;
@@ -122,7 +123,7 @@ export default function ReadingPageClient() {
     }
     // Only claim if reading name matches user's localStorage chart
     try {
-      const raw = localStorage.getItem("saju-data");
+      const raw = safeGet("saju-data");
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (parsed.chart?.name !== reading.name) return;
@@ -141,7 +142,7 @@ export default function ReadingPageClient() {
 
   // Check consultation return flag
   useEffect(() => {
-    if (reading && localStorage.getItem("return-to-consultation") === "true") {
+    if (reading && safeGet("return-to-consultation") === "true") {
       setShowConsultationReturn(true);
     }
   }, [reading]);
@@ -287,7 +288,7 @@ export default function ReadingPageClient() {
     if (!reading) return;
     // Require login before payment (need account to save paid content)
     if (!user) {
-      localStorage.setItem("auth-return-url", window.location.href);
+      safeSet("auth-return-url", window.location.href);
       openSignInModal();
       return;
     }
@@ -781,7 +782,7 @@ export default function ReadingPageClient() {
           {/* Consultation Return Banner */}
           {showConsultationReturn && (
             <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-              <Link href="/consultation" onClick={() => localStorage.removeItem("return-to-consultation")}
+              <Link href="/consultation" onClick={() => safeRemove("return-to-consultation")}
                 className="block bg-gradient-to-r from-purple-500/10 to-purple-500/5 border border-purple-500/30 rounded-2xl p-6 text-center hover:border-purple-500/50 transition-colors">
                 <p className="text-sm text-purple-300 mb-1">Your chart is ready!</p>
                 <p className="text-lg font-serif font-semibold text-foreground">Continue to Consultation →</p>

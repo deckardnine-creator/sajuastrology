@@ -7,6 +7,7 @@ import { supabase } from "./supabase-client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { SajuChart } from "./saju-calculator";
 import { reconstructChartFromReading } from "./constants";
+import { safeGet, safeSet, safeRemove } from "./safe-storage";
 
 export interface User {
   id: string; name: string; email: string; image?: string;
@@ -43,7 +44,7 @@ const EMPTY_SAJU: UserSajuData = {
 
 function loadSajuData(): UserSajuData {
   try {
-    const raw = localStorage.getItem("saju-data");
+    const raw = safeGet("saju-data");
     if (!raw) return EMPTY_SAJU;
     const parsed = JSON.parse(raw);
     return {
@@ -57,10 +58,9 @@ function loadSajuData(): UserSajuData {
 
 async function claimReadings(userId: string) {
   try {
-    // Priority 1: Claim by specific share_slug (most precise, no collision risk)
-    const pendingSlug = localStorage.getItem("pending-claim-slug");
+    const pendingSlug = safeGet("pending-claim-slug");
     if (pendingSlug) {
-      localStorage.removeItem("pending-claim-slug");
+      safeRemove("pending-claim-slug");
       await fetch("/api/reading/claim", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -68,9 +68,7 @@ async function claimReadings(userId: string) {
       }).catch(() => {});
     }
 
-    // Priority 2: Claim by name+birth_date (fallback for older sessions)
-    // Only claim readings created in the last 24 hours to prevent claiming others' readings
-    const raw = localStorage.getItem("saju-data");
+    const raw = safeGet("saju-data");
     if (!raw) return;
     const parsed = JSON.parse(raw);
     const chart = parsed.chart;
@@ -109,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(mapSupabaseUser(session.user));
-        localStorage.setItem("current-user-id", session.user.id);
+        safeSet("current-user-id", session.user.id);
       }
       setIsLoading(false);
     });
@@ -117,21 +115,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
         const newUser = mapSupabaseUser(session.user);
-        // #4: If different user signs in, clear previous user's localStorage
-        const prevUserId = localStorage.getItem("current-user-id");
+        // Clear previous user's data if different account
+        const prevUserId = safeGet("current-user-id");
         if (prevUserId && prevUserId !== newUser.id) {
-          localStorage.removeItem("saju-data");
-          localStorage.removeItem("primary-reading-id");
-          localStorage.removeItem("primary-changed-date");
+          safeRemove("saju-data");
+          safeRemove("primary-reading-id");
+          safeRemove("primary-changed-date");
           setSajuData(EMPTY_SAJU);
         }
-        localStorage.setItem("current-user-id", newUser.id);
+        safeSet("current-user-id", newUser.id);
         setUser(newUser);
         setIsSignInModalOpen(false);
         setIsLoading(false);
         await claimReadings(session.user.id);
         setClaimTrigger(prev => prev + 1);
-        // returnUrl redirect is handled by /auth/callback page
       } else if (event === "SIGNED_OUT") {
         setUser(null);
       } else if (event === "TOKEN_REFRESHED" && session?.user) {
@@ -160,7 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             gender: r.gender as "male" | "female", readingGeneratedAt: new Date(r.created_at),
           };
           setSajuData(newSajuData);
-          localStorage.setItem("saju-data", JSON.stringify(newSajuData));
+          safeSet("saju-data", JSON.stringify(newSajuData));
         }
       } catch {}
     })();
@@ -171,26 +168,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async () => {
     setIsLoading(true);
-    if (!localStorage.getItem("auth-return-url")) {
-      localStorage.setItem("auth-return-url", window.location.href);
+    if (!safeGet("auth-return-url")) {
+      safeSet("auth-return-url", window.location.href);
     }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
-    if (error) { localStorage.removeItem("auth-return-url"); setIsLoading(false); }
+    if (error) { safeRemove("auth-return-url"); setIsLoading(false); }
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
     setSajuData(EMPTY_SAJU);
-    localStorage.removeItem("saju-data");
-    localStorage.removeItem("primary-reading-id");
-    localStorage.removeItem("primary-changed-date");
-    localStorage.removeItem("pending-claim-slug");
-    localStorage.removeItem("current-user-id");
-    localStorage.removeItem("return-to-consultation");
+    safeRemove("saju-data");
+    safeRemove("primary-reading-id");
+    safeRemove("primary-changed-date");
+    safeRemove("pending-claim-slug");
+    safeRemove("current-user-id");
+    safeRemove("return-to-consultation");
+    safeRemove("auth-return-url");
   };
 
   const saveSajuChart = (chart: SajuChart) => {
@@ -199,7 +197,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       birthCity: chart.birthCity, gender: chart.gender, readingGeneratedAt: new Date(),
     };
     setSajuData(newSajuData);
-    localStorage.setItem("saju-data", JSON.stringify(newSajuData));
+    safeSet("saju-data", JSON.stringify(newSajuData));
   };
 
   const isPremium = user?.subscription === "premium" || user?.subscription === "master";
