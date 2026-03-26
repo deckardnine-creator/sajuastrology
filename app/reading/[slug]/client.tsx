@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Lock, Sparkles, Bookmark, Share2, Check } from "lucide-react";
+import { ArrowLeft, Lock, Sparkles, Bookmark, Share2, Check, Heart } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
@@ -517,6 +517,18 @@ export default function ReadingPageClient() {
                   : "Chart with distinct character — focus on strengthening weaker elements"}
               </p>
             </div>
+          </motion.section>
+
+          {/* Compatibility CTA */}
+          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }} className="mb-10">
+            <Link href={`/compatibility?my=${reading.share_slug}`}
+              className="block bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 rounded-2xl p-6 text-center hover:border-pink-500/40 transition-colors">
+              <Heart className="w-8 h-8 text-pink-400 mx-auto mb-3" />
+              <h3 className="font-serif text-lg font-semibold mb-1">Check Your Compatibility</h3>
+              <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                See how your Four Pillars align with a partner, friend, or colleague — free.
+              </p>
+            </Link>
           </motion.section>
 
           {/* Paid Content (visible after payment) */}

@@ -46,6 +46,7 @@ export function Navbar() {
             <div className="hidden md:flex md:items-center md:gap-8">
               <Link href="/what-is-saju" className="text-sm text-muted-foreground transition-colors hover:text-foreground">What is Saju?</Link>
               <Link href="/pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Pricing</Link>
+              <Link href="/compatibility" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Compatibility</Link>
               <Link href="/consultation" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Consultation</Link>
             </div>
             <div className="hidden md:block"><UserMenu /></div>
@@ -67,6 +68,7 @@ export function Navbar() {
             <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6">
               <Link href="/what-is-saju" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>What is Saju?</Link>
               <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>Pricing</Link>
+              <Link href="/compatibility" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>Compatibility</Link>
               <Link href="/consultation" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>Consultation</Link>
 
               {user ? (
