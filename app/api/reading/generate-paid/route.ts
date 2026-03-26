@@ -5,8 +5,6 @@ import { buildPaidPromptPart1, buildPaidPromptPart2, buildPaidPromptPart3, build
 export const maxDuration = 60;
 
 async function callClaude(prompt: string, apiKey: string, label: string): Promise<string> {
-  const start = Date.now();
-
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -27,9 +25,7 @@ async function callClaude(prompt: string, apiKey: string, label: string): Promis
   }
 
   const data = await res.json();
-  const text = data.content?.[0]?.text || "";
-  console.log(`${label}: ${Date.now() - start}ms`);
-  return text;
+  return data.content?.[0]?.text || "";
 }
 
 function parseJSON(raw: string): any {
@@ -37,7 +33,6 @@ function parseJSON(raw: string): any {
 }
 
 export async function POST(request: NextRequest) {
-  const startTime = Date.now();
   try {
     const { shareSlug } = await request.json();
     if (!shareSlug) return NextResponse.json({ error: "Missing slug" }, { status: 400 });
@@ -75,15 +70,16 @@ export async function POST(request: NextRequest) {
               paid_reading_monthly: cached[0].paid_reading_monthly, paid_reading_hidden_talent: cached[0].paid_reading_hidden_talent,
             }),
           });
-          console.log(`Paid cached: ${Date.now() - startTime}ms`);
           return NextResponse.json({ success: true, cached: true });
         }
       }
     } catch { /* cache miss */ }
 
-    // 2. THREE parallel Sonnet calls — no timeout, Vercel 60s handles it
+    // 2. THREE parallel Sonnet calls
     const chartSummary = buildChartSummary(reading);
     const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1;
+    const forecastYear = currentMonth >= 11 ? currentYear + 1 : currentYear;
 
     const [raw1, raw2, raw3] = await Promise.all([
       callClaude(buildPaidPromptPart1(chartSummary), anthropicKey, "Part1-Career+Love"),
@@ -108,10 +104,9 @@ export async function POST(request: NextRequest) {
     });
     if (!patchRes.ok) return NextResponse.json({ error: "DB save failed" }, { status: 500 });
 
-    console.log(`Paid total: ${Date.now() - startTime}ms`);
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    console.error(`Paid error after ${Date.now() - startTime}ms:`, err?.message);
-    return NextResponse.json({ error: err?.message || "Server error" }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

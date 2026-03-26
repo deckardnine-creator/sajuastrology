@@ -616,6 +616,20 @@ export function ConsultationClient() {
                 </p>
               </div>
 
+              {/* Chart Info Bar */}
+              {sajuData.chart && (
+                <div className="px-6 py-3 border-b border-border bg-card/30 flex items-center gap-4 flex-wrap text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-base font-serif text-primary">{sajuData.chart.dayMaster.zh}</span>
+                    {sajuData.chart.dayMaster.en}
+                  </span>
+                  <span>·</span>
+                  <span>{sajuData.chart.archetype}</span>
+                  <span>·</span>
+                  <span className="capitalize">{sajuData.chart.dayMaster.element} element</span>
+                </div>
+              )}
+
               {/* Report Content */}
               <div className="px-6 py-6">
                 <div
@@ -649,6 +663,10 @@ export function ConsultationClient() {
                 </Button>
               </Link>
             </div>
+
+            <p className="text-center text-[11px] text-muted-foreground/40 mt-6">
+              This consultation is for entertainment and self-reflection only. See our Terms for details.
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -758,9 +776,16 @@ function ConsultationLoader({ category }: { category: string }) {
         </div>
 
         <h3 className="font-serif text-xl text-center mb-1">Consulting the Four Pillars</h3>
-        <p className="text-xs text-center text-muted-foreground/60 mb-6">
+        <p className="text-xs text-center text-muted-foreground/60 mb-2">
           {formatTime(elapsedSeconds)} elapsed · Deep analysis in progress
         </p>
+
+        {/* Do not leave warning */}
+        <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2 mb-6">
+          <p className="text-[11px] text-amber-400/80 text-center">
+            ⚠️ Please stay on this page. Leaving may interrupt your reading and your session credit cannot be restored.
+          </p>
+        </div>
 
         {/* Progress bar */}
         <div className="relative h-1.5 bg-white/5 rounded-full mb-8 overflow-hidden">
@@ -820,7 +845,7 @@ function ConsultationLoader({ category }: { category: string }) {
         </div>
 
         <p className="text-center text-[11px] text-muted-foreground/40 mt-8">
-          Your consultation is crafted uniquely — this takes 30–60 seconds
+          Three cosmic scholars are analyzing your chart simultaneously — this takes 30–60 seconds
         </p>
       </div>
     </div>
