@@ -68,7 +68,8 @@ export function HeroSection() {
             <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl">
               Western astrology gives you 1 of 12 types. Saju gives you 1 of{" "}
               <span className="text-primary font-semibold">518,400</span> unique
-              cosmic profiles. Enter your birth details and decode your destiny in 30 seconds.
+              cosmic profiles. Get your free reading in 30 seconds — plus personalized
+              daily fortune updates based on your chart.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-2">

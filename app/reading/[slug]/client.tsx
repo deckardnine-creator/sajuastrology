@@ -8,14 +8,9 @@ import { ArrowLeft, Lock, Sparkles, Bookmark, Share2, Check, Crown } from "lucid
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase-client";
 import { ELEMENTS, type Element } from "@/lib/saju-calculator";
 import { useAuth } from "@/lib/auth-context";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 interface ReadingData {
   id: string;
@@ -116,9 +111,17 @@ export default function ReadingPageClient() {
     };
   }, []);
 
-  // Claim reading for logged-in user
+  // Claim reading for logged-in user — only if it matches their own chart data
   useEffect(() => {
     if (!user || !reading || claimed) return;
+    if (reading.user_id) return; // Already claimed by someone
+    // Only claim if the reading name matches the user's localStorage chart
+    try {
+      const raw = localStorage.getItem("saju-data");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed.chart?.name !== reading.name) return; // Not their reading
+    } catch { return; }
     (async () => {
       try {
         await supabase
@@ -342,8 +345,8 @@ export default function ReadingPageClient() {
 
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <button onClick={() => router.back()} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft className="w-4 h-4" /> Back
+            <button onClick={() => user ? router.push("/dashboard") : router.push("/")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowLeft className="w-4 h-4" /> {user ? "Dashboard" : "Home"}
             </button>
           </motion.div>
 

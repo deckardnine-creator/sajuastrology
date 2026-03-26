@@ -5,6 +5,7 @@ import Link from "next/link"
 const footerLinks = [
   { label: "What is Saju?", href: "/what-is-saju" },
   { label: "Pricing",       href: "/pricing" },
+  { label: "Consultation",  href: "/consultation" },
   { label: "Privacy",       href: "/privacy" },
   { label: "Terms",         href: "/terms" },
 ]

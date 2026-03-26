@@ -122,11 +122,12 @@ export function ConsultationClient() {
   }, [searchParams, user]);
 
   const loadSavedReport = async (consultationId: string) => {
+    if (!user) return;
     try {
       const res = await fetch("/api/consultation/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "get-report", consultationId, userId: user!.id }),
+        body: JSON.stringify({ action: "get-report", consultationId, userId: user.id }),
       });
       const data = await res.json();
       if (data.report) {
@@ -139,11 +140,12 @@ export function ConsultationClient() {
   };
 
   const verifyPayment = async (sessionId: string) => {
+    if (!user) return;
     try {
       const res = await fetch("/api/payment/verify-consultation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId, userId: user!.id }),
+        body: JSON.stringify({ sessionId, userId: user.id }),
       });
       const data = await res.json();
       if (data.success) {
