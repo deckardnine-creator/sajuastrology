@@ -99,8 +99,6 @@ function renderCompatibilityOG(searchParams: URLSearchParams) {
           style={{
             position: "absolute",
             bottom: -60,
-            left: "50%",
-            transform: "translateX(-50%)",
             width: 400,
             height: 300,
             borderRadius: "50%",
@@ -154,7 +152,7 @@ function renderCompatibilityOG(searchParams: URLSearchParams) {
               {emojiA}
             </div>
             <div style={{ fontSize: 28, fontWeight: 700, color: "#F5F5F5" }}>{nameA}</div>
-            <div style={{ fontSize: 16, color: colorA, textTransform: "capitalize" }}>{elA}</div>
+            <div style={{ fontSize: 16, color: colorA }}>{elA.charAt(0).toUpperCase() + elA.slice(1)}</div>
           </div>
 
           {/* Heart */}
@@ -179,7 +177,7 @@ function renderCompatibilityOG(searchParams: URLSearchParams) {
               {emojiB}
             </div>
             <div style={{ fontSize: 28, fontWeight: 700, color: "#F5F5F5" }}>{nameB}</div>
-            <div style={{ fontSize: 16, color: colorB, textTransform: "capitalize" }}>{elB}</div>
+            <div style={{ fontSize: 16, color: colorB }}>{elB.charAt(0).toUpperCase() + elB.slice(1)}</div>
           </div>
         </div>
 
