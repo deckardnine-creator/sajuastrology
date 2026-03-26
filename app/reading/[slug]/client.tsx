@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -100,7 +100,21 @@ export default function ReadingPageClient() {
   const [generationStep, setGenerationStep] = useState(0);
   const [linkCopied, setLinkCopied] = useState(false);
   const [claimed, setClaimed] = useState(false);
-  const generationTriggeredRef = useRef(false);
+
+  // Reset payment loading when user returns from Stripe (browser tab regains focus)
+  useEffect(() => {
+    const handleFocus = () => { setPaymentLoading(false); };
+    window.addEventListener("focus", handleFocus);
+    // Also handle page visibility change (mobile)
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") setPaymentLoading(false);
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, []);
 
   // Claim reading for logged-in user
   useEffect(() => {
@@ -148,8 +162,6 @@ export default function ReadingPageClient() {
 
   // Generate paid content and update state in-place (no page reload)
   const generatePaidContent = async () => {
-    if (generationTriggeredRef.current) return;
-    generationTriggeredRef.current = true;
     setPaidContentLoading(true);
     setGenerationStep(0);
 
@@ -171,8 +183,8 @@ export default function ReadingPageClient() {
       clearInterval(stepTimer);
 
       if (!res.ok || data.error) {
+        console.error("Paid generation failed:", data.error);
         setPaidContentLoading(false);
-        generationTriggeredRef.current = false;
         return;
       }
 
@@ -192,8 +204,8 @@ export default function ReadingPageClient() {
       }, 600);
     } catch (err) {
       clearInterval(stepTimer);
+      console.error("Paid generation error:", err);
       setPaidContentLoading(false);
-      generationTriggeredRef.current = false;
     }
   };
 
@@ -242,7 +254,7 @@ export default function ReadingPageClient() {
       })
         .then((res) => res.json())
         .then((data) => {
-          if (!data.success && !data.alreadyPaid) throw new Error("Verification failed");
+          if (!data.success) throw new Error("Verification failed");
           generatePaidContent();
         })
         .catch((err) => {
@@ -336,13 +348,13 @@ export default function ReadingPageClient() {
             className="mb-6 bg-card/80 border border-primary/20 rounded-xl p-4">
             {user ? (
               <div className="flex items-center justify-between gap-3">
-                <Link href="/dashboard" className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="flex items-center gap-3">
                   <Bookmark className="w-5 h-5 text-primary shrink-0" />
                   <div>
                     <p className="text-sm font-medium">Saved to your dashboard</p>
-                    <p className="text-xs text-muted-foreground">Tap to view all your readings →</p>
+                    <p className="text-xs text-muted-foreground">You can revisit this reading anytime.</p>
                   </div>
-                </Link>
+                </div>
                 <Button variant="outline" size="sm" className="text-xs h-9 gap-2 shrink-0" onClick={handleShareLink}>
                   {linkCopied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
                   {linkCopied ? "Copied!" : "Share Link"}
@@ -565,38 +577,59 @@ export default function ReadingPageClient() {
             </div>
           )}
 
-          {/* Locked Premium Content */}
+          {/* Locked Premium Content (visible when NOT paid) */}
           {!reading.is_paid && (
             <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
-              <div className="relative overflow-hidden rounded-2xl border border-border" style={{ maxHeight: "320px" }}>
-                <div className="p-5 sm:p-6 blur-sm select-none pointer-events-none">
-                  <h2 className="font-serif text-xl font-semibold mb-3">Career & Wealth Blueprint</h2>
+              <div className="relative overflow-hidden rounded-2xl border border-border">
+                {/* Blurred preview */}
+                <div className="p-6 md:p-8 blur-sm select-none pointer-events-none">
+                  <h2 className="font-serif text-xl font-semibold mb-3">10-Year Fortune Cycle</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    Your unique combination of elements creates a natural affinity for roles that require both vision and execution...
+                    Your next decade holds remarkable potential. The years {new Date().getFullYear() + 2}-{new Date().getFullYear() + 4} mark a significant 
+                    turning point in your career trajectory. The elemental shifts in your luck pillars suggest a period of consolidation 
+                    followed by rapid expansion. Pay particular attention to opportunities that arise in late spring of {new Date().getFullYear() + 1}, 
+                    as your Day Master energy aligns powerfully with the annual pillar...
                   </p>
-                  <h2 className="font-serif text-xl font-semibold mb-3 mt-6">10-Year Fortune Cycle</h2>
+                  <h2 className="font-serif text-xl font-semibold mb-3 mt-6">Career & Wealth Blueprint</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    Your next decade holds remarkable potential. The years {new Date().getFullYear() + 2}-{new Date().getFullYear() + 4} mark a turning point...
+                    Your unique combination of elements creates a natural affinity for roles that require both vision and execution.
+                    The presence of strong resource energy in your chart suggests that financial stability comes through building 
+                    lasting systems rather than chasing quick wins...
+                  </p>
+                  <h2 className="font-serif text-xl font-semibold mb-3 mt-6">Love & Relationships</h2>
+                  <p className="text-muted-foreground leading-relaxed">
+                    In matters of the heart, your Day Master seeks a partner whose energy complements rather than mirrors your own.
+                    The elemental dynamics in your relationship house suggest deep connections form through shared creative pursuits...
                   </p>
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/70 to-background flex items-end justify-center pb-6 sm:pb-8">
-                  <div className="text-center px-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                      <Lock className="w-6 h-6 text-primary" />
+                {/* Lock overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/80 to-background flex items-end justify-center pb-8">
+                  <div className="text-center">
+                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                      <Lock className="w-7 h-7 text-primary" />
                     </div>
-                    <h3 className="font-serif text-lg sm:text-xl font-semibold mb-2">Unlock Your Full Destiny</h3>
-                    <p className="text-muted-foreground text-xs sm:text-sm mb-4">Career · Love · Health · 10-Year Forecast · Hidden Talent</p>
-                    <Button className="gold-gradient text-primary-foreground font-semibold px-6" onClick={handleUnlock} disabled={paymentLoading}>
+                    <h3 className="font-serif text-xl font-semibold mb-2">Unlock Your Full Destiny</h3>
+                    <p className="text-muted-foreground text-sm mb-4 max-w-sm mx-auto">
+                      10-year forecast, career blueprint, love analysis, health guidance — all personalized to your chart.
+                    </p>
+                    <Button 
+                      className="gold-gradient text-primary-foreground font-semibold px-8"
+                      onClick={handleUnlock}
+                      disabled={paymentLoading}
+                    >
                       {paymentLoading ? (
                         <span className="flex items-center gap-2">
                           <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
                           Processing...
                         </span>
                       ) : (
-                        <><Sparkles className="w-4 h-4 mr-2" />Unlock Full Reading — $9.99</>
+                        <>
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Unlock Full Reading — $9.99
+                        </>
                       )}
                     </Button>
-                    <p className="text-[10px] text-muted-foreground/50 mt-2">One-time payment. Yours forever.</p>
+                    <p className="text-xs text-muted-foreground/50 mt-2">One-time payment. Yours forever.</p>
                   </div>
                 </div>
               </div>
@@ -613,11 +646,11 @@ export default function ReadingPageClient() {
               </p>
               <Link href="/consultation">
                 <Button
-                  className="font-semibold px-4 sm:px-6 text-sm"
+                  className="font-semibold px-6"
                   style={{ background: "linear-gradient(135deg, #a78bfa, #7c3aed)", color: "white" }}
                 >
-                  <Crown className="w-4 h-4 mr-2 shrink-0" />
-                  <span className="hidden sm:inline">Master Consultation — </span>$29.99 for 5 sessions
+                  <Crown className="w-4 h-4 mr-2" />
+                  Master Consultation — $29.99 for 5 sessions
                 </Button>
               </Link>
             </div>
@@ -743,11 +776,6 @@ export default function ReadingPageClient() {
               </div>
             )}
           </motion.section>
-
-          {/* Disclaimer */}
-          <div className="text-center text-[11px] text-muted-foreground/40 leading-relaxed mb-6 px-2">
-            This reading is for entertainment and self-reflection only. See our <Link href="/terms" className="underline">Terms</Link>.
-          </div>
 
         </div>
       </div>
