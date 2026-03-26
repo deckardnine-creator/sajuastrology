@@ -111,10 +111,20 @@ export default function ReadingPageClient() {
     };
   }, []);
 
-  // Claim reading for logged-in user via server API (bypasses RLS)
+  // Claim reading for logged-in user — only if it's their own (not a shared link)
   useEffect(() => {
     if (!user || !reading || claimed) return;
-    if (reading.user_id) { setClaimed(true); return; } // Already claimed
+    if (reading.user_id) {
+      setClaimed(reading.user_id === user.id);
+      return;
+    }
+    // Only claim if reading name matches user's localStorage chart
+    try {
+      const raw = localStorage.getItem("saju-data");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed.chart?.name !== reading.name) return; // Not their reading — don't claim
+    } catch { return; }
     (async () => {
       try {
         const res = await fetch("/api/reading/claim", {
@@ -349,7 +359,8 @@ export default function ReadingPageClient() {
           {/* Save & Share Banner */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
             className="mb-6 bg-card/80 border border-primary/20 rounded-xl p-4">
-            {user ? (
+            {user && (reading.user_id === user.id || claimed) ? (
+              /* Own reading — saved to dashboard */
               <div className="flex items-center justify-between gap-3">
                 <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                   <Bookmark className="w-5 h-5 text-primary shrink-0" />
@@ -363,7 +374,24 @@ export default function ReadingPageClient() {
                   {linkCopied ? "Copied!" : "Share Link"}
                 </Button>
               </div>
+            ) : user ? (
+              /* Logged in but viewing someone else's reading */
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="w-5 h-5 text-primary shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">Want your own cosmic blueprint?</p>
+                    <p className="text-xs text-muted-foreground">Discover your unique Four Pillars in 30 seconds</p>
+                  </div>
+                </div>
+                <Link href="/calculate">
+                  <Button size="sm" className="text-xs h-9 gold-gradient text-primary-foreground shrink-0">
+                    Get Mine Free
+                  </Button>
+                </Link>
+              </div>
             ) : (
+              /* Not logged in */
               <div className="flex items-start gap-3">
                 <Bookmark className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <div className="flex-1">
