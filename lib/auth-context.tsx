@@ -179,7 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try { await supabase.auth.signOut(); } catch {}
     setUser(null);
     setSajuData(EMPTY_SAJU);
     safeRemove("saju-data");
@@ -189,6 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     safeRemove("current-user-id");
     safeRemove("return-to-consultation");
     safeRemove("auth-return-url");
+    window.location.href = "/";
   };
 
   const saveSajuChart = (chart: SajuChart) => {
