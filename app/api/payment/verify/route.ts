@@ -12,7 +12,10 @@ export async function POST(request: NextRequest) {
 
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY || "";
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+    const supabaseKey =
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+      "";
     const dbHeaders = {
       "Content-Type": "application/json",
       apikey: supabaseKey,

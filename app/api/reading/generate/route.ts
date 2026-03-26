@@ -44,6 +44,21 @@ export async function POST(request: NextRequest) {
     const ds = chart.pillars.day.stem.zh, db = chart.pillars.day.branch.zh;
     const hs = chart.pillars.hour.stem.zh, hb = chart.pillars.hour.branch.zh;
 
+    // ═══ RATE LIMITING — prevent Claude API cost abuse ═══
+    const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    try {
+      const rateRes = await fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
+        name: `eq.${chart.name}`, birth_date: `eq.${birthDateStr}`,
+        created_at: `gte.${fiveMinAgo}`, select: "id", limit: "5",
+      })}`, { headers: dbHeaders });
+      if (rateRes.ok) {
+        const recent = await rateRes.json();
+        if (recent && recent.length >= 3) {
+          return NextResponse.json({ error: "Too many requests. Please wait a few minutes." }, { status: 429 });
+        }
+      }
+    } catch { /* rate limit check failed — allow through */ }
+
     // ═══ PARALLEL CACHE CHECK ═══
     const [exactResult, pillarResult] = await Promise.allSettled([
       fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
