@@ -11,6 +11,7 @@ import {
 import { supabase } from "./supabase-client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { SajuChart } from "./saju-calculator";
+import { reconstructChartFromReading } from "./constants";
 
 /* ─── Types ─── */
 
@@ -55,7 +56,7 @@ function mapSupabaseUser(su: SupabaseUser): User {
     name: meta.full_name || meta.name || "User",
     email: su.email || "",
     image: meta.avatar_url || meta.picture || undefined,
-    subscription: "free", // Default to free; upgrade logic can query DB later
+    subscription: "free",
   };
 }
 
@@ -88,16 +89,6 @@ function loadSajuData(): UserSajuData {
   }
 }
 
-/* ─── Day Master character lookup ─── */
-
-const DAY_MASTER_ZH: Record<string, string> = {
-  "wood-yang": "甲", "wood-yin": "乙",
-  "fire-yang": "丙", "fire-yin": "丁",
-  "earth-yang": "戊", "earth-yin": "己",
-  "metal-yang": "庚", "metal-yin": "辛",
-  "water-yang": "壬", "water-yin": "癸",
-};
-
 /* ─── Claim unclaimed readings after sign-in ─── */
 
 async function claimReadings(userId: string) {
@@ -108,7 +99,6 @@ async function claimReadings(userId: string) {
     const chart = parsed.chart;
     if (!chart?.name || !chart?.birthDate) return;
 
-    // Find unclaimed readings matching this chart data
     const birthDate = new Date(chart.birthDate);
     const birthDateStr = `${birthDate.getFullYear()}-${String(birthDate.getMonth() + 1).padStart(2, "0")}-${String(birthDate.getDate()).padStart(2, "0")}`;
 
@@ -129,8 +119,8 @@ async function claimReadings(userId: string) {
           .is("user_id", null);
       }
     }
-  } catch (err) {
-    console.error("Claim readings error:", err);
+  } catch {
+    // Non-critical: silently ignore claim failures
   }
 }
 
@@ -144,7 +134,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /* — Session bootstrap & auth listener — */
   useEffect(() => {
-    // 1. Restore existing session (fast)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(mapSupabaseUser(session.user));
@@ -152,7 +141,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     });
 
-    // 2. Listen for future auth changes (sign-in, sign-out, token refresh)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
@@ -160,7 +148,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(mapSupabaseUser(session.user));
         setIsSignInModalOpen(false);
         setIsLoading(false);
-        // Claim any unclaimed readings
         claimReadings(session.user.id);
       } else if (event === "SIGNED_OUT") {
         setUser(null);
@@ -181,59 +168,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) return;
     const local = loadSajuData();
-    if (local.chart) return; // Already have chart data
+    if (local.chart) return;
 
     (async () => {
       try {
         const { data } = await supabase
           .from("readings")
-          .select("*")
+          .select("name,gender,birth_date,birth_city,day_master_element,day_master_yinyang,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,archetype,ten_god,harmony_score,dominant_element,weakest_element,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,created_at")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(1);
 
         if (data && data.length > 0) {
           const r = data[0];
-          const reconstructed: SajuChart = {
-            name: r.name,
-            gender: r.gender as "male" | "female",
-            birthDate: new Date(r.birth_date),
-            birthCity: r.birth_city,
-            dayMaster: {
-              zh: DAY_MASTER_ZH[`${r.day_master_element}-${r.day_master_yinyang}`] || "?",
-              en: `${r.day_master_yinyang === "yang" ? "Yang" : "Yin"} ${r.day_master_element.charAt(0).toUpperCase() + r.day_master_element.slice(1)}`,
-              element: r.day_master_element,
-              yinYang: r.day_master_yinyang,
-            },
-            pillars: {
-              year: { stem: { zh: r.year_stem, en: "", element: "" }, branch: { zh: r.year_branch, en: "", element: "" } },
-              month: { stem: { zh: r.month_stem, en: "", element: "" }, branch: { zh: r.month_branch, en: "", element: "" } },
-              day: { stem: { zh: r.day_stem, en: "", element: "" }, branch: { zh: r.day_branch, en: "", element: "" } },
-              hour: { stem: { zh: r.hour_stem, en: "", element: "" }, branch: { zh: r.hour_branch, en: "", element: "" } },
-            },
-            archetype: r.archetype,
-            tenGod: r.ten_god,
-            harmonyScore: r.harmony_score,
-            dominantElement: r.dominant_element,
-            weakestElement: r.weakest_element,
-            elements: {
-              wood: r.elements_wood,
-              fire: r.elements_fire,
-              earth: r.elements_earth,
-              metal: r.elements_metal,
-              water: r.elements_water,
-            },
-            elementBalance: {
-              wood: r.elements_wood,
-              fire: r.elements_fire,
-              earth: r.elements_earth,
-              metal: r.elements_metal,
-              water: r.elements_water,
-            },
-          } as any;
+          const reconstructed = reconstructChartFromReading(r);
 
           const newSajuData: UserSajuData = {
-            chart: reconstructed,
+            chart: reconstructed as SajuChart,
             birthDate: new Date(r.birth_date),
             birthTime: "12:00",
             birthCity: r.birth_city,
@@ -243,8 +194,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setSajuData(newSajuData);
           localStorage.setItem("saju-data", JSON.stringify(newSajuData));
         }
-      } catch (err) {
-        console.error("Chart recovery error:", err);
+      } catch {
+        // Non-critical: chart recovery can fail silently
       }
     })();
   }, [user]);
@@ -263,10 +214,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
     if (error) {
-      console.error("Google OAuth error:", error.message);
       setIsLoading(false);
     }
-    // Browser will redirect to Google → Supabase → /auth/callback
   };
 
   /* — Sign out — */

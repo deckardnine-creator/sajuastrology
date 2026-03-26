@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { ELEMENTS, calculateDailyEnergy, type Element } from "@/lib/saju-calculator";
+import type { SajuChart } from "@/lib/saju-calculator";
+import { reconstructChartFromReading, getElementColor } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { ConsultationHistory } from "@/components/consultation/consultation-history";
 import { supabase } from "@/lib/supabase-client";
@@ -51,6 +53,7 @@ export function DashboardContent() {
   const [primaryReadingId, setPrimaryReadingId] = useState<string | null>(null);
   const [canChangeToday, setCanChangeToday] = useState(true);
   const [changeMessage, setChangeMessage] = useState("");
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
@@ -67,25 +70,19 @@ export function DashboardContent() {
     }
   }, [sajuData.chart, todayStr]);
 
-  // Fetch user's saved readings from Supabase
+  // Fetch user's saved readings from Supabase (select only needed fields)
   useEffect(() => {
     if (!user) return;
     (async () => {
       const { data } = await supabase
         .from("readings")
-        .select("*")
+        .select("id,name,gender,birth_date,birth_city,share_slug,archetype,ten_god,harmony_score,day_master_element,day_master_yinyang,dominant_element,weakest_element,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,is_paid,created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(20);
       setSavedReadings(data || []);
     })();
   }, [user]);
-
-  const DAY_MASTER_ZH: Record<string, string> = {
-    "wood-yang": "甲", "wood-yin": "乙", "fire-yang": "丙", "fire-yin": "丁",
-    "earth-yang": "戊", "earth-yin": "己", "metal-yang": "庚", "metal-yin": "辛",
-    "water-yang": "壬", "water-yin": "癸",
-  };
 
   const setAsMyChart = (readingId: string) => {
     if (primaryReadingId === readingId) return;
@@ -99,42 +96,24 @@ export function DashboardContent() {
     const r = savedReadings.find((rd) => rd.id === readingId);
     if (!r) return;
 
-    const dmKey = `${r.day_master_element}-${r.day_master_yinyang}`;
-    const reconstructed = {
-      name: r.name,
-      gender: r.gender as "male" | "female",
-      birthDate: new Date(r.birth_date),
-      birthCity: r.birth_city,
-      dayMaster: {
-        zh: DAY_MASTER_ZH[dmKey] || "?",
-        en: `${r.day_master_yinyang === "yang" ? "Yang" : "Yin"} ${r.day_master_element.charAt(0).toUpperCase() + r.day_master_element.slice(1)}`,
-        element: r.day_master_element,
-        yinYang: r.day_master_yinyang,
-      },
-      pillars: {
-        year:  { stem: { zh: r.year_stem,  en: "", element: "" }, branch: { zh: r.year_branch,  en: "", element: "" } },
-        month: { stem: { zh: r.month_stem, en: "", element: "" }, branch: { zh: r.month_branch, en: "", element: "" } },
-        day:   { stem: { zh: r.day_stem,   en: "", element: "" }, branch: { zh: r.day_branch,   en: "", element: "" } },
-        hour:  { stem: { zh: r.hour_stem,  en: "", element: "" }, branch: { zh: r.hour_branch,  en: "", element: "" } },
-      },
-      archetype: r.archetype,
-      tenGod: r.ten_god,
-      harmonyScore: r.harmony_score,
-      dominantElement: r.dominant_element,
-      weakestElement: r.weakest_element,
-      elements: { wood: r.elements_wood, fire: r.elements_fire, earth: r.elements_earth, metal: r.elements_metal, water: r.elements_water },
-      elementBalance: { wood: r.elements_wood, fire: r.elements_fire, earth: r.elements_earth, metal: r.elements_metal, water: r.elements_water },
-    } as any;
+    // Use shared reconstruction function — no more `as any`
+    const reconstructed = reconstructChartFromReading(r);
 
-    saveSajuChart(reconstructed);
+    saveSajuChart(reconstructed as SajuChart);
     setPrimaryReadingId(readingId);
     setCanChangeToday(false);
     localStorage.setItem("primary-reading-id", readingId);
     localStorage.setItem("primary-changed-date", todayStr);
 
     // Instant score update
-    const newScore = calculateDailyEnergy(reconstructed, new Date());
+    const newScore = calculateDailyEnergy(reconstructed as SajuChart, new Date());
     setDailyScore(newScore);
+  };
+
+  const handleCopyLink = (slug: string) => {
+    navigator.clipboard.writeText(`${window.location.origin}/reading/${slug}`);
+    setCopiedSlug(slug);
+    setTimeout(() => setCopiedSlug(null), 2000);
   };
 
   const today = new Date();
@@ -145,7 +124,6 @@ export function DashboardContent() {
     day: "numeric",
   });
 
-  // Generate mock weekly data
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() + i);
@@ -325,26 +303,26 @@ export function DashboardContent() {
             View Full Reading <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-2 sm:gap-3">
           {(["hour", "day", "month", "year"] as const).map((pillarName) => {
             const pillar = sajuData.chart!.pillars[pillarName];
             const isDay = pillarName === "day";
-            const stemColor = ELEMENTS[pillar.stem.element as Element]?.color || dayMasterColor;
+            const stemColor = getElementColor(pillar.stem.element);
 
             return (
               <div
                 key={pillarName}
-                className={`bg-card/50 backdrop-blur border rounded-lg p-3 text-center ${
+                className={`bg-card/50 backdrop-blur border rounded-lg p-2.5 sm:p-3 text-center ${
                   isDay ? "border-primary ring-1 ring-primary/20" : "border-border"
                 }`}
               >
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 capitalize">
                   {pillarName}
                 </p>
-                <div className="text-2xl font-serif" style={{ color: stemColor }}>
+                <div className="text-xl sm:text-2xl font-serif" style={{ color: stemColor }}>
                   {pillar.stem.zh}
                 </div>
-                <div className="text-lg text-muted-foreground">{pillar.branch.zh}</div>
+                <div className="text-base sm:text-lg text-muted-foreground">{pillar.branch.zh}</div>
               </div>
             );
           })}
@@ -378,7 +356,7 @@ export function DashboardContent() {
           )}
           <div className="space-y-2">
             {(showAllReadings ? savedReadings : savedReadings.slice(0, 3)).map((r) => {
-              const elColor = ELEMENTS[(r.day_master_element as Element) || "water"]?.color || "#6B7280";
+              const elColor = getElementColor(r.day_master_element);
               return (
                 <Link key={r.id} href={`/reading/${r.share_slug}`}
                   className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 flex items-center gap-3 hover:border-primary/40 transition-colors cursor-pointer">
@@ -403,14 +381,14 @@ export function DashboardContent() {
                       </span>
                     </p>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center gap-0.5 shrink-0">
                     <button
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         setAsMyChart(r.id);
                       }}
-                      className={`p-2 transition-colors ${primaryReadingId === r.id ? "text-yellow-400" : !canChangeToday ? "text-muted-foreground/20 cursor-not-allowed" : "text-muted-foreground/30 hover:text-yellow-400/60"}`}
+                      className={`p-2 min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors ${primaryReadingId === r.id ? "text-yellow-400" : !canChangeToday ? "text-muted-foreground/20 cursor-not-allowed" : "text-muted-foreground/30 hover:text-yellow-400/60"}`}
                       title={primaryReadingId === r.id ? "This is your chart" : !canChangeToday ? "You can change once per day" : "Set as my chart"}
                     >
                       <Star className="w-4 h-4" fill={primaryReadingId === r.id ? "currentColor" : "none"} />
@@ -419,10 +397,10 @@ export function DashboardContent() {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        navigator.clipboard.writeText(`${window.location.origin}/reading/${r.share_slug}`);
+                        handleCopyLink(r.share_slug);
                       }}
-                      className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-                      title="Copy share link"
+                      className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                      title={copiedSlug === r.share_slug ? "Copied!" : "Copy share link"}
                     >
                       <Share2 className="w-4 h-4" />
                     </button>
@@ -456,7 +434,7 @@ export function DashboardContent() {
         <h2 className="text-sm tracking-wider text-muted-foreground uppercase mb-4">
           This Week&apos;s Outlook
         </h2>
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
           {weekDays.map((day, i) => {
             const isToday = i === 0;
             const scoreColor =
@@ -465,7 +443,7 @@ export function DashboardContent() {
             return (
               <div
                 key={i}
-                className={`flex-shrink-0 w-16 bg-card/50 backdrop-blur border rounded-lg p-3 text-center ${
+                className={`flex-shrink-0 w-14 sm:w-16 bg-card/50 backdrop-blur border rounded-lg p-2.5 sm:p-3 text-center ${
                   isToday ? "border-primary" : "border-border"
                 }`}
               >

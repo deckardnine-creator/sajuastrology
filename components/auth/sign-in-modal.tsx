@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
+import Link from "next/link";
 
 export function SignInModal() {
   const { isSignInModalOpen, closeSignInModal, signIn, isLoading } = useAuth();
@@ -28,9 +29,9 @@ export function SignInModal() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4"
           >
-            <div className="bg-card/95 backdrop-blur-xl border border-border rounded-2xl p-8 relative overflow-hidden">
+            <div className="bg-card/95 backdrop-blur-xl border border-border rounded-2xl p-6 sm:p-8 relative overflow-hidden">
               {/* Background particles */}
               <div className="absolute inset-0 pointer-events-none">
                 {[...Array(10)].map((_, i) => (
@@ -54,10 +55,11 @@ export function SignInModal() {
                 ))}
               </div>
 
-              {/* Close button */}
+              {/* Close button — 44px touch target */}
               <button
                 onClick={closeSignInModal}
-                className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute top-3 right-3 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Close sign-in modal"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -113,13 +115,13 @@ export function SignInModal() {
 
                 <p className="text-xs text-muted-foreground mt-6">
                   By continuing, you agree to our{" "}
-                  <a href="#" className="text-primary hover:underline">
+                  <Link href="/terms" onClick={closeSignInModal} className="text-primary hover:underline">
                     Terms
-                  </a>{" "}
+                  </Link>{" "}
                   and{" "}
-                  <a href="#" className="text-primary hover:underline">
+                  <Link href="/privacy" onClick={closeSignInModal} className="text-primary hover:underline">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </p>
               </div>
             </div>

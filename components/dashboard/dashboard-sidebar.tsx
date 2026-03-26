@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { ELEMENTS, type Element } from "@/lib/saju-calculator";
+import { getElementColor } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase-client";
 
@@ -54,15 +56,22 @@ export function DashboardSidebar() {
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
             {user?.image ? (
-              <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+              <Image
+                src={user.image}
+                alt={user.name}
+                width={48}
+                height={48}
+                className="w-full h-full object-cover rounded-full"
+                unoptimized
+              />
             ) : (
               <span className="text-primary text-lg font-serif">
                 {user?.name?.charAt(0) || "?"}
               </span>
             )}
           </div>
-          <div>
-            <p className="font-medium text-foreground">{user?.name}</p>
+          <div className="min-w-0">
+            <p className="font-medium text-foreground truncate">{user?.name}</p>
             {isPremium && (
               <span className="inline-flex items-center gap-1 text-xs text-primary">
                 <Crown className="w-3 h-3" />
@@ -109,7 +118,7 @@ export function DashboardSidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors min-h-[44px] ${
                     isActive
                       ? isMaster
                         ? "bg-purple-500/20 text-purple-300"

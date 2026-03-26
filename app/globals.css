@@ -49,36 +49,7 @@
   --sidebar-ring: #F2CA50;
 }
 
-.dark {
-  --background: #0A0E1A;
-  --foreground: #F5F5F5;
-  --card: #0F131F;
-  --card-foreground: #F5F5F5;
-  --card-elevated: #262A37;
-  --popover: #0F131F;
-  --popover-foreground: #F5F5F5;
-  --primary: #F2CA50;
-  --primary-foreground: #0A0E1A;
-  --secondary: #59DE9B;
-  --secondary-foreground: #0A0E1A;
-  --muted: #1A1E2E;
-  --muted-foreground: #9CA3AF;
-  --accent: #F2CA50;
-  --accent-foreground: #0A0E1A;
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: #F5F5F5;
-  --border: #262A37;
-  --input: #1A1E2E;
-  --ring: #F2CA50;
-  --sidebar: #0F131F;
-  --sidebar-foreground: #F5F5F5;
-  --sidebar-primary: #F2CA50;
-  --sidebar-primary-foreground: #0A0E1A;
-  --sidebar-accent: #1A1E2E;
-  --sidebar-accent-foreground: #F5F5F5;
-  --sidebar-border: #262A37;
-  --sidebar-ring: #F2CA50;
-}
+/* .dark inherits :root — no duplicate needed (dark-mode only app) */
 
 @theme inline {
   --font-sans: 'Inter', 'Inter Fallback', system-ui, sans-serif;
@@ -140,6 +111,17 @@
   }
 }
 
+/* Smooth scrolling (respects reduced-motion preference) */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 /* Mobile safe area support */
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -147,12 +129,6 @@
 
 .safe-area-top {
   padding-top: env(safe-area-inset-top, 0px);
-}
-
-/* Prevent mobile text size inflation */
-html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
 }
 
 /* Mobile-friendly scrolling */
@@ -177,15 +153,24 @@ html {
   }
 }
 
-/* Glassmorphism utility */
+/* Body scroll lock (for mobile menu) */
+body.menu-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  /* touch-action: none prevents iOS safari scroll-through */
+  touch-action: none;
+}
+
+/* Glassmorphism utility — increased opacity for mobile readability */
 .glass {
-  background: rgba(15, 19, 31, 0.7);
+  background: rgba(15, 19, 31, 0.85);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
 }
 
 .glass-gold {
-  background: rgba(15, 19, 31, 0.7);
+  background: rgba(15, 19, 31, 0.85);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   box-shadow: inset 0 0 30px rgba(242, 202, 80, 0.1);
@@ -243,4 +228,12 @@ html {
 
 .animate-border-glow {
   animation: borderGlow 3s ease-in-out infinite;
+}
+
+/* Touch target minimum (accessibility) */
+@media (max-width: 768px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }

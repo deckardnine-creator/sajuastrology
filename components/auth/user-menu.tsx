@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User,
@@ -17,13 +18,22 @@ export function UserMenu() {
   const { user, signOut, openSignInModal, isPremium, isLoading } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Handle hydration
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Show loading state during SSR hydration
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [isOpen]);
+
   if (!mounted || isLoading) {
     return (
       <div className="flex items-center gap-3">
@@ -52,14 +62,23 @@ export function UserMenu() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 p-1 rounded-full hover:bg-muted/50 transition-colors"
+        aria-label="User menu"
+        aria-expanded={isOpen}
       >
         <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
           {user.image ? (
-            <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+            <Image
+              src={user.image}
+              alt={user.name}
+              width={36}
+              height={36}
+              className="w-full h-full object-cover rounded-full"
+              unoptimized
+            />
           ) : (
             <User className="w-5 h-5 text-primary" />
           )}
@@ -78,11 +97,12 @@ export function UserMenu() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
               className="absolute right-0 mt-2 w-64 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-50"
+              role="menu"
             >
               {/* User Info */}
               <div className="p-4 border-b border-border">
                 <p className="font-medium text-foreground">{user.name}</p>
-                <p className="text-sm text-muted-foreground">{user.email}</p>
+                <p className="text-sm text-muted-foreground truncate">{user.email}</p>
                 <div className="flex items-center gap-1 mt-2">
                   {isPremium ? (
                     <span className="inline-flex items-center gap-1 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
@@ -124,7 +144,8 @@ export function UserMenu() {
                     signOut();
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors min-h-[44px]"
+                  role="menuitem"
                 >
                   <LogOut className="w-4 h-4" />
                   Sign Out
@@ -155,7 +176,8 @@ function MenuItem({
     <Link
       href={href}
       onClick={onClick}
-      className="flex items-center gap-3 px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+      className="flex items-center gap-3 px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors min-h-[44px]"
+      role="menuitem"
     >
       {icon}
       <span className="flex-1">{label}</span>
