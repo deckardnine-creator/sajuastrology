@@ -11,11 +11,15 @@ import {
   Share2,
   Star,
   Check,
+  Compass,
+  Palette,
+  Zap,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { ELEMENTS, calculateDailyEnergy, type Element } from "@/lib/saju-calculator";
 import type { SajuChart } from "@/lib/saju-calculator";
 import { reconstructChartFromReading, getElementColor } from "@/lib/constants";
+import { getDailyFortune } from "@/lib/daily-fortune";
 import { Button } from "@/components/ui/button";
 import { ConsultationHistory } from "@/components/consultation/consultation-history";
 import { supabase } from "@/lib/supabase-client";
@@ -44,41 +48,6 @@ interface SavedReading {
   created_at: string;
 }
 
-const ELEMENT_GUIDANCE: Record<string, { high: string; mid: string; low: string }> = {
-  wood: {
-    high: "Your Wood energy flows freely today — creative ideas come naturally. Act on them before the day ends.",
-    mid: "Steady growth energy today. Focus on nurturing existing projects rather than starting new ones.",
-    low: "Your Wood element feels constrained. Spend time outdoors or around plants to restore your rhythm.",
-  },
-  fire: {
-    high: "Your Fire burns bright today — charisma and influence peak. Great for presentations and bold moves.",
-    mid: "Warm, stable energy today. Good for deepening relationships and completing creative work.",
-    low: "Your Fire is banked low. Avoid confrontation. Recharge through warmth — hot tea, gentle movement.",
-  },
-  earth: {
-    high: "Your Earth energy is solid — trust your practical instincts. Major decisions are well-supported today.",
-    mid: "Grounded energy today. Ideal for organization, planning, and building foundations.",
-    low: "Your Earth feels scattered. Focus on one task at a time. Eat nourishing food and stay grounded.",
-  },
-  metal: {
-    high: "Your Metal is sharp today — clarity and precision peak. Excellent for analysis and decisive action.",
-    mid: "Balanced Metal energy. Good for refining plans and cutting away what no longer serves you.",
-    low: "Your Metal energy dims today. Avoid major financial decisions. Focus on rest and breathing.",
-  },
-  water: {
-    high: "Your Water flows powerfully — intuition and wisdom surge. Trust the insights in quiet moments.",
-    mid: "Gentle, reflective energy today. Good for learning, reading, and meaningful conversations.",
-    low: "Your Water feels stagnant. Drink plenty of water, take a shower, and let your mind wander freely.",
-  },
-};
-
-function getDailyGuidance(element: string, score: number): string {
-  const g = ELEMENT_GUIDANCE[element] || ELEMENT_GUIDANCE.water;
-  if (score >= 75) return g.high;
-  if (score >= 55) return g.mid;
-  return g.low;
-}
-
 export function DashboardContent() {
   const { user, sajuData, saveSajuChart } = useAuth();
   const [dailyScore, setDailyScore] = useState(72);
@@ -89,8 +58,8 @@ export function DashboardContent() {
   const [canChangeToday, setCanChangeToday] = useState(true);
   const [switchMessage, setSwitchMessage] = useState("");
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+  const [fortuneCopied, setFortuneCopied] = useState(false);
 
-  // User's local date (timezone-aware)
   const todayLocal = new Intl.DateTimeFormat("en-CA", {
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   }).format(new Date());
@@ -104,12 +73,9 @@ export function DashboardContent() {
   }, [todayLocal]);
 
   useEffect(() => {
-    if (sajuData.chart) {
-      setDailyScore(calculateDailyEnergy(sajuData.chart, new Date()));
-    }
+    if (sajuData.chart) setDailyScore(calculateDailyEnergy(sajuData.chart, new Date()));
   }, [sajuData.chart]);
 
-  // Fetch readings + auto-select primary
   useEffect(() => {
     if (!user) return;
     (async () => {
@@ -119,20 +85,16 @@ export function DashboardContent() {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(20);
-
       const readings = data || [];
       setSavedReadings(readings);
-
       const currentPrimary = localStorage.getItem("primary-reading-id");
       if (readings.length > 0) {
         const primaryExists = readings.some((r) => r.id === currentPrimary);
         if (!currentPrimary || !primaryExists) {
-          const defaultReading = readings[0];
-          setPrimaryReadingId(defaultReading.id);
-          localStorage.setItem("primary-reading-id", defaultReading.id);
-          if (!sajuData.chart) {
-            saveSajuChart(reconstructChartFromReading(defaultReading) as SajuChart);
-          }
+          const d = readings[0];
+          setPrimaryReadingId(d.id);
+          localStorage.setItem("primary-reading-id", d.id);
+          if (!sajuData.chart) saveSajuChart(reconstructChartFromReading(d) as SajuChart);
         }
       }
     })();
@@ -147,7 +109,6 @@ export function DashboardContent() {
     }
     const r = savedReadings.find((rd) => rd.id === readingId);
     if (!r) return;
-
     const reconstructed = reconstructChartFromReading(r);
     saveSajuChart(reconstructed as SajuChart);
     setPrimaryReadingId(readingId);
@@ -177,6 +138,24 @@ export function DashboardContent() {
       return { day: d.toLocaleDateString("en-US", { weekday: "short" }), dateNum: d.getDate(), score };
     });
   }, [sajuData.chart]);
+
+  // Daily fortune — changes every day, personalized by element + score
+  const fortune = useMemo(() => {
+    if (!sajuData.chart) return null;
+    return getDailyFortune(sajuData.chart.dayMaster.element, dailyScore);
+  }, [sajuData.chart, dailyScore]);
+
+  const handleShareFortune = () => {
+    if (!fortune) return;
+    const text = `${fortune.shareText}\n\nMy Saju Daily Fortune — sajuastrology.com`;
+    if (navigator.share) {
+      navigator.share({ text }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(text);
+      setFortuneCopied(true);
+      setTimeout(() => setFortuneCopied(false), 2000);
+    }
+  };
 
   // Empty state
   if (!sajuData.chart) {
@@ -211,14 +190,15 @@ export function DashboardContent() {
         <p className="text-sm text-muted-foreground">{formattedDate}</p>
       </motion.div>
 
-      {/* 3 Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
+      {/* Today's Energy + Day Master row */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-5">
+        {/* Energy Score */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5">
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Today&apos;s Energy</p>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative">
-              <svg className="w-16 h-16 -rotate-90">
+              <svg className="w-14 h-14 sm:w-16 sm:h-16 -rotate-90">
                 <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-muted" />
                 <motion.circle cx="32" cy="32" r="28" fill="none"
                   stroke={dailyScore >= 70 ? "#59DE9B" : dailyScore >= 50 ? "#F2CA50" : "#EF4444"}
@@ -228,38 +208,89 @@ export function DashboardContent() {
                   animate={{ strokeDasharray: `${(dailyScore / 100) * 176} 176` }}
                   transition={{ duration: 1, delay: 0.5 }} />
               </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-lg font-bold">
+              <span className="absolute inset-0 flex items-center justify-center text-base sm:text-lg font-bold">
                 {mounted ? dailyScore : "--"}
               </span>
             </div>
-            <p className="text-sm text-muted-foreground flex-1">
-              {dailyScore >= 70 ? "Excellent alignment" : dailyScore >= 50 ? "Balanced forces" : "Navigate carefully"}
+            <p className="text-xs sm:text-sm text-muted-foreground flex-1 hidden sm:block">
+              {dailyScore >= 70 ? "Excellent" : dailyScore >= 50 ? "Balanced" : "Be gentle"}
             </p>
           </div>
         </motion.div>
 
+        {/* Day Master */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
           className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Your Day Master</p>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center text-xl font-serif"
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Day Master</p>
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center text-lg sm:text-xl font-serif"
               style={{ backgroundColor: `${dayMasterColor}20`, color: dayMasterColor }}>
               {sajuData.chart.dayMaster.zh}
             </div>
-            <div>
-              <p className="text-sm font-medium text-foreground">{sajuData.chart.dayMaster.en}</p>
-              <p className="text-xs text-muted-foreground capitalize">{dayMasterElement} element</p>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">{sajuData.chart.dayMaster.en}</p>
+              <p className="text-xs text-muted-foreground">{sajuData.chart.archetype}</p>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">{sajuData.chart.archetype}</p>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Today&apos;s Guidance</p>
-          <p className="text-sm text-foreground leading-relaxed">{getDailyGuidance(dayMasterElement, dailyScore)}</p>
-        </motion.div>
+        {/* Lucky Items — desktop only as 3rd card */}
+        {fortune && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+            className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5 hidden md:block">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Today&apos;s Lucky</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full border border-border" style={{ backgroundColor: fortune.luckyColorHex }} />
+                <span className="text-sm text-foreground">{fortune.luckyColor}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Compass className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-foreground">{fortune.luckyDirection}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-foreground truncate">{fortune.luckyActivity}</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
+
+      {/* Daily Fortune Card — the main engagement driver */}
+      {fortune && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+          className="mb-6 sm:mb-8">
+          <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl p-4 sm:p-5">
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Today&apos;s Fortune</p>
+              <button
+                onClick={handleShareFortune}
+                className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 shrink-0 min-h-[32px]"
+              >
+                {fortuneCopied ? <Check className="w-3 h-3" /> : <Share2 className="w-3 h-3" />}
+                {fortuneCopied ? "Copied!" : "Share"}
+              </button>
+            </div>
+            <p className="text-sm sm:text-base text-foreground leading-relaxed mb-3">{fortune.message}</p>
+            <p className="text-sm text-primary font-medium mb-3">{fortune.advice}</p>
+
+            {/* Lucky items — mobile (shows inline since 3rd card is hidden) */}
+            <div className="flex flex-wrap gap-3 md:hidden text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-full border border-border" style={{ backgroundColor: fortune.luckyColorHex }} />
+                {fortune.luckyColor}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Compass className="w-3 h-3" /> {fortune.luckyDirection}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Zap className="w-3 h-3" /> {fortune.luckyActivity}
+              </span>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Four Pillars */}
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6 sm:mb-8">
@@ -268,7 +299,7 @@ export function DashboardContent() {
           {primaryReadingId && savedReadings.length > 0 && (
             <Link href={`/reading/${savedReadings.find((r) => r.id === primaryReadingId)?.share_slug || ""}`}
               className="text-sm text-primary hover:underline flex items-center gap-1">
-              View Full Reading <ArrowRight className="w-3 h-3" />
+              Full Reading <ArrowRight className="w-3 h-3" />
             </Link>
           )}
         </div>
@@ -277,7 +308,7 @@ export function DashboardContent() {
             const p = sajuData.chart!.pillars[pn];
             const isDay = pn === "day";
             return (
-              <div key={pn} className={`bg-card/50 backdrop-blur border rounded-lg p-2.5 sm:p-3 text-center ${isDay ? "border-primary ring-1 ring-primary/20" : "border-border"}`}>
+              <div key={pn} className={`bg-card/50 border rounded-lg p-2.5 sm:p-3 text-center ${isDay ? "border-primary ring-1 ring-primary/20" : "border-border"}`}>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 capitalize">{pn}</p>
                 <div className="text-xl sm:text-2xl font-serif" style={{ color: getElementColor(p.stem.element) }}>{p.stem.zh}</div>
                 <div className="text-base sm:text-lg text-muted-foreground">{p.branch.zh}</div>
@@ -318,7 +349,7 @@ export function DashboardContent() {
 
           {savedReadings.length > 1 && (
             <p className="text-xs text-muted-foreground/60 mb-2 flex items-center gap-1.5">
-              <Star className="w-3 h-3" /> Tap ★ to set your primary chart (once per day). It powers your daily scores.
+              <Star className="w-3 h-3" /> Tap ★ to set your primary chart (once per day).
             </p>
           )}
 
