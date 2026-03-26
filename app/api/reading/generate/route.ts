@@ -44,24 +44,18 @@ export async function POST(request: NextRequest) {
     const ds = chart.pillars.day.stem.zh, db = chart.pillars.day.branch.zh;
     const hs = chart.pillars.hour.stem.zh, hb = chart.pillars.hour.branch.zh;
 
-    // Cache validity: from November, forecasts target next year — don't reuse old ones
-    const now = new Date();
-    const cacheAfter = now.getMonth() >= 10 ? `${now.getFullYear()}-11-01` : `${now.getFullYear()}-01-01`;
-
     // ═══ PARALLEL CACHE CHECK ═══
     const [exactResult, pillarResult] = await Promise.allSettled([
       fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
         name: `eq.${chart.name}`, gender: `eq.${chart.gender}`,
         birth_date: `eq.${birthDateStr}`, birth_city: `eq.${chart.birthCity}`,
         select: "share_slug,free_reading_personality", limit: "1",
-        created_at: `gte.${cacheAfter}`,
       })}`, { headers: dbHeaders }).then(r => r.ok ? r.json() : null).catch(() => null),
       fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
         year_stem: `eq.${ys}`, year_branch: `eq.${yb}`, month_stem: `eq.${ms}`, month_branch: `eq.${mb}`,
         day_stem: `eq.${ds}`, day_branch: `eq.${db}`, hour_stem: `eq.${hs}`, hour_branch: `eq.${hb}`,
         select: "free_reading_personality,free_reading_year,free_reading_element,paid_reading_career,paid_reading_love,paid_reading_health,paid_reading_decade,paid_reading_monthly,paid_reading_hidden_talent",
         "free_reading_personality": "not.is.null", limit: "1",
-        created_at: `gte.${cacheAfter}`,
       })}`, { headers: dbHeaders }).then(r => r.ok ? r.json() : null).catch(() => null),
     ]);
 
@@ -131,9 +125,21 @@ export async function POST(request: NextRequest) {
 
     let aiReading: { personality: string; year_forecast: string; element_guidance: string };
     try {
-      aiReading = JSON.parse(rawText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim());
+      // Try direct parse first
+      const cleaned = rawText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+      aiReading = JSON.parse(cleaned);
     } catch {
-      return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
+      // Fallback: extract JSON object from anywhere in the text
+      try {
+        const jsonMatch = rawText.match(/\{[\s\S]*"personality"[\s\S]*"year_forecast"[\s\S]*"element_guidance"[\s\S]*\}/);
+        if (jsonMatch) {
+          aiReading = JSON.parse(jsonMatch[0]);
+        } else {
+          return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
+        }
+      } catch {
+        return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
+      }
     }
 
     if (!aiReading.personality || !aiReading.year_forecast || !aiReading.element_guidance) {

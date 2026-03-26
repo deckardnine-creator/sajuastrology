@@ -58,7 +58,7 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
     animate(y, (-wrapped + 2) * ITEM_H, {
       type: "spring", stiffness: 400, damping: 30,
     });
-    onChange(wrapped);
+    onChange(clamped);
   }, [y, values.length, onChange]);
 
   useEffect(() => {
@@ -223,8 +223,6 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
     const month = parseInt(MONTHS[monthIdx]);
     const maxDay = new Date(year, month, 0).getDate();
     const day   = Math.min(parseInt(DAYS[dayIdx]), maxDay);
-    // ★ Use UTC noon to prevent timezone shift during JSON serialization
-    // "1984-09-08T12:00:00Z" → split("T")[0] = "1984-09-08" in ANY timezone
     const date  = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
     const hour  = unknownTime ? 12 : parseInt(HOURS[hourIdx]);
     const chart = calculateSaju(name, gender, date, hour, selectedCity.name);
@@ -357,7 +355,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
               {/* Date drums */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Birthday <span className="normal-case tracking-normal text-muted-foreground/50">(Solar / Gregorian calendar)</span></label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Birthday</label>
                 <div className="flex gap-2 justify-center items-center">
                   <DrumRoller values={YEARS}  selectedIndex={yearIdx}  onChange={setYearIdx}  label="Year"  width={88} />
                   <span className="text-primary/25 text-2xl font-light select-none pb-1">·</span>
@@ -396,13 +394,17 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input type="text" placeholder="City of birth..." value={cityQuery}
                     onChange={(e)=>{setCityQuery(e.target.value);setSelectedCity(null);}}
-                    onFocus={()=>cityResults.length>0&&setShowCityDropdown(true)}
+                    onFocus={(e)=>{
+                      if(cityResults.length>0) setShowCityDropdown(true);
+                      // Scroll input into view on mobile so keyboard doesn't cover dropdown
+                      setTimeout(()=>e.target.scrollIntoView({behavior:"smooth",block:"center"}),300);
+                    }}
                     className="pl-10 bg-background/50 border-border focus:border-primary" />
                   {showCityDropdown && (
-                    <motion.div initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}} className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-xl overflow-hidden">
+                    <motion.div initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}} className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-xl overflow-y-auto max-h-48">
                       {cityResults.map((city)=>(
                         <button key={`${city.name}-${city.country}`} type="button" onClick={()=>handleCitySelect(city)}
-                          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-primary/10 transition-colors text-left">
+                          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-primary/10 transition-colors text-left min-h-[44px]">
                           <span className="text-lg">{getFlagEmoji(city.countryCode)}</span>
                           <div>
                             <p className="text-sm font-medium">{city.name}</p>
