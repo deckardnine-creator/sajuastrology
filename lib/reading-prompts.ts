@@ -2,7 +2,7 @@
 // This is the HEART of the product. Every reading must feel uniquely personal.
 
 import type { SajuChart, Element } from "./saju-calculator";
-import { calculateAdvancedSaju, formatAdvancedDataForPrompt } from "./saju-calculator";
+import { calculateAdvancedSaju } from "./saju-calculator";
 
 // Day Master personality seeds - unique metaphors per element+polarity
 const DAY_MASTER_SEEDS: Record<string, { metaphor: string; energy: string; shadow: string }> = {
@@ -139,9 +139,17 @@ THE SEEKER'S CHART:
   Day: ${chart.pillars.day.stem.zh}${chart.pillars.day.branch.zh} (${chart.pillars.day.stem.en} / ${chart.pillars.day.branch.en})
   Hour: ${chart.pillars.hour.stem.zh}${chart.pillars.hour.branch.zh} (${chart.pillars.hour.stem.en} / ${chart.pillars.hour.branch.en})
 - Element Dynamic: ${elementDynamic}
-
-ADVANCED CHART ANALYSIS (대운/합충/지장간/신살):
-${(() => { try { return formatAdvancedDataForPrompt(calculateAdvancedSaju(chart)); } catch { return "Advanced data not available"; } })()}
+${(() => { try {
+  const adv = calculateAdvancedSaju(chart);
+  const lines = [];
+  lines.push(`- Day Master Strength: ${adv.dayMasterStrength}`);
+  if (adv.currentDaeun) lines.push(`- Current Major Luck (대운): ${adv.currentDaeun.stem.en}/${adv.currentDaeun.branch.en} (${adv.currentDaeun.tenGodRelation}) age ${adv.currentDaeun.startAge}-${adv.currentDaeun.endAge}`);
+  if (adv.nextDaeun) lines.push(`- Next Major Luck: ${adv.nextDaeun.stem.en}/${adv.nextDaeun.branch.en} (${adv.nextDaeun.tenGodRelation}) age ${adv.nextDaeun.startAge}-${adv.nextDaeun.endAge}`);
+  const clashes = adv.interactions.filter(i => i.type === "충" || i.type === "삼합" || i.type === "육합");
+  if (clashes.length > 0) lines.push(`- Key Interactions: ${clashes.map(c => `${c.typeEn}(${c.branches.join("")})`).join(", ")}`);
+  if (adv.specialStars.length > 0) lines.push(`- Special Stars: ${adv.specialStars.map(s => s.name).join(", ")}`);
+  return lines.join("\n");
+} catch { return ""; } })()}
 
 GENERATE THREE SECTIONS in this exact JSON format:
 {

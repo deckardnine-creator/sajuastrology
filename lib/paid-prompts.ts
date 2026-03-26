@@ -1,7 +1,7 @@
 // Paid reading: 3 parallel calls, each producing ~1000 words
 // Total paid content: ~3000 words (5x the ~600 word free reading)
 
-import { calculateAdvancedSaju, formatAdvancedDataForPrompt } from "./saju-calculator";
+import { calculateAdvancedSaju } from "./saju-calculator";
 import { reconstructChartFromReading } from "./constants";
 import type { SajuChart } from "./saju-calculator";
 
@@ -84,8 +84,18 @@ export function buildChartSummary(reading: any): string {
   try {
     const chart = reconstructChartFromReading(reading) as SajuChart;
     chart.gender = reading.gender;
-    const advData = calculateAdvancedSaju(chart);
-    advancedSection = "\n\nADVANCED CHART ANALYSIS:\n" + formatAdvancedDataForPrompt(advData);
+    const adv = calculateAdvancedSaju(chart);
+    const lines = [];
+    lines.push(`Day Master Strength: ${adv.dayMasterStrength}`);
+    if (adv.currentDaeun) lines.push(`Current Major Luck (대운): ${adv.currentDaeun.stem.en}/${adv.currentDaeun.branch.en} (${adv.currentDaeun.tenGodRelation}) age ${adv.currentDaeun.startAge}-${adv.currentDaeun.endAge}`);
+    if (adv.nextDaeun) lines.push(`Next Major Luck: ${adv.nextDaeun.stem.en}/${adv.nextDaeun.branch.en} (${adv.nextDaeun.tenGodRelation}) age ${adv.nextDaeun.startAge}-${adv.nextDaeun.endAge}`);
+    for (const d of adv.daeun) {
+      lines.push(`  Daeun age ${d.startAge}-${d.endAge}: ${d.stem.zh}${d.branch.zh} ${d.tenGodRelation}`);
+    }
+    const keyInteractions = adv.interactions.filter(i => ["충", "삼합", "육합"].includes(i.type));
+    if (keyInteractions.length > 0) lines.push(`Key Interactions: ${keyInteractions.map(c => `${c.typeEn}(${c.branches.join("")})`).join(", ")}`);
+    if (adv.specialStars.length > 0) lines.push(`Special Stars: ${adv.specialStars.map(s => `${s.ko}(${s.name})`).join(", ")}`);
+    advancedSection = "\n\nADVANCED ANALYSIS:\n" + lines.join("\n");
   } catch { advancedSection = ""; }
 
   return `CHART DATA FOR ${reading.name}:
