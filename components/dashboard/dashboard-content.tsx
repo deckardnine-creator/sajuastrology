@@ -19,7 +19,7 @@ import { useAuth } from "@/lib/auth-context";
 import { ELEMENTS, calculateDailyEnergy, type Element } from "@/lib/saju-calculator";
 import type { SajuChart } from "@/lib/saju-calculator";
 import { reconstructChartFromReading, getElementColor } from "@/lib/constants";
-import { getDailyFortune } from "@/lib/daily-fortune";
+import type { DailyFortune } from "@/lib/daily-fortune";
 import { Button } from "@/components/ui/button";
 import { ConsultationHistory } from "@/components/consultation/consultation-history";
 import { supabase } from "@/lib/supabase-client";
@@ -143,10 +143,13 @@ export function DashboardContent() {
     });
   }, [sajuData.chart]);
 
-  // Daily fortune — changes every day, personalized by element + score
-  const fortune = useMemo(() => {
-    if (!sajuData.chart) return null;
-    return getDailyFortune(sajuData.chart.dayMaster.element, dailyScore);
+  // Daily fortune — lazy loaded (52KB saved from initial bundle)
+  const [fortune, setFortune] = useState<DailyFortune | null>(null);
+  useEffect(() => {
+    if (!sajuData.chart) return;
+    import("@/lib/daily-fortune").then((mod) => {
+      setFortune(mod.getDailyFortune(sajuData.chart!.dayMaster.element, dailyScore));
+    });
   }, [sajuData.chart, dailyScore]);
 
   const handleShareFortune = () => {

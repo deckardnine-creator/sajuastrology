@@ -1,7 +1,7 @@
 // Paid reading: 3 parallel calls, each producing ~1000 words
 // Total paid content: ~3000 words (5x the ~600 word free reading)
 
-import { calculateAdvancedSaju } from "./saju-calculator";
+import { calculateAdvancedSaju } from "./saju-advanced";
 import { reconstructChartFromReading } from "./constants";
 import type { SajuChart } from "./saju-calculator";
 

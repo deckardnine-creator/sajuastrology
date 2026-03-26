@@ -3,7 +3,7 @@
 // 10 messages × 3 tiers × 5 elements = 150 unique messages
 // With date seed, same user sees a different message every day for 10 days per tier
 
-type DailyFortune = {
+export type DailyFortune = {
   message: string;
   advice: string;
   luckyColor: string;

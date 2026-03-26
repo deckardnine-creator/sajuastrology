@@ -2,7 +2,7 @@
 // This is the HEART of the product. Every reading must feel uniquely personal.
 
 import type { SajuChart, Element } from "./saju-calculator";
-import { calculateAdvancedSaju } from "./saju-calculator";
+import { calculateAdvancedSaju } from "./saju-advanced";
 
 // Day Master personality seeds - unique metaphors per element+polarity
 const DAY_MASTER_SEEDS: Record<string, { metaphor: string; energy: string; shadow: string }> = {
