@@ -223,7 +223,9 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
     const month = parseInt(MONTHS[monthIdx]);
     const maxDay = new Date(year, month, 0).getDate();
     const day   = Math.min(parseInt(DAYS[dayIdx]), maxDay);
-    const date  = new Date(year, month - 1, day);
+    // ★ Use UTC noon to prevent timezone shift during JSON serialization
+    // "1984-09-08T12:00:00Z" → split("T")[0] = "1984-09-08" in ANY timezone
+    const date  = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
     const hour  = unknownTime ? 12 : parseInt(HOURS[hourIdx]);
     const chart = calculateSaju(name, gender, date, hour, selectedCity.name);
     onCalculate(chart, selectedCity.name);
