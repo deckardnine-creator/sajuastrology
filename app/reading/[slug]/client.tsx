@@ -127,6 +127,12 @@ export default function ReadingPageClient() {
     })();
   }, [user, reading, claimed]);
 
+  // Store pending slug for claim-after-login flow
+  useEffect(() => {
+    if (!reading || user || reading.user_id) return;
+    localStorage.setItem("pending-claim-slug", reading.share_slug);
+  }, [reading, user]);
+
   const handleShareLink = () => {
     navigator.clipboard.writeText(window.location.href);
     setLinkCopied(true);

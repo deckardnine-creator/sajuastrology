@@ -57,6 +57,19 @@ function loadSajuData(): UserSajuData {
 
 async function claimReadings(userId: string) {
   try {
+    // Priority 1: Claim by specific share_slug (most precise, no collision risk)
+    const pendingSlug = localStorage.getItem("pending-claim-slug");
+    if (pendingSlug) {
+      localStorage.removeItem("pending-claim-slug");
+      await fetch("/api/reading/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareSlug: pendingSlug, userId }),
+      }).catch(() => {});
+    }
+
+    // Priority 2: Claim by name+birth_date (fallback for older sessions)
+    // Only claim readings created in the last 24 hours to prevent claiming others' readings
     const raw = localStorage.getItem("saju-data");
     if (!raw) return;
     const parsed = JSON.parse(raw);
@@ -64,10 +77,16 @@ async function claimReadings(userId: string) {
     if (!chart?.name || !chart?.birthDate) return;
     const bd = new Date(chart.birthDate);
     const bds = `${bd.getFullYear()}-${String(bd.getMonth() + 1).padStart(2, "0")}-${String(bd.getDate()).padStart(2, "0")}`;
-    // Find unclaimed readings matching this chart via read-only query
-    const { data } = await supabase.from("readings").select("share_slug").eq("name", chart.name).eq("birth_date", bds).is("user_id", null).limit(5);
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data } = await supabase
+      .from("readings")
+      .select("share_slug")
+      .eq("name", chart.name)
+      .eq("birth_date", bds)
+      .is("user_id", null)
+      .gte("created_at", cutoff)
+      .limit(5);
     if (data && data.length > 0) {
-      // Use server API to claim (bypasses RLS restrictions on UPDATE)
       for (const r of data) {
         await fetch("/api/reading/claim", {
           method: "POST",
@@ -160,6 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("saju-data");
     localStorage.removeItem("primary-reading-id");
     localStorage.removeItem("primary-changed-date");
+    localStorage.removeItem("pending-claim-slug");
   };
 
   const saveSajuChart = (chart: SajuChart) => {

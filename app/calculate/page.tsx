@@ -241,6 +241,8 @@ export default function CalculatePage() {
       }
 
       shareSlugRef.current = data.shareSlug;
+      // Store slug for claiming after login (if user signs in later)
+      localStorage.setItem("pending-claim-slug", data.shareSlug);
       apiDoneRef.current = true;
       tryNavigate();
     } catch (err: any) {
