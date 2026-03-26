@@ -99,12 +99,12 @@ function getYearPillar(year: number): Pillar {
 
 // Calculate Month Pillar (based on year stem and lunar month)
 function getMonthPillar(year: number, month: number): Pillar {
-  // Month pillar stem is determined by year stem
-  // Formula: (yearStemIndex * 2 + month) % 10
-  const yearStemIndex = (year - 4) % 10;
-  const stemIndex = (yearStemIndex * 2 + month) % 10;
+  // Month stem follows the Five Tiger Method (五虎遁月)
+  // 甲己年→丙寅始, 乙庚年→戊寅始, 丙辛年→庚寅始, 丁壬年→壬寅始, 戊癸年→甲寅始
+  const yearStemIndex = ((year - 4) % 10 + 10) % 10;
+  const stemIndex = ((yearStemIndex % 5) * 2 + 2 + (month - 1)) % 10;
   
-  // Month branch follows the tiger month start (month 1 = Tiger)
+  // Month branch: month 1 (around Feb) = Tiger (寅, index 2)
   const branchIndex = (month + 1) % 12;
   
   return {
@@ -114,15 +114,17 @@ function getMonthPillar(year: number, month: number): Pillar {
   };
 }
 
-// Calculate Day Pillar using a simplified day count algorithm
-function getDayPillar(date: Date): Pillar {
-  // Reference point: January 1, 1900 was 甲子 (Jiazi) - index 0
-  const referenceDate = new Date(1900, 0, 1);
-  const diffTime = date.getTime() - referenceDate.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+// Calculate Day Pillar — timezone-safe using numeric year/month/day
+function getDayPillar(year: number, month: number, day: number): Pillar {
+  // Use Date.UTC to avoid timezone drift between client and server
+  // Reference: January 1, 1900 = 甲戌 (Jia-Xu) — stem index 0 (甲), branch index 10 (戌)
+  const target = Date.UTC(year, month - 1, day);
+  const ref = Date.UTC(1900, 0, 1);
+  const diffDays = Math.round((target - ref) / 86400000);
   
   const stemIndex = ((diffDays % 10) + 10) % 10;
-  const branchIndex = ((diffDays % 12) + 12) % 12;
+  // Branch offset +10: Jan 1, 1900 is 戌 (index 10), not 子 (index 0)
+  const branchIndex = (((diffDays + 10) % 12) + 12) % 12;
   
   return {
     stem: HEAVENLY_STEMS[stemIndex],
@@ -273,11 +275,12 @@ export function calculateSaju(
 ): SajuChart {
   const year = birthDate.getFullYear();
   const month = birthDate.getMonth() + 1; // 1-12
+  const day = birthDate.getDate();
   
   // Calculate pillars
   const yearPillar = getYearPillar(year);
   const monthPillar = getMonthPillar(year, month);
-  const dayPillar = getDayPillar(birthDate);
+  const dayPillar = getDayPillar(year, month, day);
   const hourPillar = getHourPillar(dayPillar.stem, birthHour);
   
   const pillars = {
@@ -324,7 +327,7 @@ export function calculateSaju(
 
 // Get daily pillar for any date (useful for daily readings)
 export function getDailyPillar(date: Date): Pillar {
-  return getDayPillar(date);
+  return getDayPillar(date.getFullYear(), date.getMonth() + 1, date.getDate());
 }
 
 // Calculate compatibility between day master and a specific date
