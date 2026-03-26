@@ -58,7 +58,7 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
     animate(y, (-wrapped + 2) * ITEM_H, {
       type: "spring", stiffness: 400, damping: 30,
     });
-    onChange(clamped);
+    onChange(wrapped);
   }, [y, values.length, onChange]);
 
   useEffect(() => {
