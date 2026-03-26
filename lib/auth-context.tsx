@@ -23,7 +23,7 @@ interface AuthContextType {
   isSignInModalOpen: boolean; openSignInModal: () => void; closeSignInModal: () => void;
   signIn: () => Promise<void>; signOut: () => void; saveSajuChart: (chart: SajuChart) => void;
   isPremium: boolean;
-  claimTrigger: number; // Increments after claimReadings completes — dashboard watches this
+  claimTrigger: number;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -91,7 +91,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(mapSupabaseUser(session.user));
         setIsSignInModalOpen(false);
         setIsLoading(false);
-        // Claim readings THEN signal dashboard to re-fetch
         await claimReadings(session.user.id);
         setClaimTrigger(prev => prev + 1);
         // ★ #10: Return to the page user was on before sign-in
@@ -148,7 +147,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) { localStorage.removeItem("auth-return-url"); setIsLoading(false); }
   };
 
-  const signOut = async () => { await supabase.auth.signOut(); setUser(null); };
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setSajuData(EMPTY_SAJU);
+    localStorage.removeItem("saju-data");
+    localStorage.removeItem("primary-reading-id");
+    localStorage.removeItem("primary-changed-date");
+  };
 
   const saveSajuChart = (chart: SajuChart) => {
     const newSajuData: UserSajuData = {

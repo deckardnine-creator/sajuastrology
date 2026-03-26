@@ -164,12 +164,14 @@ async function handleStart({
 
   // 3. Get fresh chart data from DB (localStorage can be stale)
   let chartData = birthData;
+  let hasValidChart = false;
   try {
     const readingRes = await sbFetch(
       `readings?user_id=eq.${userId}&select=name,gender,birth_date,birth_city,day_master_element,day_master_yinyang,archetype,ten_god,harmony_score,dominant_element,weakest_element,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch&order=created_at.desc&limit=1`
     );
     const readings = await readingRes.json();
     if (readings?.length > 0) {
+      hasValidChart = true;
       const r = readings[0];
       chartData = {
         name: r.name, gender: r.gender, birthDate: r.birth_date, birthCity: r.birth_city,
@@ -187,6 +189,13 @@ async function handleStart({
       };
     }
   } catch { /* Fall back to client-provided data */ }
+
+  // Guard: reject if no reading exists for this user at all
+  if (!hasValidChart && (!birthData || !birthData.dayMaster)) {
+    return NextResponse.json({
+      error: "No Saju chart found for your account. Please generate a free reading first at sajuastrology.com/calculate before using consultations."
+    }, { status: 400 });
+  }
 
   // Ask Claude whether clarification is needed
   const chartSummary = formatChartSummary(chartData);
@@ -478,6 +487,18 @@ function formatChartSummary(birthData: any): string {
   try {
     const lines: string[] = [];
 
+    if (birthData.name) {
+      lines.push(`Name: ${birthData.name}`);
+    }
+    if (birthData.gender) {
+      lines.push(`Gender: ${birthData.gender}`);
+    }
+    if (birthData.birthDate) {
+      lines.push(`Birth Date: ${birthData.birthDate}`);
+    }
+    if (birthData.birthCity) {
+      lines.push(`Birth City: ${birthData.birthCity}`);
+    }
     if (birthData.dayMaster) {
       lines.push(`Day Master: ${birthData.dayMaster.en || ""} ${birthData.dayMaster.zh || ""} (${birthData.dayMaster.element || ""})`);
     }
@@ -501,16 +522,6 @@ function formatChartSummary(birthData: any): string {
         lines.push(`  ${el}: ${val}`);
       }
     }
-    if (birthData.birthDate) {
-      lines.push(`\nBirth Date: ${birthData.birthDate}`);
-    }
-    if (birthData.gender) {
-      lines.push(`Gender: ${birthData.gender}`);
-    }
-    if (birthData.birthCity) {
-      lines.push(`Birth City: ${birthData.birthCity}`);
-    }
-
     return lines.join("\n") || "Chart data provided but could not be formatted";
   } catch {
     return JSON.stringify(birthData).slice(0, 2000);

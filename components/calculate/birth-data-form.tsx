@@ -200,6 +200,19 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
   const [minuteIdx, setMinuteIdx] = useState(0);
   const [unknownTime, setUnknownTime] = useState(false);
   const [cityQuery, setCityQuery] = useState("");
+
+  // Dynamic day count based on selected year/month
+  const selectedYear = parseInt(YEARS[yearIdx]);
+  const selectedMonth = parseInt(MONTHS[monthIdx]);
+  const maxDays = new Date(selectedYear, selectedMonth, 0).getDate();
+  const DAYS_FILTERED = Array.from({ length: maxDays }, (_, i) => String(i + 1).padStart(2, "0"));
+
+  // Auto-clamp dayIdx when month/year changes reduce available days
+  useEffect(() => {
+    if (dayIdx >= maxDays) {
+      setDayIdx(maxDays - 1);
+    }
+  }, [maxDays, dayIdx]);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [cityResults, setCityResults] = useState<City[]>([]);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
@@ -221,8 +234,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
     if (!name || !gender || !selectedCity) return;
     const year  = parseInt(YEARS[yearIdx]);
     const month = parseInt(MONTHS[monthIdx]);
-    const maxDay = new Date(year, month, 0).getDate();
-    const day   = Math.min(parseInt(DAYS[dayIdx]), maxDay);
+    const day   = parseInt(DAYS_FILTERED[dayIdx] || "1");
     const date  = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
     const hour  = unknownTime ? 12 : parseInt(HOURS[hourIdx]);
     const chart = calculateSaju(name, gender, date, hour, selectedCity.name);
@@ -361,7 +373,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                   <span className="text-primary/25 text-2xl font-light select-none pb-1">·</span>
                   <DrumRoller values={MONTHS} selectedIndex={monthIdx} onChange={setMonthIdx} label="Month" width={64} />
                   <span className="text-primary/25 text-2xl font-light select-none pb-1">·</span>
-                  <DrumRoller values={DAYS}   selectedIndex={dayIdx}   onChange={setDayIdx}   label="Day"   width={64} />
+                  <DrumRoller values={DAYS_FILTERED} selectedIndex={dayIdx} onChange={setDayIdx} label="Day"   width={64} />
                 </div>
               </div>
 

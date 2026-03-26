@@ -54,6 +54,7 @@ export function DashboardContent() {
   const [mounted, setMounted] = useState(false);
   const [savedReadings, setSavedReadings] = useState<SavedReading[]>([]);
   const [showAllReadings, setShowAllReadings] = useState(false);
+  const [readingsLoaded, setReadingsLoaded] = useState(false);
   const [primaryReadingId, setPrimaryReadingId] = useState<string | null>(null);
   const [canChangeToday, setCanChangeToday] = useState(true);
   const [switchMessage, setSwitchMessage] = useState("");
@@ -87,6 +88,7 @@ export function DashboardContent() {
         .limit(20);
       const readings = data || [];
       setSavedReadings(readings);
+      setReadingsLoaded(true);
       const currentPrimary = localStorage.getItem("primary-reading-id");
       if (readings.length > 0) {
         const primaryExists = readings.some((r) => r.id === currentPrimary);
@@ -158,8 +160,15 @@ export function DashboardContent() {
     }
   };
 
-  // Empty state
+  // Empty state - only show after readings have been checked
   if (!sajuData.chart) {
+    if (!readingsLoaded) {
+      return (
+        <div className="max-w-4xl mx-auto flex items-center justify-center py-12">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      );
+    }
     return (
       <div className="max-w-4xl mx-auto text-center py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -329,7 +338,17 @@ export function DashboardContent() {
               <div key={i} className={`bg-card/50 border rounded-lg p-1.5 sm:p-2.5 text-center ${i === 0 ? "border-primary" : "border-border"}`}>
                 <p className="text-[10px] sm:text-xs text-muted-foreground">{d.day}</p>
                 <p className="text-sm sm:text-base font-medium">{d.dateNum}</p>
-                {mounted && <p className="text-[11px] sm:text-sm font-bold mt-0.5" style={{ color: sc }}>{d.score}</p>}
+                {mounted && (
+                  <div className="mt-1">
+                    <div className="mx-auto w-5 h-10 sm:w-6 sm:h-12 bg-muted/20 rounded-full relative overflow-hidden">
+                      <div
+                        className="absolute bottom-0 left-0 right-0 rounded-full transition-all duration-700"
+                        style={{ height: `${d.score}%`, backgroundColor: sc }}
+                      />
+                    </div>
+                    <p className="text-[11px] sm:text-sm font-bold mt-0.5" style={{ color: sc }}>{d.score}</p>
+                  </div>
+                )}
               </div>
             );
           })}

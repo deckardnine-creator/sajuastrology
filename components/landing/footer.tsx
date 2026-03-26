@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { Globe } from "lucide-react"
 
 const footerLinks = [
   { label: "What is Saju?", href: "/what-is-saju" },
@@ -31,12 +30,8 @@ export function Footer() {
             ))}
           </nav>
 
-          {/* Lang + Copyright */}
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <button className="flex items-center gap-1.5 hover:text-foreground transition-colors">
-              <Globe className="w-4 h-4" />EN
-            </button>
-            <span>|</span>
+          {/* Copyright */}
+          <div className="text-sm text-muted-foreground">
             <span>&copy; 2026 SajuAstrology.com</span>
           </div>
 
