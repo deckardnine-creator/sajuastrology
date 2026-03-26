@@ -9,11 +9,10 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      // Wait for Supabase to process the URL params (code exchange)
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session) {
-        // Claim readings before redirect
+        // Claim pending reading before redirect
         try {
           const pendingSlug = localStorage.getItem("pending-claim-slug");
           if (pendingSlug) {

@@ -110,6 +110,9 @@ export function ConsultationClient() {
     const sessionId = searchParams.get("session_id");
     if (payment === "success" && sessionId && user) {
       verifyPayment(sessionId);
+    } else if (payment === "cancelled") {
+      // User cancelled payment — clean URL and stay on page
+      router.replace("/consultation");
     }
   }, [searchParams, user]);
 

@@ -107,18 +107,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) setUser(mapSupabaseUser(session.user));
+      if (session?.user) {
+        setUser(mapSupabaseUser(session.user));
+        localStorage.setItem("current-user-id", session.user.id);
+      }
       setIsLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
-        setUser(mapSupabaseUser(session.user));
+        const newUser = mapSupabaseUser(session.user);
+        // #4: If different user signs in, clear previous user's localStorage
+        const prevUserId = localStorage.getItem("current-user-id");
+        if (prevUserId && prevUserId !== newUser.id) {
+          localStorage.removeItem("saju-data");
+          localStorage.removeItem("primary-reading-id");
+          localStorage.removeItem("primary-changed-date");
+          setSajuData(EMPTY_SAJU);
+        }
+        localStorage.setItem("current-user-id", newUser.id);
+        setUser(newUser);
         setIsSignInModalOpen(false);
         setIsLoading(false);
         await claimReadings(session.user.id);
         setClaimTrigger(prev => prev + 1);
-        // returnUrl redirect is handled by /auth/callback page, not here
+        // returnUrl redirect is handled by /auth/callback page
       } else if (event === "SIGNED_OUT") {
         setUser(null);
       } else if (event === "TOKEN_REFRESHED" && session?.user) {
@@ -158,7 +171,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async () => {
     setIsLoading(true);
-    // Only set return URL if not already set by another flow (pricing, reading, etc.)
     if (!localStorage.getItem("auth-return-url")) {
       localStorage.setItem("auth-return-url", window.location.href);
     }
@@ -177,6 +189,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("primary-reading-id");
     localStorage.removeItem("primary-changed-date");
     localStorage.removeItem("pending-claim-slug");
+    localStorage.removeItem("current-user-id");
+    localStorage.removeItem("return-to-consultation");
   };
 
   const saveSajuChart = (chart: SajuChart) => {
