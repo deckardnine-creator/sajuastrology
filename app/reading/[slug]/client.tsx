@@ -95,7 +95,6 @@ export default function ReadingPageClient() {
   const [generationStep, setGenerationStep] = useState(0);
   const [linkCopied, setLinkCopied] = useState(false);
   const [claimed, setClaimed] = useState(false);
-  const [showConsultationReturn, setShowConsultationReturn] = useState(false);
 
   // Reset payment loading when user returns from Stripe (browser tab regains focus)
   useEffect(() => {
@@ -127,19 +126,6 @@ export default function ReadingPageClient() {
       } catch {}
     })();
   }, [user, reading, claimed]);
-
-  // Store pending slug for claim-after-login flow
-  useEffect(() => {
-    if (!reading || user || reading.user_id) return;
-    localStorage.setItem("pending-claim-slug", reading.share_slug);
-  }, [reading, user]);
-
-  // Check if user came from consultation and should return
-  useEffect(() => {
-    if (reading && localStorage.getItem("return-to-consultation") === "true") {
-      setShowConsultationReturn(true);
-    }
-  }, [reading]);
 
   const handleShareLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -277,6 +263,12 @@ export default function ReadingPageClient() {
 
   const handleUnlock = async () => {
     if (!reading) return;
+    // Require login before payment (need account to save paid content)
+    if (!user) {
+      localStorage.setItem("auth-return-url", window.location.href);
+      openSignInModal();
+      return;
+    }
     setPaymentLoading(true);
     try {
       const res = await fetch("/api/payment/checkout", {
@@ -722,18 +714,6 @@ export default function ReadingPageClient() {
                   </p>
                 </div>
               </div>
-            </motion.section>
-          )}
-
-          {/* Consultation Return Banner — shows when user came from /consultation */}
-          {showConsultationReturn && (
-            <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-              <Link href="/consultation" onClick={() => localStorage.removeItem("return-to-consultation")}
-                className="block bg-gradient-to-r from-purple-500/10 to-purple-500/5 border border-purple-500/30 rounded-2xl p-6 text-center hover:border-purple-500/50 transition-colors">
-                <p className="text-sm text-purple-300 mb-1">Your chart is ready!</p>
-                <p className="text-lg font-serif font-semibold text-foreground">Continue to Consultation →</p>
-                <p className="text-xs text-muted-foreground mt-1">Your 5 sessions are waiting</p>
-              </Link>
             </motion.section>
           )}
 

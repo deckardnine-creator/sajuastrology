@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Check, Sparkles, Crown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useAuth } from "@/lib/auth-context"
 import Link from "next/link"
 
 const plans = [
@@ -17,7 +19,6 @@ const plans = [
       "Day Master & Archetype analysis",
       "Five Elements balance chart",
       "This year's fortune overview",
-      "Personalized daily fortune & 7-day forecast",
       "Shareable cosmic profile card",
     ],
     cta: "Get My Free Reading",
@@ -39,8 +40,7 @@ const plans = [
       "Wealth & Career detailed blueprint",
       "Love & Relationship deep insights",
       "Health & wellness timing guidance",
-      "6-month energy flow forecast",
-      "Hidden Talent & Life Purpose reading",
+      "Monthly energy calendar",
       "Permanent reading page — yours forever",
     ],
     cta: "Unlock Full Reading",
@@ -54,14 +54,14 @@ const plans = [
   {
     name: "Master Consultation",
     price: 29.99,
-    description: "5 personal Saju advisor sessions",
+    description: "5 personal Saju consultations",
     features: [
+      "Everything in Full Destiny, plus:",
       "5 one-on-one Saju consultation sessions",
-      "Ask about career, love, timing, wealth, health, or any topic",
+      "Ask about career, love, timing, or any life question",
       "Clarifying dialogue for precision analysis",
       "2,000–4,000 word personalized report per session",
       "All consultations saved to your dashboard",
-      "Unused credits never expire",
     ],
     priceNote: "$6 per consultation",
     cta: "Get 5 Consultations",
@@ -76,6 +76,24 @@ const plans = [
 
 export function PricingCards() {
   const [selectedPlan, setSelectedPlan] = useState<string>("Full Destiny Reading")
+  const { user, openSignInModal } = useAuth()
+  const router = useRouter()
+
+  const handlePlanClick = (plan: typeof plans[0]) => {
+    if (plan.price === 0) {
+      // Free plan — always go to calculate
+      router.push(plan.href)
+      return
+    }
+    if (!user) {
+      // Paid plan + not logged in → sign in first, then redirect
+      localStorage.setItem("auth-return-url", window.location.origin + plan.href)
+      openSignInModal()
+      return
+    }
+    // Paid plan + logged in → go directly
+    router.push(plan.href)
+  }
 
   return (
     <div className="grid gap-4 lg:grid-cols-3 lg:items-center">
@@ -164,16 +182,15 @@ export function PricingCards() {
                 </li>
               ))}
             </ul>
-            <Link href={plan.href}>
-              <Button
-                className="w-full h-12 font-semibold text-sm tracking-wide transition-all duration-300"
-                size="lg"
-                style={isSelected ? { background: `linear-gradient(135deg, ${plan.accent}, ${plan.accent}bb)`, color: "#0A0E1A", border: "none", boxShadow: `0 4px 20px ${plan.glow}` } : {}}
-                variant={isSelected || plan.highlighted ? "default" : "outline"}
-              >
-                {plan.cta}
-              </Button>
-            </Link>
+            <Button
+              onClick={() => handlePlanClick(plan)}
+              className="w-full h-12 font-semibold text-sm tracking-wide transition-all duration-300"
+              size="lg"
+              style={isSelected ? { background: `linear-gradient(135deg, ${plan.accent}, ${plan.accent}bb)`, color: "#0A0E1A", border: "none", boxShadow: `0 4px 20px ${plan.glow}` } : {}}
+              variant={isSelected || plan.highlighted ? "default" : "outline"}
+            >
+              {plan.cta}
+            </Button>
           </motion.div>
         )
       })}
