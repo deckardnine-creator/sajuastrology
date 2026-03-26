@@ -112,6 +112,17 @@ async function handleGetReport({ consultationId, userId }: { consultationId: str
 
 /* --- Start Consultation --- */
 
+// Basic content moderation — blocks obviously inappropriate input
+function isInappropriate(text: string): boolean {
+  const lower = text.toLowerCase().replace(/[^a-z0-9\s]/g, "");
+  const blocked = [
+    "wanna sex", "want sex", "have sex", "fuck", "suck my", "blow job",
+    "kill myself", "kill someone", "how to make bomb", "how to make drug",
+    "child porn", "nude", "naked photo",
+  ];
+  return blocked.some((b) => lower.includes(b));
+}
+
 async function handleStart({
   userId,
   category,
@@ -125,6 +136,13 @@ async function handleStart({
 }) {
   if (!userId || !question) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  // Content moderation
+  if (isInappropriate(question)) {
+    return NextResponse.json({
+      error: "Your question doesn't appear to be related to Saju astrology. Please ask about career, relationships, timing, health, or other life topics that can be analyzed through your birth chart."
+    }, { status: 400 });
   }
 
   // 1. Check credits
@@ -144,7 +162,7 @@ async function handleStart({
   const creditId = availableCredit.id;
   const currentUsed = availableCredit.used_credits;
 
-  // 3. Get fresh chart data from DB (localStorage can be stale after calculation fixes)
+  // 3. Get fresh chart data from DB (localStorage can be stale)
   let chartData = birthData;
   try {
     const readingRes = await sbFetch(
@@ -154,21 +172,10 @@ async function handleStart({
     if (readings?.length > 0) {
       const r = readings[0];
       chartData = {
-        name: r.name,
-        gender: r.gender,
-        birthDate: r.birth_date,
-        birthCity: r.birth_city,
-        dayMaster: {
-          element: r.day_master_element,
-          yinYang: r.day_master_yinyang,
-          en: `${r.day_master_yinyang === "yang" ? "Yang" : "Yin"} ${r.day_master_element.charAt(0).toUpperCase() + r.day_master_element.slice(1)}`,
-          zh: "",
-        },
-        archetype: r.archetype,
-        tenGod: r.ten_god,
-        harmonyScore: r.harmony_score,
-        dominantElement: r.dominant_element,
-        weakestElement: r.weakest_element,
+        name: r.name, gender: r.gender, birthDate: r.birth_date, birthCity: r.birth_city,
+        dayMaster: { element: r.day_master_element, yinYang: r.day_master_yinyang, en: `${r.day_master_yinyang === "yang" ? "Yang" : "Yin"} ${r.day_master_element.charAt(0).toUpperCase() + r.day_master_element.slice(1)}`, zh: "" },
+        archetype: r.archetype, tenGod: r.ten_god, harmonyScore: r.harmony_score,
+        dominantElement: r.dominant_element, weakestElement: r.weakest_element,
         elements: { wood: r.elements_wood, fire: r.elements_fire, earth: r.elements_earth, metal: r.elements_metal, water: r.elements_water },
         elementBalance: { wood: r.elements_wood, fire: r.elements_fire, earth: r.elements_earth, metal: r.elements_metal, water: r.elements_water },
         pillars: {
@@ -179,10 +186,9 @@ async function handleStart({
         },
       };
     }
-  } catch {
-    // Fall back to client-provided data
-  }
+  } catch { /* Fall back to client-provided data */ }
 
+  // Ask Claude whether clarification is needed
   const chartSummary = formatChartSummary(chartData);
 
   const systemPrompt = `You are a master of Saju (Korean Four Pillars of Destiny), with deep expertise in analyzing birth charts for personalized guidance. You are reviewing a consultation question.

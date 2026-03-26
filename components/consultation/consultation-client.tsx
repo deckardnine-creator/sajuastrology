@@ -665,7 +665,7 @@ export function ConsultationClient() {
             </div>
 
             <p className="text-center text-[11px] text-muted-foreground/40 mt-6">
-              This consultation is for entertainment and self-reflection only. See our Terms for details.
+              This consultation is for entertainment and self-reflection only. See our Terms.
             </p>
           </motion.div>
         )}
@@ -845,7 +845,7 @@ function ConsultationLoader({ category }: { category: string }) {
         </div>
 
         <p className="text-center text-[11px] text-muted-foreground/40 mt-8">
-          Three cosmic scholars are analyzing your chart simultaneously — this takes 30–60 seconds
+          Your consultation is crafted uniquely — this takes 30–60 seconds
         </p>
       </div>
     </div>

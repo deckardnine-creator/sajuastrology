@@ -61,12 +61,18 @@ export function ConsultationHistory() {
   useEffect(() => {
     if (!user) return;
     loadData();
+    // Safety: if loading takes more than 8 seconds, force stop
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 8000);
+    return () => clearTimeout(timeout);
   }, [user]);
 
   const loadData = async () => {
     if (!user) return;
     setLoading(true);
     try {
+      // Load consultations
       const { data: consults } = await supabase
         .from("consultations")
         .select("id, category, initial_question, report_title, status, created_at, completed_at")
@@ -76,6 +82,7 @@ export function ConsultationHistory() {
 
       setConsultations(consults || []);
 
+      // Load credits
       const { data: creds } = await supabase
         .from("consultation_credits")
         .select("total_credits, used_credits")
@@ -87,11 +94,11 @@ export function ConsultationHistory() {
       );
       setCredits(remaining);
     } catch {
-      // Query failed — show empty state rather than infinite spinner
       setConsultations([]);
       setCredits(0);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const loadReport = async (consultationId: string) => {
