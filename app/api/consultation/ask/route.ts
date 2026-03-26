@@ -205,12 +205,7 @@ Analyze whether this question needs clarification for a precise Saju consultatio
   const [consultation] = await insertRes.json();
 
   if (parsed.needsClarification) {
-    // Deduct credit now — clarification flow started, consultation is reserved
-    await sbFetch(`consultation_credits?id=eq.${creditId}`, {
-      method: "PATCH",
-      body: JSON.stringify({ used_credits: currentUsed + 1 }),
-    });
-
+    // Don't deduct credit yet — only deduct when report is generated successfully
     return NextResponse.json({
       consultationId: consultation.id,
       needsClarification: true,
@@ -317,6 +312,20 @@ async function handleSubmitAnswers({
         completed_at: new Date().toISOString(),
       }),
     });
+
+    // 5. Now deduct credit (only after success)
+    if (consultation.credit_id) {
+      const creditRes = await sbFetch(
+        `consultation_credits?id=eq.${consultation.credit_id}&select=used_credits`
+      );
+      const [credit] = await creditRes.json();
+      if (credit) {
+        await sbFetch(`consultation_credits?id=eq.${consultation.credit_id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ used_credits: credit.used_credits + 1 }),
+        });
+      }
+    }
 
     return NextResponse.json({
       report: { title: report.title, content: report.content },

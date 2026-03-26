@@ -210,9 +210,11 @@ export default function ReadingPageClient() {
 
       setReading(data as ReadingData);
       setLoading(false);
+      window.scrollTo({ top: 0 }); // Always start at top
 
       const r = data as ReadingData;
-      if (r.is_paid && !r.paid_reading_career) {
+      // Only auto-generate if paid but content missing AND not already generating
+      if (r.is_paid && !r.paid_reading_career && !paidContentLoading) {
         generatePaidContent();
       }
     }

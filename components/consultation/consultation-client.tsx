@@ -92,6 +92,18 @@ export function ConsultationClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  /* ─── Warn before leaving during generation ─── */
+  useEffect(() => {
+    if (step !== "generating") return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "Your reading is being generated. Please don't leave this page.";
+      return e.returnValue;
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [step]);
+
   /* ─── Payment callback ─── */
   useEffect(() => {
     const payment = searchParams.get("payment");
@@ -178,6 +190,8 @@ export function ConsultationClient() {
     if (!question.trim() || !category || !user) return;
     setIsSubmitting(true);
     setError("");
+    setStep("generating"); // Show loading immediately
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     try {
       const res = await fetch("/api/consultation/ask", {
@@ -196,6 +210,7 @@ export function ConsultationClient() {
 
       if (!res.ok) {
         setError(data.error || "Something went wrong");
+        setStep("form"); // Go back to form on error
         setIsSubmitting(false);
         return;
       }
@@ -206,13 +221,20 @@ export function ConsultationClient() {
         setClarifyingQuestions(data.questions);
         setClarifyingAnswers(new Array(data.questions.length).fill(""));
         setStep("clarifying");
+        window.scrollTo({ top: 0, behavior: "smooth" });
       } else if (data.report) {
         setReport(data.report);
         setCredits((c) => Math.max(0, c - 1));
         setStep("report");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        // Unexpected response - go back to form
+        setError("Unexpected response. Please try again.");
+        setStep("form");
       }
     } catch {
       setError("Network error. Please try again.");
+      setStep("form");
     }
     setIsSubmitting(false);
   };
@@ -223,6 +245,7 @@ export function ConsultationClient() {
     setIsSubmitting(true);
     setStep("generating");
     setError("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     try {
       const res = await fetch("/api/consultation/ask", {
@@ -238,7 +261,7 @@ export function ConsultationClient() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Generation failed");
+        setError(data.error || "Generation failed. Your credit is safe — please try again.");
         setStep("clarifying");
         setIsSubmitting(false);
         return;
@@ -247,8 +270,9 @@ export function ConsultationClient() {
       setReport(data.report);
       setCredits((c) => Math.max(0, c - 1));
       setStep("report");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
-      setError("Network error. Please try again.");
+      setError("Network error. Please try again — your credit was not used.");
       setStep("clarifying");
     }
     setIsSubmitting(false);
