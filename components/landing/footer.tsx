@@ -1,16 +1,20 @@
 "use client"
 
 import Link from "next/link"
-
-const footerLinks = [
-  { label: "What is Saju?", href: "/what-is-saju" },
-  { label: "Pricing",       href: "/pricing" },
-  { label: "Consultation",  href: "/consultation" },
-  { label: "Privacy",       href: "/privacy" },
-  { label: "Terms",         href: "/terms" },
-]
+import { useLanguage } from "@/lib/language-context"
+import { LanguageSwitcher } from "@/components/ui/language-switcher"
 
 export function Footer() {
+  const { t } = useLanguage()
+
+  const footerLinks = [
+    { label: t("nav.whatIsSaju"), href: "/what-is-saju" },
+    { label: t("nav.pricing"), href: "/pricing" },
+    { label: t("nav.consultation"), href: "/consultation" },
+    { label: t("footer.privacy"), href: "/privacy" },
+    { label: t("footer.terms"), href: "/terms" },
+  ]
+
   return (
     <footer className="bg-card py-10 sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -31,9 +35,10 @@ export function Footer() {
             ))}
           </nav>
 
-          {/* Copyright */}
-          <div className="text-sm text-muted-foreground">
+          {/* Copyright + Language */}
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <span>&copy; 2026 SajuAstrology.com</span>
+            <LanguageSwitcher />
           </div>
 
           {/* Business info — mobile friendly */}

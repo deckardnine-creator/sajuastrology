@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/lib/auth-context'
+import { LanguageProvider } from '@/lib/language-context'
 import { SignInModal } from '@/components/auth/sign-in-modal'
 import { ScrollToTop } from '@/components/ui/scroll-to-top'
 import './globals.css'
@@ -32,9 +33,12 @@ export const metadata: Metadata = {
   creator: 'SajuAstrology',
   publisher: 'Rimfactory',
   icons: {
-    icon: [{ url: '/favicon.png', type: 'image/png' }],
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.png', type: 'image/png' },
+    ],
     apple: '/favicon.png',
-    shortcut: '/favicon.png',
+    shortcut: '/favicon.ico',
   },
   openGraph: {
     type: 'website',
@@ -85,9 +89,11 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
         <AuthProvider>
-          {children}
-          <SignInModal />
-          <ScrollToTop />
+          <LanguageProvider>
+            {children}
+            <SignInModal />
+            <ScrollToTop />
+          </LanguageProvider>
         </AuthProvider>
         <Analytics />
       </body>
