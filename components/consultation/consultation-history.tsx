@@ -1,298 +1,150 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  Crown,
-  FileText,
-  Sparkles,
-  ChevronRight,
-  Loader2,
-  Briefcase,
-  Heart,
-  Clock,
-  TrendingUp,
-  Activity,
-  HelpCircle,
-} from "lucide-react";
+import { Crown, ChevronDown, ChevronUp, Calendar } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
 import { supabase } from "@/lib/supabase-client";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-interface Consultation {
+interface ConsultationRecord {
   id: string;
   category: string;
   initial_question: string;
   report_title: string | null;
+  report: string | null;
   status: string;
   created_at: string;
-  completed_at: string | null;
 }
 
-const CATEGORY_ICONS: Record<string, any> = {
-  career: Briefcase,
-  love: Heart,
-  timing: Clock,
-  wealth: TrendingUp,
-  health: Activity,
-  general: HelpCircle,
-};
+function renderMarkdown(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/^### (.+)$/gm, '<h3 class="font-serif text-sm font-semibold text-primary/80 mt-4 mb-1.5">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="font-serif text-base font-semibold text-primary border-b border-primary/20 pb-1 mt-5 mb-2">$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 class="font-serif text-lg font-bold text-primary mt-0 mb-3">$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em class="text-foreground/80">$1</em>')
+    .replace(/^[-•] (.+)$/gm, '<li class="text-foreground/85 leading-relaxed mb-1 ml-4">$1</li>')
+    .replace(/(<li[^>]*>[\s\S]*?<\/li>\n?)+/g, (m) => `<ul class="my-2 list-disc space-y-0.5">${m}</ul>`)
+    .replace(/^---$/gm, '<hr class="border-border/30 my-4" />')
+    .split(/\n\n+/)
+    .map(block => {
+      const b = block.trim();
+      if (!b) return "";
+      if (b.startsWith("<")) return b;
+      return `<p class="text-foreground/85 leading-[1.8] mb-3">${b.replace(/\n/g, "<br/>")}</p>`;
+    })
+    .join("\n");
+}
 
-const CATEGORY_COLORS: Record<string, string> = {
-  career: "#3B82F6",
-  love: "#EC4899",
-  timing: "#F59E0B",
-  wealth: "#10B981",
-  health: "#8B5CF6",
-  general: "#6B7280",
+const CATEGORY_LABELS: Record<string, Record<string, string>> = {
+  career: { en: "Career & Work", ko: "직업 & 일", ja: "仕事" },
+  love: { en: "Love & Relations", ko: "연애 & 관계", ja: "恋愛" },
+  timing: { en: "Timing", ko: "시기 & 결정", ja: "タイミング" },
+  wealth: { en: "Wealth", ko: "재물 & 재정", ja: "財運" },
+  health: { en: "Health", ko: "건강 & 웰빙", ja: "健康" },
+  general: { en: "General", ko: "종합 운세", ja: "総合" },
 };
 
 export function ConsultationHistory() {
   const { user } = useAuth();
   const { locale } = useLanguage();
-  const [consultations, setConsultations] = useState<Consultation[]>([]);
-  const [credits, setCredits] = useState(0);
+  const [consultations, setConsultations] = useState<ConsultationRecord[]>([]);
+  const [expanded, setExpanded] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [expandedReport, setExpandedReport] = useState<string | null>(null);
-  const [loadingReport, setLoadingReport] = useState(false);
-  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    loadData();
-    const timeout = setTimeout(() => { setLoading(false); }, 8000);
-    return () => clearTimeout(timeout);
-  }, [user]);
-
-  const loadData = async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const { data: consults } = await supabase
+    (async () => {
+      const { data } = await supabase
         .from("consultations")
-        .select("id, category, initial_question, report_title, status, created_at, completed_at")
+        .select("id,category,initial_question,report_title,report,status,created_at")
         .eq("user_id", user.id)
+        .eq("status", "completed")
         .order("created_at", { ascending: false })
         .limit(10);
-
-      setConsultations(consults || []);
-
-      const { data: creds } = await supabase
-        .from("consultation_credits")
-        .select("total_credits, used_credits")
-        .eq("user_id", user.id);
-
-      const remaining = (creds || []).reduce(
-        (sum, c) => sum + (c.total_credits - c.used_credits),
-        0
-      );
-      setCredits(remaining);
-    } catch {
-      setConsultations([]);
-      setCredits(0);
-    } finally {
+      setConsultations(data || []);
       setLoading(false);
-    }
-  };
+    })();
+  }, [user]);
 
-  const loadReport = async (consultationId: string) => {
-    if (expandedId === consultationId) {
-      setExpandedId(null);
-      setExpandedReport(null);
-      return;
-    }
-
-    setExpandedId(consultationId);
-    setLoadingReport(true);
-
-    const { data } = await supabase
-      .from("consultations")
-      .select("report")
-      .eq("id", consultationId)
-      .single();
-
-    setExpandedReport(data?.report || null);
-    setLoadingReport(false);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (consultations.length === 0 && credits === 0) {
-    return null;
-  }
-
-  const dateLocaleMap = { en: "en-US", ko: "ko-KR", ja: "ja-JP" } as const;
+  if (loading || consultations.length === 0) return null;
 
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-8"
+      transition={{ delay: 0.4 }}
+      className="mt-8"
     >
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm tracking-wider text-muted-foreground uppercase flex items-center gap-2">
-          <Crown className="w-4 h-4 text-purple-400" />
-          {t("ch.title", locale)}
+      <div className="flex items-center gap-2 mb-4">
+        <Crown className="w-4 h-4 text-purple-400" />
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          {locale === "ko" ? "상담 내역" : locale === "ja" ? "相談履歴" : "Consultation History"}
         </h2>
-        {credits > 0 && (
-          <Link
-            href="/consultation"
-            className="text-sm text-primary hover:underline flex items-center gap-1"
-          >
-            {t("ch.newConsult", locale)} <ChevronRight className="w-3 h-3" />
-          </Link>
-        )}
       </div>
 
-      {/* Credits Bar */}
-      <div className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 mb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-purple-400" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                {credits > 0
-                  ? `${credits} ${credits !== 1 ? t("ch.remaining", locale) : t("ch.remaining1", locale)}`
-                  : t("ch.noRemaining", locale)}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {consultations.length > 0
-                  ? `${consultations.filter((c) => c.status === "completed").length} ${t("ch.completed", locale)}`
-                  : t("ch.getGuidance", locale)}
-              </p>
-            </div>
-          </div>
+      <div className="space-y-3">
+        {consultations.map((c) => {
+          const isOpen = expanded === c.id;
+          const catLabel = CATEGORY_LABELS[c.category]?.[locale] || c.category;
+          const date = new Date(c.created_at).toLocaleDateString(
+            locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US",
+            { month: "short", day: "numeric", year: "numeric" }
+          );
 
-          {credits > 0 ? (
-            <Link href="/consultation">
-              <Button size="sm" variant="outline" className="text-xs">
-                <Sparkles className="w-3 h-3 mr-1" />
-                {t("ch.ask", locale)}
-              </Button>
-            </Link>
-          ) : (
-            <Link href="/consultation">
-              <Button
-                size="sm"
-                className="text-xs"
-                style={{ background: "linear-gradient(135deg, #a78bfa, #7c3aed)", color: "white" }}
+          return (
+            <div key={c.id} className="bg-card/50 border border-purple-500/20 rounded-xl overflow-hidden">
+              <button
+                onClick={() => setExpanded(isOpen ? null : c.id)}
+                className="w-full flex items-start gap-3 p-4 text-left hover:bg-purple-500/5 transition-colors"
               >
-                <Crown className="w-3 h-3 mr-1" />
-                {t("ch.getMore", locale)}
-              </Button>
-            </Link>
-          )}
-        </div>
+                <Crown className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-medium">
+                      {catLabel}
+                    </span>
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground/50">
+                      <Calendar className="w-3 h-3" />{date}
+                    </span>
+                  </div>
+                  <p className="text-sm font-medium text-foreground/90 truncate">
+                    {c.report_title || c.initial_question}
+                  </p>
+                </div>
+                {isOpen ? (
+                  <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                )}
+              </button>
+
+              {isOpen && c.report && (
+                <div className="px-4 pb-4 border-t border-border/30">
+                  <div
+                    className="prose prose-invert prose-sm max-w-none mt-4
+                      prose-headings:font-serif prose-headings:text-primary
+                      prose-p:text-foreground/85 prose-p:leading-[1.8]
+                      prose-strong:text-foreground prose-li:text-foreground/85"
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(c.report) }}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      {/* Consultation List */}
-      {consultations.length > 0 && (
-        <div className="space-y-2">
-          {(showAll ? consultations : consultations.slice(0, 3)).map((c) => {
-            const Icon = CATEGORY_ICONS[c.category] || HelpCircle;
-            const color = CATEGORY_COLORS[c.category] || "#6B7280";
-            const isExpanded = expandedId === c.id;
-
-            return (
-              <div key={c.id} className="bg-card/50 backdrop-blur border border-border rounded-xl overflow-hidden">
-                <button
-                  onClick={() => c.status === "completed" && loadReport(c.id)}
-                  className="w-full p-4 flex items-center gap-3 text-left hover:bg-muted/20 transition-colors"
-                >
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: `${color}20` }}
-                  >
-                    <Icon className="w-4 h-4" style={{ color }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {c.report_title || c.initial_question}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(c.created_at).toLocaleDateString(dateLocaleMap[locale] || "en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                      {c.status !== "completed" && (
-                        <span className="ml-2 text-amber-400">· {c.status}</span>
-                      )}
-                    </p>
-                  </div>
-                  {c.status === "completed" && (
-                    <ChevronRight
-                      className={`w-4 h-4 text-muted-foreground transition-transform ${
-                        isExpanded ? "rotate-90" : ""
-                      }`}
-                    />
-                  )}
-                </button>
-
-                {isExpanded && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    className="border-t border-border"
-                  >
-                    {loadingReport ? (
-                      <div className="p-4 flex items-center justify-center">
-                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                      </div>
-                    ) : expandedReport ? (
-                      <div className="p-4">
-                        <div className="text-xs text-muted-foreground line-clamp-4 mb-3 whitespace-pre-line">
-                          {expandedReport
-                            .replace(/^#+ .+$/gm, "")
-                            .replace(/\*\*(.+?)\*\*/g, "$1")
-                            .replace(/\*(.+?)\*/g, "$1")
-                            .replace(/^[-•] /gm, "• ")
-                            .replace(/^\d+\.\s/gm, "")
-                            .replace(/---+/g, "")
-                            .replace(/\n{3,}/g, "\n\n")
-                            .trim()
-                            .slice(0, 500)}
-                          ...
-                        </div>
-                        <Link href={`/consultation?view=${c.id}`}>
-                          <Button size="sm" variant="outline" className="text-xs">
-                            <FileText className="w-3 h-3 mr-1" />
-                            {t("ch.readFull", locale)}
-                          </Button>
-                        </Link>
-                      </div>
-                    ) : (
-                      <div className="p-4 text-xs text-muted-foreground">
-                        {t("ch.notAvailable", locale)}
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-              </div>
-            );
-          })}
-          {consultations.length > 3 && !showAll && (
-            <button
-              onClick={() => setShowAll(true)}
-              className="w-full py-2 text-sm text-primary hover:underline"
-            >
-              {t("ch.showAll", locale)} {consultations.length}
-            </button>
-          )}
-        </div>
-      )}
+      <div className="mt-4 text-center">
+        <Link href="/consultation"
+          className="text-xs text-purple-400/70 hover:text-purple-400 transition-colors">
+          {locale === "ko" ? "+ 새 상담 시작하기" : locale === "ja" ? "+ 新しい相談を始める" : "+ Start New Consultation"}
+        </Link>
+      </div>
     </motion.section>
   );
 }

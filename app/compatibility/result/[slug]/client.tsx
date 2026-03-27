@@ -63,6 +63,27 @@ function getScoreLabel(score: number, locale: Locale): string {
   return t("cr.labelOpposite", locale);
 }
 
+function renderCompatMarkdown(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/^### (.+)$/gm, '<h3 class="font-serif text-base font-semibold text-primary/80 mt-5 mb-2">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="font-serif text-lg font-semibold text-primary border-b border-primary/20 pb-1 mt-6 mb-3">$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 class="font-serif text-xl font-bold text-primary mt-0 mb-4">$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, "<strong class=\"text-foreground font-semibold\">$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em class=\"text-foreground/80\">$1</em>")
+    .replace(/^[-•] (.+)$/gm, '<li class="text-foreground/85 leading-relaxed mb-1 ml-4">$1</li>')
+    .replace(/(<li[^>]*>[\s\S]*?<\/li>\n?)+/g, (m) => `<ul class="my-3 list-disc space-y-1">${m}</ul>`)
+    .replace(/^---$/gm, '<hr class="border-border/30 my-5" />')
+    .split(/\n\n+/)
+    .map(block => {
+      const t = block.trim();
+      if (!t) return "";
+      if (t.startsWith("<")) return t;
+      return `<p class="text-foreground/85 leading-[1.85] mb-4">${t.replace(/\n/g, "<br/>")}</p>`;
+    })
+    .join("\n");
+}
+
 export default function CompatibilityResultClient() {
   const params = useParams();
   const router = useRouter();
@@ -352,9 +373,7 @@ export default function CompatibilityResultClient() {
                 <h2 className="font-serif text-lg font-semibold">{t("cr.yourConnection", locale)}</h2>
               </div>
               <div className="prose prose-invert prose-sm max-w-none">
-                {result.free_summary.split("\n\n").map((para, i) => (
-                  <p key={i} className="text-foreground/85 leading-relaxed mb-4 last:mb-0">{para}</p>
-                ))}
+                <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85] prose-strong:text-foreground" dangerouslySetInnerHTML={{ __html: renderCompatMarkdown(result.free_summary) }} />
               </div>
             </div>
           </motion.section>
@@ -389,9 +408,7 @@ export default function CompatibilityResultClient() {
               </div>
               <div className="rounded-2xl p-6 sm:p-8" style={{ background: "linear-gradient(135deg, rgba(167,139,250,0.06), rgba(15,15,25,0.5))", border: "1px solid rgba(167,139,250,0.15)" }}>
                 <div className="prose prose-invert prose-sm max-w-none">
-                  {result.paid_yearly.split("\n\n").map((para, i) => (
-                    <p key={i} className="text-foreground/85 leading-relaxed mb-4 last:mb-0">{para}</p>
-                  ))}
+                  <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85] prose-strong:text-foreground" dangerouslySetInnerHTML={{ __html: renderCompatMarkdown(result.paid_yearly) }} />
                 </div>
               </div>
             </motion.section>

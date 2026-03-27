@@ -212,7 +212,8 @@ export function DashboardContent() {
 
   const handleShareFortune = () => {
     if (!fortune) return;
-    const text = `${fortune.shareText}\n\nMy Saju Daily Fortune — sajuastrology.com`;
+    const siteTag = locale === "ko" ? "나의 오늘의 사주 운세 — sajuastrology.com" : locale === "ja" ? "今日の四柱推命運勢 — sajuastrology.com" : "My Saju Daily Fortune — sajuastrology.com";
+    const text = `${fortune.shareText}\n\n${siteTag}`;
     if (navigator.share) {
       navigator.share({ text }).catch(() => {});
     } else {
