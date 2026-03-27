@@ -1,7 +1,8 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { ArrowRight } from "lucide-react"
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { ArrowRight, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -13,6 +14,13 @@ const pillars = [
 ]
 
 export function HeroSection() {
+  const [showComingSoon, setShowComingSoon] = useState<"ios" | "android" | null>(null)
+
+  const handleAppClick = (platform: "ios" | "android") => {
+    setShowComingSoon(platform)
+    setTimeout(() => setShowComingSoon(null), 3000)
+  }
+
   return (
     <section className="relative min-h-screen pt-24 pb-12 overflow-hidden">
 
@@ -83,9 +91,54 @@ export function HeroSection() {
                 </Button>
               </Link>
             </div>
+
+            {/* App Download Buttons */}
+            <div className="flex flex-col gap-2 mt-1">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleAppClick("ios")}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all group"
+                >
+                  <svg className="w-5 h-5 text-white/80 group-hover:text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                  </svg>
+                  <div className="text-left">
+                    <span className="text-[9px] text-white/50 block leading-tight">Download on the</span>
+                    <span className="text-sm text-white/90 font-medium leading-tight">App Store</span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleAppClick("android")}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all group"
+                >
+                  <svg className="w-5 h-5 text-white/80 group-hover:text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3.18 23.04L13.3 12.93 3.18.96 3.18 23.04zM14.42 11.83L5.3.46 19.03 8.3 14.42 11.83zM14.46 14.07L19.13 17.67 5.24 25.54 14.46 14.07zM20.17 9.48L22.03 10.56C22.72 10.95 22.72 11.95 22.03 12.35L20.05 13.48 15.58 12.92 20.17 9.48z"/>
+                  </svg>
+                  <div className="text-left">
+                    <span className="text-[9px] text-white/50 block leading-tight">Get it on</span>
+                    <span className="text-sm text-white/90 font-medium leading-tight">Google Play</span>
+                  </div>
+                </button>
+              </div>
+
+              <AnimatePresence>
+                {showComingSoon && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-xs text-muted-foreground/70"
+                  >
+                    <Smartphone className="w-3 h-3 inline mr-1" />
+                    {showComingSoon === "ios" ? "iOS" : "Android"} app coming very soon — use the web app for now!
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
           </motion.div>
 
-          {/* Right: Four Pillars — 모바일에서 작게, 데스크탑에서 크게 */}
+          {/* Right: Four Pillars */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}

@@ -12,17 +12,22 @@ const faqs = [
   {
     question: "Is there really no subscription?",
     answer:
-      "None at all. The Free Reading is completely free — no account needed, no credit card. The Full Destiny Reading is a one-time $9.99 payment, and your reading page is permanent. The Master Consultation is $29.99 for 5 sessions. Once you pay, you own it. No recurring charges, no auto-renewal, no hidden fees.",
+      "None at all. The Free tier is completely free — no credit card needed. The Full Destiny Reading is a one-time $9.99 payment, and your reading page is permanent. The Master Consultation is $29.99 for 5 sessions. Once you pay, you own it. No recurring charges, no auto-renewal, no hidden fees.",
   },
   {
     question: "What do I get for free vs. paid?",
     answer:
-      "The Free Reading decodes your Four Pillars (사주팔자), reveals your Day Master archetype, shows your Five Elements balance chart, and gives you a snapshot of this year's fortune — plus a shareable cosmic profile card. Once you sign in, you also get a personalized daily fortune with lucky color, direction, and activity every day. The $9.99 Full Destiny Reading unlocks everything: a detailed 10-year fortune cycle (대운) analysis, career and wealth blueprint, love and relationship insights, health timing guidance, a monthly energy calendar, and a hidden talent reading — all on a permanent page that's yours forever.",
+      "Free includes: your Four Pillars decoded, Day Master archetype, Five Elements balance chart, this year's fortune overview, a personalized daily fortune, and full detailed compatibility analysis (love, work, friendship, conflict resolution, and yearly forecast). The $9.99 Full Destiny Reading adds: a deep 10-year fortune cycle, career and wealth blueprint, love and relationship patterns, health timing guidance, monthly energy calendar, and hidden talent analysis — all on a permanent page that's yours forever.",
+  },
+  {
+    question: "Is compatibility really completely free?",
+    answer:
+      "Yes! The full compatibility analysis — including detailed love, work, friendship, conflict resolution, and this year's forecast — is 100% free. No sign-up required, no credit card, no catch. We believe compatibility is meant to be shared. Check as many pairs as you want.",
   },
   {
     question: "How does the daily fortune work?",
     answer:
-      "Once you generate a free reading and sign in, your dashboard shows a personalized daily fortune based on your Day Master element and that day's cosmic energy. It includes a fortune message, practical advice, lucky color, lucky direction, and a suggested activity — all changing every day. You also get a 7-day energy forecast showing your compatibility score for each day of the week. It's completely free and updates automatically.",
+      "Once you generate a free reading and sign in, your dashboard shows a personalized daily fortune based on your Day Master element and that day's cosmic energy. It includes a fortune message, practical advice, lucky color, lucky direction, and a suggested activity — all changing every day. You also get a 7-day energy forecast. It's completely free and updates automatically.",
   },
   {
     question: "Can I generate readings for other people?",
@@ -32,7 +37,7 @@ const faqs = [
   {
     question: "What is the Master Consultation?",
     answer:
-      "Think of it as a personal Saju advisor session. You submit a specific life question — about career moves, relationship timing, financial decisions, or anything weighing on your mind — and receive a 2,000–4,000 word personalized analysis grounded in your unique birth chart. Each reading examines how your Four Pillars, element balance, and current cosmic cycles relate to your specific situation, with concrete timing guidance and actionable insights.",
+      "Think of it as a personal Saju advisor session. You submit a specific life question — about career moves, relationship timing, financial decisions, or anything weighing on your mind — and receive a 2,000–4,000 word personalized analysis grounded in your unique birth chart. Each consultation examines how your Four Pillars, element balance, and current cosmic cycles relate to your specific situation, with concrete timing guidance and actionable insights.",
   },
   {
     question: "How does the consultation process work?",
@@ -40,14 +45,29 @@ const faqs = [
       "First, choose a topic area (career, love, timing, wealth, health, or general) and describe your question in detail. If your question would benefit from more specifics, you'll get a couple of clarifying questions to ensure a precise, relevant reading. Your full report is then generated and saved permanently to your dashboard. The whole process takes about 30–60 seconds. If anything goes wrong during generation, your credit is preserved — you won't lose a session to a technical issue.",
   },
   {
-    question: "How accurate is Saju analysis?",
+    question: "Do I need to sign in to pay?",
     answer:
-      "Saju (四柱命理) is a centuries-old system rooted in the interactions of the Five Elements, Heavenly Stems, and Earthly Branches — the same framework that has guided decisions in Korean, Chinese, and East Asian cultures for over a thousand years. The accuracy of your reading depends on the precision of your birth data. With the correct birth date, time, and location, Saju maps out 518,400 unique cosmic profiles — far more nuanced than Western astrology's 12 types. If you don't know your exact birth time, you can still get a reading (defaulting to noon), though it will be less precise for the hour pillar.",
+      "Yes. We require Google sign-in before any purchase so your paid content is permanently saved to your account and dashboard. This also ensures you can access your readings on any device. Sign-in is free and takes one click — we only request your name and email.",
   },
   {
     question: "What payment methods do you accept?",
     answer:
-      "We accept all major credit and debit cards (Visa, Mastercard, Amex) processed securely through Stripe. Apple Pay and Google Pay are also available depending on your device. All transactions are encrypted and your payment details are never stored on our servers.",
+      "We accept all major credit and debit cards (Visa, Mastercard, Amex), Apple Pay, and Google Pay. Payments are processed securely through LemonSqueezy, a trusted payment platform. All transactions are encrypted and your payment details are never stored on our servers.",
+  },
+  {
+    question: "How is web payment different from the app?",
+    answer:
+      "When you purchase through our website (sajuastrology.com), payments go through LemonSqueezy at our listed prices ($9.99 / $29.99). When we launch our iOS and Android apps, purchases through the App Store or Google Play may include platform fees set by Apple and Google (typically 15–30%), which could make in-app prices slightly higher. For the best value, we recommend purchasing through our website. Your account and all purchased content sync across web and app.",
+  },
+  {
+    question: "Is there a mobile app?",
+    answer:
+      "We're building native iOS and Android apps right now — launching very soon! The apps will include push notifications for your daily fortune, offline access to your readings, and a smoother mobile experience. In the meantime, sajuastrology.com works perfectly on any mobile browser. Any purchases or readings you create on the web will automatically appear in the app when it launches.",
+  },
+  {
+    question: "How accurate is Saju analysis?",
+    answer:
+      "Saju (四柱命理) is a centuries-old system rooted in the interactions of the Five Elements, Heavenly Stems, and Earthly Branches — the same framework that has guided decisions in Korean, Chinese, and East Asian cultures for over a thousand years. With the correct birth date, time, and location, Saju maps out 518,400 unique cosmic profiles — far more nuanced than Western astrology's 12 types. If you don't know your exact birth time, you can still get a reading (defaulting to noon), though it will be less precise for the hour pillar.",
   },
   {
     question: "What is your refund policy?",
@@ -58,16 +78,6 @@ const faqs = [
     question: "Is my birth data private?",
     answer:
       "Yes. Your data is stored securely and is never shared with third parties or used for any purpose other than generating your readings. We use industry-standard security practices. You can request deletion of your account and all associated data at any time by contacting us.",
-  },
-  {
-    question: "Can I share my reading with friends?",
-    answer:
-      "Absolutely. Every reading has a unique shareable link. Share it anywhere — social media, messaging apps, or email. When your friends click through, they can see the reading and discover their own Four Pillars with a free reading of their own.",
-  },
-  {
-    question: "Is there a mobile app?",
-    answer:
-      "Not yet, but it's coming soon! SajuAstrology.com is fully optimized for mobile browsers — you can use it right now on any phone or tablet. We're working on native iOS and Android apps that will include push notifications for your daily fortune, offline access to your readings, and more.",
   },
 ]
 

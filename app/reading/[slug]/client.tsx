@@ -287,7 +287,7 @@ export default function ReadingPageClient() {
       const res = await fetch("/api/payment/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shareSlug: reading.share_slug, readingName: reading.name }),
+        body: JSON.stringify({ shareSlug: reading.share_slug, readingName: reading.name, userEmail: user.email }),
       });
       const data = await res.json();
       if (data.url) {
@@ -687,6 +687,7 @@ export default function ReadingPageClient() {
                       )}
                     </Button>
                     <p className="text-xs text-muted-foreground/50 mt-2">One-time payment. Yours forever.</p>
+                    <p className="text-xs text-primary/60 mt-1">Compatibility detailed analysis is already free for everyone!</p>
                   </div>
                 </div>
               </div>

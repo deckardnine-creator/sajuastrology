@@ -3,15 +3,15 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { Check, Sparkles, Crown } from "lucide-react"
+import { Check, Sparkles, Crown, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/lib/auth-context"
-import Link from "next/link"
+import { safeSet } from "@/lib/safe-storage"
 
 const plans = [
   {
-    name: "Free Reading",
+    name: "Free",
     price: 0,
     description: "Discover your cosmic blueprint",
     features: [
@@ -19,9 +19,11 @@ const plans = [
       "Day Master & Archetype analysis",
       "Five Elements balance chart",
       "This year's fortune overview",
-      "Shareable cosmic profile card",
+      "Compatibility check — full detailed analysis",
+      "Personalized daily fortune",
+      "Shareable profile & results",
     ],
-    cta: "Get My Free Reading",
+    cta: "Get Started — Free",
     href: "/calculate",
     highlighted: false,
     accent: "#F2CA50",
@@ -33,7 +35,7 @@ const plans = [
     name: "Full Destiny Reading",
     price: 9.99,
     description: "Your complete life blueprint",
-    badge: "BEST VALUE",
+    badge: "MOST POPULAR",
     features: [
       "Everything in Free, plus:",
       "10-year fortune cycle (대운) analysis",
@@ -41,7 +43,8 @@ const plans = [
       "Love & Relationship deep insights",
       "Health & wellness timing guidance",
       "Monthly energy calendar",
-      "Permanent reading page — yours forever",
+      "Hidden talent & life purpose",
+      "Permanent reading — yours forever",
     ],
     cta: "Start Free → Upgrade to Full",
     href: "/calculate",
@@ -85,7 +88,7 @@ export function PricingCards() {
       return
     }
     if (!user) {
-      localStorage.setItem("auth-return-url", window.location.origin + plan.href)
+      safeSet("auth-return-url", window.location.origin + plan.href)
       openSignInModal()
       return
     }

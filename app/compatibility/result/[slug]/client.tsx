@@ -4,14 +4,13 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Heart, Briefcase, Users, Shield, Sparkles, Lock, Share2, Check, RotateCcw } from "lucide-react";
+import { ArrowLeft, Heart, Briefcase, Users, Shield, Sparkles, Share2, Check, RotateCcw, Calendar } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { ELEMENT_COLORS } from "@/lib/constants";
-import { renderMarkdown } from "@/lib/markdown";
 
 interface CompatResult {
   person_a_name: string;
@@ -71,11 +70,7 @@ export default function CompatibilityResultClient() {
         .select("*")
         .eq("share_slug", slug)
         .single();
-
-      if (error || !data) {
-        setLoading(false);
-        return;
-      }
+      if (error || !data) { setLoading(false); return; }
       setResult(data as CompatResult);
       setLoading(false);
     }
@@ -87,7 +82,6 @@ export default function CompatibilityResultClient() {
     const text = result
       ? `${result.person_a_name} & ${result.person_b_name}: ${result.overall_score}% Compatibility — ${getLabel(result.overall_score)} ✦\n\nCheck yours free: ${url}`
       : url;
-
     if (navigator.share) {
       navigator.share({ text, url }).catch(() => {});
     } else {
@@ -124,7 +118,6 @@ export default function CompatibilityResultClient() {
   const emojiA = ELEMENT_EMOJI[result.person_a_element] || "✦";
   const emojiB = ELEMENT_EMOJI[result.person_b_element] || "✦";
   const overallColor = getScoreColor(result.overall_score);
-  const hasPaid = !!result.paid_love;
 
   const categories = [
     { key: "love", label: "Love", icon: Heart, score: result.love_score, color: "#EC4899", content: result.paid_love },
@@ -149,7 +142,6 @@ export default function CompatibilityResultClient() {
           {/* Title Card */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
             <div className="bg-card/50 border border-pink-500/20 rounded-2xl p-6 sm:p-8 text-center">
-              {/* Two people */}
               <div className="flex items-center justify-center gap-4 sm:gap-8 mb-6">
                 <div className="text-center">
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-2" style={{ backgroundColor: `${colorA}20`, border: `2px solid ${colorA}40` }}>
@@ -158,14 +150,11 @@ export default function CompatibilityResultClient() {
                   <p className="font-medium text-sm sm:text-base">{result.person_a_name}</p>
                   <p className="text-xs text-muted-foreground">{result.person_a_day_master}</p>
                 </div>
-
                 <div className="flex flex-col items-center gap-1">
                   <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}>
                     <Heart className="w-6 h-6 text-pink-400" fill="currentColor" />
                   </motion.div>
-                  <span className="text-xs text-muted-foreground/50">×</span>
                 </div>
-
                 <div className="text-center">
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-2" style={{ backgroundColor: `${colorB}20`, border: `2px solid ${colorB}40` }}>
                     <span className="text-2xl sm:text-3xl">{emojiB}</span>
@@ -180,8 +169,7 @@ export default function CompatibilityResultClient() {
                 <div className="relative w-28 h-28 mx-auto mb-3">
                   <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="6" className="text-muted/30" />
-                    <motion.circle
-                      cx="50" cy="50" r="42" fill="none" stroke={overallColor} strokeWidth="6" strokeLinecap="round"
+                    <motion.circle cx="50" cy="50" r="42" fill="none" stroke={overallColor} strokeWidth="6" strokeLinecap="round"
                       strokeDasharray={`${(result.overall_score / 100) * 264} 264`}
                       initial={{ strokeDasharray: "0 264" }}
                       animate={{ strokeDasharray: `${(result.overall_score / 100) * 264} 264` }}
@@ -198,7 +186,6 @@ export default function CompatibilityResultClient() {
                 </p>
               </div>
 
-              {/* Share button */}
               <Button variant="outline" size="sm" className="gap-2 text-xs" onClick={handleShare}>
                 {linkCopied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
                 {linkCopied ? "Copied!" : "Share Result"}
@@ -238,93 +225,76 @@ export default function CompatibilityResultClient() {
             </div>
           </motion.section>
 
-          {/* Paid Detailed Analysis */}
-          {hasPaid ? (
-            <div>
-              {categories.map((cat, i) => cat.content && (
-                <motion.section key={cat.key} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + i * 0.05 }} className="mb-8">
-                  <h2 className="font-serif text-lg font-semibold mb-3 flex items-center gap-2">
-                    <cat.icon className="w-5 h-5" style={{ color: cat.color }} />
-                    {cat.label} Compatibility
-                  </h2>
-                  <div className="bg-card/50 border border-border rounded-2xl p-6 sm:p-8">
-                    <div className="prose prose-invert prose-sm max-w-none">
-                      {cat.content.split("\n\n").map((para, j) => (
-                        <p key={j} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
-                      ))}
-                    </div>
-                  </div>
-                </motion.section>
-              ))}
-
-              {result.paid_yearly && (
-                <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="mb-8">
-                  <h2 className="font-serif text-lg font-semibold mb-3 flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-primary" />
-                    {new Date().getFullYear()} Together
-                  </h2>
-                  <div className="bg-card/50 border border-primary/20 rounded-2xl p-6 sm:p-8">
-                    <div className="prose prose-invert prose-sm max-w-none">
-                      {result.paid_yearly.split("\n\n").map((para, i) => (
-                        <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
-                      ))}
-                    </div>
-                  </div>
-                </motion.section>
-              )}
-            </div>
-          ) : (
-            /* Locked premium content */
-            <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-8">
-              <div className="relative overflow-hidden rounded-2xl border border-border" style={{ minHeight: 220 }}>
-                <div className="p-6 blur-sm select-none pointer-events-none">
-                  <h2 className="font-serif text-lg font-semibold mb-2">Love · Work · Friendship · Conflict</h2>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Your Day Masters create a fascinating dynamic in romantic contexts. The interplay between
-                    your elemental energies suggests a relationship that deepens through mutual challenge...
-                  </p>
-                  <p className="text-muted-foreground text-sm leading-relaxed mt-4">
-                    In professional settings, this pairing excels at complementary problem-solving. Where one
-                    sees the forest, the other counts the trees — and both perspectives are essential...
-                  </p>
+          {/* Detailed Analysis — ALL FREE */}
+          {categories.map((cat, i) => cat.content && (
+            <motion.section key={cat.key} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + i * 0.05 }} className="mb-8">
+              <h2 className="font-serif text-lg font-semibold mb-3 flex items-center gap-2">
+                <cat.icon className="w-5 h-5" style={{ color: cat.color }} />
+                {cat.label} Compatibility
+              </h2>
+              <div className="bg-card/50 border border-border rounded-2xl p-6 sm:p-8">
+                <div className="prose prose-invert prose-sm max-w-none">
+                  {cat.content.split("\n\n").map((para, j) => (
+                    <p key={j} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
+                  ))}
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/70 to-background flex items-end justify-center pb-6">
-                  <div className="text-center px-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                      <Lock className="w-6 h-6 text-primary" />
-                    </div>
-                    <h3 className="font-serif text-lg font-semibold mb-1">Unlock Detailed Analysis</h3>
-                    <p className="text-muted-foreground text-xs mb-3 max-w-xs mx-auto">
-                      4 in-depth sections: Love · Work · Friendship · Conflict Resolution + This year&apos;s forecast together.
-                    </p>
-                    <Link href="/pricing">
-                      <Button className="gold-gradient text-primary-foreground font-semibold px-8">
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Get Full Reading — $9.99
-                      </Button>
-                    </Link>
-                    <p className="text-xs text-muted-foreground/50 mt-2">
-                      Includes your personal reading + all compatibility details
-                    </p>
-                  </div>
+              </div>
+            </motion.section>
+          ))}
+
+          {result.paid_yearly && (
+            <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="mb-8">
+              <h2 className="font-serif text-lg font-semibold mb-3 flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                {new Date().getFullYear()} Together
+              </h2>
+              <div className="bg-card/50 border border-primary/20 rounded-2xl p-6 sm:p-8">
+                <div className="prose prose-invert prose-sm max-w-none">
+                  {result.paid_yearly.split("\n\n").map((para, i) => (
+                    <p key={i} className="text-foreground/90 leading-relaxed mb-4 last:mb-0">{para}</p>
+                  ))}
                 </div>
               </div>
             </motion.section>
           )}
 
+          {/* $9.99 Saju Upsell CTA */}
+          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }} className="mb-8">
+            <div className="bg-gradient-to-br from-primary/5 via-card/80 to-purple-500/5 border border-primary/30 rounded-2xl p-6 sm:p-8 text-center">
+              <Sparkles className="w-8 h-8 text-primary mx-auto mb-3" />
+              <h3 className="font-serif text-xl font-semibold mb-2">
+                Discover Your Personal Destiny
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto mb-2">
+                Your compatibility is shaped by who you are at your core. Unlock your complete Four Pillars reading:
+              </p>
+              <ul className="text-sm text-muted-foreground space-y-1 mb-5 max-w-sm mx-auto">
+                <li className="flex items-center justify-center gap-2"><Check className="w-3.5 h-3.5 text-primary" /> 10-year fortune cycle</li>
+                <li className="flex items-center justify-center gap-2"><Check className="w-3.5 h-3.5 text-primary" /> Career & wealth blueprint</li>
+                <li className="flex items-center justify-center gap-2"><Check className="w-3.5 h-3.5 text-primary" /> Love & relationship patterns</li>
+                <li className="flex items-center justify-center gap-2"><Check className="w-3.5 h-3.5 text-primary" /> Hidden talent & life purpose</li>
+              </ul>
+              <Link href="/calculate">
+                <Button className="gold-gradient text-primary-foreground font-semibold px-8">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Get My Full Reading — $9.99
+                </Button>
+              </Link>
+              <p className="text-xs text-muted-foreground/50 mt-2">Start free, upgrade when ready</p>
+            </div>
+          </motion.section>
+
           {/* Bottom CTAs */}
-          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="space-y-3">
+          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Link href="/compatibility">
                 <Button variant="outline" className="w-full gap-2">
-                  <RotateCcw className="w-4 h-4" />
-                  Check Another Pair
+                  <RotateCcw className="w-4 h-4" /> Check Another Pair
                 </Button>
               </Link>
               <Link href="/calculate">
                 <Button className="w-full gap-2 gold-gradient text-primary-foreground">
-                  <Sparkles className="w-4 h-4" />
-                  Get My Full Reading — Free
+                  <Sparkles className="w-4 h-4" /> Get My Free Reading
                 </Button>
               </Link>
             </div>
