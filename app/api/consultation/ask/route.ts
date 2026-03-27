@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { calculateSaju } from "@/lib/saju-calculator";
 
 // Node.js runtime for longer timeout (no edge)
 export const maxDuration = 300;
@@ -123,19 +124,33 @@ function isInappropriate(text: string): boolean {
   return blocked.some((b) => lower.includes(b));
 }
 
+interface BirthInput {
+  name: string;
+  gender: "male" | "female";
+  year: number;
+  month: number;
+  day: number;
+  hour: number;
+  city: string;
+}
+
 async function handleStart({
   userId,
   category,
   question,
-  birthData,
+  birthInput,
 }: {
   userId: string;
   category: string;
   question: string;
-  birthData: any;
+  birthInput: BirthInput;
 }) {
   if (!userId || !question) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  if (!birthInput || !birthInput.name || !birthInput.gender || !birthInput.city) {
+    return NextResponse.json({ error: "Birth information is required. Please fill in all fields." }, { status: 400 });
   }
 
   // Content moderation
@@ -162,40 +177,42 @@ async function handleStart({
   const creditId = availableCredit.id;
   const currentUsed = availableCredit.used_credits;
 
-  // 3. Get fresh chart data from DB (localStorage can be stale)
-  let chartData = birthData;
-  let hasValidChart = false;
-  try {
-    const readingRes = await sbFetch(
-      `readings?user_id=eq.${userId}&select=name,gender,birth_date,birth_city,day_master_element,day_master_yinyang,archetype,ten_god,harmony_score,dominant_element,weakest_element,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch&order=created_at.desc&limit=1`
-    );
-    const readings = await readingRes.json();
-    if (readings?.length > 0) {
-      hasValidChart = true;
-      const r = readings[0];
-      chartData = {
-        name: r.name, gender: r.gender, birthDate: r.birth_date, birthCity: r.birth_city,
-        dayMaster: { element: r.day_master_element, yinYang: r.day_master_yinyang, en: `${r.day_master_yinyang === "yang" ? "Yang" : "Yin"} ${r.day_master_element.charAt(0).toUpperCase() + r.day_master_element.slice(1)}`, zh: "" },
-        archetype: r.archetype, tenGod: r.ten_god, harmonyScore: r.harmony_score,
-        dominantElement: r.dominant_element, weakestElement: r.weakest_element,
-        elements: { wood: r.elements_wood, fire: r.elements_fire, earth: r.elements_earth, metal: r.elements_metal, water: r.elements_water },
-        elementBalance: { wood: r.elements_wood, fire: r.elements_fire, earth: r.elements_earth, metal: r.elements_metal, water: r.elements_water },
-        pillars: {
-          year: { stem: { zh: r.year_stem, en: "" }, branch: { zh: r.year_branch, en: "" } },
-          month: { stem: { zh: r.month_stem, en: "" }, branch: { zh: r.month_branch, en: "" } },
-          day: { stem: { zh: r.day_stem, en: "" }, branch: { zh: r.day_branch, en: "" } },
-          hour: { stem: { zh: r.hour_stem, en: "" }, branch: { zh: r.hour_branch, en: "" } },
-        },
-      };
-    }
-  } catch { /* Fall back to client-provided data */ }
+  // 3. Calculate saju chart on-the-fly from birth input
+  const birthDate = new Date(birthInput.year, birthInput.month - 1, birthInput.day);
+  const chart = calculateSaju(
+    birthInput.name,
+    birthInput.gender,
+    birthDate,
+    birthInput.hour,
+    birthInput.city
+  );
 
-  // Guard: reject if no reading exists for this user at all
-  if (!hasValidChart && (!birthData || !birthData.dayMaster)) {
-    return NextResponse.json({
-      error: "No Saju chart found for your account. Please generate a free reading first at sajuastrology.com/calculate before using consultations."
-    }, { status: 400 });
-  }
+  // Build chart data for storage and prompt
+  const chartData = {
+    name: chart.name,
+    gender: chart.gender,
+    birthDate: `${birthInput.year}-${String(birthInput.month).padStart(2, "0")}-${String(birthInput.day).padStart(2, "0")}`,
+    birthCity: chart.birthCity,
+    dayMaster: {
+      element: chart.dayMaster.element,
+      yinYang: chart.dayMaster.yinYang,
+      en: chart.dayMaster.en,
+      zh: chart.dayMaster.zh,
+    },
+    archetype: chart.archetype,
+    tenGod: chart.tenGod,
+    harmonyScore: chart.harmonyScore,
+    dominantElement: chart.dominantElement,
+    weakestElement: chart.weakestElement,
+    elements: chart.elements,
+    elementBalance: chart.elements,
+    pillars: {
+      year: { stem: { zh: chart.pillars.year.stem.zh, en: chart.pillars.year.stem.en }, branch: { zh: chart.pillars.year.branch.zh, en: chart.pillars.year.branch.en } },
+      month: { stem: { zh: chart.pillars.month.stem.zh, en: chart.pillars.month.stem.en }, branch: { zh: chart.pillars.month.branch.zh, en: chart.pillars.month.branch.en } },
+      day: { stem: { zh: chart.pillars.day.stem.zh, en: chart.pillars.day.stem.en }, branch: { zh: chart.pillars.day.branch.zh, en: chart.pillars.day.branch.en } },
+      hour: { stem: { zh: chart.pillars.hour.stem.zh, en: chart.pillars.hour.stem.en }, branch: { zh: chart.pillars.hour.branch.zh, en: chart.pillars.hour.branch.en } },
+    },
+  };
 
   // Ask Claude whether clarification is needed
   const chartSummary = formatChartSummary(chartData);
@@ -504,6 +521,18 @@ function formatChartSummary(birthData: any): string {
     }
     if (birthData.archetype) {
       lines.push(`Archetype: ${birthData.archetype}`);
+    }
+    if (birthData.tenGod) {
+      lines.push(`Ten God: ${birthData.tenGod}`);
+    }
+    if (birthData.harmonyScore) {
+      lines.push(`Harmony Score: ${birthData.harmonyScore}/100`);
+    }
+    if (birthData.dominantElement) {
+      lines.push(`Dominant Element: ${birthData.dominantElement}`);
+    }
+    if (birthData.weakestElement) {
+      lines.push(`Weakest Element: ${birthData.weakestElement}`);
     }
     if (birthData.pillars) {
       const p = birthData.pillars;

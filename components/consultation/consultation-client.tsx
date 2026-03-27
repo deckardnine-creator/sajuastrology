@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
+import { searchCities, type City } from "@/lib/cities-data";
+import { safeGet } from "@/lib/safe-storage";
 import Link from "next/link";
 
 /* ─── Types ─── */
@@ -31,6 +33,29 @@ interface Report {
   title: string;
   content: string;
 }
+
+interface BirthData {
+  name: string;
+  gender: "male" | "female" | "";
+  year: number;
+  month: number;
+  day: number;
+  hour: number;
+  cityQuery: string;
+  selectedCity: City | null;
+}
+
+const CURRENT_YEAR = new Date().getFullYear();
+const YEARS = Array.from({ length: 100 }, (_, i) => CURRENT_YEAR - i);
+const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
+
+const HOUR_LABELS: Record<number, string> = {
+  0: "12 AM (Midnight)", 1: "1 AM", 2: "2 AM", 3: "3 AM", 4: "4 AM", 5: "5 AM",
+  6: "6 AM", 7: "7 AM", 8: "8 AM", 9: "9 AM", 10: "10 AM", 11: "11 AM",
+  12: "12 PM (Noon)", 13: "1 PM", 14: "2 PM", 15: "3 PM", 16: "4 PM", 17: "5 PM",
+  18: "6 PM", 19: "7 PM", 20: "8 PM", 21: "9 PM", 22: "10 PM", 23: "11 PM",
+};
 
 const CATEGORIES = [
   { id: "career", label: "Career & Work", icon: Briefcase, color: "#3B82F6" },
@@ -74,6 +99,17 @@ const EXAMPLE_QUESTIONS: Record<string, string[]> = {
   ],
 };
 
+const emptyBirthData = (): BirthData => ({
+  name: "",
+  gender: "",
+  year: CURRENT_YEAR - 25,
+  month: 1,
+  day: 1,
+  hour: 12,
+  cityQuery: "",
+  selectedCity: null,
+});
+
 /* ─── Component ─── */
 
 export function ConsultationClient() {
@@ -83,6 +119,8 @@ export function ConsultationClient() {
 
   const [step, setStep] = useState<Step>("loading");
   const [credits, setCredits] = useState(0);
+  const [birthData, setBirthData] = useState<BirthData>(emptyBirthData());
+  const [birthDataLocked, setBirthDataLocked] = useState(false);
   const [category, setCategory] = useState("");
   const [question, setQuestion] = useState("");
   const [clarifyingQuestions, setClarifyingQuestions] = useState<string[]>([]);
@@ -91,6 +129,55 @@ export function ConsultationClient() {
   const [report, setReport] = useState<Report | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [autoFilled, setAutoFilled] = useState(false);
+
+  /* ─── Auto-fill birth data from existing chart ─── */
+  useEffect(() => {
+    if (autoFilled) return;
+
+    // Try from sajuData (auth context)
+    if (sajuData.chart) {
+      const bd = typeof sajuData.chart.birthDate === "string"
+        ? new Date(sajuData.chart.birthDate)
+        : sajuData.chart.birthDate;
+      setBirthData({
+        name: sajuData.chart.name,
+        gender: sajuData.chart.gender,
+        year: bd.getFullYear(),
+        month: bd.getMonth() + 1,
+        day: bd.getDate(),
+        hour: 12,
+        cityQuery: sajuData.chart.birthCity,
+        selectedCity: { name: sajuData.chart.birthCity, country: "", lat: 0, lng: 0 } as City,
+      });
+      setBirthDataLocked(true);
+      setAutoFilled(true);
+      return;
+    }
+
+    // Try from localStorage
+    try {
+      const raw = safeGet("saju-data");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.chart) {
+          const bd = new Date(parsed.chart.birthDate);
+          setBirthData({
+            name: parsed.chart.name,
+            gender: parsed.chart.gender,
+            year: bd.getFullYear(),
+            month: bd.getMonth() + 1,
+            day: bd.getDate(),
+            hour: 12,
+            cityQuery: parsed.chart.birthCity,
+            selectedCity: { name: parsed.chart.birthCity, country: "", lat: 0, lng: 0 } as City,
+          });
+          setBirthDataLocked(true);
+          setAutoFilled(true);
+        }
+      }
+    } catch {}
+  }, [sajuData.chart, autoFilled]);
 
   /* ─── Warn before leaving during generation ─── */
   useEffect(() => {
@@ -111,7 +198,6 @@ export function ConsultationClient() {
     if (payment === "success" && sessionId && user) {
       verifyPayment(sessionId);
     } else if (payment === "cancelled") {
-      // User cancelled payment — clean URL and stay on page
       router.replace("/consultation");
     }
   }, [searchParams, user]);
@@ -152,7 +238,6 @@ export function ConsultationClient() {
       });
       const data = await res.json();
       if (data.success) {
-        // Clean URL and refresh credits
         router.replace("/consultation");
         checkCredits();
       }
@@ -180,7 +265,6 @@ export function ConsultationClient() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      // Don't override if we're loading a saved report
       const viewId = searchParams.get("view");
       if (!viewId) {
         checkCredits();
@@ -190,12 +274,17 @@ export function ConsultationClient() {
     }
   }, [authLoading, user, checkCredits, searchParams]);
 
+  /* ─── Birth data validation ─── */
+  const isBirthDataValid = birthData.name.trim().length >= 1 &&
+    birthData.gender !== "" &&
+    birthData.selectedCity !== null;
+
   /* ─── Start consultation ─── */
   const handleStartConsultation = async () => {
-    if (!question.trim() || !category || !user) return;
+    if (!question.trim() || !category || !user || !isBirthDataValid) return;
     setIsSubmitting(true);
     setError("");
-    setStep("generating"); // Show loading immediately
+    setStep("generating");
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     try {
@@ -207,7 +296,15 @@ export function ConsultationClient() {
           userId: user.id,
           category,
           question: question.trim(),
-          birthData: sajuData.chart,
+          birthInput: {
+            name: birthData.name.trim(),
+            gender: birthData.gender,
+            year: birthData.year,
+            month: birthData.month,
+            day: birthData.day,
+            hour: birthData.hour,
+            city: birthData.selectedCity!.name,
+          },
         }),
       });
 
@@ -215,7 +312,7 @@ export function ConsultationClient() {
 
       if (!res.ok) {
         setError(data.error || "Something went wrong");
-        setStep("form"); // Go back to form on error
+        setStep("form");
         setIsSubmitting(false);
         return;
       }
@@ -233,7 +330,6 @@ export function ConsultationClient() {
         setStep("report");
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
-        // Unexpected response - go back to form
         setError("Unexpected response. Please try again.");
         setStep("form");
       }
@@ -359,7 +455,6 @@ export function ConsultationClient() {
           >
             <NoCreditsCTA
               isLoggedIn={!!user}
-              hasChart={!!sajuData.chart}
               onPurchase={handlePurchase}
               onSignIn={openSignInModal}
               isSubmitting={isSubmitting}
@@ -386,28 +481,39 @@ export function ConsultationClient() {
               </div>
             </div>
 
-            {!sajuData.chart ? (
-              <div className="bg-card/50 border border-border rounded-2xl p-8 text-center">
-                <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h2 className="font-serif text-xl font-semibold mb-2">
-                  Generate Your Chart First
-                </h2>
-                <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-                  Your Saju consultation requires your birth chart data to deliver a truly personalized reading.
-                  Generate your free Saju reading first — it only takes a minute.
-                </p>
-                <Link href="/calculate" onClick={() => localStorage.setItem("return-to-consultation", "true")}>
-                  <Button className="gold-gradient text-primary-foreground font-semibold" size="lg">
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Generate My Free Reading
-                  </Button>
-                </Link>
-                <p className="text-xs text-muted-foreground/50 mt-4">
-                  Free · No credit card required · Takes 1 minute
-                </p>
+            {/* Birth Data Section */}
+            <div className="bg-card/50 border border-border rounded-2xl p-5 sm:p-6 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-medium text-foreground">Your Birth Information</h3>
+                {birthDataLocked && (
+                  <button
+                    onClick={() => setBirthDataLocked(false)}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Edit
+                  </button>
+                )}
               </div>
-            ) : (
-              <>
+
+              {birthDataLocked && isBirthDataValid ? (
+                /* Locked summary view */
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                  <span className="text-foreground font-medium">{birthData.name}</span>
+                  <span>·</span>
+                  <span>{birthData.gender === "male" ? "♂" : "♀"}</span>
+                  <span>·</span>
+                  <span>{birthData.year}.{String(birthData.month).padStart(2, "0")}.{String(birthData.day).padStart(2, "0")}</span>
+                  <span>·</span>
+                  <span>{HOUR_LABELS[birthData.hour]}</span>
+                  <span>·</span>
+                  <span>{birthData.selectedCity?.name}</span>
+                </div>
+              ) : (
+                /* Editable form */
+                <BirthDataForm data={birthData} onChange={(d) => setBirthData(d)} />
+              )}
+            </div>
+
             {/* Category Selection */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-foreground mb-3">
@@ -489,8 +595,13 @@ export function ConsultationClient() {
             )}
 
             <Button
-              onClick={handleStartConsultation}
-              disabled={!category || question.trim().length < 10 || isSubmitting}
+              onClick={() => {
+                if (!birthDataLocked && isBirthDataValid) {
+                  setBirthDataLocked(true);
+                }
+                handleStartConsultation();
+              }}
+              disabled={!category || question.trim().length < 10 || !isBirthDataValid || isSubmitting}
               className="w-full h-12 gold-gradient text-primary-foreground font-semibold"
               size="lg"
             >
@@ -506,8 +617,6 @@ export function ConsultationClient() {
                 </>
               )}
             </Button>
-              </>
-            )}
           </motion.div>
         )}
 
@@ -622,32 +731,18 @@ export function ConsultationClient() {
               </div>
 
               {/* Chart Info Bar */}
-              {sajuData.chart && (
+              {birthData.name && (
                 <div className="px-6 py-3 border-b border-border bg-card/30 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-4 flex-wrap mb-1.5">
-                    <span className="text-sm font-medium text-foreground">{sajuData.chart.name}</span>
-                    {sajuData.chart.birthDate && (
-                      <>
-                        <span>·</span>
-                        <span>{new Date(sajuData.chart.birthDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
-                      </>
-                    )}
-                    {sajuData.chart.birthCity && (
-                      <>
-                        <span>·</span>
-                        <span>{sajuData.chart.birthCity}</span>
-                      </>
-                    )}
-                  </div>
                   <div className="flex items-center gap-4 flex-wrap">
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-base font-serif text-primary">{sajuData.chart.dayMaster.zh}</span>
-                      {sajuData.chart.dayMaster.en}
-                    </span>
+                    <span className="text-sm font-medium text-foreground">{birthData.name}</span>
                     <span>·</span>
-                    <span>{sajuData.chart.archetype}</span>
-                    <span>·</span>
-                    <span className="capitalize">{sajuData.chart.dayMaster.element} element</span>
+                    <span>{birthData.year}.{String(birthData.month).padStart(2, "0")}.{String(birthData.day).padStart(2, "0")}</span>
+                    {birthData.selectedCity && (
+                      <>
+                        <span>·</span>
+                        <span>{birthData.selectedCity.name}</span>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -692,6 +787,134 @@ export function ConsultationClient() {
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+/* ─── Birth Data Form ─── */
+
+function BirthDataForm({ data, onChange }: { data: BirthData; onChange: (d: BirthData) => void }) {
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+
+  const cityResults = useMemo(() => {
+    if (data.cityQuery.length < 2) return [];
+    return searchCities(data.cityQuery).slice(0, 8);
+  }, [data.cityQuery]);
+
+  useEffect(() => {
+    setShowCityDropdown(cityResults.length > 0 && !data.selectedCity);
+  }, [cityResults, data.selectedCity]);
+
+  const daysInMonth = new Date(data.year, data.month, 0).getDate();
+
+  return (
+    <div className="space-y-4">
+      {/* Name + Gender row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">Full Name</label>
+          <input
+            type="text"
+            value={data.name}
+            onChange={(e) => onChange({ ...data, name: e.target.value })}
+            placeholder="Enter your name"
+            maxLength={50}
+            className="w-full h-11 rounded-xl bg-background/50 border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-muted-foreground mb-1.5">Gender</label>
+          <div className="grid grid-cols-2 gap-2">
+            {(["male", "female"] as const).map((g) => (
+              <button
+                key={g}
+                onClick={() => onChange({ ...data, gender: g })}
+                className={`h-11 rounded-xl border text-sm font-medium transition-all ${
+                  data.gender === g
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-card/50 text-muted-foreground hover:border-muted-foreground/30"
+                }`}
+              >
+                {g === "male" ? "♂ Male" : "♀ Female"}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Birth Date */}
+      <div>
+        <label className="block text-xs text-muted-foreground mb-1.5">Birth Date</label>
+        <div className="grid grid-cols-3 gap-2">
+          <select
+            value={data.year}
+            onChange={(e) => onChange({ ...data, year: Number(e.target.value) })}
+            className="h-11 rounded-xl bg-background/50 border border-border px-2 text-sm text-foreground focus:border-primary transition-colors appearance-none text-center"
+          >
+            {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+          </select>
+          <select
+            value={data.month}
+            onChange={(e) => onChange({ ...data, month: Number(e.target.value), day: Math.min(data.day, new Date(data.year, Number(e.target.value), 0).getDate()) })}
+            className="h-11 rounded-xl bg-background/50 border border-border px-2 text-sm text-foreground focus:border-primary transition-colors appearance-none text-center"
+          >
+            {MONTHS.map((m) => <option key={m} value={m}>{String(m).padStart(2, "0")}</option>)}
+          </select>
+          <select
+            value={data.day}
+            onChange={(e) => onChange({ ...data, day: Number(e.target.value) })}
+            className="h-11 rounded-xl bg-background/50 border border-border px-2 text-sm text-foreground focus:border-primary transition-colors appearance-none text-center"
+          >
+            {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
+              <option key={d} value={d}>{String(d).padStart(2, "0")}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Birth Hour */}
+      <div>
+        <label className="block text-xs text-muted-foreground mb-1.5">Birth Hour <span className="text-muted-foreground/50">(approximate is fine)</span></label>
+        <select
+          value={data.hour}
+          onChange={(e) => onChange({ ...data, hour: Number(e.target.value) })}
+          className="w-full h-11 rounded-xl bg-background/50 border border-border px-3 text-sm text-foreground focus:border-primary transition-colors"
+        >
+          {HOURS.map((h) => <option key={h} value={h}>{HOUR_LABELS[h]}</option>)}
+        </select>
+      </div>
+
+      {/* Birth City */}
+      <div className="relative">
+        <label className="block text-xs text-muted-foreground mb-1.5">Birth City</label>
+        <input
+          type="text"
+          value={data.cityQuery}
+          onChange={(e) => onChange({ ...data, cityQuery: e.target.value, selectedCity: null })}
+          placeholder="Search city (e.g., Seoul, Tokyo, New York)"
+          className="w-full h-11 rounded-xl bg-background/50 border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
+        />
+        {data.selectedCity && (
+          <p className="text-xs text-primary mt-1">✓ {data.selectedCity.name}</p>
+        )}
+        {showCityDropdown && (
+          <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg max-h-48 overflow-y-auto">
+            {cityResults.map((city) => (
+              <button
+                key={`${city.name}-${city.lat}`}
+                onClick={() => {
+                  onChange({ ...data, cityQuery: city.name, selectedCity: city });
+                  setShowCityDropdown(false);
+                }}
+                className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary/10 transition-colors"
+              >
+                <span className="text-foreground">{city.name}</span>
+                <span className="text-muted-foreground/60 ml-2">{city.country}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -878,83 +1101,40 @@ function ConsultationLoader({ category }: { category: string }) {
 
 function NoCreditsCTA({
   isLoggedIn,
-  hasChart,
   onPurchase,
   onSignIn,
   isSubmitting,
 }: {
   isLoggedIn: boolean;
-  hasChart: boolean;
   onPurchase: () => void;
   onSignIn: () => void;
   isSubmitting: boolean;
 }) {
   return (
     <div className="bg-card/50 border border-border rounded-2xl p-8 text-center">
-      {!isLoggedIn || !hasChart ? (
+      {!isLoggedIn ? (
         <>
-          {/* Flow: Free Reading → Consultation */}
-          <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
+          <Crown className="w-12 h-12 text-purple-400 mx-auto mb-4" />
           <h2 className="font-serif text-2xl font-semibold mb-2">
-            Discover Your Cosmic Blueprint
+            Personal Saju Consultations
           </h2>
           <p className="text-muted-foreground text-sm mb-8 max-w-md mx-auto">
-            Start with your free Saju reading to reveal your Four Pillars, then unlock
-            in-depth consultations for any life question.
+            Get in-depth answers to your life questions — career, love, timing, and more — analyzed through the lens of your unique birth chart.
           </p>
-
-          {/* Step cards */}
-          <div className="flex flex-col gap-4 max-w-sm mx-auto mb-8">
-            <div className="flex items-start gap-4 text-left p-4 rounded-xl bg-primary/5 border border-primary/20">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-primary font-bold text-sm">1</span>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-foreground">Get Your Free Saju Reading</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Enter your birth details to generate your Four Pillars chart — takes 1 minute, completely free.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 text-left p-4 rounded-xl bg-card/30 border border-border">
-              <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-purple-400 font-bold text-sm">2</span>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-foreground">Unlock Master Consultations</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  5 personalized sessions for $29.99 — ask about career, love, timing, and more.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {isLoggedIn ? (
-            <Link href="/calculate">
-              <Button
-                className="w-full max-w-sm h-12 gold-gradient text-primary-foreground font-semibold"
-                size="lg"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Generate My Free Reading
-              </Button>
-            </Link>
-          ) : (
-            <Button
-              onClick={onSignIn}
-              className="w-full max-w-sm h-12 gold-gradient text-primary-foreground font-semibold"
-              size="lg"
-            >
-              Sign In &amp; Get Your Free Reading
-            </Button>
-          )}
+          <Button
+            onClick={onSignIn}
+            className="w-full max-w-sm h-12 gold-gradient text-primary-foreground font-semibold"
+            size="lg"
+          >
+            Sign In to Get Started
+          </Button>
           <p className="text-xs text-muted-foreground/50 mt-4">
-            Free · No credit card required
+            5 sessions for $29.99 · No subscription
           </p>
         </>
       ) : (
         <>
-          {/* Has chart, needs credits */}
+          {/* Logged in, needs credits */}
           <Crown className="w-12 h-12 text-purple-400 mx-auto mb-4" />
           <h2 className="font-serif text-2xl font-semibold mb-2">
             Unlock Master Consultations
@@ -976,7 +1156,7 @@ function NoCreditsCTA({
             {[
               "5 personalized consultation sessions",
               "Ask about any area of life",
-              "Detailed analysis through your birth chart",
+              "Just enter your birth details — no prior reading needed",
               "All reports saved to your dashboard",
             ].map((f, i) => (
               <li key={i} className="flex items-center gap-2">
