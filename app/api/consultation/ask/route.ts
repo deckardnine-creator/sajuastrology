@@ -218,73 +218,22 @@ async function handleStart({
     },
   };
 
-  // Ask Claude whether clarification is needed
+  // Skip clarification entirely — generate report directly
   const chartSummary = formatChartSummary(chartData);
 
-  const systemPrompt = `You are a master of Saju (Korean Four Pillars of Destiny), with deep expertise in analyzing birth charts for personalized guidance. You are reviewing a consultation question.
-
-Your task: Decide whether the question needs clarification before you can deliver a precise, personalized reading.
-
-RULES:
-- If the question is specific enough (e.g., "Should I change jobs this year?", "Is 2026 a good year for marriage?"), respond with: {"needsClarification": false}
-- If the question is vague or broad (e.g., "Tell me about my future", "What about love?"), generate 2-3 SHORT, specific clarifying questions that will help you give a much more precise reading.
-- Respond ONLY in valid JSON format.
-- Clarifying questions should be in English, warm and conversational.
-- Each question should be max 1-2 sentences.
-
-JSON format when clarification needed:
-{"needsClarification": true, "questions": ["question1", "question2", "question3"]}
-
-JSON format when no clarification needed:
-{"needsClarification": false}`;
-
-  const userPrompt = `Category: ${category}
-Question: "${question}"
-
-Querent's Saju Chart:
-${chartSummary}
-
-Analyze whether this question needs clarification for a precise Saju consultation. Respond in JSON only.`;
-
-  const claudeResponse = await callClaude(systemPrompt, userPrompt);
-
-  // Parse Claude's response
-  let parsed;
-  try {
-    const cleaned = claudeResponse.replace(/```json\s*|\s*```/g, "").trim();
-    parsed = JSON.parse(cleaned);
-  } catch {
-    parsed = { needsClarification: false };
-  }
-
-  // 4. Create consultation record (credit not yet deducted)
-  const consultationData: any = {
-    user_id: userId,
-    credit_id: creditId,
-    category,
-    initial_question: question,
-    birth_data: chartData,
-    status: parsed.needsClarification ? "clarifying" : "generating",
-  };
-
-  if (parsed.needsClarification) {
-    consultationData.clarifying_questions = parsed.questions;
-  }
-
+  // 4. Create consultation record
   const insertRes = await sbFetch("consultations", {
     method: "POST",
-    body: JSON.stringify(consultationData),
+    body: JSON.stringify({
+      user_id: userId,
+      credit_id: creditId,
+      category,
+      initial_question: question,
+      birth_data: chartData,
+      status: "generating",
+    }),
   });
   const [consultation] = await insertRes.json();
-
-  if (parsed.needsClarification) {
-    // Don't deduct credit yet — only deduct when report is generated successfully
-    return NextResponse.json({
-      consultationId: consultation.id,
-      needsClarification: true,
-      questions: parsed.questions,
-    });
-  }
 
   // 5. Generate report directly — deduct credit only AFTER success
   try {
@@ -331,16 +280,16 @@ Analyze whether this question needs clarification for a precise Saju consultatio
   }
 }
 
-/* --- Submit Answers & Generate --- */
+/* --- Submit Answers (legacy fallback) --- */
 
 async function handleSubmitAnswers({
   consultationId,
-  answers,
+  answers: _answers,
 }: {
   consultationId: string;
   answers: string[];
 }) {
-  if (!consultationId || !answers) {
+  if (!consultationId) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
@@ -354,23 +303,19 @@ async function handleSubmitAnswers({
     return NextResponse.json({ error: "Consultation not found" }, { status: 404 });
   }
 
-  // 2. Save answers & update status
   await sbFetch(`consultations?id=eq.${consultationId}`, {
     method: "PATCH",
-    body: JSON.stringify({
-      clarifying_answers: answers,
-      status: "generating",
-    }),
+    body: JSON.stringify({ status: "generating" }),
   });
 
-  // 3. Generate report
+  // Generate report directly (no clarifying questions)
   try {
     const report = await generateReport({
       category: consultation.category,
       question: consultation.initial_question,
       birthData: consultation.birth_data,
-      clarifyingQuestions: consultation.clarifying_questions,
-      clarifyingAnswers: answers,
+      clarifyingQuestions: null,
+      clarifyingAnswers: null,
       locale: consultation.birth_data?.locale || "en",
     });
 
