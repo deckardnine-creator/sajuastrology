@@ -207,21 +207,23 @@ export function DashboardContent() {
   const [fortune, setFortune] = useState<DailyFortune | null>(null);
   useEffect(() => {
     if (!sajuData.chart) return;
-    // Load locale-specific fortune data
-    const [baseMod, koMod, jaMod] = await Promise.all([
-      import("@/lib/daily-fortune"),
-      import("@/lib/daily-fortune-ko").catch(() => null),
-      import("@/lib/daily-fortune-ja").catch(() => null),
-    ]);
-    setFortune(baseMod.getDailyFortuneLocale(
-      sajuData.chart!.dayMaster.element,
-      dailyScore,
-      locale,
-      koMod?.FORTUNES_KO,
-      jaMod?.FORTUNES_JA,
-    ));
-    });
-  }, [sajuData.chart, dailyScore]);
+    const el = sajuData.chart.dayMaster.element;
+    // Load locale-specific fortune data with proper async IIFE
+    (async () => {
+      const [baseMod, koMod, jaMod] = await Promise.all([
+        import("@/lib/daily-fortune"),
+        import("@/lib/daily-fortune-ko").catch(() => null),
+        import("@/lib/daily-fortune-ja").catch(() => null),
+      ]);
+      setFortune(baseMod.getDailyFortuneLocale(
+        el,
+        dailyScore,
+        locale,
+        (koMod as any)?.FORTUNES_KO,
+        (jaMod as any)?.FORTUNES_JA,
+      ));
+    })();
+  }, [sajuData.chart, dailyScore, locale]);
 
   const handleShareFortune = () => {
     if (!fortune) return;
