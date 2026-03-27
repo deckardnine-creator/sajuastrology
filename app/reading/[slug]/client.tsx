@@ -68,6 +68,28 @@ const ELEMENT_COLORS: Record<string, string> = {
 
 const dateLocaleMap = { en: "en-US", ko: "ko-KR", ja: "ja-JP" } as const;
 
+// Render markdown to styled HTML
+function renderPaidMarkdown(text: string | null): string {
+  if (!text) return "";
+  return text
+    .replace(/^### (.+)$/gm, '<h3 class="font-serif text-base font-semibold text-primary/80 mt-5 mb-2">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="font-serif text-lg font-semibold text-primary border-b border-primary/20 pb-1 mt-7 mb-3">$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 class="font-serif text-xl font-bold text-primary mt-0 mb-4">$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, "<strong class=\"text-foreground font-semibold\">$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em class=\"text-foreground/80\">$1</em>")
+    .replace(/^[-•] (.+)$/gm, "<li class=\"text-foreground/85 leading-relaxed mb-1 ml-4\">$1</li>")
+    .replace(/(<li[^>]*>[\s\S]*?<\/li>\n?)+/g, (m) => \`<ul class="my-3 list-disc space-y-1">\${m}</ul>\`)
+    .replace(/^---$/gm, "<hr class=\"border-border/30 my-5\" />")
+    .split(/\n\n+/)
+    .map(block => {
+      const t = block.trim();
+      if (!t) return "";
+      if (t.startsWith("<")) return t;
+      return \`<p class="text-foreground/85 leading-[1.85] mb-4">\${t.replace(/\n/g, "<br/>")}</p>\`;
+    })
+    .join("\n");
+}
+
 export default function ReadingPageClient() {
   const params = useParams();
   const router = useRouter();
