@@ -131,9 +131,32 @@ function CompatibilityContent() {
     } catch {}
   }, [sajuData.chart, searchParams, autoFilled]);
 
+  // Warn before leaving during generation
+  useEffect(() => {
+    if (step !== "loading") return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "Your compatibility reading is being generated. Please stay on this page.";
+      return e.returnValue;
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [step]);
+
   const handleSubmit = async () => {
     if (!personA.name || !personA.gender || !personA.selectedCity) return;
     if (!personB.name || !personB.gender || !personB.selectedCity) return;
+
+    // Self-compatibility check
+    if (
+      personA.name.trim().toLowerCase() === personB.name.trim().toLowerCase() &&
+      personA.year === personB.year &&
+      personA.month === personB.month &&
+      personA.day === personB.day
+    ) {
+      setError("Looks like you entered the same person twice. Try entering a different partner!");
+      return;
+    }
 
     setStep("loading");
     setLoadingStep(0);
@@ -152,9 +175,13 @@ function CompatibilityContent() {
     }, 300);
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 55000); // 55s timeout
+
       const res = await fetch("/api/compatibility/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           personA: {
             name: personA.name,
@@ -177,6 +204,7 @@ function CompatibilityContent() {
 
       clearInterval(stepTimer);
       clearInterval(progressTimer);
+      clearTimeout(timeout);
 
       const data = await res.json();
       if (!res.ok || !data.shareSlug) {
@@ -186,10 +214,10 @@ function CompatibilityContent() {
       }
 
       router.push(`/compatibility/result/${data.shareSlug}`);
-    } catch {
+    } catch (err: any) {
       clearInterval(stepTimer);
       clearInterval(progressTimer);
-      setError("Network error. Please check your connection.");
+      setError(err?.name === "AbortError" ? "Request timed out. Please try again." : "Network error. Please check your connection.");
       setStep("personB");
     }
   };
