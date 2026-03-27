@@ -9,8 +9,59 @@ import { Button } from "@/components/ui/button"
 import { UserMenu } from "@/components/auth/user-menu"
 import { useAuth } from "@/lib/auth-context"
 import { useLanguage } from "@/lib/language-context"
-import { LanguageSwitcher } from "@/components/ui/language-switcher"
+import type { Locale } from "@/lib/translations"
 import Image from "next/image"
+
+const LOCALES: { code: Locale; flag: string; label: string }[] = [
+  { code: "ko", flag: "🇰🇷", label: "KO" },
+  { code: "en", flag: "🇺🇸", label: "EN" },
+  { code: "ja", flag: "🇯🇵", label: "JA" },
+]
+
+function FlagSwitcher({ className = "", onSelect }: { className?: string; onSelect?: () => void }) {
+  const { locale, setLocale } = useLanguage()
+  return (
+    <div className={`flex items-center gap-0.5 ${className}`}>
+      {LOCALES.map(({ code, flag, label }) => (
+        <button
+          key={code}
+          onClick={() => { setLocale(code); onSelect?.(); }}
+          className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-sm font-medium transition-all min-h-[36px] ${
+            locale === code
+              ? "bg-primary/15 text-primary border border-primary/30"
+              : "text-muted-foreground hover:text-foreground hover:bg-card/60"
+          }`}
+          aria-label={label}
+        >
+          <span className="text-base leading-none">{flag}</span>
+          <span className="text-xs hidden sm:inline">{label}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function MobileFlagSwitcher({ onSelect }: { onSelect: () => void }) {
+  const { locale, setLocale } = useLanguage()
+  return (
+    <div className="flex items-center gap-2 mb-2">
+      {LOCALES.map(({ code, flag, label }) => (
+        <button
+          key={code}
+          onClick={() => { setLocale(code); onSelect(); }}
+          className={`flex flex-col items-center gap-1 px-4 py-3 rounded-xl border text-sm font-medium transition-all min-h-[64px] min-w-[64px] ${
+            locale === code
+              ? "bg-primary/15 border-primary/40 text-primary"
+              : "border-border text-muted-foreground hover:border-primary/30"
+          }`}
+        >
+          <span className="text-2xl">{flag}</span>
+          <span className="text-xs">{label}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -52,8 +103,8 @@ export function Navbar() {
               <Link href="/compatibility" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.compatibility")}</Link>
               <Link href="/consultation" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.consultation")}</Link>
             </div>
-            <div className="hidden md:flex md:items-center md:gap-2">
-              <LanguageSwitcher />
+            <div className="hidden md:flex md:items-center md:gap-3">
+              <FlagSwitcher />
               <UserMenu />
             </div>
             <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-foreground z-50" aria-label="Toggle menu">
@@ -72,7 +123,7 @@ export function Navbar() {
             className="fixed inset-0 z-40 bg-background/98 backdrop-blur-sm md:hidden"
           >
             <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6">
-              <LanguageSwitcher className="mb-2" />
+              <MobileFlagSwitcher onSelect={closeMenu} />
               <Link href="/what-is-saju" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.whatIsSaju")}</Link>
               <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>
               <Link href="/compatibility" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.compatibility")}</Link>

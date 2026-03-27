@@ -112,19 +112,99 @@ export const CITIES: City[] = [
   { name: "Bangalore", country: "India", countryCode: "IN", longitude: 77.5946, latitude: 12.9716, timezone: "Asia/Kolkata" },
 ];
 
+// ─── Localized aliases for Korean/Japanese search ───
+// Key = City.name, Value = array of alternate search terms
+const CITY_ALIASES: Record<string, string[]> = {
+  // Korean cities (한국어)
+  "Seoul":     ["서울", "ソウル"],
+  "Busan":     ["부산", "釜山", "プサン"],
+  "Incheon":   ["인천", "仁川", "インチョン"],
+  "Daegu":     ["대구", "大邱", "テグ"],
+  "Daejeon":   ["대전", "大田", "テジョン"],
+  "Gwangju":   ["광주", "光州", "クァンジュ"],
+  "Suwon":     ["수원", "水原", "スウォン"],
+  "Ulsan":     ["울산", "蔚山", "ウルサン"],
+  "Changwon":  ["창원", "昌原", "チャンウォン"],
+  "Goyang":    ["고양", "高陽", "コヤン"],
+  "Seongnam":  ["성남", "城南", "ソンナム"],
+  "Cheongju":  ["청주", "清州", "チョンジュ"],
+  "Jeonju":    ["전주", "全州", "チョンジュ"],
+  "Jeju":      ["제주", "濟州", "チェジュ"],
+  "Pohang":    ["포항", "浦項", "ポハン"],
+  "Yongin":    ["용인", "龍仁", "ヨンイン"],
+
+  // Japanese cities (日本語)
+  "Tokyo":      ["도쿄", "東京"],
+  "Osaka":      ["오사카", "大阪"],
+  "Kyoto":      ["교토", "京都"],
+  "Yokohama":   ["요코하마", "横浜"],
+  "Nagoya":     ["나고야", "名古屋"],
+  "Sapporo":    ["삿포로", "札幌"],
+  "Fukuoka":    ["후쿠오카", "福岡"],
+  "Kobe":       ["고베", "神戸"],
+  "Hiroshima":  ["히로시마", "広島"],
+  "Sendai":     ["센다이", "仙台"],
+  "Nara":       ["나라", "奈良"],
+  "Okinawa":    ["오키나와", "沖縄"],
+  "Kawasaki":   ["가와사키", "川崎"],
+  "Kitakyushu": ["기타큐슈", "北九州"],
+  "Niigata":    ["니가타", "新潟"],
+
+  // Chinese cities
+  "Beijing":    ["베이징", "北京", "ペキン"],
+  "Shanghai":   ["상하이", "上海", "シャンハイ"],
+  "Hong Kong":  ["홍콩", "香港", "ホンコン"],
+  "Guangzhou":  ["광저우", "広州", "グァンジョウ"],
+  "Shenzhen":   ["선전", "深圳", "シンセン"],
+
+  // Major international cities
+  "New York":       ["뉴욕", "ニューヨーク"],
+  "Los Angeles":    ["로스앤젤레스", "LA", "엘에이", "ロサンゼルス"],
+  "Chicago":        ["시카고", "シカゴ"],
+  "San Francisco":  ["샌프란시스코", "サンフランシスコ"],
+  "Seattle":        ["시애틀", "シアトル"],
+  "Boston":         ["보스턴", "ボストン"],
+  "Miami":          ["마이애미", "マイアミ"],
+  "Washington DC":  ["워싱턴", "ワシントン"],
+  "Las Vegas":      ["라스베이거스", "ラスベガス"],
+  "Honolulu":       ["호놀룰루", "ホノルル"],
+  "London":         ["런던", "ロンドン"],
+  "Paris":          ["파리", "パリ"],
+  "Berlin":         ["베를린", "ベルリン"],
+  "Rome":           ["로마", "ローマ"],
+  "Madrid":         ["마드리드", "マドリード"],
+  "Amsterdam":      ["암스테르담", "アムステルダム"],
+  "Singapore":      ["싱가포르", "シンガポール"],
+  "Bangkok":        ["방콕", "バンコク"],
+  "Sydney":         ["시드니", "シドニー"],
+  "Melbourne":      ["멜버른", "メルボルン"],
+  "Toronto":        ["토론토", "トロント"],
+  "Vancouver":      ["밴쿠버", "バンクーバー"],
+  "Dubai":          ["두바이", "ドバイ"],
+  "Mumbai":         ["뭄바이", "ムンバイ"],
+  "Delhi":          ["델리", "デリー"],
+};
+
 export function searchCities(query: string): City[] {
   if (!query || query.length < 2) return [];
   const lowerQuery = query.toLowerCase();
-  return CITIES.filter(
-    (city) =>
-      city.name.toLowerCase().includes(lowerQuery) ||
-      city.country.toLowerCase().includes(lowerQuery)
-  ).slice(0, 8);
+
+  return CITIES.filter((city) => {
+    // English name / country match
+    if (city.name.toLowerCase().includes(lowerQuery)) return true;
+    if (city.country.toLowerCase().includes(lowerQuery)) return true;
+
+    // Localized alias match (Korean / Japanese)
+    const aliases = CITY_ALIASES[city.name];
+    if (aliases) {
+      return aliases.some((alias) => alias.toLowerCase().includes(lowerQuery));
+    }
+
+    return false;
+  }).slice(0, 8);
 }
 
 export function calculateSolarVariance(longitude: number): string {
-  // Calculate the difference from standard time meridian
-  // Each 15 degrees = 1 hour = 60 minutes
   const minutesOffset = (longitude % 15) * 4;
   const absMinutes = Math.abs(minutesOffset);
   const mins = Math.floor(absMinutes);
