@@ -443,6 +443,7 @@ const translations = {
   "reading.genStep6Sub": { en: "Unveiling your cosmic gift...", ko: "우주적 선물을 드러내는 중...", ja: "宇宙の贈り物を明かしています..." },
   "reading.genDone": { en: "Done", ko: "완료", ja: "完了" },
   "reading.genTakes": { en: "This takes about 15-20 seconds — your reading is being personally crafted, not pulled from a template.", ko: "약 15-20초 소요 — 템플릿이 아닌 맞춤 리딩을 생성 중입니다.", ja: "約15〜20秒 — テンプレートではなく、あなた専用の鑑定を作成中です。" },
+  "reading.doNotLeave": { en: "Do not close or leave this page — your reading is being generated.", ko: "이 페이지를 닫거나 이탈하지 마세요 — 리딩을 생성 중입니다.", ja: "このページを閉じたり離れたりしないでください — 鑑定を生成中です。" },
   "reading.shareReading": { en: "Share this reading", ko: "사주 공유하기", ja: "鑑定を共有" },
   "reading.shareSub": { en: "Send the link to friends or family", ko: "친구나 가족에게 링크를 보내세요", ja: "友人や家族にリンクを送信" },
   "reading.shareCosmicId": { en: "Share Your Cosmic Identity", ko: "우주적 정체성을 공유하세요", ja: "宇宙のアイデンティティを共有" },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -105,6 +105,7 @@ export default function ReadingPageClient() {
   const [paidGenerationFailed, setPaidGenerationFailed] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [claimed, setClaimed] = useState(false);
+  const isPaidGeneratingRef = useRef(false); // Prevent duplicate generatePaidContent calls
 
   // Reset payment loading when user returns from Stripe (browser tab regains focus)
   useEffect(() => {
@@ -165,19 +166,30 @@ export default function ReadingPageClient() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [paidContentLoading]);
 
-  // Re-fetch reading from Supabase (used after generation completes)
+  // Re-fetch reading from Supabase — retry until paid content appears (max 6 attempts, 1s interval)
   const refreshReading = async () => {
-    const { data } = await supabase
-      .from("readings")
-      .select("*")
-      .eq("share_slug", slug)
-      .single();
+    for (let i = 0; i < 6; i++) {
+      if (i > 0) await new Promise((r) => setTimeout(r, 1000));
+      const { data } = await supabase
+        .from("readings")
+        .select("*")
+        .eq("share_slug", slug)
+        .single();
+      if (data && (data as ReadingData).paid_reading_career) {
+        setReading(data as ReadingData);
+        return data as ReadingData;
+      }
+    }
+    // Last attempt — set whatever we have even without paid content
+    const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
     if (data) setReading(data as ReadingData);
     return data as ReadingData | null;
   };
 
   // Generate paid content and update state in-place (no page reload)
   const generatePaidContent = async () => {
+    if (isPaidGeneratingRef.current) return; // Prevent duplicate calls
+    isPaidGeneratingRef.current = true;
     setPaidContentLoading(true);
     setPaidGenerationFailed(false);
     setGenerationStep(0);
@@ -210,6 +222,7 @@ export default function ReadingPageClient() {
       await new Promise((resolve) => setTimeout(resolve, 800));
       await refreshReading();
       setPaidContentLoading(false);
+      isPaidGeneratingRef.current = false;
 
       // Wait for React to render paid sections, then scroll
       setTimeout(() => {
@@ -225,6 +238,7 @@ export default function ReadingPageClient() {
       console.error("Paid generation error:", err);
       setPaidContentLoading(false);
       setPaidGenerationFailed(true);
+      isPaidGeneratingRef.current = false;
     }
   };
 
@@ -785,6 +799,12 @@ export default function ReadingPageClient() {
                       animate={{ width: `${Math.min((generationStep / 6) * 100, 100)}%` }}
                       transition={{ duration: 0.5 }}
                     />
+                  </div>
+                  {/* Do not leave warning */}
+                  <div className="mt-4 bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2">
+                    <p className="text-[11px] text-amber-400/80 text-center">
+                      ⚠️ {t("reading.doNotLeave", locale)}
+                    </p>
                   </div>
                   <p className="text-center text-xs text-muted-foreground/50 mt-3">
                     {t("reading.genTakes", locale)}
