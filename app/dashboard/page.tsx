@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
 import { MobileDashboardNav } from "@/components/dashboard/mobile-dashboard-nav";
+import { Navbar } from "@/components/landing/navbar";
 
 export default function DashboardPage() {
   const { user, isLoading, openSignInModal } = useAuth();
@@ -48,7 +49,8 @@ export default function DashboardPage() {
 
       {/* Mobile Layout */}
       <div className="md:hidden">
-        <main className="pb-20 px-4 pt-4">
+        <Navbar />
+        <main className="pb-20 px-4 pt-20">
           <DashboardContent />
         </main>
         <MobileDashboardNav />

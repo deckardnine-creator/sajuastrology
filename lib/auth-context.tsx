@@ -189,7 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     safeRemove("current-user-id");
     safeRemove("return-to-consultation");
     safeRemove("auth-return-url");
-    window.location.href = "/";
+    // Redirect handled by caller (navbar / user-menu)
   };
 
   const saveSajuChart = (chart: SajuChart) => {

@@ -80,7 +80,7 @@ export function Navbar() {
   const handleSignOut = async () => {
     closeMenu()
     await signOut()
-    router.push("/")
+    window.location.href = "/"
   }
 
   return (

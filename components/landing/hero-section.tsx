@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowRight, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,18 @@ const pillars = [
 
 export function HeroSection() {
   const [showComingSoon, setShowComingSoon] = useState<"ios" | "android" | null>(null)
+  const [particles, setParticles] = useState<{x: string; y: string; scale: number; duration: number}[]>([])
+
+  useEffect(() => {
+    setParticles(
+      Array.from({ length: 20 }, () => ({
+        x: Math.random() * 100 + "%",
+        y: Math.random() * 100 + "%",
+        scale: Math.random() * 0.5 + 0.5,
+        duration: Math.random() * 10 + 10,
+      }))
+    )
+  }, [])
   const { t } = useLanguage()
 
   const handleAppClick = (platform: "ios" | "android") => {
@@ -45,17 +57,13 @@ export function HeroSection() {
 
       {/* Particles */}
       <div className="absolute inset-0 overflow-hidden">
-        {[...Array(20)].map((_, i) => (
+        {particles.map((p, i) => (
           <motion.div
             key={i}
             className="absolute w-1 h-1 rounded-full bg-primary/30"
-            initial={{
-              x: Math.random() * 100 + "%",
-              y: Math.random() * 100 + "%",
-              scale: Math.random() * 0.5 + 0.5,
-            }}
+            initial={{ x: p.x, y: p.y, scale: p.scale }}
             animate={{ y: [null, "-20%"], opacity: [0.3, 0.8, 0.3] }}
-            transition={{ duration: Math.random() * 10 + 10, repeat: Infinity, ease: "linear" }}
+            transition={{ duration: p.duration, repeat: Infinity, ease: "linear" }}
           />
         ))}
       </div>

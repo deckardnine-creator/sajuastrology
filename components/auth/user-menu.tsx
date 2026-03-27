@@ -71,10 +71,8 @@ export function UserMenu() {
     setSigningOut(true);
     try {
       await signOut();
-    } catch {
-      // Force navigation even if signOut errors
-      window.location.href = "/";
-    }
+    } catch {}
+    window.location.href = "/";
   };
 
   return (
