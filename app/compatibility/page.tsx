@@ -165,6 +165,7 @@ function CompatibilityContent() {
     setLoadingStep(0);
     setProgress(0);
     setError("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     // Start loading animation
     const stepTimer = setInterval(() => {
@@ -179,7 +180,7 @@ function CompatibilityContent() {
 
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 55000); // 55s timeout
+      const timeout = setTimeout(() => controller.abort(), 58000); // 58s timeout
 
       const res = await fetch("/api/compatibility/generate", {
         method: "POST",
@@ -244,7 +245,7 @@ function CompatibilityContent() {
           {/* Back button */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6">
             <button
-              onClick={() => step === "personB" ? setStep("personA") : router.back()}
+              onClick={() => { if (step === "personB") { setStep("personA"); window.scrollTo({ top: 0, behavior: "smooth" }); } else { router.back(); } }}
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -307,7 +308,7 @@ function CompatibilityContent() {
                 />
 
                 <Button
-                  onClick={() => setStep("personB")}
+                  onClick={() => { setStep("personB"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                   disabled={!isAValid}
                   className="w-full h-12 gold-gradient text-primary-foreground font-semibold mt-6"
                 >
@@ -473,7 +474,11 @@ function PersonForm({ label, data, onChange, locale }: {
         <input
           type="text"
           value={data.cityQuery}
-          onChange={(e) => onChange({ ...data, cityQuery: e.target.value, selectedCity: null })}
+          onChange={(e) => {
+              const val = e.target.value;
+              onChange({ ...data, cityQuery: val, selectedCity: data.selectedCity && val !== data.selectedCity.name ? null : data.selectedCity });
+            }}
+          onBlur={() => setTimeout(() => setShowCityDropdown(false), 200)}
           placeholder={t("form.cityPlaceholder", locale)}
           className="w-full h-11 rounded-xl bg-background/50 border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
         />

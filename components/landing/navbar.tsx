@@ -13,9 +13,9 @@ import type { Locale } from "@/lib/translations"
 import Image from "next/image"
 
 const LOCALES: { code: Locale; label: string; name: string }[] = [
-  { code: "ko", label: "KO", name: "한국어" },
   { code: "en", label: "EN", name: "English" },
   { code: "ja", label: "JA", name: "日本語" },
+  { code: "ko", label: "KO", name: "한국어" },
 ]
 
 // Desktop: compact pill switcher

@@ -2,17 +2,24 @@
 
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
-import { LanguageSwitcher } from "@/components/ui/language-switcher"
+import type { Locale } from "@/lib/translations"
+
+const LOCALES: { code: Locale; label: string }[] = [
+  { code: "en", label: "EN" },
+  { code: "ja", label: "JA" },
+  { code: "ko", label: "KO" },
+]
 
 export function Footer() {
-  const { t } = useLanguage()
+  const { t, locale, setLocale } = useLanguage()
 
   const footerLinks = [
     { label: t("nav.whatIsSaju"), href: "/what-is-saju" },
-    { label: t("nav.pricing"), href: "/pricing" },
+    { label: t("nav.pricing"),    href: "/pricing" },
+    { label: t("nav.compatibility"), href: "/compatibility" },
     { label: t("nav.consultation"), href: "/consultation" },
     { label: t("footer.privacy"), href: "/privacy" },
-    { label: t("footer.terms"), href: "/terms" },
+    { label: t("footer.terms"),   href: "/terms" },
   ]
 
   return (
@@ -25,23 +32,37 @@ export function Footer() {
             <span className="font-serif text-xl font-bold text-primary">SajuAstrology</span>
           </Link>
 
-          {/* Nav */}
-          <nav className="flex flex-wrap justify-center gap-x-5 gap-y-3">
+          {/* Nav — wraps nicely on mobile */}
+          <nav className="flex flex-wrap justify-center gap-x-4 gap-y-3 max-w-md sm:max-w-none">
             {footerLinks.map(link => (
-              <Link key={link.label} href={link.href}
+              <Link key={link.href} href={link.href}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* Copyright + Language */}
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          {/* Copyright + Language switcher */}
+          <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap justify-center">
             <span>&copy; 2026 SajuAstrology.com</span>
-            <LanguageSwitcher />
+            <div className="flex items-center bg-muted/30 rounded-lg p-0.5 gap-0.5">
+              {LOCALES.map(({ code, label }) => (
+                <button
+                  key={code}
+                  onClick={() => setLocale(code)}
+                  className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                    locale === code
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Business info — mobile friendly */}
+          {/* Business info */}
           <div className="border-t border-border w-full pt-6">
             <div className="flex flex-col items-center gap-1.5 text-center">
               <p className="text-xs font-medium text-muted-foreground/80">Rimfactory</p>
@@ -55,7 +76,7 @@ export function Footer() {
                 <span className="hidden sm:inline">|</span>
                 <span>+82-10-4648-6793</span>
               </div>
-              <p className="text-xs text-muted-foreground/55 max-w-xs sm:max-w-none text-center leading-relaxed">
+              <p className="text-xs text-muted-foreground/55 max-w-xs text-center leading-relaxed">
                 243, 1F, Sindorim Technomart, 97 Saemallo, Guro-gu, Seoul, Korea
               </p>
             </div>
