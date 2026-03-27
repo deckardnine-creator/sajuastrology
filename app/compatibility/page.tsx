@@ -27,11 +27,11 @@ const HOUR_LABELS: Record<number, string> = {
 };
 
 const LOADING_STEPS = [
-  { icon: "☯", label: "Comparing Day Masters", sub: "The core of who you both are" },
-  { icon: "🔥", label: "Analyzing element flow", sub: "How your energies interweave" },
-  { icon: "🌊", label: "Checking branch harmony", sub: "Hidden bonds and tensions" },
-  { icon: "💫", label: "Measuring complement", sub: "What you give each other" },
-  { icon: "📜", label: "Weaving your story", sub: "Crafting your compatibility reading…" },
+  { icon: "☯", label: "Decoding your Day Masters", sub: "Reading the cosmic DNA of two souls" },
+  { icon: "🔥", label: "Measuring elemental chemistry", sub: "Some elements ignite, others soothe" },
+  { icon: "💫", label: "Tracing branch harmonies", sub: "Hidden bonds written in the stars" },
+  { icon: "⚡", label: "Detecting cosmic friction", sub: "A little tension makes things interesting" },
+  { icon: "📜", label: "Crafting your story", sub: "Every pair has a unique chapter" },
 ];
 
 interface PersonData {
@@ -212,6 +212,13 @@ function CompatibilityContent() {
         setStep("personB");
         return;
       }
+
+      // Save slug for dashboard claiming (if user logs in later)
+      try {
+        const pending = JSON.parse(safeGet("pending-compat-slugs") || "[]");
+        pending.push(data.shareSlug);
+        safeSet("pending-compat-slugs", JSON.stringify(pending.slice(-10)));
+      } catch {}
 
       router.push(`/compatibility/result/${data.shareSlug}`);
     } catch (err: any) {
@@ -498,45 +505,60 @@ function CompatibilityLoader({ activeStep, progress, nameA, nameB }: {
   nameB: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh]">
+    <div className="flex flex-col items-center justify-center min-h-[55vh]">
       <div className="w-full max-w-md">
-        {/* Two circles merging */}
-        <div className="flex justify-center mb-8">
-          <div className="relative w-32 h-16">
+        {/* Orbiting circles */}
+        <div className="flex justify-center mb-10">
+          <div className="relative w-40 h-40">
+            {/* Outer ring */}
             <motion.div
-              className="absolute left-0 top-0 w-16 h-16 rounded-full border-2 border-primary/40 flex items-center justify-center"
-              animate={{ x: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute inset-0 rounded-full border border-pink-500/20"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            />
+            {/* Person A orbiting */}
+            <motion.div
+              className="absolute w-14 h-14 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center"
+              animate={{
+                left: ["10%", "60%", "60%", "10%", "10%"],
+                top: ["20%", "10%", "60%", "70%", "20%"],
+              }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
             >
-              <span className="text-xs text-primary font-medium">{nameA.split(" ")[0]}</span>
+              <span className="text-xs font-bold text-primary truncate max-w-[3rem]">{nameA.split(" ")[0]}</span>
             </motion.div>
+            {/* Person B orbiting */}
             <motion.div
-              className="absolute right-0 top-0 w-16 h-16 rounded-full border-2 border-pink-400/40 flex items-center justify-center"
-              animate={{ x: [0, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute w-14 h-14 rounded-full bg-pink-500/10 border border-pink-500/30 flex items-center justify-center"
+              animate={{
+                left: ["60%", "10%", "10%", "60%", "60%"],
+                top: ["60%", "70%", "20%", "10%", "60%"],
+              }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
             >
-              <span className="text-xs text-pink-300 font-medium">{nameB.split(" ")[0]}</span>
+              <span className="text-xs font-bold text-pink-300 truncate max-w-[3rem]">{nameB.split(" ")[0]}</span>
             </motion.div>
+            {/* Center pulse */}
             <motion.div
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-              animate={{ scale: [0.8, 1.2, 0.8], opacity: [0.3, 1, 0.3] }}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center"
+              animate={{ scale: [1, 1.4, 1], opacity: [0.5, 1, 0.5] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <Heart className="w-5 h-5 text-pink-400" />
+              <Heart className="w-4 h-4 text-pink-400" />
             </motion.div>
           </div>
         </div>
 
-        <h3 className="font-serif text-xl text-center mb-2">Reading the Connection</h3>
+        <h3 className="font-serif text-xl text-center mb-1">Reading the Stars</h3>
         <p className="text-xs text-center text-muted-foreground/60 mb-6">
-          Analyzing how your Four Pillars interweave
+          Analyzing {nameA.split(" ")[0]} & {nameB.split(" ")[0]}{"'"}s cosmic connection
         </p>
 
         {/* Progress bar */}
         <div className="relative h-1.5 bg-white/5 rounded-full mb-8 overflow-hidden">
           <motion.div
             className="absolute inset-y-0 left-0 rounded-full"
-            style={{ width: `${progress}%`, background: "linear-gradient(90deg, #ec489966, #a855f7)" }}
+            style={{ width: `${progress}%`, background: "linear-gradient(90deg, #F2CA50, #EC4899, #A855F7)" }}
             transition={{ duration: 0.4 }}
           />
         </div>
@@ -557,7 +579,7 @@ function CompatibilityLoader({ activeStep, progress, nameA, nameB }: {
               >
                 <span className="text-lg w-7 text-center flex-shrink-0">{isDone ? "✓" : s.icon}</span>
                 <div className="min-w-0 flex-1">
-                  <p className={`text-sm font-medium ${isActive ? "text-pink-300" : "text-muted-foreground"}`}>{s.label}</p>
+                  <p className={`text-sm font-medium ${isActive ? "text-pink-300" : isDone ? "text-muted-foreground/80" : "text-muted-foreground"}`}>{s.label}</p>
                   {isActive && (
                     <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
                       className="text-xs text-muted-foreground/70 mt-0.5">{s.sub}</motion.p>
@@ -572,7 +594,7 @@ function CompatibilityLoader({ activeStep, progress, nameA, nameB }: {
         </div>
 
         <p className="text-center text-[11px] text-muted-foreground/40 mt-8">
-          Your compatibility reading is uniquely crafted — this takes 15-20 seconds
+          Crafting a reading unique to this pair — about 15 seconds
         </p>
       </div>
     </div>

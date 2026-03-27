@@ -117,11 +117,27 @@ export function DashboardContent() {
     fetchReadings();
   }, [user, claimTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Fetch compatibility results
+  // Fetch compatibility results + claim unclaimed ones
   useEffect(() => {
     if (!user) return;
     (async () => {
       try {
+        // Claim unclaimed compat results from localStorage
+        const pendingRaw = safeGet("pending-compat-slugs");
+        if (pendingRaw) {
+          try {
+            const pending = JSON.parse(pendingRaw) as string[];
+            for (const slug of pending) {
+              await supabase
+                .from("compatibility_results")
+                .update({ user_id: user.id })
+                .eq("share_slug", slug)
+                .is("user_id", null);
+            }
+            safeSet("pending-compat-slugs", "[]");
+          } catch {}
+        }
+
         const { data } = await supabase
           .from("compatibility_results")
           .select("id,person_a_name,person_b_name,person_a_element,person_b_element,overall_score,share_slug,created_at")
