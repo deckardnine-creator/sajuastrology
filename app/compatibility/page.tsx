@@ -555,12 +555,19 @@ function CompatibilityLoader({ activeStep, progress, nameA, nameB }: {
         </p>
 
         {/* Progress bar */}
-        <div className="relative h-1.5 bg-white/5 rounded-full mb-8 overflow-hidden">
+        <div className="relative h-1.5 bg-white/5 rounded-full mb-6 overflow-hidden">
           <motion.div
             className="absolute inset-y-0 left-0 rounded-full"
             style={{ width: `${progress}%`, background: "linear-gradient(90deg, #F2CA50, #EC4899, #A855F7)" }}
             transition={{ duration: 0.4 }}
           />
+        </div>
+
+        {/* Do not leave warning */}
+        <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2 mb-6">
+          <p className="text-[11px] text-amber-400/80 text-center">
+            ⚠️ Please stay on this page — leaving may interrupt the reading.
+          </p>
         </div>
 
         {/* Steps */}
