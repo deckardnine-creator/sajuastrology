@@ -1255,10 +1255,11 @@ function renderMarkdown(md: string): string {
   // Horizontal rules
   text = text.replace(/^---+$/gm, '<hr class="my-6 border-border/50" />');
 
-  // Headers (process ### before ## before #)
-  text = text.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-  text = text.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-  text = text.replace(/^# (.+)$/gm, '<h2>$1</h2>');
+  // Headers (process deepest first: #### → ### → ## → #)
+  text = text.replace(/^####\s+(.+)$/gm, '<h4>$1</h4>');
+  text = text.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
+  text = text.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>');
+  text = text.replace(/^#\s+(.+)$/gm, '<h2>$1</h2>');
 
   // Bold & italic (order matters)
   text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');

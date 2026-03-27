@@ -414,9 +414,10 @@ TARGET LENGTH: 2,500-3,500 words. Be thorough and specific. Every paragraph shou
 CRITICAL FORMATTING RULES — YOU MUST FOLLOW THESE EXACTLY:
 - Start with the title as: # Title Text
 - Every section MUST begin with: ## Section Name
+- Subsections use: ### Subsection Name
+- NEVER use #### or deeper heading levels
 - Use **bold** for key terms and important phrases
 - Use bullet lists with - for lists of recommendations
-- Use ### for subsections within a section
 - Separate sections with blank lines
 - Example of correct format:
   # Your Career Crossroads: Navigating Change in 2026
@@ -426,6 +427,9 @@ CRITICAL FORMATTING RULES — YOU MUST FOLLOW THESE EXACTLY:
   
   ## Chart Analysis
   Your Day Master is...
+  
+  ### Day Master Details
+  ...
   
   ## Current Cycle Reading
   ...`;
