@@ -207,11 +207,12 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
   }, [maxDay, dayIdx]);
 
   useEffect(() => {
-    if (cityQuery.length < 2) { setCityResults([]); setShowCityDropdown(false); return; }
+    // Don't show dropdown if city is already selected — prevents blocking submit button
+    if (cityQuery.length < 2 || selectedCity) { setCityResults([]); setShowCityDropdown(false); return; }
     const results = searchCities(cityQuery);
     setCityResults(results);
     setShowCityDropdown(results.length > 0);
-  }, [cityQuery]);
+  }, [cityQuery, selectedCity]);
 
   const handleCitySelect = (city: City) => {
     setSelectedCity(city);
@@ -369,18 +370,14 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input type="text" placeholder={t("form.cityOfBirth", locale)} value={cityQuery}
                     onChange={(e)=>{
-                      const val = e.target.value;
-                      setCityQuery(val);
-                      // Only clear selected city if user actually changes the text
-                      if (selectedCity && val !== selectedCity.name) setSelectedCity(null);
+                      const v=e.target.value;
+                      setCityQuery(v);
+                      if(selectedCity && v!==selectedCity.name) setSelectedCity(null);
                     }}
+                    onBlur={()=>setTimeout(()=>setShowCityDropdown(false),200)}
                     onFocus={(e)=>{
                       if(cityResults.length>0) setShowCityDropdown(true);
                       setTimeout(()=>e.target.scrollIntoView({behavior:"smooth",block:"center"}),300);
-                    }}
-                    onBlur={()=>{
-                      // Delay hiding dropdown so mobile tap on city button registers first
-                      setTimeout(()=>setShowCityDropdown(false), 200);
                     }}
                     className="pl-10 bg-background/50 border-border focus:border-primary" />
                   {showCityDropdown && (

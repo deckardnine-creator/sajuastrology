@@ -185,9 +185,26 @@ const CITY_ALIASES: Record<string, string[]> = {
   "Delhi":          ["델리", "デリー"],
 };
 
+// Korean chosung (초성) extractor
+const CHOSUNG_LIST = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+
+function getChosung(str: string): string {
+  return str.split('').map(ch => {
+    const code = ch.charCodeAt(0) - 0xAC00;
+    if (code < 0 || code > 11171) return ch; // not a Korean syllable
+    return CHOSUNG_LIST[Math.floor(code / 588)];
+  }).join('');
+}
+
+// Check if query is all chosung (e.g. "ㅅㅇ" for 서울)
+function isChosungOnly(str: string): boolean {
+  return str.split('').every(ch => CHOSUNG_LIST.includes(ch));
+}
+
 export function searchCities(query: string): City[] {
-  if (!query || query.length < 2) return [];
+  if (!query || query.length < 1) return [];
   const lowerQuery = query.toLowerCase();
+  const chosungQuery = isChosungOnly(query) ? query : null;
 
   return CITIES.filter((city) => {
     // English name / country match
@@ -197,7 +214,14 @@ export function searchCities(query: string): City[] {
     // Localized alias match (Korean / Japanese)
     const aliases = CITY_ALIASES[city.name];
     if (aliases) {
-      return aliases.some((alias) => alias.toLowerCase().includes(lowerQuery));
+      for (const alias of aliases) {
+        // Exact substring match
+        if (alias.toLowerCase().includes(lowerQuery)) return true;
+        // Korean chosung match: ㅅ matches 서울, ㅅㅇ matches 서울
+        if (chosungQuery && getChosung(alias).startsWith(chosungQuery)) return true;
+        // Partial Korean syllable match: "서" matches "서울", "부" matches "부산"
+        if (alias.startsWith(query)) return true;
+      }
     }
 
     return false;

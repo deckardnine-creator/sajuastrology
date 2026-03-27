@@ -895,7 +895,11 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
         <input
           type="text"
           value={data.cityQuery}
-          onChange={(e) => onChange({ ...data, cityQuery: e.target.value, selectedCity: null })}
+          onChange={(e) => {
+              const v = e.target.value;
+              onChange({ ...data, cityQuery: v, selectedCity: data.selectedCity && v !== data.selectedCity.name ? null : data.selectedCity });
+            }}
+            onBlur={() => setTimeout(() => setShowCityDropdown(false), 200)}
           placeholder={t("form.cityPlaceholder", locale)}
           className="w-full h-11 rounded-xl bg-background/50 border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
         />

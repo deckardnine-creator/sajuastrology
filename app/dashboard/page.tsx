@@ -9,15 +9,10 @@ import { MobileDashboardNav } from "@/components/dashboard/mobile-dashboard-nav"
 export default function DashboardPage() {
   const { user, isLoading, openSignInModal } = useAuth();
 
-  // Scroll to top on page entry
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      openSignInModal();
-    }
+    if (!isLoading && !user) openSignInModal();
   }, [isLoading, user, openSignInModal]);
 
   if (isLoading) {
@@ -33,10 +28,7 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center px-4">
           <p className="text-muted-foreground mb-4">Please sign in to access your dashboard</p>
-          <button
-            onClick={openSignInModal}
-            className="text-primary hover:underline min-h-[44px]"
-          >
+          <button onClick={openSignInModal} className="text-primary hover:underline min-h-[44px]">
             Sign In
           </button>
         </div>
@@ -46,15 +38,15 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Desktop Layout */}
-      <div className="hidden md:flex">
+      {/* Desktop Layout — min-h-screen ensures content centers properly */}
+      <div className="hidden md:flex min-h-screen">
         <DashboardSidebar />
-        <main className="flex-1 ml-64 p-8">
+        <main className="flex-1 ml-64 p-8 flex flex-col">
           <DashboardContent />
         </main>
       </div>
 
-      {/* Mobile Layout — pb-20 for bottom nav (h-14 + safe area) */}
+      {/* Mobile Layout */}
       <div className="md:hidden">
         <main className="pb-20 px-4 pt-4">
           <DashboardContent />
