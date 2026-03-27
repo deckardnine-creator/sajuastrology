@@ -188,7 +188,8 @@ export function DashboardContent() {
     setTimeout(() => setCopiedSlug(null), 2000);
   };
 
-  const formattedDate = new Date().toLocaleDateString("en-US", {
+  const dateLocale = locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US";
+  const formattedDate = new Date().toLocaleDateString(dateLocale, {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
@@ -197,7 +198,8 @@ export function DashboardContent() {
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(); d.setDate(d.getDate() + i);
       const score = sajuData.chart ? Math.round(calculateDailyEnergy(sajuData.chart, d)) : 0;
-      return { day: d.toLocaleDateString("en-US", { weekday: "short" }), dateNum: d.getDate(), score };
+      const wLocale = locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US";
+      return { day: d.toLocaleDateString(wLocale, { weekday: "short" }), dateNum: d.getDate(), score };
     });
   }, [sajuData.chart]);
 
@@ -205,8 +207,19 @@ export function DashboardContent() {
   const [fortune, setFortune] = useState<DailyFortune | null>(null);
   useEffect(() => {
     if (!sajuData.chart) return;
-    import("@/lib/daily-fortune").then((mod) => {
-      setFortune(mod.getDailyFortune(sajuData.chart!.dayMaster.element, dailyScore));
+    // Load locale-specific fortune data
+    const [baseMod, koMod, jaMod] = await Promise.all([
+      import("@/lib/daily-fortune"),
+      import("@/lib/daily-fortune-ko").catch(() => null),
+      import("@/lib/daily-fortune-ja").catch(() => null),
+    ]);
+    setFortune(baseMod.getDailyFortuneLocale(
+      sajuData.chart!.dayMaster.element,
+      dailyScore,
+      locale,
+      koMod?.FORTUNES_KO,
+      jaMod?.FORTUNES_JA,
+    ));
     });
   }, [sajuData.chart, dailyScore]);
 
@@ -461,7 +474,7 @@ export function DashboardContent() {
                     <p className="text-xs text-muted-foreground">
                       {r.archetype}
                       {r.is_paid && <span className="ml-2 text-primary">· Premium</span>}
-                      <span className="ml-2">· {new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                      <span className="ml-2">· {new Date(r.created_at).toLocaleDateString(locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US", { month: "short", day: "numeric" })}</span>
                     </p>
                   </div>
                   <div className="flex items-center gap-0.5 shrink-0">
@@ -523,7 +536,7 @@ export function DashboardContent() {
                       {c.person_a_name} & {c.person_b_name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      {new Date(c.created_at).toLocaleDateString(locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US", { month: "short", day: "numeric" })}
                     </p>
                   </div>
                   <div className="text-right shrink-0">

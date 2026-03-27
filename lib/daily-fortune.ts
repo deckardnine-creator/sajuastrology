@@ -1,7 +1,5 @@
-// Daily Fortune Engine
+// Daily Fortune Engine — locale-aware
 // No API calls — pure deterministic rotation based on date + element + score
-// 10 messages × 3 tiers × 5 elements = 150 unique messages
-// With date seed, same user sees a different message every day for 10 days per tier
 
 export type DailyFortune = {
   message: string;
@@ -10,10 +8,11 @@ export type DailyFortune = {
   luckyColorHex: string;
   luckyDirection: string;
   luckyActivity: string;
-  shareText: string; // One-liner for screenshots/sharing
+  shareText: string;
 };
 
-// Simple date-based hash that changes daily
+type Tier = "high" | "mid" | "low";
+
 function dateHash(date: Date): number {
   const str = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
   let hash = 0;
@@ -23,8 +22,6 @@ function dateHash(date: Date): number {
   }
   return Math.abs(hash);
 }
-
-type Tier = "high" | "mid" | "low";
 
 const FORTUNES: Record<string, Record<Tier, DailyFortune[]>> = {
   wood: {
@@ -219,19 +216,39 @@ const FORTUNES: Record<string, Record<Tier, DailyFortune[]>> = {
   },
 };
 
-export function getDailyFortune(element: string, score: number, date: Date = new Date()): DailyFortune {
+export function getDailyFortune(element: string, score: number, date: Date = new Date(), locale?: string): DailyFortune {
   const el = element.toLowerCase();
+  let tier: Tier = score >= 75 ? "high" : score >= 55 ? "mid" : "low";
+
+  // For KO/JA, caller passes locale — data resolved in dashboard-content via dynamic import
+  // This function handles EN; KO/JA handled by getDailyFortuneLocale below
   const elementFortunes = FORTUNES[el] || FORTUNES.water;
-
-  // Determine tier
-  let tier: Tier;
-  if (score >= 75) tier = "high";
-  else if (score >= 55) tier = "mid";
-  else tier = "low";
-
   const pool = elementFortunes[tier];
-  const hash = dateHash(date);
-  const index = hash % pool.length;
-
+  const index = dateHash(date) % pool.length;
   return pool[index];
+}
+
+// Locale-aware entry point used by dashboard
+export function getDailyFortuneLocale(
+  element: string,
+  score: number,
+  locale: string,
+  koFortunes?: Record<string, Record<string, DailyFortune[]>>,
+  jaFortunes?: Record<string, Record<string, DailyFortune[]>>,
+  date: Date = new Date()
+): DailyFortune {
+  const el = element.toLowerCase();
+  const tier: Tier = score >= 75 ? "high" : score >= 55 ? "mid" : "low";
+  const hash = dateHash(date);
+
+  if (locale === "ko" && koFortunes) {
+    const pool = (koFortunes[el] || koFortunes.water)[tier];
+    return pool[hash % pool.length];
+  }
+  if (locale === "ja" && jaFortunes) {
+    const pool = (jaFortunes[el] || jaFortunes.water)[tier];
+    return pool[hash % pool.length];
+  }
+  const pool = (FORTUNES[el] || FORTUNES.water)[tier];
+  return pool[hash % pool.length];
 }
