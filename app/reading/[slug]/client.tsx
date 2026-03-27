@@ -534,7 +534,7 @@ export default function ReadingPageClient() {
                 <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.careerWealth", locale)}</h2>
                 <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
                   <div className="prose prose-invert prose-sm max-w-none">
-                    <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-\[1.85\]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_career) }} />
+                    <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_career) }} />
                   </div>
                 </div>
               </motion.section>
@@ -544,7 +544,7 @@ export default function ReadingPageClient() {
                   <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.loveRelation", locale)}</h2>
                   <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
                     <div className="prose prose-invert prose-sm max-w-none">
-                    <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-\[1.85\]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_love) }} />
+                    <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_love) }} />
                     </div>
                   </div>
                 </motion.section>
@@ -555,7 +555,7 @@ export default function ReadingPageClient() {
                   <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.healthWellness", locale)}</h2>
                   <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
                     <div className="prose prose-invert prose-sm max-w-none">
-                    <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-\[1.85\]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_health) }} />
+                    <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_health) }} />
                     </div>
                   </div>
                 </motion.section>
@@ -566,7 +566,7 @@ export default function ReadingPageClient() {
                   <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.decadeCycle", locale)}</h2>
                   <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
                     <div className="prose prose-invert prose-sm max-w-none">
-                    <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-\[1.85\]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_decade) }} />
+                    <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_decade) }} />
                     </div>
                   </div>
                 </motion.section>
@@ -577,7 +577,7 @@ export default function ReadingPageClient() {
                   <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.monthlyEnergy", locale)}</h2>
                   <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
                     <div className="prose prose-invert prose-sm max-w-none">
-                    <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-\[1.85\]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_monthly) }} />
+                    <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_monthly) }} />
                     </div>
                   </div>
                 </motion.section>
@@ -594,7 +594,7 @@ export default function ReadingPageClient() {
                       </div>
                     </div>
                     <div className="prose prose-invert prose-sm max-w-none">
-                    <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-\[1.85\]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_hidden_talent) }} />
+                    <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_hidden_talent) }} />
                     </div>
                   </div>
                 </motion.section>
