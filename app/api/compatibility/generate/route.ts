@@ -65,6 +65,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { personA, personB, userId } = body;
+    const locale = body.locale || "en";
 
     if (!personA?.name || !personA?.birthDate || !personA?.gender || !personA?.birthCity) {
       return NextResponse.json({ error: "Missing Person A data" }, { status: 400 });
@@ -140,10 +141,10 @@ export async function POST(request: NextRequest) {
 
     // ═══ GENERATE ALL CONTENT — FREE + PAID (all free for users) ═══
     const [freeRaw, raw1, raw2, raw3] = await Promise.all([
-      callClaude(buildFreeCompatibilityPrompt(scores), "FreeSummary"),
-      callClaude(buildPaidCompatPrompt1(scores), "Paid-Love+Work"),
-      callClaude(buildPaidCompatPrompt2(scores), "Paid-Friend+Conflict"),
-      callClaude(buildPaidCompatPrompt3(scores), "Paid-Yearly"),
+      callClaude(buildFreeCompatibilityPrompt(scores, locale), "FreeSummary"),
+      callClaude(buildPaidCompatPrompt1(scores, locale), "Paid-Love+Work"),
+      callClaude(buildPaidCompatPrompt2(scores, locale), "Paid-Friend+Conflict"),
+      callClaude(buildPaidCompatPrompt3(scores, locale), "Paid-Yearly"),
     ]);
 
     let freeSummary: string;

@@ -20,6 +20,7 @@ import {
   FileText,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
 import { Button } from "@/components/ui/button";
 import { searchCities, type City } from "@/lib/cities-data";
 import { safeGet } from "@/lib/safe-storage";
@@ -114,6 +115,7 @@ const emptyBirthData = (): BirthData => ({
 
 export function ConsultationClient() {
   const { user, sajuData, isLoading: authLoading, openSignInModal } = useAuth();
+  const { locale } = useLanguage();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -296,6 +298,7 @@ export function ConsultationClient() {
           userId: user.id,
           category,
           question: question.trim(),
+          locale,
           birthInput: {
             name: birthData.name.trim(),
             gender: birthData.gender,

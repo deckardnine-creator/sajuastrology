@@ -9,7 +9,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const chart = body.chart as SajuChart;
-    const userId = body.userId || null; // Optional: link reading to user account
+    const userId = body.userId || null;
+    const locale = body.locale || "en";
 
     if (!chart || !chart.name || !chart.dayMaster) {
       return NextResponse.json({ error: "Invalid chart data" }, { status: 400 });
@@ -127,7 +128,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
         max_tokens: 2500,
-        messages: [{ role: "user", content: buildFreeReadingPrompt(chart) }],
+        messages: [{ role: "user", content: buildFreeReadingPrompt(chart, locale) }],
       }),
     });
 

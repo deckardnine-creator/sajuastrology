@@ -3,6 +3,7 @@
 
 import type { SajuChart, Element } from "./saju-calculator";
 import { calculateAdvancedSaju } from "./saju-advanced";
+import { getLanguageInstruction } from "./prompt-locale";
 
 // Day Master personality seeds - unique metaphors per element+polarity
 const DAY_MASTER_SEEDS: Record<string, { metaphor: string; energy: string; shadow: string }> = {
@@ -89,7 +90,7 @@ function getElementDynamic(dominant: Element, weakest: Element, dayMasterElement
 }
 
 // Build the master prompt for AI reading generation
-export function buildFreeReadingPrompt(chart: SajuChart): string {
+export function buildFreeReadingPrompt(chart: SajuChart, locale?: string): string {
   const dm = chart.dayMaster;
   const dmSeed = DAY_MASTER_SEEDS[dm.en] || DAY_MASTER_SEEDS["Yang Wood"];
   const archetype = chart.archetype;
@@ -112,7 +113,7 @@ export function buildFreeReadingPrompt(chart: SajuChart): string {
   return `You are a master of Saju (사주, Four Pillars of Destiny) with 40 years of experience. You speak with warmth, wisdom, and poetic precision. Your readings feel like a conversation with a sage who has known the seeker their entire life.
 
 CRITICAL RULES:
-- Write in English. 
+- ${getLanguageInstruction(locale)}
 - NEVER use generic phrases like "you are a natural leader" or "you have great potential." Every sentence must be anchored to THIS person's specific chart data.
 - Use metaphors drawn from the person's Day Master element (${dm.element}).
 - Reference specific interactions between their elements.

@@ -8,6 +8,7 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
 import { searchCities, type City } from "@/lib/cities-data";
 import { safeGet, safeSet } from "@/lib/safe-storage";
 
@@ -72,6 +73,7 @@ function CompatibilityContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, sajuData } = useAuth();
+  const { locale } = useLanguage();
 
   const [step, setStep] = useState<Step>("personA");
   const [personA, setPersonA] = useState<PersonData>(emptyPerson());
@@ -198,7 +200,7 @@ function CompatibilityContent() {
             birthCity: personB.selectedCity.name,
           },
           userId: user?.id || null,
-          generatePaid: false, // Free only for now
+          locale,
         }),
       });
 

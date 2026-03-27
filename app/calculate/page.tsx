@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { BirthDataForm } from "@/components/calculate/birth-data-form";
 import { CalculationAnimation } from "@/components/calculate/calculation-animation";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
 import { ELEMENT_COLORS } from "@/lib/constants";
 import type { SajuChart } from "@/lib/saju-calculator";
 
@@ -175,6 +176,7 @@ function ReadingLoader({ chart }: { chart: SajuChart | null }) {
 export default function CalculatePage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { locale } = useLanguage();
   const [phase, setPhase] = useState<Phase>("input");
   const [sajuChart, setSajuChart] = useState<SajuChart | null>(null);
   const [birthCity, setBirthCity] = useState<string>("");
@@ -210,7 +212,7 @@ export default function CalculatePage() {
       const res = await fetch("/api/reading/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chart, userId: user?.id || null }),
+        body: JSON.stringify({ chart, userId: user?.id || null, locale }),
       });
 
       if (!res.ok) {

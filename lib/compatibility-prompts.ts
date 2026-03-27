@@ -3,6 +3,7 @@
 // Paid: 3 parallel Claude calls → detailed 4-category analysis
 
 import type { CompatibilityScores } from "./compatibility-calculator";
+import { getLanguageInstruction } from "./prompt-locale";
 
 function buildChartPairSummary(scores: CompatibilityScores): string {
   const a = scores.personA;
@@ -42,7 +43,7 @@ KEY INTERACTIONS:
 
 // ── Free Summary Prompt ─────────────────────────────────────────────
 
-export function buildFreeCompatibilityPrompt(scores: CompatibilityScores): string {
+export function buildFreeCompatibilityPrompt(scores: CompatibilityScores, locale?: string): string {
   const summary = buildChartPairSummary(scores);
 
   return `You are a master of Saju (사주, Korean Four Pillars of Destiny) compatibility analysis with 40 years of experience reading couples, business partners, and friendships.
@@ -50,7 +51,8 @@ export function buildFreeCompatibilityPrompt(scores: CompatibilityScores): strin
 ${summary}
 
 RULES:
-- Write in English. Every sentence must trace to the specific chart data above.
+- ${getLanguageInstruction(locale)}
+- Every sentence must trace to the specific chart data above.
 - Warm, engaging tone — like a wise matchmaker who genuinely wants to help.
 - NEVER use generic phrases. Be specific about HOW their elements interact.
 - The summary should make both people feel seen and make them want to share the result.
@@ -69,7 +71,7 @@ RESPOND WITH ONLY VALID JSON. No markdown fences.`;
 
 // ── Paid Detailed Prompts (3 parallel calls) ────────────────────────
 
-export function buildPaidCompatPrompt1(scores: CompatibilityScores): string {
+export function buildPaidCompatPrompt1(scores: CompatibilityScores, locale?: string): string {
   const summary = buildChartPairSummary(scores);
   const currentYear = new Date().getFullYear();
 
@@ -78,7 +80,8 @@ export function buildPaidCompatPrompt1(scores: CompatibilityScores): string {
 ${summary}
 
 RULES:
-- English only. Every sentence must trace to THIS specific chart pairing.
+- ${getLanguageInstruction(locale)}
+- Every sentence must trace to THIS specific chart pairing.
 - Flowing literary prose, no bullets/lists/headers inside the JSON values.
 - Warm, honest, specific. Address both people by name.
 - NEVER mention AI. Speak as the voice of ancient wisdom.
@@ -93,7 +96,7 @@ GENERATE as JSON:
 RESPOND WITH ONLY VALID JSON. No markdown fences.`;
 }
 
-export function buildPaidCompatPrompt2(scores: CompatibilityScores): string {
+export function buildPaidCompatPrompt2(scores: CompatibilityScores, locale?: string): string {
   const summary = buildChartPairSummary(scores);
 
   return `You are a master of Saju (사주) compatibility with 40 years of experience.
@@ -101,7 +104,8 @@ export function buildPaidCompatPrompt2(scores: CompatibilityScores): string {
 ${summary}
 
 RULES:
-- English only. Every sentence must trace to THIS specific chart pairing.
+- ${getLanguageInstruction(locale)}
+- Every sentence must trace to THIS specific chart pairing.
 - Flowing literary prose, no bullets/lists/headers inside the JSON values.
 - Warm, honest, specific. Address both people by name.
 - NEVER mention AI. Speak as the voice of ancient wisdom.
@@ -116,7 +120,7 @@ GENERATE as JSON:
 RESPOND WITH ONLY VALID JSON. No markdown fences.`;
 }
 
-export function buildPaidCompatPrompt3(scores: CompatibilityScores): string {
+export function buildPaidCompatPrompt3(scores: CompatibilityScores, locale?: string): string {
   const summary = buildChartPairSummary(scores);
   const currentYear = new Date().getFullYear();
 
@@ -125,7 +129,8 @@ export function buildPaidCompatPrompt3(scores: CompatibilityScores): string {
 ${summary}
 
 RULES:
-- English only. Every sentence must trace to THIS specific chart pairing.
+- ${getLanguageInstruction(locale)}
+- Every sentence must trace to THIS specific chart pairing.
 - Flowing literary prose, no bullets/lists/headers inside the JSON values.
 - Warm, honest, specific. Address both people by name.
 - NEVER mention AI. Speak as the voice of ancient wisdom.

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { calculateSaju } from "@/lib/saju-calculator";
+import { getLanguageInstruction } from "@/lib/prompt-locale";
 
 // Node.js runtime for longer timeout (no edge)
 export const maxDuration = 300;
@@ -139,11 +140,13 @@ async function handleStart({
   category,
   question,
   birthInput,
+  locale,
 }: {
   userId: string;
   category: string;
   question: string;
   birthInput: BirthInput;
+  locale?: string;
 }) {
   if (!userId || !question) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -193,6 +196,7 @@ async function handleStart({
     gender: chart.gender,
     birthDate: `${birthInput.year}-${String(birthInput.month).padStart(2, "0")}-${String(birthInput.day).padStart(2, "0")}`,
     birthCity: chart.birthCity,
+    locale: locale || "en",
     dayMaster: {
       element: chart.dayMaster.element,
       yinYang: chart.dayMaster.yinYang,
@@ -290,6 +294,7 @@ Analyze whether this question needs clarification for a precise Saju consultatio
       birthData: chartData,
       clarifyingQuestions: null,
       clarifyingAnswers: null,
+      locale,
     });
 
     // Success! Now deduct credit
@@ -366,6 +371,7 @@ async function handleSubmitAnswers({
       birthData: consultation.birth_data,
       clarifyingQuestions: consultation.clarifying_questions,
       clarifyingAnswers: answers,
+      locale: consultation.birth_data?.locale || "en",
     });
 
     // 4. Save report
@@ -416,12 +422,14 @@ async function generateReport({
   birthData,
   clarifyingQuestions,
   clarifyingAnswers,
+  locale,
 }: {
   category: string;
   question: string;
   birthData: any;
   clarifyingQuestions: string[] | null;
   clarifyingAnswers: string[] | null;
+  locale?: string;
 }) {
   const chartSummary = formatChartSummary(birthData);
 
@@ -442,7 +450,8 @@ YOUR STYLE:
 - Give concrete, actionable timing guidance (favorable months, seasons, years)
 - Use the Five Elements (Wood, Fire, Earth, Metal, Water) relationships to explain dynamics
 - Include both opportunities and cautions, balanced and honest guidance
-- Write in clear, flowing English with occasional Korean/Chinese Saju terms in parentheses for authenticity
+- ${getLanguageInstruction(locale)}
+- Reference specific elements of their chart (Day Master, pillar interactions, element balance)
 - NEVER mention that you are an AI or that this is AI-generated
 
 REPORT STRUCTURE:
