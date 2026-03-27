@@ -2,29 +2,30 @@
 
 import { motion } from "framer-motion"
 import { Calendar, Columns3, ScrollText } from "lucide-react"
-
-const steps = [
-  {
-    icon: Calendar,
-    title: "Enter Your Birth Moment",
-    description:
-      "Your exact date, time, and city of birth. We calculate True Solar Time for precision.",
-  },
-  {
-    icon: Columns3,
-    title: "Decode Your Four Pillars",
-    description:
-      "Our engine maps the cosmic energy state at your birth into 8 characters across 4 pillars.",
-  },
-  {
-    icon: ScrollText,
-    title: "Receive Your Cosmic Blueprint",
-    description:
-      "Get a hyper-personalized analysis of your personality, career path, love life, and fortune cycles.",
-  },
-]
+import { useLanguage } from "@/lib/language-context"
+import { t } from "@/lib/translations"
 
 export function HowItWorks() {
+  const { locale } = useLanguage()
+
+  const steps = [
+    {
+      icon: Calendar,
+      title: t("hiw.step1.title", locale),
+      description: t("hiw.step1.desc", locale),
+    },
+    {
+      icon: Columns3,
+      title: t("hiw.step2.title", locale),
+      description: t("hiw.step2.desc", locale),
+    },
+    {
+      icon: ScrollText,
+      title: t("hiw.step3.title", locale),
+      description: t("hiw.step3.desc", locale),
+    },
+  ]
+
   return (
     <section className="relative py-24 overflow-hidden">
 
@@ -54,10 +55,10 @@ export function HowItWorks() {
           className="text-center mb-16"
         >
           <h2 className="font-serif text-3xl sm:text-4xl font-bold mb-4">
-            How It Works
+            {t("hiw.title", locale)}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Three simple steps to unlock your cosmic blueprint
+            {t("hiw.desc", locale)}
           </p>
         </motion.div>
 
@@ -75,7 +76,7 @@ export function HowItWorks() {
                 <step.icon className="w-8 h-8 text-primary" />
               </div>
               <div className="text-sm text-primary font-medium mb-2">
-                Step {index + 1}
+                {t("hiw.step", locale)} {index + 1}
               </div>
               <h3 className="font-serif text-xl font-semibold mb-3">
                 {step.title}

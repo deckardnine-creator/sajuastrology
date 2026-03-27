@@ -2,22 +2,26 @@
 
 import { motion } from "framer-motion"
 import { Check } from "lucide-react"
-
-const westernFeatures = [
-  "12 Types",
-  "Based on sun position",
-  "Monthly predictions",
-  "Generic advice",
-]
-
-const sajuFeatures = [
-  "518,400 Types",
-  "Based on full cosmic state",
-  "Daily precision readings",
-  "Hyper-personalized guidance",
-]
+import { useLanguage } from "@/lib/language-context"
+import { t } from "@/lib/translations"
 
 export function ComparisonSection() {
+  const { locale } = useLanguage()
+
+  const westernFeatures = [
+    t("comp.western1", locale),
+    t("comp.western2", locale),
+    t("comp.western3", locale),
+    t("comp.western4", locale),
+  ]
+
+  const sajuFeatures = [
+    t("comp.saju1", locale),
+    t("comp.saju2", locale),
+    t("comp.saju3", locale),
+    t("comp.saju4", locale),
+  ]
+
   return (
     <section className="relative py-24 bg-card overflow-hidden">
 
@@ -47,10 +51,10 @@ export function ComparisonSection() {
           className="text-center mb-16"
         >
           <h2 className="font-serif text-3xl sm:text-4xl font-bold mb-4">
-            Why Saju Is Different
+            {t("comp.title", locale)}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            See how K-Astrology compares to traditional Western zodiac
+            {t("comp.desc", locale)}
           </p>
         </motion.div>
 
@@ -64,7 +68,7 @@ export function ComparisonSection() {
             className="rounded-2xl bg-muted/50 p-8 opacity-60"
           >
             <h3 className="font-serif text-xl font-semibold mb-6 text-muted-foreground">
-              Western Zodiac
+              {t("comp.western", locale)}
             </h3>
             <ul className="space-y-4">
               {westernFeatures.map((feature, index) => (
@@ -92,7 +96,7 @@ export function ComparisonSection() {
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
             <div className="relative">
               <h3 className="font-serif text-xl font-semibold mb-6 text-primary">
-                K-Astrology (Saju)
+                {t("comp.saju", locale)}
               </h3>
               <ul className="space-y-4">
                 {sajuFeatures.map((feature, index) => (

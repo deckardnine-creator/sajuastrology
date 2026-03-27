@@ -15,7 +15,6 @@ const translations = {
   "nav.compatibility": { en: "Compatibility", ko: "궁합", ja: "相性" },
   "nav.consultation": { en: "Consultation", ko: "상담", ja: "相談" },
   "nav.getReading": { en: "Get Your Reading — Free", ko: "무료 사주 보기", ja: "無料で鑑定する" },
-  "nav.home": { en: "Home", ko: "홈", ja: "ホーム" },
   "nav.signIn": { en: "Sign In", ko: "로그인", ja: "ログイン" },
   "nav.signOut": { en: "Sign Out", ko: "로그아웃", ja: "ログアウト" },
   "nav.dashboard": { en: "My Dashboard", ko: "내 대시보드", ja: "マイページ" },
@@ -39,8 +38,39 @@ const translations = {
     ja: "アプリ近日公開 — 今はWebでご利用ください！",
   },
 
+  // ─── How It Works ───
+  "hiw.title": { en: "How It Works", ko: "이용 방법", ja: "ご利用方法" },
+  "hiw.desc": { en: "Three simple steps to unlock your cosmic blueprint", ko: "우주적 청사진을 여는 3가지 간단한 단계", ja: "宇宙の設計図を解き明かす3つのステップ" },
+  "hiw.step": { en: "Step", ko: "단계", ja: "ステップ" },
+  "hiw.step1.title": { en: "Enter Your Birth Moment", ko: "출생 정보 입력", ja: "生年月日時を入力" },
+  "hiw.step1.desc": { en: "Your exact date, time, and city of birth. We calculate True Solar Time for precision.", ko: "정확한 생년월일, 시간, 출생 도시를 입력하세요. 정확도를 위해 진태양시를 계산합니다.", ja: "正確な生年月日、時間、都市を入力。精度のため真太陽時を計算します。" },
+  "hiw.step2.title": { en: "Decode Your Four Pillars", ko: "사주팔자 해석", ja: "四柱を解読" },
+  "hiw.step2.desc": { en: "Our engine maps the cosmic energy state at your birth into 8 characters across 4 pillars.", ko: "우리 엔진이 출생 시의 우주 에너지 상태를 4개 기둥, 8개 글자로 매핑합니다.", ja: "エンジンが誕生時の宇宙エネルギーを4柱8文字にマッピングします。" },
+  "hiw.step3.title": { en: "Receive Your Cosmic Blueprint", ko: "우주적 청사진 받기", ja: "宇宙の設計図を受け取る" },
+  "hiw.step3.desc": { en: "Get a hyper-personalized analysis of your personality, career path, love life, and fortune cycles.", ko: "성격, 직업, 연애, 운세 사이클에 대한 초개인화 분석을 받으세요.", ja: "性格、職業、恋愛、運勢サイクルの超パーソナル分析をお受け取りください。" },
+
+  // ─── Comparison Section ───
+  "comp.title": { en: "Why Saju Is Different", ko: "사주가 다른 이유", ja: "사주が異なる理由" },
+  "comp.desc": { en: "See how K-Astrology compares to traditional Western zodiac", ko: "K-점성술이 전통 서양 별자리와 어떻게 다른지 알아보세요", ja: "K-占星術が西洋占星術とどう違うか確認" },
+  "comp.western": { en: "Western Zodiac", ko: "서양 별자리", ja: "西洋占星術" },
+  "comp.western1": { en: "12 Types", ko: "12가지 유형", ja: "12タイプ" },
+  "comp.western2": { en: "Based on sun position", ko: "태양 위치 기반", ja: "太陽の位置に基づく" },
+  "comp.western3": { en: "Monthly predictions", ko: "월별 예측", ja: "月別予測" },
+  "comp.western4": { en: "Generic advice", ko: "일반적인 조언", ja: "汎用的なアドバイス" },
+  "comp.saju": { en: "K-Astrology (Saju)", ko: "K-점성술 (사주)", ja: "K-占星術（사주）" },
+  "comp.saju1": { en: "518,400 Types", ko: "518,400가지 유형", ja: "518,400タイプ" },
+  "comp.saju2": { en: "Based on full cosmic state", ko: "완전한 우주적 상태 기반", ja: "完全な宇宙状態に基づく" },
+  "comp.saju3": { en: "Daily precision readings", ko: "일별 정밀 분석", ja: "日別精密鑑定" },
+  "comp.saju4": { en: "Hyper-personalized guidance", ko: "초개인화 가이던스", ja: "超パーソナライズガイダンス" },
+
+  // ─── CTA Banner ───
+  "cta.title": { en: "Your cosmic code is waiting.", ko: "당신의 우주적 코드가 기다리고 있습니다.", ja: "あなたの宇宙コードが待っています。" },
+  "cta.btn": { en: "Get My Free Reading", ko: "무료 사주 보기", ja: "無料で鑑定する" },
+
   // ─── Pricing ───
   "pricing.title": { en: "Choose Your Path", ko: "나의 길을 선택하세요", ja: "あなたの道を選ぶ" },
+  "pricing.titleMain": { en: "Choose Your", ko: "나의 길을", ja: "あなたの道を" },
+  "pricing.titleGold": { en: "Path", ko: "선택하세요", ja: "選ぶ" },
   "pricing.subtitle": {
     en: "Start free. Pay once when you're ready — no subscriptions, no recurring fees.",
     ko: "무료로 시작하세요. 준비되면 한 번만 결제 — 구독 없음, 반복 결제 없음.",

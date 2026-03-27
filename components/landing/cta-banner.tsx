@@ -3,8 +3,12 @@
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useLanguage } from "@/lib/language-context"
+import { t } from "@/lib/translations"
 
 export function CTABanner() {
+  const { locale } = useLanguage()
+
   return (
     <section className="relative py-24 overflow-hidden">
 
@@ -34,7 +38,7 @@ export function CTABanner() {
 
           <div className="relative">
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground mb-6">
-              Your cosmic code is waiting.
+              {t("cta.title", locale)}
             </h2>
             <Link href="/calculate">
               <Button
@@ -42,7 +46,7 @@ export function CTABanner() {
                 variant="secondary"
                 className="bg-background text-foreground hover:bg-background/90 font-semibold text-lg px-8"
               >
-                Get My Free Reading
+                {t("cta.btn", locale)}
               </Button>
             </Link>
           </div>

@@ -1,9 +1,15 @@
+"use client"
+
 import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
 import { PricingCards } from "@/components/pricing/pricing-cards"
 import { PricingFAQ } from "@/components/pricing/pricing-faq"
+import { useLanguage } from "@/lib/language-context"
+import { t } from "@/lib/translations"
 
 export default function PricingPage() {
+  const { locale } = useLanguage()
+
   return (
     <main className="relative min-h-screen overflow-hidden">
 
@@ -19,10 +25,11 @@ export default function PricingPage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h1 className="font-serif text-4xl sm:text-5xl font-bold mb-4">
-              Choose Your <span className="gold-gradient-text">Path</span>
+              {t("pricing.titleMain", locale)}{" "}
+              <span className="gold-gradient-text">{t("pricing.titleGold", locale)}</span>
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Start free. Pay once when you&apos;re ready — no subscriptions, no recurring fees.
+              {t("pricing.subtitle", locale)}
             </p>
           </div>
           <PricingCards />
