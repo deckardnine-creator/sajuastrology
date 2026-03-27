@@ -138,6 +138,17 @@ export function DashboardContent() {
           } catch {}
         }
 
+        // Backup claim: match compat results by user's chart name (cross-device)
+        if (sajuData.chart?.name) {
+          try {
+            await supabase
+              .from("compatibility_results")
+              .update({ user_id: user.id })
+              .eq("person_a_name", sajuData.chart.name)
+              .is("user_id", null);
+          } catch {}
+        }
+
         const { data } = await supabase
           .from("compatibility_results")
           .select("id,person_a_name,person_b_name,person_a_element,person_b_element,overall_score,share_slug,created_at")
@@ -147,7 +158,7 @@ export function DashboardContent() {
         if (data) setCompatResults(data);
       } catch {}
     })();
-  }, [user]);
+  }, [user, sajuData.chart?.name]);
 
   const setAsMyChart = (readingId: string) => {
     if (primaryReadingId === readingId) return;

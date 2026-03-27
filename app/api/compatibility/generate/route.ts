@@ -89,7 +89,8 @@ export async function POST(request: NextRequest) {
       })}`, { headers: dbHeaders });
       if (cacheRes.ok) {
         const cached = await cacheRes.json();
-        if (cached?.length > 0 && cached[0].free_summary) {
+        if (cached?.length > 0 && cached[0].free_summary && cached[0].paid_love) {
+          // Full cache hit — has both free and paid content
           if (userId) {
             fetch(`${supabaseUrl}/rest/v1/compatibility_results?share_slug=eq.${cached[0].share_slug}&user_id=is.null`, {
               method: "PATCH", headers: { ...dbHeaders, Prefer: "return=minimal" },
@@ -98,6 +99,7 @@ export async function POST(request: NextRequest) {
           }
           return NextResponse.json({ success: true, shareSlug: cached[0].share_slug, cached: true });
         }
+        // If cached but no paid content → fall through to regenerate
       }
       // Reverse check
       const revRes = await fetch(`${supabaseUrl}/rest/v1/compatibility_results?${new URLSearchParams({

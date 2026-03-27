@@ -20,8 +20,6 @@ import {
   FileText,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
-import { safeSet } from "@/lib/safe-storage";
-import { renderMarkdown } from "@/lib/markdown";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -296,7 +294,7 @@ export function ConsultationClient() {
       const res = await fetch("/api/payment/checkout-consultation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id }),
+        body: JSON.stringify({ userId: user.id, userEmail: user.email }),
       });
       const data = await res.json();
       if (data.url) {
@@ -398,7 +396,7 @@ export function ConsultationClient() {
                   Your Saju consultation requires your birth chart data to deliver a truly personalized reading.
                   Generate your free Saju reading first — it only takes a minute.
                 </p>
-                <Link href="/calculate" onClick={() => safeSet("return-to-consultation", "true")}>
+                <Link href="/calculate" onClick={() => localStorage.setItem("return-to-consultation", "true")}>
                   <Button className="gold-gradient text-primary-foreground font-semibold" size="lg">
                     <Sparkles className="w-4 h-4 mr-2" />
                     Generate My Free Reading
@@ -1009,4 +1007,55 @@ function NoCreditsCTA({
       )}
     </div>
   );
+}
+
+/* ─── Simple Markdown → HTML renderer ─── */
+
+function renderMarkdown(md: string): string {
+  // Strip the first # heading (already shown in report header)
+  let text = md.replace(/^#\s+.+\n*/m, "").trim();
+
+  // Horizontal rules
+  text = text.replace(/^---+$/gm, '<hr class="my-6 border-border/50" />');
+
+  // Headers (process ### before ## before #)
+  text = text.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  text = text.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  text = text.replace(/^# (.+)$/gm, '<h2>$1</h2>');
+
+  // Bold & italic (order matters)
+  text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  text = text.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+
+  // Bullet lists — wrap consecutive <li> items in <ul>
+  text = text.replace(/^[-•] (.+)$/gm, '{{LI}}$1{{/LI}}');
+  text = text.replace(/({{LI}}[\s\S]*?{{\/LI}}\n?)+/g, (match) => {
+    const items = match.replace(/{{LI}}([\s\S]*?){{\/LI}}/g, '<li>$1</li>');
+    return `<ul>${items}</ul>`;
+  });
+
+  // Numbered lists
+  text = text.replace(/^\d+\.\s+(.+)$/gm, '{{OLI}}$1{{/OLI}}');
+  text = text.replace(/({{OLI}}[\s\S]*?{{\/OLI}}\n?)+/g, (match) => {
+    const items = match.replace(/{{OLI}}([\s\S]*?){{\/OLI}}/g, '<li>$1</li>');
+    return `<ol>${items}</ol>`;
+  });
+
+  // Paragraphs — split by double newlines, wrap non-tag lines
+  text = text
+    .split(/\n{2,}/)
+    .map((block) => {
+      const trimmed = block.trim();
+      if (!trimmed) return "";
+      // Don't wrap blocks that already start with HTML tags
+      if (/^<(h[1-6]|ul|ol|li|hr|p|div|blockquote)/.test(trimmed)) return trimmed;
+      return `<p>${trimmed.replace(/\n/g, "<br />")}</p>`;
+    })
+    .join("\n");
+
+  // Clean up any stray empty paragraphs
+  text = text.replace(/<p>\s*<\/p>/g, "");
+
+  return text;
 }
