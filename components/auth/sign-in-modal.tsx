@@ -5,10 +5,13 @@ import { X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GoogleIcon } from "@/components/ui/google-icon";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
+import { t } from "@/lib/translations";
 import Link from "next/link";
 
 export function SignInModal() {
   const { isSignInModalOpen, closeSignInModal, signIn, isLoading } = useAuth();
+  const { locale } = useLanguage();
 
   if (!isSignInModalOpen) return null;
 
@@ -75,10 +78,10 @@ export function SignInModal() {
                 </div>
 
                 <h2 className="text-2xl font-serif text-primary mb-2">
-                  Welcome, Seeker
+                  {t("signIn.welcome", locale)}
                 </h2>
                 <p className="text-muted-foreground text-sm mb-8">
-                  Sign in to save your reading and unlock daily insights
+                  {t("signIn.saveReading", locale)}
                 </p>
 
                 {/* Google Sign In Button */}
@@ -92,20 +95,21 @@ export function SignInModal() {
                   ) : (
                     <>
                       <GoogleIcon className="w-5 h-5" />
-                      Continue with Google
+                      {t("signIn.continueGoogle", locale)}
                     </>
                   )}
                 </Button>
 
                 <p className="text-xs text-muted-foreground mt-6">
-                  By continuing, you agree to our{" "}
+                  {t("signIn.agreeTo", locale)}{" "}
                   <Link href="/terms" onClick={closeSignInModal} className="text-primary hover:underline">
-                    Terms
+                    {t("footer.terms", locale)}
                   </Link>{" "}
-                  and{" "}
+                  {t("signIn.and", locale)}{" "}
                   <Link href="/privacy" onClick={closeSignInModal} className="text-primary hover:underline">
-                    Privacy Policy
+                    {t("footer.privacy", locale)}
                   </Link>
+                  {t("signIn.agreeSuffix", locale)}
                 </p>
               </div>
             </div>

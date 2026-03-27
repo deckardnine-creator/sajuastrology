@@ -7,36 +7,36 @@ import { BirthDataForm } from "@/components/calculate/birth-data-form";
 import { CalculationAnimation } from "@/components/calculate/calculation-animation";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { t } from "@/lib/translations";
 import { ELEMENT_COLORS } from "@/lib/constants";
 import type { SajuChart } from "@/lib/saju-calculator";
 
 type Phase = "input" | "calculating" | "waiting" | "error";
 
-// Reading generation steps — each shown progressively while waiting
-const READING_STEPS = [
-  { icon: "🏛", label: "Decoding your Four Pillars", sub: "Year · Month · Day · Hour" },
-  { icon: "🌊", label: "Mapping the Five Elements", sub: "Wood · Fire · Earth · Metal · Water" },
-  { icon: "✦", label: "Identifying your Day Master", sub: "The core of who you are" },
-  { icon: "⚖", label: "Calculating elemental harmony", sub: "Strengths, tensions, and balance" },
-  { icon: "🔮", label: "Consulting the Ten Gods", sub: "Your archetype is emerging…" },
-  { icon: "📜", label: "Weaving your personal narrative", sub: "Almost there…" },
-];
+function getReadingSteps(locale: "en" | "ko" | "ja") {
+  return [
+    { icon: "🏛", label: t("readingStep.1.label" as any, locale), sub: t("readingStep.1.sub" as any, locale) },
+    { icon: "🌊", label: t("readingStep.2.label" as any, locale), sub: t("readingStep.2.sub" as any, locale) },
+    { icon: "✦", label: t("readingStep.3.label" as any, locale), sub: t("readingStep.3.sub" as any, locale) },
+    { icon: "⚖", label: t("readingStep.4.label" as any, locale), sub: t("readingStep.4.sub" as any, locale) },
+    { icon: "🔮", label: t("readingStep.5.label" as any, locale), sub: t("readingStep.5.sub" as any, locale) },
+    { icon: "📜", label: t("readingStep.6.label" as any, locale), sub: t("readingStep.6.sub" as any, locale) },
+  ];
+}
 
-function ReadingLoader({ chart }: { chart: SajuChart | null }) {
+function ReadingLoader({ chart, locale }: { chart: SajuChart | null; locale: "en" | "ko" | "ja" }) {
   const [activeStep, setActiveStep] = useState(0);
   const [progress, setProgress] = useState(0);
+  const steps = getReadingSteps(locale);
 
   useEffect(() => {
-    // Step progression: advance every 3.5s
     const stepInterval = setInterval(() => {
-      setActiveStep((prev) => Math.min(prev + 1, READING_STEPS.length - 1));
+      setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
     }, 3500);
 
-    // Smooth progress bar: 0→92% over ~22s (never reaches 100 until actually done)
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 92) return 92;
-        // Fast start, slow finish (logarithmic feel)
         const increment = prev < 40 ? 2.5 : prev < 70 ? 1.2 : 0.4;
         return Math.min(prev + increment, 92);
       });
@@ -46,7 +46,7 @@ function ReadingLoader({ chart }: { chart: SajuChart | null }) {
       clearInterval(stepInterval);
       clearInterval(progressInterval);
     };
-  }, []);
+  }, [steps.length]);
 
   const dayMasterElement = chart?.dayMaster?.element || "water";
   const accentColor = ELEMENT_COLORS[dayMasterElement] || ELEMENT_COLORS.water;
@@ -54,7 +54,6 @@ function ReadingLoader({ chart }: { chart: SajuChart | null }) {
   return (
     <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
       <div className="w-full max-w-md px-6">
-        {/* Ambient glow based on user's element */}
         <div
           className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full blur-[120px] opacity-20 pointer-events-none"
           style={{ backgroundColor: accentColor }}
@@ -94,7 +93,6 @@ function ReadingLoader({ chart }: { chart: SajuChart | null }) {
               background: `linear-gradient(90deg, ${accentColor}66, ${accentColor})`,
             }}
           />
-          {/* Shimmer effect */}
           <div
             className="absolute inset-y-0 w-20 rounded-full animate-shimmer"
             style={{
@@ -106,7 +104,7 @@ function ReadingLoader({ chart }: { chart: SajuChart | null }) {
 
         {/* Steps */}
         <div className="space-y-3">
-          {READING_STEPS.map((step, i) => {
+          {steps.map((step, i) => {
             const isActive = i === activeStep;
             const isDone = i < activeStep;
             const isFuture = i > activeStep;
@@ -146,13 +144,11 @@ function ReadingLoader({ chart }: { chart: SajuChart | null }) {
           })}
         </div>
 
-        {/* Bottom message */}
         <p className="text-center text-xs text-muted-foreground/50 mt-8">
-          Your reading is crafted uniquely — this takes a moment
+          {t("calc.craftedUniquely", locale)}
         </p>
       </div>
 
-      {/* Shimmer animation keyframe */}
       <style jsx>{`
         @keyframes shimmer {
           0% { left: -20%; }
@@ -195,7 +191,6 @@ export default function CalculatePage() {
   const isSubmittingRef = useRef(false);
 
   const handleCalculate = async (chart: SajuChart, city: string) => {
-    // Double-click protection
     if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
 
@@ -242,7 +237,6 @@ export default function CalculatePage() {
       }
 
       shareSlugRef.current = data.shareSlug;
-      // Store slug for claiming after login (if user signs in later)
       safeSet("pending-claim-slug", data.shareSlug);
       apiDoneRef.current = true;
       tryNavigate();
@@ -259,7 +253,6 @@ export default function CalculatePage() {
     }
   };
 
-  // Reset submit lock when user can try again
   useEffect(() => {
     if (phase === "error" || phase === "input") {
       isSubmittingRef.current = false;
@@ -280,7 +273,6 @@ export default function CalculatePage() {
       return;
     }
 
-    // API still loading → show immersive waiting state
     setPhase("waiting");
 
     const checkInterval = setInterval(() => {
@@ -297,7 +289,7 @@ export default function CalculatePage() {
     setTimeout(() => {
       clearInterval(checkInterval);
       if (!shareSlugRef.current && !apiErrorRef.current) {
-        setErrorMessage("Reading generation timed out. Please try again.");
+        setErrorMessage(t("calc.couldntGenerate", locale));
         setPhase("error");
       }
     }, 25000);
@@ -329,7 +321,7 @@ export default function CalculatePage() {
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                 </svg>
-                Back
+                {t("common.back", locale)}
               </button>
             </div>
           </div>
@@ -344,7 +336,7 @@ export default function CalculatePage() {
         />
       )}
       {phase === "waiting" && (
-        <ReadingLoader chart={sajuChart} />
+        <ReadingLoader chart={sajuChart} locale={locale} />
       )}
       {phase === "error" && (
         <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
@@ -354,9 +346,9 @@ export default function CalculatePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
               </svg>
             </div>
-            <p className="text-xl font-serif text-primary mb-3">Something went wrong</p>
+            <p className="text-xl font-serif text-primary mb-3">{t("calc.somethingWrong", locale)}</p>
             <p className="text-sm text-muted-foreground mb-6">
-              {errorMessage || "We couldn't generate your reading. Please try again."}
+              {errorMessage || t("calc.couldntGenerate", locale)}
             </p>
             <button
               onClick={handleRetry}
@@ -365,7 +357,7 @@ export default function CalculatePage() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
               </svg>
-              Try Again
+              {t("common.tryAgain", locale)}
             </button>
           </div>
         </div>

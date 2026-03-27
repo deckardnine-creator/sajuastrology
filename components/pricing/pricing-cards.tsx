@@ -7,23 +7,34 @@ import { Check, Sparkles, Crown, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/lib/auth-context"
+import { useLanguage } from "@/lib/language-context"
+import { t, type TranslationKey } from "@/lib/translations"
 import { safeSet } from "@/lib/safe-storage"
 
-const plans = [
+interface PlanDef {
+  nameKey: TranslationKey;
+  price: number;
+  descKey: TranslationKey;
+  badgeKey?: TranslationKey;
+  featureKeys: TranslationKey[];
+  ctaKey: TranslationKey;
+  href: string;
+  highlighted: boolean;
+  accent: string;
+  glow: string;
+  glowSoft: string;
+  icon: typeof Sparkles;
+  priceNoteKey?: TranslationKey;
+  noSubKey?: TranslationKey;
+}
+
+const PLANS: PlanDef[] = [
   {
-    name: "Free",
+    nameKey: "pc.free.name",
     price: 0,
-    description: "Discover your cosmic blueprint",
-    features: [
-      "Your Four Pillars (사주팔자) decoded",
-      "Day Master & Archetype analysis",
-      "Five Elements balance chart",
-      "This year's fortune overview",
-      "Compatibility check — full detailed analysis",
-      "Personalized daily fortune",
-      "Shareable profile & results",
-    ],
-    cta: "Get Started — Free",
+    descKey: "pc.free.desc",
+    featureKeys: ["pc.free.f1", "pc.free.f2", "pc.free.f3", "pc.free.f4", "pc.free.f5", "pc.free.f6", "pc.free.f7"],
+    ctaKey: "pc.free.cta",
     href: "/calculate",
     highlighted: false,
     accent: "#F2CA50",
@@ -32,42 +43,27 @@ const plans = [
     icon: Sparkles,
   },
   {
-    name: "Full Destiny Reading",
+    nameKey: "pc.full.name",
     price: 9.99,
-    description: "Your complete life blueprint",
-    badge: "MOST POPULAR",
-    features: [
-      "Everything in Free, plus:",
-      "10-year fortune cycle (대운) analysis",
-      "Wealth & Career detailed blueprint",
-      "Love & Relationship deep insights",
-      "Health & wellness timing guidance",
-      "Monthly energy calendar",
-      "Hidden talent & life purpose",
-      "Permanent reading — yours forever",
-    ],
-    cta: "Start Free → Upgrade to Full",
+    descKey: "pc.full.desc",
+    badgeKey: "pc.full.badge",
+    featureKeys: ["pc.full.f1", "pc.full.f2", "pc.full.f3", "pc.full.f4", "pc.full.f5", "pc.full.f6", "pc.full.f7", "pc.full.f8"],
+    ctaKey: "pc.full.cta",
     href: "/calculate",
     highlighted: true,
     accent: "#F2CA50",
     glow: "rgba(242,202,80,0.35)",
     glowSoft: "rgba(242,202,80,0.1)",
     icon: Sparkles,
+    noSubKey: "pc.full.noSub",
   },
   {
-    name: "Master Consultation",
+    nameKey: "pc.consult.name",
     price: 29.99,
-    description: "5 personal Saju consultations",
-    features: [
-      "5 one-on-one Saju consultation sessions",
-      "Just enter your birth details — no prior reading needed",
-      "Ask about career, love, timing, or any life question",
-      "Clarifying dialogue for precision analysis",
-      "2,000–4,000 word personalized report per session",
-      "All consultations saved to your dashboard",
-    ],
-    priceNote: "$6 per consultation",
-    cta: "Get 5 Consultations",
+    descKey: "pc.consult.desc",
+    featureKeys: ["pc.consult.f1", "pc.consult.f2", "pc.consult.f3", "pc.consult.f4", "pc.consult.f5", "pc.consult.f6"],
+    priceNoteKey: "pc.consult.perSession",
+    ctaKey: "pc.consult.cta",
     href: "/consultation",
     highlighted: false,
     accent: "#a78bfa",
@@ -78,11 +74,12 @@ const plans = [
 ]
 
 export function PricingCards() {
-  const [selectedPlan, setSelectedPlan] = useState<string>("Full Destiny Reading")
+  const [selectedPlan, setSelectedPlan] = useState<number>(1)
   const { user, openSignInModal } = useAuth()
+  const { locale } = useLanguage()
   const router = useRouter()
 
-  const handlePlanClick = (plan: typeof plans[0]) => {
+  const handlePlanClick = (plan: PlanDef) => {
     if (plan.price === 0) {
       router.push(plan.href)
       return
@@ -97,12 +94,13 @@ export function PricingCards() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-3 lg:items-center">
-      {plans.map((plan, index) => {
-        const isSelected = selectedPlan === plan.name
+      {PLANS.map((plan, index) => {
+        const isSelected = selectedPlan === index
+        const badge = plan.badgeKey ? t(plan.badgeKey, locale) : null
         return (
           <motion.div
-            key={plan.name}
-            onClick={() => setSelectedPlan(plan.name)}
+            key={index}
+            onClick={() => setSelectedPlan(index)}
             initial={{ opacity: 0, y: 20 }}
             animate={{
               opacity: 1,
@@ -132,9 +130,9 @@ export function PricingCards() {
                 style={{ background: `linear-gradient(90deg, transparent, ${plan.accent}, transparent)` }}
               />
             )}
-            {plan.badge && (
+            {badge && (
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <Badge className="gold-gradient text-primary-foreground border-0 px-4 text-xs font-semibold">{plan.badge}</Badge>
+                <Badge className="gold-gradient text-primary-foreground border-0 px-4 text-xs font-semibold">{badge}</Badge>
               </div>
             )}
             {isSelected && (
@@ -153,32 +151,34 @@ export function PricingCards() {
                 transition={{ duration: 0.25 }}
                 className="font-serif text-2xl font-semibold mb-2"
               >
-                {plan.name}
+                {t(plan.nameKey, locale)}
               </motion.h3>
-              <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
+              <p className="text-sm text-muted-foreground mb-4">{t(plan.descKey, locale)}</p>
               <div className="flex items-baseline justify-center gap-1">
                 {plan.price === 0 ? (
-                  <span className="text-4xl font-bold text-primary">Free</span>
+                  <span className="text-4xl font-bold text-primary">{t("pricing.free", locale)}</span>
                 ) : (
                   <>
                     <span className="text-4xl font-bold text-primary">${plan.price}</span>
-                    <span className="text-muted-foreground text-sm">one-time</span>
+                    <span className="text-muted-foreground text-sm">{t("pricing.oneTime", locale)}</span>
                   </>
                 )}
               </div>
               {plan.price > 0 && (
                 <p className="text-xs text-muted-foreground/60 mt-1">
-                  {"priceNote" in plan && plan.priceNote
-                    ? plan.priceNote
-                    : "No subscription. Pay once, keep forever."}
+                  {plan.priceNoteKey
+                    ? t(plan.priceNoteKey, locale)
+                    : plan.noSubKey
+                    ? t(plan.noSubKey, locale)
+                    : ""}
                 </p>
               )}
             </div>
             <ul className="space-y-3 mb-8">
-              {plan.features.map((feature, i) => (
+              {plan.featureKeys.map((fk, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <span className="text-sm text-muted-foreground">{feature}</span>
+                  <span className="text-sm text-muted-foreground">{t(fk, locale)}</span>
                 </li>
               ))}
             </ul>
@@ -189,7 +189,7 @@ export function PricingCards() {
               style={isSelected ? { background: `linear-gradient(135deg, ${plan.accent}, ${plan.accent}bb)`, color: "#0A0E1A", border: "none", boxShadow: `0 4px 20px ${plan.glow}` } : {}}
               variant={isSelected || plan.highlighted ? "default" : "outline"}
             >
-              {plan.cta}
+              {t(plan.ctaKey, locale)}
             </Button>
           </motion.div>
         )

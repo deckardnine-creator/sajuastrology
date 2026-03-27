@@ -16,6 +16,8 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
+import { t } from "@/lib/translations";
 import { supabase } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -50,6 +52,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export function ConsultationHistory() {
   const { user } = useAuth();
+  const { locale } = useLanguage();
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [credits, setCredits] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -61,10 +64,7 @@ export function ConsultationHistory() {
   useEffect(() => {
     if (!user) return;
     loadData();
-    // Safety: if loading takes more than 8 seconds, force stop
-    const timeout = setTimeout(() => {
-      setLoading(false);
-    }, 8000);
+    const timeout = setTimeout(() => { setLoading(false); }, 8000);
     return () => clearTimeout(timeout);
   }, [user]);
 
@@ -72,7 +72,6 @@ export function ConsultationHistory() {
     if (!user) return;
     setLoading(true);
     try {
-      // Load consultations
       const { data: consults } = await supabase
         .from("consultations")
         .select("id, category, initial_question, report_title, status, created_at, completed_at")
@@ -82,7 +81,6 @@ export function ConsultationHistory() {
 
       setConsultations(consults || []);
 
-      // Load credits
       const { data: creds } = await supabase
         .from("consultation_credits")
         .select("total_credits, used_credits")
@@ -129,10 +127,11 @@ export function ConsultationHistory() {
     );
   }
 
-  // Nothing to show yet
   if (consultations.length === 0 && credits === 0) {
-    return null; // Don't show section if no consultation history and no credits
+    return null;
   }
+
+  const dateLocaleMap = { en: "en-US", ko: "ko-KR", ja: "ja-JP" } as const;
 
   return (
     <motion.section
@@ -143,14 +142,14 @@ export function ConsultationHistory() {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm tracking-wider text-muted-foreground uppercase flex items-center gap-2">
           <Crown className="w-4 h-4 text-purple-400" />
-          My Consultations
+          {t("ch.title", locale)}
         </h2>
         {credits > 0 && (
           <Link
             href="/consultation"
             className="text-sm text-primary hover:underline flex items-center gap-1"
           >
-            New Consultation <ChevronRight className="w-3 h-3" />
+            {t("ch.newConsult", locale)} <ChevronRight className="w-3 h-3" />
           </Link>
         )}
       </div>
@@ -165,13 +164,13 @@ export function ConsultationHistory() {
             <div>
               <p className="text-sm font-medium text-foreground">
                 {credits > 0
-                  ? `${credits} consultation${credits !== 1 ? "s" : ""} remaining`
-                  : "No consultations remaining"}
+                  ? `${credits} ${credits !== 1 ? t("ch.remaining", locale) : t("ch.remaining1", locale)}`
+                  : t("ch.noRemaining", locale)}
               </p>
               <p className="text-xs text-muted-foreground">
                 {consultations.length > 0
-                  ? `${consultations.filter((c) => c.status === "completed").length} completed`
-                  : "Get personalized Saju guidance"}
+                  ? `${consultations.filter((c) => c.status === "completed").length} ${t("ch.completed", locale)}`
+                  : t("ch.getGuidance", locale)}
               </p>
             </div>
           </div>
@@ -180,7 +179,7 @@ export function ConsultationHistory() {
             <Link href="/consultation">
               <Button size="sm" variant="outline" className="text-xs">
                 <Sparkles className="w-3 h-3 mr-1" />
-                Ask
+                {t("ch.ask", locale)}
               </Button>
             </Link>
           ) : (
@@ -191,7 +190,7 @@ export function ConsultationHistory() {
                 style={{ background: "linear-gradient(135deg, #a78bfa, #7c3aed)", color: "white" }}
               >
                 <Crown className="w-3 h-3 mr-1" />
-                Get More
+                {t("ch.getMore", locale)}
               </Button>
             </Link>
           )}
@@ -223,7 +222,7 @@ export function ConsultationHistory() {
                       {c.report_title || c.initial_question}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(c.created_at).toLocaleDateString("en-US", {
+                      {new Date(c.created_at).toLocaleDateString(dateLocaleMap[locale] || "en-US", {
                         month: "short",
                         day: "numeric",
                         year: "numeric",
@@ -242,7 +241,6 @@ export function ConsultationHistory() {
                   )}
                 </button>
 
-                {/* Expanded Report Preview */}
                 {isExpanded && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
@@ -271,13 +269,13 @@ export function ConsultationHistory() {
                         <Link href={`/consultation?view=${c.id}`}>
                           <Button size="sm" variant="outline" className="text-xs">
                             <FileText className="w-3 h-3 mr-1" />
-                            Read Full Report
+                            {t("ch.readFull", locale)}
                           </Button>
                         </Link>
                       </div>
                     ) : (
                       <div className="p-4 text-xs text-muted-foreground">
-                        Report not available.
+                        {t("ch.notAvailable", locale)}
                       </div>
                     )}
                   </motion.div>
@@ -290,7 +288,7 @@ export function ConsultationHistory() {
               onClick={() => setShowAll(true)}
               className="w-full py-2 text-sm text-primary hover:underline"
             >
-              Show all {consultations.length} consultations
+              {t("ch.showAll", locale)} {consultations.length}
             </button>
           )}
         </div>

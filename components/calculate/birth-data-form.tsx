@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { calculateSaju, type SajuChart } from "@/lib/saju-calculator";
 import { searchCities, type City } from "@/lib/cities-data";
+import { useLanguage } from "@/lib/language-context";
+import { t } from "@/lib/translations";
 
 const CUR_YEAR = new Date().getFullYear();
 const YEARS   = Array.from({ length: CUR_YEAR - 1919 }, (_, i) => String(1920 + i));
@@ -48,7 +50,6 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
   const didLongPress = useRef(false);
   const indexRef = useRef(selectedIndex);
 
-  // Keep ref in sync
   useEffect(() => { indexRef.current = selectedIndex; }, [selectedIndex]);
 
   const snapTo = useCallback((idx: number) => {
@@ -88,7 +89,6 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
     longPressTimer.current = null;
   };
 
-  // Single click: only fire if NOT a long press
   const handleClick = (direction: 1 | -1) => {
     if (didLongPress.current) return;
     snapTo(selectedIndex + direction);
@@ -100,7 +100,6 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
         {label}
       </span>
 
-      {/* Up arrow button */}
       <button
         type="button"
         className="w-full flex justify-center py-1 text-primary/40 hover:text-primary/70 transition-colors active:text-primary active:scale-90"
@@ -115,19 +114,15 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
         <ChevronUp className="w-4 h-4" />
       </button>
 
-      {/* Roller body */}
       <div
         style={{ height: containerH, width, overflow: "hidden", position: "relative", borderRadius: 12 }}
         className="border border-primary/15 bg-black/30 backdrop-blur-sm"
       >
-        {/* Top fade */}
         <div className="absolute inset-x-0 top-0 z-20 pointer-events-none"
           style={{ height: ITEM_H * 2, background: "linear-gradient(to bottom, #060810 0%, #060810 10%, transparent 100%)" }} />
-        {/* Bottom fade */}
         <div className="absolute inset-x-0 bottom-0 z-20 pointer-events-none"
           style={{ height: ITEM_H * 2, background: "linear-gradient(to top, #060810 0%, #060810 10%, transparent 100%)" }} />
 
-        {/* Selection ring */}
         <div className="absolute inset-x-0 z-10 pointer-events-none"
           style={{
             top: ITEM_H * 2, height: ITEM_H,
@@ -154,9 +149,6 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
                     fontWeight: dist === 0 ? 600 : 400,
                     fontFamily: "var(--font-mono, monospace)",
                     userSelect: "none",
-                    letterSpacing: "0.04em",
-                    textShadow: dist === 0 ? "0 0 14px rgba(242,202,80,0.6)" : "none",
-                    pointerEvents: "none",
                   }}
                 >
                   {val}
@@ -167,7 +159,6 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
         </motion.div>
       </div>
 
-      {/* Down arrow button */}
       <button
         type="button"
         className="w-full flex justify-center py-1 text-primary/40 hover:text-primary/70 transition-colors active:text-primary active:scale-90"
@@ -185,43 +176,42 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
   );
 }
 
-// ── Main ─────────────────────────────────────────────────────
+// ── Main Form ──────────────────────────────────────────────
+
 interface BirthDataFormProps {
   onCalculate: (chart: SajuChart, city: string) => void;
 }
 
 export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
+  const { locale } = useLanguage();
   const [name, setName] = useState("");
-  const [gender, setGender] = useState<"male" | "female" | null>(null);
-  const [yearIdx,   setYearIdx]   = useState(() => YEARS.indexOf("1990"));
-  const [monthIdx,  setMonthIdx]  = useState(0);
-  const [dayIdx,    setDayIdx]    = useState(0);
-  const [hourIdx,   setHourIdx]   = useState(12);
+  const [gender, setGender] = useState<"male" | "female" | "">("");
+  const [yearIdx, setYearIdx] = useState(YEARS.indexOf(String(CUR_YEAR - 25)));
+  const [monthIdx, setMonthIdx] = useState(0);
+  const [dayIdx, setDayIdx] = useState(0);
+  const [hourIdx, setHourIdx] = useState(12);
   const [minuteIdx, setMinuteIdx] = useState(0);
   const [unknownTime, setUnknownTime] = useState(false);
   const [cityQuery, setCityQuery] = useState("");
-
-  // Dynamic day count based on selected year/month
-  const selectedYear = parseInt(YEARS[yearIdx]);
-  const selectedMonth = parseInt(MONTHS[monthIdx]);
-  const maxDays = new Date(selectedYear, selectedMonth, 0).getDate();
-  const DAYS_FILTERED = Array.from({ length: maxDays }, (_, i) => String(i + 1).padStart(2, "0"));
-
-  // Auto-clamp dayIdx when month/year changes reduce available days
-  useEffect(() => {
-    if (dayIdx >= maxDays) {
-      setDayIdx(maxDays - 1);
-    }
-  }, [maxDays, dayIdx]);
-  const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [cityResults, setCityResults] = useState<City[]>([]);
+  const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
 
+  const year = Number(YEARS[yearIdx]);
+  const month = Number(MONTHS[monthIdx]);
+  const maxDay = new Date(year, month, 0).getDate();
+  const DAYS_FILTERED = DAYS.slice(0, maxDay);
+
   useEffect(() => {
+    if (dayIdx >= maxDay) setDayIdx(maxDay - 1);
+  }, [maxDay, dayIdx]);
+
+  useEffect(() => {
+    if (cityQuery.length < 2) { setCityResults([]); setShowCityDropdown(false); return; }
     const results = searchCities(cityQuery);
     setCityResults(results);
-    setShowCityDropdown(results.length > 0 && !selectedCity);
-  }, [cityQuery, selectedCity]);
+    setShowCityDropdown(results.length > 0);
+  }, [cityQuery]);
 
   const handleCitySelect = (city: City) => {
     setSelectedCity(city);
@@ -229,70 +219,37 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
     setShowCityDropdown(false);
   };
 
+  const isFormValid = name.trim().length >= 1 && gender && selectedCity;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !gender || !selectedCity) return;
-    const year  = parseInt(YEARS[yearIdx]);
-    const month = parseInt(MONTHS[monthIdx]);
-    const day   = parseInt(DAYS_FILTERED[dayIdx] || "1");
-    const date  = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
-    const hour  = unknownTime ? 12 : parseInt(HOURS[hourIdx]);
-    const chart = calculateSaju(name, gender, date, hour, selectedCity.name);
+    if (!isFormValid || !selectedCity) return;
+
+    const day = Number(DAYS_FILTERED[dayIdx]);
+    const hour = unknownTime ? 12 : Number(HOURS[hourIdx]);
+    const minute = unknownTime ? 0 : Number(MINUTES[minuteIdx]);
+
+    const birthDate = new Date(year, month - 1, day);
+    const chart = calculateSaju(birthDate, hour, minute, name.trim(), gender as "male" | "female", selectedCity.name);
     onCalculate(chart, selectedCity.name);
   };
 
-  const isFormValid = name && gender && selectedCity;
-
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
-
+    <div className="min-h-screen flex flex-col lg:flex-row relative">
       {/* Left: Cosmic Panel */}
-      <div className="lg:w-[42%] bg-[#060810] relative overflow-hidden p-6 lg:p-12 flex flex-col justify-center min-h-[40vh] lg:min-h-screen">
-        {/* Nebula glows */}
-        <motion.div animate={{ scale: [1,1.15,1], opacity: [0.18,0.3,0.18] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 left-1/3 w-80 h-80 rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle, rgba(93,60,180,0.35) 0%, transparent 70%)", filter: "blur(40px)" }} />
-        <motion.div animate={{ scale: [1,1.2,1], opacity: [0.12,0.22,0.12] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-          className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle, rgba(242,202,80,0.2) 0%, transparent 70%)", filter: "blur(50px)" }} />
-        <motion.div animate={{ scale: [1,1.1,1], opacity: [0.08,0.15,0.08] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 5 }}
-          className="absolute top-3/4 left-1/4 w-48 h-48 rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle, rgba(29,158,117,0.25) 0%, transparent 70%)", filter: "blur(40px)" }} />
-
-        {/* Rotating pentagons */}
-        <motion.div animate={{ rotate: 360 }} transition={{ duration: 90, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ opacity: 0.07 }}>
-          <svg width="500" height="500" viewBox="0 0 500 500">
-            <polygon points="250,30 462,183 378,430 122,430 38,183" fill="none" stroke="#F2CA50" strokeWidth="0.8" />
-          </svg>
-        </motion.div>
-        <motion.div animate={{ rotate: -360 }} transition={{ duration: 140, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ opacity: 0.05 }}>
-          <svg width="700" height="700" viewBox="0 0 700 700">
-            <polygon points="350,20 660,230 545,610 155,610 40,230" fill="none" stroke="#a78bfa" strokeWidth="0.6" />
-            <circle cx="350" cy="350" r="280" fill="none" stroke="#a78bfa" strokeWidth="0.4" />
-          </svg>
-        </motion.div>
-
+      <div className="lg:w-[42%] p-8 lg:p-12 flex flex-col justify-center relative overflow-hidden">
         {/* Stars */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <svg width="100%" height="100%" style={{ position: "absolute", inset: 0 }}>
-            {CONST_LINES.map(([a, b], i) => (
-              <line key={i} x1={`${STARS[a].x}%`} y1={`${STARS[a].y}%`} x2={`${STARS[b].x}%`} y2={`${STARS[b].y}%`}
-                stroke="rgba(242,202,80,0.08)" strokeWidth="0.5" />
-            ))}
-          </svg>
-          {STARS.map((s, i) => (
-            <motion.div key={i} className="absolute rounded-full"
-              style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size, background: i%4===0?"#F2CA50":i%4===1?"#a78bfa":"#ffffff", transform:"translate(-50%,-50%)" }}
-              animate={{ opacity: [s.baseOpacity, s.baseOpacity*2.5, s.baseOpacity] }}
-              transition={{ duration: s.dur, repeat: Infinity, delay: s.delay, ease: "easeInOut" }} />
+        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+          {CONST_LINES.map(([a,b],i)=>(
+            <line key={`cl${i}`} x1={STARS[a].x} y1={STARS[a].y} x2={STARS[b].x} y2={STARS[b].y}
+              stroke="currentColor" strokeWidth="0.15" className="text-primary/10" />
           ))}
-          <motion.div className="absolute h-px" style={{ top:"20%",left:0,width:80,background:"linear-gradient(90deg,transparent,rgba(242,202,80,0.8),transparent)",borderRadius:2 }}
-            animate={{ x:["0%","120vw"], opacity:[0,1,0] }} transition={{ duration:1.8, repeat:Infinity, repeatDelay:9, ease:"easeIn" }} />
-          <motion.div className="absolute h-px" style={{ top:"60%",left:0,width:60,background:"linear-gradient(90deg,transparent,rgba(167,139,250,0.7),transparent)",borderRadius:2 }}
-            animate={{ x:["0%","120vw"], opacity:[0,1,0] }} transition={{ duration:1.5, repeat:Infinity, repeatDelay:14, delay:5, ease:"easeIn" }} />
-        </div>
+          {STARS.map((s,i)=>(
+            <motion.circle key={i} cx={s.x} cy={s.y} r={s.size} fill="currentColor" className="text-primary"
+              animate={{ opacity:[s.baseOpacity, s.baseOpacity+0.25, s.baseOpacity] }}
+              transition={{ duration:s.dur, repeat:Infinity, delay:s.delay, ease:"easeInOut" }} />
+          ))}
+        </svg>
 
         {/* Grid */}
         <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.06 }}>
@@ -304,25 +261,31 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
         <div className="relative z-10">
           <motion.div initial={{ opacity:0,y:20 }} animate={{ opacity:1,y:0 }} transition={{ duration:0.7 }}>
-            <h1 className="font-serif text-3xl lg:text-5xl text-primary mb-2">Discover Your Destiny</h1>
-            <p className="text-muted-foreground text-sm tracking-[0.22em] uppercase mb-10">Enter Your Birth Details</p>
+            <h1 className="font-serif text-3xl lg:text-5xl text-primary mb-2">{t("calc.discoverDestiny", locale)}</h1>
+            <p className="text-muted-foreground text-sm tracking-[0.22em] uppercase mb-10">{t("calc.enterDetails", locale)}</p>
           </motion.div>
           <motion.div className="space-y-6" initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.3, duration:0.7 }}>
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Western astrology gives you <span className="text-foreground font-medium">1 of 12</span> types.
+                {locale === "ko" ? "서양 별자리는 " : locale === "ja" ? "西洋占星術は" : "Western astrology gives you "}
+                <span className="text-foreground font-medium">{locale === "ko" ? "12가지 중 1가지" : locale === "ja" ? "12タイプの1つ" : "1 of 12"}</span>
+                {locale === "ko" ? " 유형." : locale === "ja" ? "。" : " types."}
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Saju maps <span className="text-primary font-semibold">518,400</span> unique cosmic profiles from the exact moment and place you were born.
+                {locale === "ko" ? "사주는 " : locale === "ja" ? "四柱推命は" : "Saju maps "}
+                <span className="text-primary font-semibold">518,400</span>
+                {locale === "ko" ? "가지 고유한 우주적 프로필을 제공합니다." : locale === "ja" ? "通りの固有プロフィールを提供。" : " unique cosmic profiles from the exact moment and place you were born."}
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Your reading will be ready in <span className="text-foreground font-medium">30 seconds</span>.
+                {locale === "ko" ? "리딩이 " : locale === "ja" ? "鑑定は" : "Your reading will be ready in "}
+                <span className="text-foreground font-medium">{locale === "ko" ? "30초 후" : locale === "ja" ? "30秒で" : "30 seconds"}</span>
+                {locale === "ko" ? "에 준비됩니다." : locale === "ja" ? "準備完了。" : "."}
               </p>
             </div>
             {selectedCity && (
               <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} className="flex items-center gap-3 pt-2">
                 <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center"><Check className="w-3 h-3 text-accent" /></div>
-                <p className="text-sm text-accent">{selectedCity.name} coordinates locked</p>
+                <p className="text-sm text-accent">{selectedCity.name} {t("form.coordinatesLocked", locale)}</p>
               </motion.div>
             )}
           </motion.div>
@@ -345,21 +308,21 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
               {/* Name */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Your Name</label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">{t("form.yourName", locale)}</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input type="text" placeholder="Enter your name..." value={name} onChange={(e)=>setName(e.target.value)} className="pl-10 bg-background/50 border-border focus:border-primary" />
+                  <Input type="text" placeholder={t("form.enterName", locale)} value={name} onChange={(e)=>setName(e.target.value)} className="pl-10 bg-background/50 border-border focus:border-primary" />
                 </div>
               </div>
 
               {/* Gender */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Gender</label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">{t("form.gender", locale)}</label>
                 <div className="flex gap-3">
                   {(["male","female"] as const).map((g)=>(
                     <button key={g} type="button" onClick={()=>setGender(g)}
                       className={`flex-1 py-3 px-4 rounded-lg border text-sm transition-all duration-200 ${gender===g ? "bg-primary/15 border-primary text-primary shadow-[0_0_16px_rgba(242,202,80,0.15)]" : "bg-background/50 border-border text-muted-foreground hover:border-primary/40"}`}>
-                      {g==="male"?"Male":"Female"}
+                      {g==="male" ? t("form.maleShort", locale) : t("form.femaleShort", locale)}
                     </button>
                   ))}
                 </div>
@@ -367,26 +330,26 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
               {/* Date drums */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Birthday <span className="normal-case tracking-normal text-muted-foreground/50">(Solar / Gregorian calendar)</span></label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">{t("form.birthDate", locale)} <span className="normal-case tracking-normal text-muted-foreground/50">{t("form.birthDateNote", locale)}</span></label>
                 <div className="flex gap-2 justify-center items-center">
-                  <DrumRoller values={YEARS}  selectedIndex={yearIdx}  onChange={setYearIdx}  label="Year"  width={88} />
+                  <DrumRoller values={YEARS}  selectedIndex={yearIdx}  onChange={setYearIdx}  label={t("form.year", locale)}  width={88} />
                   <span className="text-primary/25 text-2xl font-light select-none pb-1">·</span>
-                  <DrumRoller values={MONTHS} selectedIndex={monthIdx} onChange={setMonthIdx} label="Month" width={64} />
+                  <DrumRoller values={MONTHS} selectedIndex={monthIdx} onChange={setMonthIdx} label={t("form.month", locale)} width={64} />
                   <span className="text-primary/25 text-2xl font-light select-none pb-1">·</span>
-                  <DrumRoller values={DAYS_FILTERED} selectedIndex={dayIdx} onChange={setDayIdx} label="Day"   width={64} />
+                  <DrumRoller values={DAYS_FILTERED} selectedIndex={dayIdx} onChange={setDayIdx} label={t("form.day", locale)}   width={64} />
                 </div>
               </div>
 
               {/* Time drums */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Birth Time</label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">{t("form.birthTime", locale)}</label>
                 <AnimatePresence>
                   {!unknownTime && (
                     <motion.div initial={{opacity:0,height:0}} animate={{opacity:1,height:"auto"}} exit={{opacity:0,height:0}}
                       className="flex gap-2 justify-center items-center overflow-hidden">
-                      <DrumRoller values={HOURS}   selectedIndex={hourIdx}   onChange={setHourIdx}   label="Hour" width={64} />
+                      <DrumRoller values={HOURS}   selectedIndex={hourIdx}   onChange={setHourIdx}   label={t("form.hour", locale)} width={64} />
                       <span className="text-primary/40 text-2xl font-semibold select-none pb-1">:</span>
-                      <DrumRoller values={MINUTES} selectedIndex={minuteIdx} onChange={setMinuteIdx} label="Min"  width={64} />
+                      <DrumRoller values={MINUTES} selectedIndex={minuteIdx} onChange={setMinuteIdx} label={t("form.min", locale)}  width={64} />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -395,16 +358,16 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                     className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${unknownTime?"bg-primary border-primary":"border-muted-foreground/40 group-hover:border-primary/50"}`}>
                     {unknownTime && <Check className="w-2.5 h-2.5 text-background" />}
                   </div>
-                  <span className="text-xs text-muted-foreground">I don't know my birth time (defaults to noon, reduced accuracy)</span>
+                  <span className="text-xs text-muted-foreground">{t("form.unknownTime", locale)}</span>
                 </label>
               </div>
 
               {/* City */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">Birth City</label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">{t("form.birthCity", locale)}</label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input type="text" placeholder="City of birth..." value={cityQuery}
+                  <Input type="text" placeholder={t("form.cityOfBirth", locale)} value={cityQuery}
                     onChange={(e)=>{setCityQuery(e.target.value);setSelectedCity(null);}}
                     onFocus={(e)=>{
                       if(cityResults.length>0) setShowCityDropdown(true);
@@ -433,7 +396,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                 className="w-full h-14 gold-gradient text-primary-foreground font-semibold text-base tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{ letterSpacing:"0.12em" }}>
                 <Sparkles className="w-4 h-4 mr-2" />
-                See My Reading
+                {t("calc.seeMyReading", locale)}
               </Button>
             </form>
           </div>

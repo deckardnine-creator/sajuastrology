@@ -13,10 +13,13 @@ import {
   Heart,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
+import { t } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
 
 export function UserMenu() {
   const { user, signOut, openSignInModal, isPremium, isLoading } = useAuth();
+  const { locale } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -52,11 +55,11 @@ export function UserMenu() {
           onClick={openSignInModal}
           className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          Sign In
+          {t("nav.signIn", locale)}
         </button>
         <Link href="/calculate">
           <Button className="gold-gradient text-primary-foreground font-medium">
-            Get Your Reading — Free
+            {t("nav.getReading", locale)}
           </Button>
         </Link>
       </div>
@@ -121,10 +124,10 @@ export function UserMenu() {
                   {isPremium ? (
                     <span className="inline-flex items-center gap-1 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
                       <Crown className="w-3 h-3" />
-                      Premium
+                      {t("um.premium", locale)}
                     </span>
                   ) : (
-                    <span className="text-xs text-muted-foreground">Free Plan</span>
+                    <span className="text-xs text-muted-foreground">{t("um.freePlan", locale)}</span>
                   )}
                 </div>
               </div>
@@ -134,25 +137,25 @@ export function UserMenu() {
                 <MenuItem
                   href="/dashboard"
                   icon={<LayoutDashboard className="w-4 h-4" />}
-                  label="My Dashboard"
+                  label={t("um.dashboard", locale)}
                   onClick={() => setIsOpen(false)}
                 />
                 <MenuItem
                   href="/calculate"
                   icon={<Sparkles className="w-4 h-4" />}
-                  label="My Saju Chart"
+                  label={t("um.myChart", locale)}
                   onClick={() => setIsOpen(false)}
                 />
                 <MenuItem
                   href="/compatibility"
                   icon={<Heart className="w-4 h-4" />}
-                  label="Compatibility"
+                  label={t("um.compatibility", locale)}
                   onClick={() => setIsOpen(false)}
                 />
                 <MenuItem
                   href="/consultation"
                   icon={<Crown className="w-4 h-4" />}
-                  label="Consultation"
+                  label={t("um.consultation", locale)}
                   onClick={() => setIsOpen(false)}
                 />
               </div>
@@ -166,7 +169,7 @@ export function UserMenu() {
                   role="menuitem"
                 >
                   <LogOut className="w-4 h-4" />
-                  {signingOut ? "Signing out..." : "Sign Out"}
+                  {signingOut ? t("um.signingOut", locale) : t("um.signOut", locale)}
                 </button>
               </div>
             </motion.div>
