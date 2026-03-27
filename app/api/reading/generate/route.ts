@@ -123,22 +123,24 @@ export async function POST(request: NextRequest) {
     const apiKey = process.env.ANTHROPIC_API_KEY || "";
     if (!apiKey) return NextResponse.json({ error: "AI not configured" }, { status: 500 });
 
-    // Retry up to 3x on 529 (overloaded) with exponential backoff
+    // Sonnet x2 → Haiku x1 fallback on 529/500
     let rawText = "";
-    for (let attempt = 0; attempt < 3; attempt++) {
-      if (attempt > 0) await new Promise((r) => setTimeout(r, 2000 * attempt));
+    const freeModels = ["claude-sonnet-4-20250514", "claude-sonnet-4-20250514", "claude-haiku-4-5-20251001"];
+    for (let attempt = 0; attempt < freeModels.length; attempt++) {
+      if (attempt > 0) await new Promise((r) => setTimeout(r, 2000));
+      const model = freeModels[attempt];
       const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model,
           max_tokens: 2500,
           messages: [{ role: "user", content: buildFreeReadingPrompt(chart, locale) }],
         }),
       });
       if (!anthropicRes.ok) {
-        if ((anthropicRes.status === 529 || anthropicRes.status === 500) && attempt < 2) {
-          console.warn(`Free reading: AI ${anthropicRes.status} — retrying (${attempt + 1}/3)`);
+        if ((anthropicRes.status === 529 || anthropicRes.status === 500) && attempt < freeModels.length - 1) {
+          console.warn(`Free reading: ${model} ${anthropicRes.status} — trying next model`);
           continue;
         }
         return NextResponse.json({ error: `AI error (${anthropicRes.status})` }, { status: 500 });

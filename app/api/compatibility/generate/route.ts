@@ -35,12 +35,12 @@ function toBirthDateStr(d: Date | string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-async function callClaude(prompt: string, label: string, retries = 3): Promise<string> {
-  for (let attempt = 0; attempt < retries; attempt++) {
-    if (attempt > 0) {
-      // Exponential backoff: 2s, 4s
-      await new Promise((r) => setTimeout(r, 2000 * attempt));
-    }
+async function callClaude(prompt: string, label: string): Promise<string> {
+  // Sonnet x2 → Haiku x1 fallback on 529/500
+  const models = ["claude-sonnet-4-20250514", "claude-sonnet-4-20250514", "claude-haiku-4-5-20251001"];
+  for (let attempt = 0; attempt < models.length; attempt++) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 2000));
+    const model = models[attempt];
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -49,16 +49,15 @@ async function callClaude(prompt: string, label: string, retries = 3): Promise<s
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model,
         max_tokens: 3000,
         messages: [{ role: "user", content: prompt }],
       }),
     });
-    // Retry on 529 (overloaded) or 500
     if (!res.ok) {
       const err = await res.text();
-      if ((res.status === 529 || res.status === 500) && attempt < retries - 1) {
-        console.warn(`${label}: API ${res.status} — retrying (attempt ${attempt + 1})`);
+      if ((res.status === 529 || res.status === 500) && attempt < models.length - 1) {
+        console.warn(`${label}: ${model} ${res.status} — trying next model`);
         continue;
       }
       throw new Error(`${label}: API ${res.status} — ${err.substring(0, 200)}`);
@@ -66,7 +65,7 @@ async function callClaude(prompt: string, label: string, retries = 3): Promise<s
     const data = await res.json();
     return data.content?.[0]?.text || "";
   }
-  throw new Error(`${label}: all retries exhausted`);
+  throw new Error(`${label}: all models exhausted`);
 }
 
 function parseJSON(raw: string): any {
