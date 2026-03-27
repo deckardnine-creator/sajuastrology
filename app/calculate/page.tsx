@@ -212,8 +212,11 @@ export default function CalculatePage() {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({ error: `Server error (${res.status})` }));
-        const errMsg = errData.error || `Request failed with status ${res.status}`;
-        console.error("API error:", errMsg);
+        const rawErr = errData.error || `Request failed with status ${res.status}`;
+        console.error("API error:", rawErr);
+        const errMsg = (rawErr?.includes("529") || rawErr?.includes("overloaded"))
+          ? (locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요." : locale === "ja" ? "AIが混雑しています。しばらくしてから再試行してください。" : "The AI is busy right now. Please try again in a moment.")
+          : (locale === "ko" ? "오류가 발생했습니다. 다시 시도해주세요." : locale === "ja" ? "エラーが発生しました。再試行してください。" : t("calc.couldntGenerate", locale));
         apiErrorRef.current = errMsg;
         apiDoneRef.current = true;
 
@@ -241,8 +244,11 @@ export default function CalculatePage() {
       apiDoneRef.current = true;
       tryNavigate();
     } catch (err: any) {
-      const errMsg = err?.message || "Network error — please check your connection";
-      console.error("API call failed:", err);
+      const rawErr2 = err?.message || "Network error";
+      console.error("API call failed:", rawErr2);
+      const errMsg = (rawErr2?.includes("529") || rawErr2?.includes("overloaded"))
+        ? (locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요." : locale === "ja" ? "AIが混雑しています。しばらくしてから再試行してください。" : "The AI is busy right now. Please try again in a moment.")
+        : (locale === "ko" ? "네트워크 오류가 발생했습니다. 다시 시도해주세요." : locale === "ja" ? "ネットワークエラーが発生しました。再試行してください。" : "Network error — please check your connection.");
       apiErrorRef.current = errMsg;
       apiDoneRef.current = true;
 

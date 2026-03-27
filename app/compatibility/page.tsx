@@ -188,7 +188,16 @@ function CompatibilityContent() {
 
       const data = await res.json();
       if (!res.ok || !data.shareSlug) {
-        setError(data.error || t("common.error", locale));
+        // Never show raw API errors to users
+        const isOverloaded = data.error?.includes("529") || data.error?.includes("overloaded");
+        const isTimeout = data.error?.includes("abort") || data.error?.includes("AbortError");
+        if (isOverloaded) {
+          setError(locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요." : locale === "ja" ? "AIが少し混雑しています。しばらくしてからもう一度お試しください。" : "The AI is a bit busy right now. Please try again in a moment.");
+        } else if (isTimeout) {
+          setError(locale === "ko" ? "요청 시간이 초과됐습니다. 다시 시도해주세요." : locale === "ja" ? "リクエストがタイムアウトしました。もう一度お試しください。" : "Request timed out. Please try again.");
+        } else {
+          setError(locale === "ko" ? "오류가 발생했습니다. 다시 시도해주세요." : locale === "ja" ? "エラーが発生しました。もう一度お試しください。" : "Something went wrong. Please try again.");
+        }
         setStep("personB");
         return;
       }
@@ -204,7 +213,12 @@ function CompatibilityContent() {
     } catch (err: any) {
       clearInterval(stepTimer);
       clearInterval(progressTimer);
-      setError(err?.name === "AbortError" ? t("common.error", locale) : t("common.error", locale));
+      const isOverloaded = err?.message?.includes("529") || err?.message?.includes("overloaded");
+      if (isOverloaded) {
+        setError(locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요." : locale === "ja" ? "AIが少し混雑しています。しばらくしてからもう一度お試しください。" : "The AI is a bit busy right now. Please try again in a moment.");
+      } else {
+        setError(locale === "ko" ? "오류가 발생했습니다. 다시 시도해주세요." : locale === "ja" ? "エラーが発生しました。もう一度お試しください。" : "Something went wrong. Please try again.");
+      }
       setStep("personB");
     }
   };

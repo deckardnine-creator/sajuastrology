@@ -334,7 +334,12 @@ export function ConsultationClient() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Something went wrong");
+        {
+          const rawErr = data.error || "Something went wrong";
+          setError((rawErr?.includes("529") || rawErr?.includes("overloaded"))
+            ? (locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요." : locale === "ja" ? "AIが混雑しています。しばらくしてから再試行してください。" : "The AI is busy right now. Please try again in a moment.")
+            : (locale === "ko" ? "오류가 발생했습니다. 다시 시도해주세요." : locale === "ja" ? "エラーが発生しました。再試行してください。" : "Something went wrong. Please try again."));
+        }
         setStep("form");
         setIsSubmitting(false);
         return;
@@ -367,7 +372,12 @@ export function ConsultationClient() {
             setStep("report");
             window.scrollTo({ top: 0, behavior: "smooth" });
           } else {
-            setError(clarifyData.error || "Generation failed.");
+            {
+              const rawErr = clarifyData.error || "Generation failed.";
+              setError((rawErr?.includes("529") || rawErr?.includes("overloaded"))
+                ? (locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요." : locale === "ja" ? "AIが混雑しています。しばらくしてから再試行してください。" : "The AI is busy right now. Please try again in a moment.")
+                : (locale === "ko" ? "생성 실패. 크레딧은 사용되지 않았습니다." : locale === "ja" ? "生成に失敗しました。クレジットは使用されていません。" : "Generation failed. Your credit is safe."));
+            }
             setStep("form");
           }
         } catch {
@@ -406,7 +416,12 @@ export function ConsultationClient() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Generation failed. Your credit is safe — please try again.");
+        {
+          const rawErr = data.error || "Generation failed.";
+          setError((rawErr?.includes("529") || rawErr?.includes("overloaded"))
+            ? (locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요. 크레딧은 사용되지 않았습니다." : locale === "ja" ? "AIが混雑しています。クレジットは使用されていません。" : "The AI is busy right now. Please try again. Your credit was not used.")
+            : (locale === "ko" ? "생성 실패. 크레딧은 안전합니다. 다시 시도해주세요." : locale === "ja" ? "生成に失敗しました。クレジットは安全です。" : "Generation failed. Your credit is safe — please try again."));
+        }
         setStep("clarifying");
         setIsSubmitting(false);
         return;
