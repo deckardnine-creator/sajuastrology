@@ -1,8 +1,12 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { useLanguage } from "@/lib/language-context"
+import { t } from "@/lib/translations"
 
 export function SajuHero() {
+  const { locale } = useLanguage()
+
   return (
     <section className="relative min-h-[60vh] flex items-center justify-center pt-24 pb-16 overflow-hidden">
       {/* Animated background particles */}
@@ -38,7 +42,9 @@ export function SajuHero() {
           transition={{ duration: 0.8 }}
           className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold mb-6"
         >
-          What is <span className="gold-gradient-text">Saju</span>?
+          {t("wis.hero.titleMain", locale)}{" "}
+          <span className="gold-gradient-text">{t("wis.hero.titleGold", locale)}</span>
+          {t("wis.hero.titleSuffix", locale)}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -46,8 +52,7 @@ export function SajuHero() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
         >
-          The 1,000-year-old system that maps your entire life from the moment
-          you were born.
+          {t("wis.hero.desc", locale)}
         </motion.p>
       </div>
     </section>

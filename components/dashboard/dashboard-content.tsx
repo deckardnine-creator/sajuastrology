@@ -232,16 +232,16 @@ export function DashboardContent() {
       );
     }
     return (
-      <div className="max-w-4xl mx-auto text-center py-12">
+      <div className="max-w-4xl mx-auto text-center min-h-[calc(100vh-8rem)] flex items-center justify-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <Sparkles className="w-16 h-16 text-primary mx-auto mb-6" />
-          <h1 className="text-2xl sm:text-3xl font-serif text-primary mb-4">Welcome, {user?.name?.split(" ")[0]}</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif text-primary mb-4">{t("dash.welcome")} {user?.name?.split(" ")[0]}</h1>
           <p className="text-muted-foreground mb-8 max-w-md mx-auto text-sm sm:text-base">
-            Your cosmic blueprint awaits. Generate your Saju reading to unlock personalized daily insights.
+            {t("dash.emptyDesc")}
           </p>
           <Link href="/calculate">
             <Button className="gold-gradient text-primary-foreground h-12 px-6">
-              <Sparkles className="w-4 h-4 mr-2" /> Generate My Reading
+              <Sparkles className="w-4 h-4 mr-2" /> {t("dash.generateReading")}
             </Button>
           </Link>
         </motion.div>
@@ -371,7 +371,7 @@ export function DashboardContent() {
           {primaryReadingId && savedReadings.length > 0 && (
             <Link href={`/reading/${savedReadings.find((r) => r.id === primaryReadingId)?.share_slug || ""}`}
               className="text-sm text-primary hover:underline flex items-center gap-1">
-              Full Reading <ArrowRight className="w-3 h-3" />
+              {t("dash.fullReading")} <ArrowRight className="w-3 h-3" />
             </Link>
           )}
         </div>
@@ -425,13 +425,13 @@ export function DashboardContent() {
               <FileText className="w-4 h-4 text-primary" /> {t("dash.myReadings")}
             </h2>
             <Link href="/calculate" className="text-sm text-primary hover:underline flex items-center gap-1">
-              New Reading <ArrowRight className="w-3 h-3" />
+              {t("dash.newReading")} <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
 
           {savedReadings.length > 1 && (
             <p className="text-xs text-muted-foreground/60 mb-2 flex items-center gap-1.5">
-              <Star className="w-3 h-3" /> Tap ★ to set your primary chart (once per day).
+              <Star className="w-3 h-3" /> {t("dash.setPrimaryHint")}
             </p>
           )}
 
@@ -492,10 +492,10 @@ export function DashboardContent() {
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="mb-6 sm:mb-8">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm tracking-wider text-muted-foreground uppercase flex items-center gap-2">
-            <Heart className="w-4 h-4 text-pink-400" /> Compatibility
+            <Heart className="w-4 h-4 text-pink-400" /> {t("nav.compatibility")}
           </h2>
           <Link href="/compatibility" className="text-sm text-pink-400 hover:underline flex items-center gap-1">
-            New Check <ArrowRight className="w-3 h-3" />
+            {t("dash.newCheck")} <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
 
@@ -533,7 +533,7 @@ export function DashboardContent() {
             })}
             {compatResults.length > 3 && (
               <Link href="/compatibility" className="block w-full py-2 text-sm text-pink-400 hover:underline text-center">
-                View all {compatResults.length} checks
+                {t("dash.viewAllChecks")} {compatResults.length} {t("dash.checks")}
               </Link>
             )}
           </div>
@@ -541,8 +541,8 @@ export function DashboardContent() {
           <Link href="/compatibility"
             className="block bg-card/50 border border-border rounded-xl p-5 text-center hover:border-pink-500/20 transition-colors">
             <Heart className="w-8 h-8 text-pink-400/60 mx-auto mb-2" />
-            <p className="text-sm font-medium text-foreground mb-1">Check Compatibility</p>
-            <p className="text-xs text-muted-foreground">See how your Four Pillars align with a partner, friend, or colleague</p>
+            <p className="text-sm font-medium text-foreground mb-1">{t("dash.checkCompat")}</p>
+            <p className="text-xs text-muted-foreground">{t("dash.checkCompatDesc")}</p>
           </Link>
         )}
       </motion.section>

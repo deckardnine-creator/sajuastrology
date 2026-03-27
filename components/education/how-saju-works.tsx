@@ -1,57 +1,8 @@
 "use client"
 
 import { motion } from "framer-motion"
-
-const elements = [
-  {
-    name: "Wood",
-    chinese: "木",
-    color: "text-secondary",
-    bgColor: "bg-secondary/10",
-    keywords: "Growth, Creativity",
-  },
-  {
-    name: "Fire",
-    chinese: "火",
-    color: "text-fire",
-    bgColor: "bg-fire/10",
-    keywords: "Passion, Action",
-  },
-  {
-    name: "Earth",
-    chinese: "土",
-    color: "text-primary",
-    bgColor: "bg-primary/10",
-    keywords: "Stability, Trust",
-  },
-  {
-    name: "Metal",
-    chinese: "金",
-    color: "text-metal",
-    bgColor: "bg-metal/10",
-    keywords: "Precision, Discipline",
-  },
-  {
-    name: "Water",
-    chinese: "水",
-    color: "text-water",
-    bgColor: "bg-water/10",
-    keywords: "Wisdom, Adaptability",
-  },
-]
-
-const archetypes = [
-  { name: "The Ally", element: "wood" },
-  { name: "The Maverick", element: "fire" },
-  { name: "The Creator", element: "wood" },
-  { name: "The Rebel", element: "fire" },
-  { name: "The Adventurer", element: "water" },
-  { name: "The Builder", element: "earth" },
-  { name: "The Commander", element: "metal" },
-  { name: "The Leader", element: "metal" },
-  { name: "The Visionary", element: "water" },
-  { name: "The Mentor", element: "earth" },
-]
+import { useLanguage } from "@/lib/language-context"
+import { t } from "@/lib/translations"
 
 const elementColors: Record<string, string> = {
   wood: "border-secondary text-secondary",
@@ -61,7 +12,42 @@ const elementColors: Record<string, string> = {
   water: "border-water text-water",
 }
 
+const archetypeElements = [
+  "wood", "fire", "wood", "fire", "water",
+  "earth", "metal", "metal", "water", "earth",
+]
+
 export function HowSajuWorks() {
+  const { locale } = useLanguage()
+
+  const elements = [
+    { chinese: "木", color: "text-secondary", bgColor: "bg-secondary/10", name: t("wis.el.wood", locale), keywords: t("wis.el.wood.kw", locale) },
+    { chinese: "火", color: "text-fire",      bgColor: "bg-fire/10",      name: t("wis.el.fire", locale), keywords: t("wis.el.fire.kw", locale) },
+    { chinese: "土", color: "text-primary",   bgColor: "bg-primary/10",   name: t("wis.el.earth", locale), keywords: t("wis.el.earth.kw", locale) },
+    { chinese: "金", color: "text-metal",     bgColor: "bg-metal/10",     name: t("wis.el.metal", locale), keywords: t("wis.el.metal.kw", locale) },
+    { chinese: "水", color: "text-water",     bgColor: "bg-water/10",     name: t("wis.el.water", locale), keywords: t("wis.el.water.kw", locale) },
+  ]
+
+  const archetypes = [
+    t("wis.arch.ally", locale),
+    t("wis.arch.maverick", locale),
+    t("wis.arch.creator", locale),
+    t("wis.arch.rebel", locale),
+    t("wis.arch.adventurer", locale),
+    t("wis.arch.builder", locale),
+    t("wis.arch.commander", locale),
+    t("wis.arch.leader", locale),
+    t("wis.arch.visionary", locale),
+    t("wis.arch.mentor", locale),
+  ]
+
+  const pillarLabels = [
+    t("reading.pillarYear", locale),
+    t("reading.pillarMonth", locale),
+    t("reading.pillarDay", locale),
+    t("reading.pillarHour", locale),
+  ]
+
   return (
     <section className="py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -73,10 +59,10 @@ export function HowSajuWorks() {
           className="text-center mb-16"
         >
           <h2 className="font-serif text-3xl sm:text-4xl font-bold mb-4">
-            How Saju Works
+            {t("wis.how.title", locale)}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Four steps to understanding your cosmic blueprint
+            {t("wis.how.desc", locale)}
           </p>
         </motion.div>
 
@@ -89,31 +75,17 @@ export function HowSajuWorks() {
           className="mb-20"
         >
           <div className="flex items-center gap-4 mb-6">
-            <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-              1
-            </span>
-            <h3 className="font-serif text-2xl font-semibold">
-              Four Pillars, Eight Characters
-            </h3>
+            <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">1</span>
+            <h3 className="font-serif text-2xl font-semibold">{t("wis.how.s1.title", locale)}</h3>
           </div>
-          <p className="text-muted-foreground mb-8 max-w-3xl">
-            Your birth year, month, day, and hour each form a &quot;pillar.&quot; Each
-            pillar has two characters — a Heavenly Stem and an Earthly Branch.
-            Together, these 8 characters create your cosmic DNA.
-          </p>
+          <p className="text-muted-foreground mb-8 max-w-3xl">{t("wis.how.s1.desc", locale)}</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {["Year", "Month", "Day", "Hour"].map((label, index) => (
+            {pillarLabels.map((label, index) => (
               <div key={label} className="pillar-card rounded-2xl p-6 text-center">
-                <span className="text-xs uppercase tracking-wider text-muted-foreground mb-3 block">
-                  {label}
-                </span>
-                <div className="text-3xl font-serif text-primary mb-2">
-                  {["甲", "丙", "戊", "庚"][index]}
-                </div>
+                <span className="text-xs uppercase tracking-wider text-muted-foreground mb-3 block">{label}</span>
+                <div className="text-3xl font-serif text-primary mb-2">{["甲", "丙", "戊", "庚"][index]}</div>
                 <div className="w-8 h-px bg-border mx-auto my-2" />
-                <div className="text-2xl font-serif text-secondary">
-                  {["子", "午", "寅", "申"][index]}
-                </div>
+                <div className="text-2xl font-serif text-secondary">{["子", "午", "寅", "申"][index]}</div>
               </div>
             ))}
           </div>
@@ -128,33 +100,16 @@ export function HowSajuWorks() {
           className="mb-20"
         >
           <div className="flex items-center gap-4 mb-6">
-            <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-              2
-            </span>
-            <h3 className="font-serif text-2xl font-semibold">
-              The Five Elements
-            </h3>
+            <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">2</span>
+            <h3 className="font-serif text-2xl font-semibold">{t("wis.how.s2.title", locale)}</h3>
           </div>
-          <p className="text-muted-foreground mb-8 max-w-3xl">
-            Everything in Saju maps to five cosmic forces: Wood, Fire, Earth,
-            Metal, and Water. Their balance in your chart determines your
-            personality, strengths, and life path.
-          </p>
+          <p className="text-muted-foreground mb-8 max-w-3xl">{t("wis.how.s2.desc", locale)}</p>
           <div className="flex flex-wrap justify-center gap-4">
-            {elements.map((element) => (
-              <div
-                key={element.name}
-                className={`glass rounded-2xl p-6 text-center min-w-[140px] ${element.bgColor}`}
-              >
-                <div className={`text-4xl font-serif mb-2 ${element.color}`}>
-                  {element.chinese}
-                </div>
-                <div className={`font-semibold mb-1 ${element.color}`}>
-                  {element.name}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {element.keywords}
-                </div>
+            {elements.map((el) => (
+              <div key={el.name} className={`glass rounded-2xl p-6 text-center min-w-[140px] ${el.bgColor}`}>
+                <div className={`text-4xl font-serif mb-2 ${el.color}`}>{el.chinese}</div>
+                <div className={`font-semibold mb-1 ${el.color}`}>{el.name}</div>
+                <div className="text-xs text-muted-foreground">{el.keywords}</div>
               </div>
             ))}
           </div>
@@ -169,23 +124,17 @@ export function HowSajuWorks() {
           className="mb-20"
         >
           <div className="flex items-center gap-4 mb-6">
-            <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-              3
-            </span>
-            <h3 className="font-serif text-2xl font-semibold">Your Day Master</h3>
+            <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">3</span>
+            <h3 className="font-serif text-2xl font-semibold">{t("wis.how.s3.title", locale)}</h3>
           </div>
-          <p className="text-muted-foreground mb-8 max-w-3xl">
-            The character on your Day Pillar&apos;s Heavenly Stem is your &quot;Day
-            Master&quot; — the core of who you are. It&apos;s like your sun sign, but far
-            more specific.
-          </p>
+          <p className="text-muted-foreground mb-8 max-w-3xl">{t("wis.how.s3.desc", locale)}</p>
           <div className="flex justify-center">
             <div className="pillar-card rounded-2xl p-8 text-center glow-gold">
               <span className="text-xs uppercase tracking-wider text-primary mb-3 block font-medium">
-                Your Day Master
+                {t("wis.how.s3.label", locale)}
               </span>
               <div className="text-6xl font-serif text-primary mb-2">戊</div>
-              <div className="text-sm text-muted-foreground">Yang Earth</div>
+              <div className="text-sm text-muted-foreground">{t("wis.how.s3.example", locale)}</div>
             </div>
           </div>
         </motion.div>
@@ -198,27 +147,17 @@ export function HowSajuWorks() {
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center gap-4 mb-6">
-            <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-              4
-            </span>
-            <h3 className="font-serif text-2xl font-semibold">
-              The Ten Archetypes
-            </h3>
+            <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">4</span>
+            <h3 className="font-serif text-2xl font-semibold">{t("wis.how.s4.title", locale)}</h3>
           </div>
-          <p className="text-muted-foreground mb-8 max-w-3xl">
-            The relationship between your Day Master and every other character
-            reveals your dominant archetype — your natural approach to wealth,
-            love, power, and creativity.
-          </p>
+          <p className="text-muted-foreground mb-8 max-w-3xl">{t("wis.how.s4.desc", locale)}</p>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-            {archetypes.map((archetype) => (
+            {archetypes.map((name, i) => (
               <div
-                key={archetype.name}
-                className={`glass rounded-xl p-4 text-center border ${
-                  elementColors[archetype.element]
-                }`}
+                key={i}
+                className={`glass rounded-xl p-4 text-center border ${elementColors[archetypeElements[i]]}`}
               >
-                <span className="text-sm font-medium">{archetype.name}</span>
+                <span className="text-sm font-medium">{name}</span>
               </div>
             ))}
           </div>

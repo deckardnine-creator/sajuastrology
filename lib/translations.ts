@@ -326,6 +326,14 @@ const translations = {
   "dash.myConsultations": { en: "My Consultations", ko: "내 상담", ja: "相談履歴" },
   "dash.share": { en: "Share", ko: "공유", ja: "共有" },
   "dash.fullReading": { en: "Full Reading", ko: "전체 보기", ja: "全文を見る" },
+  "dash.emptyDesc": { en: "Your cosmic blueprint awaits. Generate your Saju reading to unlock personalized daily insights.", ko: "우주적 청사진이 기다립니다. 사주 리딩을 생성하여 맞춤 일일 인사이트를 받아보세요.", ja: "宇宙の設計図が待っています。四柱鑑定を生成して毎日のパーソナルインサイトを受け取りましょう。" },
+  "dash.generateReading": { en: "Generate My Reading", ko: "내 사주 보기", ja: "鑑定を生成する" },
+  "dash.newCheck": { en: "New Check", ko: "새 궁합", ja: "新規チェック" },
+  "dash.checkCompat": { en: "Check Compatibility", ko: "궁합 확인하기", ja: "相性をチェック" },
+  "dash.checkCompatDesc": { en: "See how your Four Pillars align with a partner, friend, or colleague", ko: "파트너, 친구, 동료와 당신의 사주가 어떻게 조화되는지 확인하세요", ja: "パートナー、友人、同僚との四柱の調和を確認" },
+  "dash.setPrimaryHint": { en: "Tap ★ to set your primary chart (once per day).", ko: "★를 눌러 기본 사주를 설정하세요 (하루 1회).", ja: "★を押してメインの命式を設定（1日1回）。" },
+  "dash.viewAllChecks": { en: "View all", ko: "모두 보기", ja: "すべて見る" },
+  "dash.checks": { en: "checks", ko: "궁합 결과", ja: "件のチェック" },
 
   // ─── Common ───
   "common.back": { en: "Back", ko: "뒤로", ja: "戻る" },
@@ -449,6 +457,80 @@ const translations = {
     ko: "이 서비스는 오락 및 자기 성찰 목적으로만 제공됩니다. 이용약관을 참고하세요.",
     ja: "エンターテインメントおよび自己理解の目的でのみ提供されます。利用規約をご覧ください。",
   },
+
+  // ─── What is Saju Page ───
+
+  // Hero
+  "wis.hero.titleMain": { en: "What is", ko: "사주란", ja: "사주とは" },
+  "wis.hero.titleGold": { en: "Saju", ko: "사주", ja: "사주" },
+  "wis.hero.titleSuffix": { en: "?", ko: "무엇인가요?", ja: "何ですか？" },
+  "wis.hero.desc": { en: "The 1,000-year-old system that maps your entire life from the moment you were born.", ko: "태어난 순간부터 인생 전체를 그려내는 1,000년의 지혜.", ja: "生まれた瞬間から人生全体を描く、1,000年の知恵。" },
+
+  // Comparison Hook
+  "wis.hook.title1": { en: "You know your zodiac sign. But that's only", ko: "별자리는 알고 있죠. 하지만 그건 단지", ja: "星座は知っている。でもそれは" },
+  "wis.hook.title2": { en: "1 piece", ko: "1조각", ja: "1ピース" },
+  "wis.hook.title3": { en: "of a", ko: "에 불과해요.", ja: "に過ぎない。" },
+  "wis.hook.title4": { en: "518,400-piece", ko: "518,400조각", ja: "518,400ピース" },
+  "wis.hook.title5": { en: "puzzle.", ko: "퍼즐 중 하나.", ja: "パズルの1ピース。" },
+  "wis.hook.western": { en: "Western: 12 Types", ko: "서양: 12가지 유형", ja: "西洋：12タイプ" },
+  "wis.hook.saju": { en: "Saju: 518,400 Unique Profiles", ko: "사주: 518,400가지 고유 프로필", ja: "사주：518,400通りのプロフィール" },
+
+  // How Saju Works
+  "wis.how.title": { en: "How Saju Works", ko: "사주의 원리", ja: "사주の仕組み" },
+  "wis.how.desc": { en: "Four steps to understanding your cosmic blueprint", ko: "우주적 청사진을 이해하는 4단계", ja: "宇宙の設計図を理解する4ステップ" },
+  "wis.how.s1.title": { en: "Four Pillars, Eight Characters", ko: "사주팔자 — 4개의 기둥, 8개의 글자", ja: "四柱八字 — 4つの柱、8つの文字" },
+  "wis.how.s1.desc": { en: "Your birth year, month, day, and hour each form a pillar. Each pillar has two characters — a Heavenly Stem and an Earthly Branch. Together, these 8 characters create your cosmic DNA.", ko: "생년, 월, 일, 시 각각이 하나의 기둥을 이룹니다. 각 기둥은 천간과 지지 두 글자로 구성되어 있습니다. 이 8개 글자가 당신의 우주적 DNA를 만들어냅니다.", ja: "生年・月・日・時がそれぞれ柱を形成。各柱は天干と地支の2文字で構成。この8文字があなたの宇宙的DNAを作ります。" },
+  "wis.how.s2.title": { en: "The Five Elements", ko: "오행", ja: "五行" },
+  "wis.how.s2.desc": { en: "Everything in Saju maps to five cosmic forces: Wood, Fire, Earth, Metal, and Water. Their balance in your chart determines your personality, strengths, and life path.", ko: "사주의 모든 것은 목, 화, 토, 금, 수 다섯 가지 우주적 힘으로 연결됩니다. 이들의 균형이 성격, 강점, 인생 방향을 결정합니다.", ja: "사주のすべては木・火・土・金・水の五つの力に紐付きます。そのバランスが性格・強み・人生の方向性を決定します。" },
+  "wis.how.s3.title": { en: "Your Day Master", ko: "일주 (日主)", ja: "日主" },
+  "wis.how.s3.desc": { en: "The character on your Day Pillar's Heavenly Stem is your Day Master — the core of who you are. It's like your sun sign, but far more specific.", ko: "일주 천간의 글자가 바로 일주(日主) — 당신의 본질입니다. 태양 별자리와 비슷하지만 훨씬 더 구체적입니다.", ja: "日柱の天干の文字があなたの「日主」— あなたの本質。太陽星座に似ていますが、はるかに具体的です。" },
+  "wis.how.s3.label": { en: "Your Day Master", ko: "나의 일주", ja: "あなたの日主" },
+  "wis.how.s3.example": { en: "Yang Earth", ko: "양토 (陽土)", ja: "陽土" },
+  "wis.how.s4.title": { en: "The Ten Archetypes", ko: "십신 (十神) — 10가지 원형", ja: "十神 — 10のアーキタイプ" },
+  "wis.how.s4.desc": { en: "The relationship between your Day Master and every other character reveals your dominant archetype — your natural approach to wealth, love, power, and creativity.", ko: "일주와 다른 글자들의 관계가 지배적인 원형을 드러냅니다 — 재물, 사랑, 권력, 창의력에 대한 당신의 본능적 접근법.", ja: "日主と他の文字との関係があなたの支配的なアーキタイプを明かします — 財運・恋愛・権力・創造性への本能的アプローチ。" },
+
+  // Five Elements
+  "wis.el.wood": { en: "Wood", ko: "목 (木)", ja: "木" },
+  "wis.el.wood.kw": { en: "Growth, Creativity", ko: "성장, 창의성", ja: "成長、創造性" },
+  "wis.el.fire": { en: "Fire", ko: "화 (火)", ja: "火" },
+  "wis.el.fire.kw": { en: "Passion, Action", ko: "열정, 행동력", ja: "情熱、行動力" },
+  "wis.el.earth": { en: "Earth", ko: "토 (土)", ja: "土" },
+  "wis.el.earth.kw": { en: "Stability, Trust", ko: "안정, 신뢰", ja: "安定、信頼" },
+  "wis.el.metal": { en: "Metal", ko: "금 (金)", ja: "金" },
+  "wis.el.metal.kw": { en: "Precision, Discipline", ko: "정밀함, 규율", ja: "精密、規律" },
+  "wis.el.water": { en: "Water", ko: "수 (水)", ja: "水" },
+  "wis.el.water.kw": { en: "Wisdom, Adaptability", ko: "지혜, 적응력", ja: "知恵、適応力" },
+
+  // Archetypes
+  "wis.arch.ally": { en: "The Ally", ko: "동료형", ja: "同士型" },
+  "wis.arch.maverick": { en: "The Maverick", ko: "독불장군형", ja: "マーベリック型" },
+  "wis.arch.creator": { en: "The Creator", ko: "창조자형", ja: "クリエイター型" },
+  "wis.arch.rebel": { en: "The Rebel", ko: "반항아형", ja: "反骨型" },
+  "wis.arch.adventurer": { en: "The Adventurer", ko: "모험가형", ja: "冒険家型" },
+  "wis.arch.builder": { en: "The Builder", ko: "건설자형", ja: "ビルダー型" },
+  "wis.arch.commander": { en: "The Commander", ko: "지휘관형", ja: "指揮官型" },
+  "wis.arch.leader": { en: "The Leader", ko: "리더형", ja: "リーダー型" },
+  "wis.arch.visionary": { en: "The Visionary", ko: "선구자형", ja: "ビジョナリー型" },
+  "wis.arch.mentor": { en: "The Mentor", ko: "멘토형", ja: "メンター型" },
+
+  // Why Different
+  "wis.diff.title": { en: "Why It's Different", ko: "사주가 다른 이유", ja: "なぜ違うのか" },
+  "wis.diff.desc": { en: "Three key advantages over traditional astrology systems", ko: "전통 점성술 대비 세 가지 핵심 강점", ja: "従来の占星術に対する3つの主要な優位性" },
+  "wis.diff.1.title": { en: "Precision", ko: "정밀함", ja: "精密さ" },
+  "wis.diff.1.desc": { en: "Zodiac uses your birth month. Saju uses your exact birth hour and True Solar Time — calculated from your birth city's longitude.", ko: "별자리는 출생 월을 사용합니다. 사주는 정확한 출생 시각과 출생지 경도로 계산한 진태양시를 사용합니다.", ja: "星座は生まれた月を使う。사주は正確な出生時刻と出生地の経度から計算した真太陽時を使います。" },
+  "wis.diff.2.title": { en: "Depth", ko: "깊이", ja: "深さ" },
+  "wis.diff.2.desc": { en: "MBTI gives you 16 types. Saju gives you 518,400+ unique combinations, each with distinct life patterns.", ko: "MBTI는 16가지 유형을 제공합니다. 사주는 각기 다른 인생 패턴을 가진 518,400가지 이상의 고유한 조합을 제공합니다.", ja: "MBTIは16タイプ。사주は518,400通り以上の固有の組み合わせ、それぞれ異なる人生パターンを提供します。" },
+  "wis.diff.3.title": { en: "Time-Awareness", ko: "시간 인식", ja: "時間認識" },
+  "wis.diff.3.desc": { en: "Your Saju chart interacts with annual and decadal energy cycles, giving you year-by-year and even day-by-day guidance.", ko: "사주 차트는 연간 및 10년 단위 에너지 사이클과 상호작용하여 연별, 심지어 일별 지침을 제공합니다.", ja: "四柱チャートは年間・10年サイクルのエネルギーと相互作用し、年別・日別のガイダンスを提供します。" },
+
+  // Credibility
+  "wis.cred.title": { en: "A Millennium of Wisdom", ko: "천 년의 지혜", ja: "千年の知恵" },
+  "wis.cred.desc": { en: "— also known as Four Pillars of Destiny — has been the primary life-guidance system in Korea, China, and Japan for over a millennium. Today, it's consulted for major life decisions: career changes, marriages, business launches, and more.", ko: "— 사주팔자로도 알려진 — 한국, 중국, 일본에서 천 년 이상 핵심적인 인생 지침 시스템으로 자리잡아 왔습니다. 오늘날에도 직업 변경, 결혼, 창업 등 중요한 인생 결정에 활용됩니다.", ja: "— 四柱推命としても知られる — 千年以上にわたり韓国・中国・日本の主要な人生指針システムとして機能してきました。今日も転職・結婚・起業などの重要な決断に活用されています。" },
+
+  // Education CTA
+  "wis.cta.title": { en: "Ready to decode yours?", ko: "당신의 사주를 해석할 준비가 되셨나요?", ja: "あなたの四柱を解読する準備はできましたか？" },
+  "wis.cta.btn": { en: "Enter Your Birth Details", ko: "출생 정보 입력하기", ja: "生年月日を入力する" },
+
 } as const;
 
 export type TranslationKey = keyof typeof translations;

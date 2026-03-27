@@ -1,8 +1,12 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { useLanguage } from "@/lib/language-context"
+import { t } from "@/lib/translations"
 
 export function ComparisonHook() {
+  const { locale } = useLanguage()
+
   return (
     <section className="py-20 bg-card">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -14,14 +18,16 @@ export function ComparisonHook() {
           className="text-center mb-12"
         >
           <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 text-balance">
-            You know your zodiac sign. But that&apos;s only{" "}
-            <span className="text-primary">1 piece</span> of a{" "}
-            <span className="text-primary">518,400-piece</span> puzzle.
+            {t("wis.hook.title1", locale)}{" "}
+            <span className="text-primary">{t("wis.hook.title2", locale)}</span>{" "}
+            {t("wis.hook.title3", locale)}{" "}
+            <span className="text-primary">{t("wis.hook.title4", locale)}</span>{" "}
+            {t("wis.hook.title5", locale)}
           </h2>
         </motion.div>
 
         <div className="grid gap-8 md:grid-cols-2">
-          {/* Western Zodiac - Simplified */}
+          {/* Western Zodiac */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -30,7 +36,7 @@ export function ComparisonHook() {
             className="rounded-2xl bg-muted/30 p-8 opacity-60"
           >
             <h3 className="text-center text-muted-foreground mb-6 text-sm uppercase tracking-wider">
-              Western: 12 Types
+              {t("wis.hook.western", locale)}
             </h3>
             <div className="grid grid-cols-4 gap-2">
               {[...Array(12)].map((_, i) => (
@@ -44,7 +50,7 @@ export function ComparisonHook() {
             </div>
           </motion.div>
 
-          {/* Saju Matrix - Complex & Alive */}
+          {/* Saju Matrix */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -55,7 +61,7 @@ export function ComparisonHook() {
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5" />
             <div className="relative">
               <h3 className="text-center text-primary mb-6 text-sm uppercase tracking-wider font-medium">
-                Saju: 518,400 Unique Profiles
+                {t("wis.hook.saju", locale)}
               </h3>
               <div className="grid grid-cols-8 gap-1">
                 {[...Array(64)].map((_, i) => {

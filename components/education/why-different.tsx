@@ -2,29 +2,18 @@
 
 import { motion } from "framer-motion"
 import { Target, Layers, Clock } from "lucide-react"
-
-const differences = [
-  {
-    icon: Target,
-    title: "Precision",
-    description:
-      "Zodiac uses your birth month. Saju uses your exact birth hour and True Solar Time — calculated from your birth city's longitude.",
-  },
-  {
-    icon: Layers,
-    title: "Depth",
-    description:
-      "MBTI gives you 16 types. Saju gives you 518,400+ unique combinations, each with distinct life patterns.",
-  },
-  {
-    icon: Clock,
-    title: "Time-Awareness",
-    description:
-      "Your Saju chart interacts with annual and decadal energy cycles, giving you year-by-year and even day-by-day guidance.",
-  },
-]
+import { useLanguage } from "@/lib/language-context"
+import { t } from "@/lib/translations"
 
 export function WhyDifferent() {
+  const { locale } = useLanguage()
+
+  const differences = [
+    { icon: Target, title: t("wis.diff.1.title", locale), description: t("wis.diff.1.desc", locale) },
+    { icon: Layers, title: t("wis.diff.2.title", locale), description: t("wis.diff.2.desc", locale) },
+    { icon: Clock,  title: t("wis.diff.3.title", locale), description: t("wis.diff.3.desc", locale) },
+  ]
+
   return (
     <section className="py-24 bg-card">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -36,10 +25,10 @@ export function WhyDifferent() {
           className="text-center mb-16"
         >
           <h2 className="font-serif text-3xl sm:text-4xl font-bold mb-4">
-            Why It&apos;s Different
+            {t("wis.diff.title", locale)}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Three key advantages over traditional astrology systems
+            {t("wis.diff.desc", locale)}
           </p>
         </motion.div>
 
@@ -56,12 +45,8 @@ export function WhyDifferent() {
               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
                 <item.icon className="w-7 h-7 text-primary" />
               </div>
-              <h3 className="font-serif text-xl font-semibold mb-3">
-                {item.title}
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                {item.description}
-              </p>
+              <h3 className="font-serif text-xl font-semibold mb-3">{item.title}</h3>
+              <p className="text-muted-foreground leading-relaxed">{item.description}</p>
             </motion.div>
           ))}
         </div>
