@@ -59,8 +59,8 @@ const plans = [
     price: 29.99,
     description: "5 personal Saju consultations",
     features: [
-      "Everything in Full Destiny, plus:",
       "5 one-on-one Saju consultation sessions",
+      "Just enter your birth details — no prior reading needed",
       "Ask about career, love, timing, or any life question",
       "Clarifying dialogue for precision analysis",
       "2,000–4,000 word personalized report per session",

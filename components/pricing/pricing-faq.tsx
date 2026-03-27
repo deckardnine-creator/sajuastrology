@@ -57,7 +57,7 @@ const faqs = [
   {
     question: "What is the Master Consultation?",
     answer:
-      "A personal Saju advisor session. Submit a life question — career, love, timing, wealth, health — and receive a 2,000–4,000 word personalized analysis grounded in your birth chart, with concrete timing guidance and actionable insights. 5 sessions for $29.99.",
+      "A personal Saju advisor session. Enter your birth details directly (no prior reading needed), submit a life question — career, love, timing, wealth, health — and receive a 2,000–4,000 word personalized analysis grounded in your birth chart, with concrete timing guidance and actionable insights. 5 sessions for $29.99. If you already have a reading, your birth data is auto-filled for convenience.",
   },
   {
     question: "How accurate is Saju analysis?",

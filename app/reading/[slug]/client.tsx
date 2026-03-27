@@ -13,7 +13,7 @@ import { ELEMENTS, type Element } from "@/lib/saju-calculator";
 import { DAY_MASTER_DISPLAY } from "@/lib/constants";
 import { GoogleIcon } from "@/components/ui/google-icon";
 import { useAuth } from "@/lib/auth-context";
-import { safeGet, safeSet, safeRemove } from "@/lib/safe-storage";
+import { safeGet, safeSet } from "@/lib/safe-storage";
 
 interface ReadingData {
   id: string;
@@ -87,7 +87,6 @@ export default function ReadingPageClient() {
   const [paidGenerationFailed, setPaidGenerationFailed] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [claimed, setClaimed] = useState(false);
-  const [showConsultationReturn, setShowConsultationReturn] = useState(false);
 
   // Reset payment loading when user returns from Stripe (browser tab regains focus)
   useEffect(() => {
@@ -129,13 +128,6 @@ export default function ReadingPageClient() {
       } catch {}
     })();
   }, [user, reading, claimed]);
-
-  // Check consultation return flag
-  useEffect(() => {
-    if (reading && safeGet("return-to-consultation") === "true") {
-      setShowConsultationReturn(true);
-    }
-  }, [reading]);
 
   const handleShareLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -779,17 +771,6 @@ export default function ReadingPageClient() {
                   </p>
                 </div>
               </div>
-            </motion.section>
-          )}
-
-          {/* Consultation Return Banner */}
-          {showConsultationReturn && (
-            <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-              <Link href="/consultation" onClick={() => safeRemove("return-to-consultation")}
-                className="block bg-gradient-to-r from-purple-500/10 to-purple-500/5 border border-purple-500/30 rounded-2xl p-6 text-center hover:border-purple-500/50 transition-colors">
-                <p className="text-sm text-purple-300 mb-1">Your chart is ready!</p>
-                <p className="text-lg font-serif font-semibold text-foreground">Continue to Consultation →</p>
-              </Link>
             </motion.section>
           )}
 

@@ -19,13 +19,13 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Information We Collect</h2>
               <p className="mb-2"><strong>Account:</strong> Name, email, and profile picture via Google sign-in. We never receive your Google password.</p>
-              <p className="mb-2"><strong>Birth Data:</strong> Name, gender, birth date/time/city you voluntarily provide for readings and compatibility checks.</p>
+              <p className="mb-2"><strong>Birth Data:</strong> Name, gender, birth date/time/city you voluntarily provide for readings, compatibility checks, and consultations.</p>
               <p className="mb-2"><strong>Payments:</strong> Processed entirely by LemonSqueezy. We never store credit card numbers.</p>
               <p><strong>Analytics:</strong> Anonymous usage data via Vercel Analytics (cookie-free).</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">How We Use Your Data</h2>
-              <p>Generate personalized Saju readings and compatibility analysis, provide your dashboard and daily fortune, process payments, and improve the service via anonymous analytics.</p>
+              <p>Generate personalized Saju readings, compatibility analysis, and consultations, provide your dashboard and daily fortune, process payments, and improve the service via anonymous analytics.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Security</h2>
