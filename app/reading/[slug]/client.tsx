@@ -172,7 +172,7 @@ export default function ReadingPageClient() {
       const res = await fetch("/api/reading/generate-paid", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shareSlug: slug }),
+        body: JSON.stringify({ shareSlug: slug, locale }),
       });
       const data = await res.json();
       clearInterval(stepTimer);

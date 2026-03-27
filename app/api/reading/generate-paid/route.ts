@@ -34,11 +34,13 @@ function parseJSON(raw: string): any {
 
 export async function POST(request: NextRequest) {
   try {
-    const { shareSlug } = await request.json();
+    const body = await request.json();
+    const { shareSlug } = body;
+    const locale = body.locale || "en";
     if (!shareSlug) return NextResponse.json({ error: "Missing slug" }, { status: 400 });
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
     const anthropicKey = process.env.ANTHROPIC_API_KEY || "";
     const dbHeaders = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}`, "Content-Type": "application/json" };
 
@@ -82,9 +84,9 @@ export async function POST(request: NextRequest) {
     const forecastYear = currentMonth >= 11 ? currentYear + 1 : currentYear;
 
     const [raw1, raw2, raw3] = await Promise.all([
-      callClaude(buildPaidPromptPart1(chartSummary), anthropicKey, "Part1-Career+Love"),
-      callClaude(buildPaidPromptPart2(chartSummary, currentYear), anthropicKey, "Part2-Health+Decade"),
-      callClaude(buildPaidPromptPart3(chartSummary), anthropicKey, "Part3-Monthly+Talent"),
+      callClaude(buildPaidPromptPart1(chartSummary, locale), anthropicKey, "Part1-Career+Love"),
+      callClaude(buildPaidPromptPart2(chartSummary, currentYear, locale), anthropicKey, "Part2-Health+Decade"),
+      callClaude(buildPaidPromptPart3(chartSummary, locale), anthropicKey, "Part3-Monthly+Talent"),
     ]);
 
     // 3. Parse

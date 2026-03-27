@@ -84,12 +84,13 @@ function CompatibilityContent() {
   const [progress, setProgress] = useState(0);
   const [autoFilled, setAutoFilled] = useState(false);
 
-  // Auto-fill Person A from existing chart
+  // Auto-fill Person A only when coming from reading page (?my=slug)
+  // Never auto-fill from existing chart — always start fresh
   useEffect(() => {
     if (autoFilled) return;
     const mySlug = searchParams.get("my");
+    if (!mySlug) return; // Only auto-fill if explicitly coming from reading page
 
-    // Try from sajuData (auth context)
     if (sajuData.chart) {
       const bd = typeof sajuData.chart.birthDate === "string"
         ? new Date(sajuData.chart.birthDate)
@@ -105,35 +106,9 @@ function CompatibilityContent() {
         selectedCity: { name: sajuData.chart.birthCity, country: "", lat: 0, lng: 0 } as City,
       });
       setAutoFilled(true);
-      // If came from reading page, skip to Person B
-      if (mySlug) setStep("personB");
-      return;
+      setStep("personB"); // Skip to partner info
     }
-
-    // Try from localStorage — only if user is logged in
-    if (!user) return;
-    try {
-      const raw = safeGet("saju-data");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed.chart) {
-          const bd = new Date(parsed.chart.birthDate);
-          setPersonA({
-            name: parsed.chart.name,
-            gender: parsed.chart.gender,
-            year: bd.getFullYear(),
-            month: bd.getMonth() + 1,
-            day: bd.getDate(),
-            hour: 12,
-            cityQuery: parsed.chart.birthCity,
-            selectedCity: { name: parsed.chart.birthCity, country: "", lat: 0, lng: 0 } as City,
-          });
-          setAutoFilled(true);
-          if (mySlug) setStep("personB");
-        }
-      }
-    } catch {}
-  }, [sajuData.chart, searchParams, autoFilled, user]);
+  }, [sajuData.chart, searchParams, autoFilled]);
 
   // Warn before leaving during generation
   useEffect(() => {
@@ -448,25 +423,43 @@ function PersonForm({ label, data, onChange, locale }: {
         </div>
       </div>
 
-      {/* Birth Date — compact steppers */}
+      {/* Birth Date — 3 equal columns, no overlap */}
       <div className="mb-4">
         <label className="block text-sm text-muted-foreground mb-2">{t("form.birthDate", locale)}</label>
         <div className="grid grid-cols-3 gap-2">
-          {/* Year - special: wider range, use input instead */}
+          {/* Year */}
           <div className="flex flex-col items-center gap-1">
-            <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">{t("form.year", locale)}</span>
-            <div className="flex items-center bg-background/50 border border-border rounded-xl overflow-hidden">
-              <button type="button" onClick={() => onChange({ ...data, year: data.year - 1 < 1920 ? 1920 : data.year - 1 })}
-                className="w-9 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base font-light">−</button>
-              <span className="w-14 text-center text-sm font-semibold text-primary select-none">{data.year}</span>
-              <button type="button" onClick={() => onChange({ ...data, year: data.year + 1 > CURRENT_YEAR ? CURRENT_YEAR : data.year + 1 })}
-                className="w-9 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base font-light">+</button>
+            <span className="text-[10px] text-muted-foreground/60 uppercase">{t("form.year", locale)}</span>
+            <div className="flex items-center w-full bg-background/50 border border-border rounded-xl overflow-hidden">
+              <button type="button" onClick={() => onChange({ ...data, year: Math.max(1920, data.year - 1) })}
+                className="w-7 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors shrink-0">−</button>
+              <span className="flex-1 text-center text-xs font-semibold text-primary select-none tabular-nums">{data.year}</span>
+              <button type="button" onClick={() => onChange({ ...data, year: Math.min(CURRENT_YEAR, data.year + 1) })}
+                className="w-7 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors shrink-0">+</button>
             </div>
           </div>
-          <Stepper value={data.month} onChange={(v) => onChange({ ...data, month: v, day: Math.min(data.day, new Date(data.year, v, 0).getDate()) })}
-            min={1} max={12} label={t("form.month", locale)} />
-          <Stepper value={data.day} onChange={(v) => onChange({ ...data, day: v })}
-            min={1} max={daysInMonth} label={t("form.day", locale)} />
+          {/* Month */}
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[10px] text-muted-foreground/60 uppercase">{t("form.month", locale)}</span>
+            <div className="flex items-center w-full bg-background/50 border border-border rounded-xl overflow-hidden">
+              <button type="button" onClick={() => onChange({ ...data, month: data.month <= 1 ? 12 : data.month - 1 })}
+                className="w-7 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors shrink-0">−</button>
+              <span className="flex-1 text-center text-sm font-semibold text-primary select-none">{String(data.month).padStart(2,"0")}</span>
+              <button type="button" onClick={() => onChange({ ...data, month: data.month >= 12 ? 1 : data.month + 1 })}
+                className="w-7 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors shrink-0">+</button>
+            </div>
+          </div>
+          {/* Day */}
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[10px] text-muted-foreground/60 uppercase">{t("form.day", locale)}</span>
+            <div className="flex items-center w-full bg-background/50 border border-border rounded-xl overflow-hidden">
+              <button type="button" onClick={() => onChange({ ...data, day: data.day <= 1 ? daysInMonth : data.day - 1 })}
+                className="w-7 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors shrink-0">−</button>
+              <span className="flex-1 text-center text-sm font-semibold text-primary select-none">{String(data.day).padStart(2,"0")}</span>
+              <button type="button" onClick={() => onChange({ ...data, day: data.day >= daysInMonth ? 1 : data.day + 1 })}
+                className="w-7 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors shrink-0">+</button>
+            </div>
+          </div>
         </div>
       </div>
 

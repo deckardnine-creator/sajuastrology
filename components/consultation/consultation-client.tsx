@@ -29,7 +29,7 @@ import Link from "next/link";
 
 /* ─── Types ─── */
 
-type Step = "loading" | "no-credits" | "form" | "clarifying" | "generating" | "report";
+type Step = "loading" | "no-credits" | "form" | "generating" | "report";
 
 interface Report {
   title: string;
@@ -126,8 +126,6 @@ export function ConsultationClient() {
   const [birthDataLocked, setBirthDataLocked] = useState(false);
   const [category, setCategory] = useState("");
   const [question, setQuestion] = useState("");
-  const [clarifyingQuestions, setClarifyingQuestions] = useState<string[]>([]);
-  const [clarifyingAnswers, setClarifyingAnswers] = useState<string[]>([]);
   const [consultationId, setConsultationId] = useState("");
   const [report, setReport] = useState<Report | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -278,16 +276,38 @@ export function ConsultationClient() {
 
       setConsultationId(data.consultationId);
 
-      if (data.needsClarification) {
-        setClarifyingQuestions(data.questions);
-        setClarifyingAnswers(new Array(data.questions.length).fill(""));
-        setStep("clarifying");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else if (data.report) {
+      if (data.report) {
         setReport(data.report);
         setCredits((c) => Math.max(0, c - 1));
         setStep("report");
         window.scrollTo({ top: 0, behavior: "smooth" });
+      } else if (data.needsClarification && data.questions) {
+        // Auto-submit clarifying questions with empty answers to skip the step
+        // Just go straight to report generation
+        try {
+          const clarifyRes = await fetch("/api/consultation/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "submit-answers",
+              consultationId: data.consultationId,
+              answers: data.questions.map(() => "Please provide your best analysis based on the question given."),
+            }),
+          });
+          const clarifyData = await clarifyRes.json();
+          if (clarifyData.report) {
+            setReport(clarifyData.report);
+            setCredits((c) => Math.max(0, c - 1));
+            setStep("report");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          } else {
+            setError(clarifyData.error || "Generation failed.");
+            setStep("form");
+          }
+        } catch {
+          setError("Network error. Please try again.");
+          setStep("form");
+        }
       } else {
         setError("Unexpected response. Please try again.");
         setStep("form");
@@ -314,7 +334,6 @@ export function ConsultationClient() {
         body: JSON.stringify({
           action: "submit-answers",
           consultationId,
-          answers: clarifyingAnswers,
         }),
       });
 
@@ -365,8 +384,6 @@ export function ConsultationClient() {
   const handleNewConsultation = () => {
     setCategory("");
     setQuestion("");
-    setClarifyingQuestions([]);
-    setClarifyingAnswers([]);
     setConsultationId("");
     setReport(null);
     setError("");
@@ -509,7 +526,7 @@ export function ConsultationClient() {
             {/* Question Input */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-foreground mb-3">
-                {t("consult.questionLabel", locale)}
+                {t("consult.questionLabelDetail", locale)}
               </label>
               <textarea
                 value={question}
@@ -523,6 +540,11 @@ export function ConsultationClient() {
                 <p className="text-xs text-muted-foreground/50">
                   {question.length}/2,000
                 </p>
+                {question.length > 0 && question.length < 100 && (
+                  <p className="text-xs text-amber-400/70">
+                    {locale === "ko" ? "100자 이상 자세히 입력할수록 정확한 답을 얻습니다" : locale === "ja" ? "100文字以上詳しく書くほど精度が上がります" : "Write 100+ chars for a more accurate reading"}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -561,7 +583,7 @@ export function ConsultationClient() {
                 }
                 handleStartConsultation();
               }}
-              disabled={!category || question.trim().length < 10 || !isBirthDataValid || isSubmitting}
+              disabled={!category || question.trim().length < 50 || !isBirthDataValid || isSubmitting}
               className="w-full h-12 gold-gradient text-primary-foreground font-semibold"
               size="lg"
             >
@@ -580,76 +602,7 @@ export function ConsultationClient() {
           </motion.div>
         )}
 
-        {/* ─── Clarifying Questions ─── */}
-        {step === "clarifying" && (
-          <motion.div
-            key="clarifying"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-          >
-            <div className="bg-card/50 border border-border rounded-2xl p-6 mb-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">{t("consult.moreDetails", locale)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("consult.moreContext", locale)}
-                  </p>
-                </div>
-              </div>
 
-              <div className="space-y-5">
-                {clarifyingQuestions.map((q, i) => (
-                  <div key={i}>
-                    <label className="block text-sm text-foreground mb-2">
-                      {q}
-                    </label>
-                    <textarea
-                      value={clarifyingAnswers[i] || ""}
-                      onChange={(e) => {
-                        const newAnswers = [...clarifyingAnswers];
-                        newAnswers[i] = e.target.value;
-                        setClarifyingAnswers(newAnswers);
-                      }}
-                      rows={3}
-                      maxLength={1000}
-                      className="w-full rounded-xl bg-background/50 border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 resize-none transition-colors"
-                      placeholder={t("consult.yourAnswer", locale)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
-
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setStep("form")}
-                className="flex-1"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                {t("common.back", locale)}
-              </Button>
-              <Button
-                onClick={handleSubmitAnswers}
-                disabled={clarifyingAnswers.some((a) => !a.trim()) || isSubmitting}
-                className="flex-[2] gold-gradient text-primary-foreground font-semibold"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 mr-2" />
-                )}
-                {t("consult.generateReading", locale)}
-              </Button>
-            </div>
-          </motion.div>
-        )}
 
         {/* ─── Generating ─── */}
         {step === "generating" && (
