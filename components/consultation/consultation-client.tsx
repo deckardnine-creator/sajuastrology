@@ -606,7 +606,7 @@ export function ConsultationClient() {
                 <p className="text-xs text-muted-foreground/50">
                   {question.length}/2,000
                 </p>
-                {question.length > 0 && question.length < 100 && (
+                {question.length > 0 && question.length < 100 && question.length >= 30 && (
                   <p className="text-xs text-amber-400/70">
                     {locale === "ko" ? "100자 이상 자세히 입력할수록 정확한 답을 얻습니다" : locale === "ja" ? "100文字以上詳しく書くほど精度が上がります" : "Write 100+ chars for a more accurate reading"}
                   </p>
@@ -649,7 +649,7 @@ export function ConsultationClient() {
                 }
                 handleStartConsultation();
               }}
-              disabled={!category || question.trim().length < 50 || !isBirthDataValid || isSubmitting}
+              disabled={!category || question.trim().length < 30 || !isBirthDataValid || isSubmitting}
               className="w-full h-12 gold-gradient text-primary-foreground font-semibold"
               size="lg"
             >
