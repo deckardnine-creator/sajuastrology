@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -52,7 +53,7 @@
 /* .dark inherits :root — no duplicate needed (dark-mode only app) */
 
 @theme inline {
-  --font-sans: 'Inter', 'Inter Fallback', system-ui, sans-serif;
+  --font-sans: 'Inter', 'Noto Sans KR', 'Inter Fallback', system-ui, sans-serif;
   --font-serif: 'Playfair Display', 'Playfair Display Fallback', Georgia, serif;
   --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
   --color-background: var(--background);
@@ -108,6 +109,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
+    word-break: keep-all;
+    overflow-wrap: break-word;
   }
 }
 
@@ -145,6 +148,13 @@ html {
   /* Smoother font rendering on mobile */
   h1, h2, h3, .font-serif {
     text-rendering: optimizeLegibility;
+  }
+
+  /* Korean text: prevent awkward line breaks */
+  :lang(ko), [lang="ko"], .ko-text {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    line-height: 1.7;
   }
   
   /* Fix overflow on mobile */

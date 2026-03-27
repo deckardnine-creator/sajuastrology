@@ -368,10 +368,19 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input type="text" placeholder={t("form.cityOfBirth", locale)} value={cityQuery}
-                    onChange={(e)=>{setCityQuery(e.target.value);setSelectedCity(null);}}
+                    onChange={(e)=>{
+                      const val = e.target.value;
+                      setCityQuery(val);
+                      // Only clear selected city if user actually changes the text
+                      if (selectedCity && val !== selectedCity.name) setSelectedCity(null);
+                    }}
                     onFocus={(e)=>{
                       if(cityResults.length>0) setShowCityDropdown(true);
                       setTimeout(()=>e.target.scrollIntoView({behavior:"smooth",block:"center"}),300);
+                    }}
+                    onBlur={()=>{
+                      // Delay hiding dropdown so mobile tap on city button registers first
+                      setTimeout(()=>setShowCityDropdown(false), 200);
                     }}
                     className="pl-10 bg-background/50 border-border focus:border-primary" />
                   {showCityDropdown && (
