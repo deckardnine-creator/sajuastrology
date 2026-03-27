@@ -1,3 +1,22 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { ArrowLeft, Lock, Sparkles, Bookmark, Share2, Check, Heart } from "lucide-react";
+import { Navbar } from "@/components/landing/navbar";
+import { Footer } from "@/components/landing/footer";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase-client";
+import { ELEMENTS, type Element } from "@/lib/saju-calculator";
+import { DAY_MASTER_DISPLAY } from "@/lib/constants";
+import { GoogleIcon } from "@/components/ui/google-icon";
+import { useAuth } from "@/lib/auth-context";
+import { safeGet, safeSet } from "@/lib/safe-storage";
+import { useLanguage } from "@/lib/language-context";
+import { t } from "@/lib/translations";
+
 // Render markdown to styled HTML
 function renderPaidMarkdown(text: string | null): string {
   if (!text) return "";
@@ -18,24 +37,6 @@ function renderPaidMarkdown(text: string | null): string {
   }).join("\n");
 }
 
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import Link from "next/link";
-import { ArrowLeft, Lock, Sparkles, Bookmark, Share2, Check, Heart } from "lucide-react";
-import { Navbar } from "@/components/landing/navbar";
-import { Footer } from "@/components/landing/footer";
-import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase-client";
-import { ELEMENTS, type Element } from "@/lib/saju-calculator";
-import { DAY_MASTER_DISPLAY } from "@/lib/constants";
-import { GoogleIcon } from "@/components/ui/google-icon";
-import { useAuth } from "@/lib/auth-context";
-import { safeGet, safeSet } from "@/lib/safe-storage";
-import { useLanguage } from "@/lib/language-context";
-import { t } from "@/lib/translations";
 
 interface ReadingData {
   id: string;
