@@ -17,6 +17,7 @@ import {
   Heart,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
 import { ELEMENTS, calculateDailyEnergy, type Element } from "@/lib/saju-calculator";
 import type { SajuChart } from "@/lib/saju-calculator";
 import { reconstructChartFromReading, getElementColor } from "@/lib/constants";
@@ -63,6 +64,7 @@ interface CompatResult {
 
 export function DashboardContent() {
   const { user, sajuData, saveSajuChart, claimTrigger } = useAuth();
+  const { t } = useLanguage();
   const [dailyScore, setDailyScore] = useState(72);
   const [mounted, setMounted] = useState(false);
   const [savedReadings, setSavedReadings] = useState<SavedReading[]>([]);
@@ -265,7 +267,7 @@ export function DashboardContent() {
         {/* Energy Score */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Today&apos;s Energy</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">{t("dash.todayEnergy")}</p>
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative">
               <svg className="w-14 h-14 sm:w-16 sm:h-16 -rotate-90">
@@ -283,7 +285,7 @@ export function DashboardContent() {
               </span>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground flex-1 hidden sm:block">
-              {dailyScore >= 70 ? "Excellent" : dailyScore >= 50 ? "Balanced" : "Be gentle"}
+              {dailyScore >= 70 ? t("common.excellent") : dailyScore >= 50 ? t("common.balanced") : t("common.beGentle")}
             </p>
           </div>
         </motion.div>
@@ -291,7 +293,7 @@ export function DashboardContent() {
         {/* Day Master */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
           className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Day Master</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">{ t("dash.dayMaster") }</p>
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center text-lg sm:text-xl font-serif"
               style={{ backgroundColor: `${dayMasterColor}20`, color: dayMasterColor }}>
@@ -308,7 +310,7 @@ export function DashboardContent() {
         {fortune && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
             className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5 hidden md:block">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Today&apos;s Lucky</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">{t("dash.todayLucky")}</p>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full border border-border" style={{ backgroundColor: fortune.luckyColorHex }} />
@@ -333,7 +335,7 @@ export function DashboardContent() {
           className="mb-6 sm:mb-8">
           <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl p-4 sm:p-5">
             <div className="flex items-start justify-between gap-3 mb-3">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Today&apos;s Fortune</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">{t("dash.todayFortune")}</p>
               <button
                 onClick={handleShareFortune}
                 className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 shrink-0 min-h-[32px]"
@@ -365,7 +367,7 @@ export function DashboardContent() {
       {/* Four Pillars */}
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6 sm:mb-8">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm tracking-wider text-muted-foreground uppercase">Your Four Pillars</h2>
+          <h2 className="text-sm tracking-wider text-muted-foreground uppercase">{t("dash.fourPillars")}</h2>
           {primaryReadingId && savedReadings.length > 0 && (
             <Link href={`/reading/${savedReadings.find((r) => r.id === primaryReadingId)?.share_slug || ""}`}
               className="text-sm text-primary hover:underline flex items-center gap-1">
@@ -390,7 +392,7 @@ export function DashboardContent() {
 
       {/* Weekly */}
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="mb-6 sm:mb-8">
-        <h2 className="text-sm tracking-wider text-muted-foreground uppercase mb-3">This Week</h2>
+        <h2 className="text-sm tracking-wider text-muted-foreground uppercase mb-3">{t("dash.thisWeek")}</h2>
         <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
           {weekDays.map((d, i) => {
             const sc = d.score >= 70 ? "#59DE9B" : d.score >= 50 ? "#F2CA50" : "#EF4444";
@@ -420,7 +422,7 @@ export function DashboardContent() {
         <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-6 sm:mb-8">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm tracking-wider text-muted-foreground uppercase flex items-center gap-2">
-              <FileText className="w-4 h-4 text-primary" /> My Readings
+              <FileText className="w-4 h-4 text-primary" /> {t("dash.myReadings")}
             </h2>
             <Link href="/calculate" className="text-sm text-primary hover:underline flex items-center gap-1">
               New Reading <ArrowRight className="w-3 h-3" />
