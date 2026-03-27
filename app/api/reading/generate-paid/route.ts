@@ -51,31 +51,34 @@ export async function POST(request: NextRequest) {
     if (!reading) return NextResponse.json({ error: "Not found" }, { status: 404 });
     if (reading.paid_reading_career) return NextResponse.json({ success: true, alreadyGenerated: true });
 
-    // ═══ PILLAR CACHE ═══
-    try {
-      const cacheRes = await fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
-        year_stem: `eq.${reading.year_stem}`, year_branch: `eq.${reading.year_branch}`,
-        month_stem: `eq.${reading.month_stem}`, month_branch: `eq.${reading.month_branch}`,
-        day_stem: `eq.${reading.day_stem}`, day_branch: `eq.${reading.day_branch}`,
-        hour_stem: `eq.${reading.hour_stem}`, hour_branch: `eq.${reading.hour_branch}`,
-        select: "paid_reading_career,paid_reading_love,paid_reading_health,paid_reading_decade,paid_reading_monthly,paid_reading_hidden_talent",
-        "paid_reading_career": "not.is.null", limit: "1",
-      })}`, { headers: dbHeaders });
-      if (cacheRes.ok) {
-        const cached = await cacheRes.json();
-        if (cached?.length > 0 && cached[0].paid_reading_career) {
-          await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
-            method: "PATCH", headers: dbHeaders,
-            body: JSON.stringify({
-              paid_reading_career: cached[0].paid_reading_career, paid_reading_love: cached[0].paid_reading_love,
-              paid_reading_health: cached[0].paid_reading_health, paid_reading_decade: cached[0].paid_reading_decade,
-              paid_reading_monthly: cached[0].paid_reading_monthly, paid_reading_hidden_talent: cached[0].paid_reading_hidden_talent,
-            }),
-          });
-          return NextResponse.json({ success: true, cached: true });
+    // ═══ PILLAR CACHE — English only ═══
+    // Cached content is always English. Skip cache for KO/JA to ensure correct language.
+    if (locale === "en") {
+      try {
+        const cacheRes = await fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
+          year_stem: `eq.${reading.year_stem}`, year_branch: `eq.${reading.year_branch}`,
+          month_stem: `eq.${reading.month_stem}`, month_branch: `eq.${reading.month_branch}`,
+          day_stem: `eq.${reading.day_stem}`, day_branch: `eq.${reading.day_branch}`,
+          hour_stem: `eq.${reading.hour_stem}`, hour_branch: `eq.${reading.hour_branch}`,
+          select: "paid_reading_career,paid_reading_love,paid_reading_health,paid_reading_decade,paid_reading_monthly,paid_reading_hidden_talent",
+          "paid_reading_career": "not.is.null", limit: "1",
+        })}`, { headers: dbHeaders });
+        if (cacheRes.ok) {
+          const cached = await cacheRes.json();
+          if (cached?.length > 0 && cached[0].paid_reading_career) {
+            await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
+              method: "PATCH", headers: dbHeaders,
+              body: JSON.stringify({
+                paid_reading_career: cached[0].paid_reading_career, paid_reading_love: cached[0].paid_reading_love,
+                paid_reading_health: cached[0].paid_reading_health, paid_reading_decade: cached[0].paid_reading_decade,
+                paid_reading_monthly: cached[0].paid_reading_monthly, paid_reading_hidden_talent: cached[0].paid_reading_hidden_talent,
+              }),
+            });
+            return NextResponse.json({ success: true, cached: true });
+          }
         }
-      }
-    } catch { /* cache miss */ }
+      } catch { /* cache miss */ }
+    }
 
     // 2. THREE parallel Sonnet calls
     const chartSummary = buildChartSummary(reading);

@@ -441,7 +441,7 @@ export function DashboardContent() {
       </motion.section>
 
       {/* Readings */}
-      {savedReadings.length > 0 && (
+      {(!readingsLoaded || savedReadings.length > 0) && (
         <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-6 sm:mb-8">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm tracking-wider text-muted-foreground uppercase flex items-center gap-2">
@@ -465,6 +465,19 @@ export function DashboardContent() {
             </motion.p>
           )}
 
+          {!readingsLoaded ? (
+            <div className="space-y-2">
+              {[1, 2].map((i) => (
+                <div key={i} className="bg-card/50 border border-border rounded-xl p-3.5 sm:p-4 flex items-center gap-3 animate-pulse">
+                  <div className="w-10 h-10 rounded-lg bg-muted/40 shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 bg-muted/40 rounded w-2/3" />
+                    <div className="h-2 bg-muted/30 rounded w-1/2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
           <div className="space-y-2">
             {(showAllReadings ? savedReadings : savedReadings.slice(0, 3)).map((r) => {
               const elColor = getElementColor(r.day_master_element);
@@ -508,6 +521,7 @@ export function DashboardContent() {
               </button>
             )}
           </div>
+          )}
         </motion.section>
       )}
 
