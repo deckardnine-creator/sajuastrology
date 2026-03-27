@@ -11,20 +11,23 @@ import {
   Plus,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
+import { t } from "@/lib/translations";
 import { ELEMENTS, type Element } from "@/lib/saju-calculator";
 import { getElementColor } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase-client";
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/calculate", label: "New Reading", icon: Plus },
-  { href: "/consultation", label: "Consultation", icon: Crown, master: true },
-];
-
 export function DashboardSidebar() {
   const pathname = usePathname();
   const { user, sajuData, isPremium } = useAuth();
+  const { locale } = useLanguage();
+
+  const navItems = [
+    { href: "/dashboard", label: t("dash.dashboard", locale), icon: LayoutDashboard },
+    { href: "/calculate", label: t("dash.newReading", locale), icon: Plus },
+    { href: "/consultation", label: t("dash.consultation", locale), icon: Crown, master: true },
+  ];
   const [credits, setCredits] = useState(0);
 
   const dayMasterElement = sajuData.chart?.dayMaster.element as Element | undefined;
@@ -148,7 +151,7 @@ export function DashboardSidebar() {
             style={{ background: "linear-gradient(135deg, #a78bfa, #7c3aed)" }}
           >
             <Crown className="w-4 h-4 mr-2" />
-            {credits > 0 ? `Ask (${credits} left)` : "Get Consultation"}
+            {credits > 0 ? t("dash.askCredits", locale).replace("{n}", String(credits)) : t("dash.getConsultation", locale)}
           </Button>
         </Link>
       </div>
