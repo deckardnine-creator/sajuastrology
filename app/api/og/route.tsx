@@ -19,8 +19,8 @@ const ELEMENT_ZH: Record<string, string> = {
   "water-yang": "壬", "water-yin": "癸",
 };
 
-const ELEMENT_EMOJI: Record<string, string> = {
-  wood: "🌿", fire: "🔥", earth: "🏔", metal: "⚔", water: "🌊",
+const ELEMENT_LABEL: Record<string, string> = {
+  wood: "木", fire: "火", earth: "土", metal: "金", water: "水",
 };
 
 function getLabel(score: number): string {
@@ -52,8 +52,8 @@ function renderCompatibilityOG(searchParams: URLSearchParams) {
 
   const colorA = ELEMENT_COLORS[elA] || "#F2CA50";
   const colorB = ELEMENT_COLORS[elB] || "#3B82F6";
-  const emojiA = ELEMENT_EMOJI[elA] || "✦";
-  const emojiB = ELEMENT_EMOJI[elB] || "✦";
+  const labelA = ELEMENT_LABEL[elA] || "✦";
+  const labelB = ELEMENT_LABEL[elB] || "✦";
   const label = getLabel(score);
   const scoreColor = score >= 70 ? "#59DE9B" : score >= 50 ? "#F2CA50" : "#EF4444";
 
@@ -99,6 +99,7 @@ function renderCompatibilityOG(searchParams: URLSearchParams) {
           style={{
             position: "absolute",
             bottom: -60,
+            left: 400,
             width: 400,
             height: 300,
             borderRadius: "50%",
@@ -149,7 +150,7 @@ function renderCompatibilityOG(searchParams: URLSearchParams) {
                 marginBottom: 8,
               }}
             >
-              {emojiA}
+              {labelA}
             </div>
             <div style={{ fontSize: 28, fontWeight: 700, color: "#F5F5F5" }}>{nameA}</div>
             <div style={{ fontSize: 16, color: colorA }}>{elA.charAt(0).toUpperCase() + elA.slice(1)}</div>
@@ -174,7 +175,7 @@ function renderCompatibilityOG(searchParams: URLSearchParams) {
                 marginBottom: 8,
               }}
             >
-              {emojiB}
+              {labelB}
             </div>
             <div style={{ fontSize: 28, fontWeight: 700, color: "#F5F5F5" }}>{nameB}</div>
             <div style={{ fontSize: 16, color: colorB }}>{elB.charAt(0).toUpperCase() + elB.slice(1)}</div>
@@ -312,7 +313,7 @@ function renderReadingOG(searchParams: URLSearchParams) {
             marginBottom: 8,
           }}
         >
-          {name}&apos;s Cosmic Blueprint
+          {name}{"'"}s Cosmic Blueprint
         </div>
 
         {/* Archetype + Element */}
