@@ -15,6 +15,7 @@ const translations = {
   "nav.compatibility": { en: "Compatibility", ko: "궁합", ja: "相性" },
   "nav.consultation": { en: "Consultation", ko: "상담", ja: "相談" },
   "nav.getReading": { en: "Get Your Reading — Free", ko: "무료 사주 보기", ja: "無料で鑑定する" },
+  "nav.home": { en: "Home", ko: "홈", ja: "ホーム" },
   "nav.signIn": { en: "Sign In", ko: "로그인", ja: "ログイン" },
   "nav.signOut": { en: "Sign Out", ko: "로그아웃", ja: "ログアウト" },
   "nav.dashboard": { en: "My Dashboard", ko: "내 대시보드", ja: "マイページ" },

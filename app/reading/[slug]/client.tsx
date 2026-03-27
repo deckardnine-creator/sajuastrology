@@ -14,6 +14,8 @@ import { DAY_MASTER_DISPLAY } from "@/lib/constants";
 import { GoogleIcon } from "@/components/ui/google-icon";
 import { useAuth } from "@/lib/auth-context";
 import { safeGet, safeSet } from "@/lib/safe-storage";
+import { useLanguage } from "@/lib/language-context";
+import { t } from "@/lib/translations";
 
 interface ReadingData {
   id: string;
@@ -64,20 +66,14 @@ const ELEMENT_COLORS: Record<string, string> = {
   water: "#3B82F6",
 };
 
-const ELEMENT_LABELS: Record<string, string> = {
-  wood: "Wood 木",
-  fire: "Fire 火",
-  earth: "Earth 土",
-  metal: "Metal 金",
-  water: "Water 水",
-};
-
+const dateLocaleMap = { en: "en-US", ko: "ko-KR", ja: "ja-JP" } as const;
 
 export default function ReadingPageClient() {
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
   const { user, openSignInModal } = useAuth();
+  const { locale } = useLanguage();
   const [reading, setReading] = useState<ReadingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -295,7 +291,7 @@ export default function ReadingPageClient() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading your cosmic blueprint...</p>
+          <p className="text-muted-foreground">{t("reading.loading", locale)}</p>
         </div>
       </div>
     );
@@ -306,10 +302,10 @@ export default function ReadingPageClient() {
       <main className="min-h-screen">
         <Navbar />
         <div className="pt-32 text-center">
-          <h1 className="text-2xl font-serif text-primary mb-4">Reading Not Found</h1>
-          <p className="text-muted-foreground mb-8">This reading may have been removed or the link is incorrect.</p>
+          <h1 className="text-2xl font-serif text-primary mb-4">{t("reading.notFound", locale)}</h1>
+          <p className="text-muted-foreground mb-8">{t("reading.notFoundDesc", locale)}</p>
           <Link href="/calculate">
-            <Button className="gold-gradient text-primary-foreground">Get Your Free Reading</Button>
+            <Button className="gold-gradient text-primary-foreground">{t("reading.getFree", locale)}</Button>
           </Link>
         </div>
         <Footer />
@@ -322,10 +318,10 @@ export default function ReadingPageClient() {
   const dmColor = ELEMENT_COLORS[reading.day_master_element] || "#F2CA50";
 
   const pillars = [
-    { name: "Hour", stem: reading.hour_stem, branch: reading.hour_branch },
-    { name: "Day", stem: reading.day_stem, branch: reading.day_branch },
-    { name: "Month", stem: reading.month_stem, branch: reading.month_branch },
-    { name: "Year", stem: reading.year_stem, branch: reading.year_branch },
+    { name: t("reading.pillarHour", locale), stem: reading.hour_stem, branch: reading.hour_branch, isDay: false },
+    { name: t("reading.pillarDay", locale), stem: reading.day_stem, branch: reading.day_branch, isDay: true },
+    { name: t("reading.pillarMonth", locale), stem: reading.month_stem, branch: reading.month_branch, isDay: false },
+    { name: t("reading.pillarYear", locale), stem: reading.year_stem, branch: reading.year_branch, isDay: false },
   ];
 
   const elements = {
@@ -338,6 +334,15 @@ export default function ReadingPageClient() {
 
   const maxElement = Math.max(...Object.values(elements));
 
+  const genSteps = [
+    { icon: "💰", title: t("reading.genStep1", locale), sub: t("reading.genStep1Sub", locale) },
+    { icon: "💕", title: t("reading.genStep2", locale), sub: t("reading.genStep2Sub", locale) },
+    { icon: "🌿", title: t("reading.genStep3", locale), sub: t("reading.genStep3Sub", locale) },
+    { icon: "🔮", title: t("reading.genStep4", locale), sub: t("reading.genStep4Sub", locale) },
+    { icon: "📅", title: t("reading.genStep5", locale), sub: t("reading.genStep5Sub", locale) },
+    { icon: "✨", title: t("reading.genStep6", locale), sub: t("reading.genStep6Sub", locale) },
+  ];
+
   return (
     <main className="min-h-screen">
       <Navbar />
@@ -347,7 +352,7 @@ export default function ReadingPageClient() {
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
             <button onClick={() => user ? router.push("/dashboard") : router.push("/")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft className="w-4 h-4" /> {user ? "Dashboard" : "Home"}
+              <ArrowLeft className="w-4 h-4" /> {user ? t("nav.dashboard", locale) : t("nav.home", locale)}
             </button>
           </motion.div>
 
@@ -359,13 +364,13 @@ export default function ReadingPageClient() {
                 <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                   <Bookmark className="w-5 h-5 text-primary shrink-0" />
                   <div>
-                    <p className="text-sm font-medium">Saved to your dashboard</p>
-                    <p className="text-xs text-muted-foreground">Tap to view your dashboard →</p>
+                    <p className="text-sm font-medium">{t("reading.savedDash", locale)}</p>
+                    <p className="text-xs text-muted-foreground">{t("reading.tapDash", locale)}</p>
                   </div>
                 </Link>
                 <Button variant="outline" size="sm" className="text-xs h-9 gap-2 shrink-0" onClick={handleShareLink}>
                   {linkCopied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
-                  {linkCopied ? "Copied!" : "Share Link"}
+                  {linkCopied ? t("common.copied", locale) : t("common.copyLink", locale)}
                 </Button>
               </div>
             ) : user ? (
@@ -373,25 +378,25 @@ export default function ReadingPageClient() {
                 <div className="flex items-center gap-3">
                   <Sparkles className="w-5 h-5 text-primary shrink-0" />
                   <div>
-                    <p className="text-sm font-medium">Want your own cosmic blueprint?</p>
-                    <p className="text-xs text-muted-foreground">Discover your unique Four Pillars in 30 seconds</p>
+                    <p className="text-sm font-medium">{t("reading.wantOwn", locale)}</p>
+                    <p className="text-xs text-muted-foreground">{t("reading.discover30s", locale)}</p>
                   </div>
                 </div>
                 <Link href="/calculate">
-                  <Button size="sm" className="text-xs h-9 gold-gradient text-primary-foreground shrink-0">Get Mine Free</Button>
+                  <Button size="sm" className="text-xs h-9 gold-gradient text-primary-foreground shrink-0">{t("reading.getMineFree", locale)}</Button>
                 </Link>
               </div>
             ) : (
               <div className="flex items-start gap-3">
                 <Bookmark className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium mb-1">Save & share your reading</p>
-                  <p className="text-xs text-muted-foreground mb-3">Sign in to save this reading to your dashboard, revisit anytime, and share with friends.</p>
+                  <p className="text-sm font-medium mb-1">{t("reading.saveShare", locale)}</p>
+                  <p className="text-xs text-muted-foreground mb-3">{t("reading.saveShareDesc", locale)}</p>
                   <Button variant="outline" size="sm" className="text-xs h-9 gap-2" onClick={openSignInModal}>
                     <GoogleIcon />
-                    Continue with Google
+                    {t("signIn.continueGoogle", locale)}
                   </Button>
-                  <p className="text-[10px] text-muted-foreground/50 mt-2">Free — takes 3 seconds</p>
+                  <p className="text-[10px] text-muted-foreground/50 mt-2">{t("reading.free3s", locale)}</p>
                 </div>
               </div>
             )}
@@ -400,35 +405,37 @@ export default function ReadingPageClient() {
           {/* Title */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-center mb-10">
             <h1 className="text-3xl md:text-4xl font-serif mb-2">
-              {reading.name}&apos;s <span className="gold-gradient-text">Cosmic Blueprint</span>
+              {reading.name}&apos;s <span className="gold-gradient-text">{t("reading.cosmicBlueprint", locale)}</span>
             </h1>
             <p className="text-muted-foreground mb-3">
-              Born {new Date(reading.birth_date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} in {reading.birth_city}
+              {t("reading.born", locale)}{" "}
+              {new Date(reading.birth_date).toLocaleDateString(dateLocaleMap[locale], { year: "numeric", month: "long", day: "numeric" })}{" "}
+              in {reading.birth_city}
             </p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <span className="text-xs tracking-wider text-muted-foreground uppercase">
-                Day Master: <span style={{ color: dmColor }} className="font-semibold">{dmDisplay.zh} {dmDisplay.en}</span>
+                {t("reading.dayMaster", locale)}: <span style={{ color: dmColor }} className="font-semibold">{dmDisplay.zh} {dmDisplay.en}</span>
               </span>
               <span className="text-xs tracking-wider text-muted-foreground uppercase">
-                Archetype: <span className="text-primary font-semibold">{reading.archetype}</span>
+                {t("reading.archetype", locale)}: <span className="text-primary font-semibold">{reading.archetype}</span>
               </span>
               <span className="text-xs tracking-wider text-muted-foreground uppercase">
-                Harmony: <span className="text-primary font-semibold">{reading.harmony_score}%</span>
+                {t("reading.harmony", locale)}: <span className="text-primary font-semibold">{reading.harmony_score}%</span>
               </span>
             </div>
           </motion.section>
 
           {/* Four Pillars */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-10">
-            <h2 className="text-sm tracking-wider text-muted-foreground uppercase mb-4 text-center">The Four Pillars of Destiny</h2>
+            <h2 className="text-sm tracking-wider text-muted-foreground uppercase mb-4 text-center">{t("reading.fourPillars", locale)}</h2>
             <div className="grid grid-cols-4 gap-3">
-              {pillars.map((p, i) => (
+              {pillars.map((p) => (
                 <div key={p.name}
-                  className={`bg-card/60 backdrop-blur border rounded-xl p-4 text-center ${p.name === "Day" ? "border-primary/50 ring-1 ring-primary/20" : "border-border"}`}>
+                  className={`bg-card/60 backdrop-blur border rounded-xl p-4 text-center ${p.isDay ? "border-primary/50 ring-1 ring-primary/20" : "border-border"}`}>
                   <p className="text-xs text-muted-foreground mb-2">{p.name}</p>
                   <p className="text-2xl font-serif text-primary">{p.stem}</p>
                   <p className="text-lg text-muted-foreground">{p.branch}</p>
-                  {p.name === "Day" && <p className="text-[10px] text-primary/60 mt-1">Day Master</p>}
+                  {p.isDay && <p className="text-[10px] text-primary/60 mt-1">{t("reading.dayMasterLabel", locale)}</p>}
                 </div>
               ))}
             </div>
@@ -456,12 +463,12 @@ export default function ReadingPageClient() {
 
           {/* Five Elements Balance */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-10">
-            <h2 className="font-serif text-xl font-semibold mb-4">Five Elements Balance</h2>
+            <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.fiveElements", locale)}</h2>
             <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6">
               <div className="space-y-3 mb-6">
                 {(["wood", "fire", "earth", "metal", "water"] as const).map((el) => (
                   <div key={el} className="flex items-center gap-3">
-                    <span className="w-16 text-sm text-muted-foreground">{ELEMENT_LABELS[el]}</span>
+                    <span className="w-16 text-sm text-muted-foreground">{t(`element.${el}`, locale)}</span>
                     <div className="flex-1 h-6 bg-muted/30 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
@@ -486,7 +493,7 @@ export default function ReadingPageClient() {
 
           {/* This Year's Fortune */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-10">
-            <h2 className="font-serif text-xl font-semibold mb-4">{new Date().getFullYear()} Fortune Forecast</h2>
+            <h2 className="font-serif text-xl font-semibold mb-4">{new Date().getFullYear()} {t("reading.fortuneForecast", locale)}</h2>
             <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
               <div className="prose prose-invert prose-sm max-w-none">
                 {reading.free_reading_year.split("\n\n").map((para, i) => (
@@ -499,14 +506,14 @@ export default function ReadingPageClient() {
           {/* Harmony Score */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="mb-10">
             <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/30 rounded-xl p-6 text-center">
-              <p className="text-sm text-muted-foreground mb-2">Cosmic Harmony Score</p>
+              <p className="text-sm text-muted-foreground mb-2">{t("reading.harmonyScore", locale)}</p>
               <div className="text-5xl font-serif text-primary mb-2">{reading.harmony_score}</div>
               <p className="text-sm text-muted-foreground">
                 {reading.harmony_score >= 80
-                  ? "Exceptionally balanced chart with strong cosmic alignment"
+                  ? t("reading.harmonyHigh", locale)
                   : reading.harmony_score >= 60
-                  ? "Well-balanced chart with good elemental distribution"
-                  : "Chart with distinct character — focus on strengthening weaker elements"}
+                  ? t("reading.harmonyMid", locale)
+                  : t("reading.harmonyLow", locale)}
               </p>
             </div>
           </motion.section>
@@ -516,9 +523,9 @@ export default function ReadingPageClient() {
             <Link href={`/compatibility?my=${reading.share_slug}`}
               className="block bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 rounded-2xl p-6 text-center hover:border-pink-500/40 transition-colors">
               <Heart className="w-8 h-8 text-pink-400 mx-auto mb-3" />
-              <h3 className="font-serif text-lg font-semibold mb-1">Check Your Compatibility</h3>
+              <h3 className="font-serif text-lg font-semibold mb-1">{t("reading.checkCompat", locale)}</h3>
               <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-                See how your Four Pillars align with a partner, friend, or colleague — free.
+                {t("reading.checkCompatDesc", locale)}
               </p>
             </Link>
           </motion.section>
@@ -527,7 +534,7 @@ export default function ReadingPageClient() {
           {reading.is_paid && reading.paid_reading_career && (
             <div id="paid-content">
               <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
-                <h2 className="font-serif text-xl font-semibold mb-4">Career & Wealth Blueprint</h2>
+                <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.careerWealth", locale)}</h2>
                 <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
                   <div className="prose prose-invert prose-sm max-w-none">
                     {reading.paid_reading_career.split("\n\n").map((para, i) => (
@@ -539,7 +546,7 @@ export default function ReadingPageClient() {
 
               {reading.paid_reading_love && (
                 <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }} className="mb-10">
-                  <h2 className="font-serif text-xl font-semibold mb-4">Love & Relationships</h2>
+                  <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.loveRelation", locale)}</h2>
                   <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
                     <div className="prose prose-invert prose-sm max-w-none">
                       {reading.paid_reading_love.split("\n\n").map((para, i) => (
@@ -552,7 +559,7 @@ export default function ReadingPageClient() {
 
               {reading.paid_reading_health && (
                 <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="mb-10">
-                  <h2 className="font-serif text-xl font-semibold mb-4">Health & Wellness</h2>
+                  <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.healthWellness", locale)}</h2>
                   <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
                     <div className="prose prose-invert prose-sm max-w-none">
                       {reading.paid_reading_health.split("\n\n").map((para, i) => (
@@ -565,7 +572,7 @@ export default function ReadingPageClient() {
 
               {reading.paid_reading_decade && (
                 <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }} className="mb-10">
-                  <h2 className="font-serif text-xl font-semibold mb-4">10-Year Fortune Cycle</h2>
+                  <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.decadeCycle", locale)}</h2>
                   <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
                     <div className="prose prose-invert prose-sm max-w-none">
                       {reading.paid_reading_decade.split("\n\n").map((para, i) => (
@@ -578,7 +585,7 @@ export default function ReadingPageClient() {
 
               {reading.paid_reading_monthly && (
                 <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }} className="mb-10">
-                  <h2 className="font-serif text-xl font-semibold mb-4">Next 6 Months Energy Flow</h2>
+                  <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.monthlyEnergy", locale)}</h2>
                   <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
                     <div className="prose prose-invert prose-sm max-w-none">
                       {reading.paid_reading_monthly.split("\n\n").map((para, i) => (
@@ -595,8 +602,8 @@ export default function ReadingPageClient() {
                     <div className="flex items-center gap-3 mb-4">
                       <Sparkles className="w-6 h-6 text-primary" />
                       <div>
-                        <h2 className="font-serif text-xl font-semibold">Bonus: Your Hidden Talent & Life Purpose</h2>
-                        <p className="text-xs text-primary/60">A special gift from the cosmos</p>
+                        <h2 className="font-serif text-xl font-semibold">{t("reading.hiddenTalent", locale)}</h2>
+                        <p className="text-xs text-primary/60">{t("reading.hiddenTalentSub", locale)}</p>
                       </div>
                     </div>
                     <div className="prose prose-invert prose-sm max-w-none">
@@ -617,20 +624,19 @@ export default function ReadingPageClient() {
                 <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
                   <Sparkles className="w-7 h-7 text-red-400" />
                 </div>
-                <h3 className="font-serif text-xl font-semibold mb-2">Generation Failed</h3>
+                <h3 className="font-serif text-xl font-semibold mb-2">{t("reading.genFailed", locale)}</h3>
                 <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-                  Your payment was successful, but the AI reading generation encountered an issue.
-                  Don&apos;t worry — your purchase is saved. Tap below to try again.
+                  {t("reading.genFailedDesc", locale)}
                 </p>
                 <Button
                   className="gold-gradient text-primary-foreground font-semibold px-8"
                   onClick={generatePaidContent}
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Retry Generation
+                  {t("reading.retryGen", locale)}
                 </Button>
                 <p className="text-xs text-muted-foreground/50 mt-3">
-                  If this persists, your reading will be generated automatically on your next visit.
+                  {t("reading.retryPersist", locale)}
                 </p>
               </div>
             </motion.section>
@@ -642,11 +648,11 @@ export default function ReadingPageClient() {
               <div className="relative overflow-hidden rounded-2xl border border-border" style={{ minHeight: 280 }}>
                 {/* Blurred preview — compact */}
                 <div className="p-6 blur-sm select-none pointer-events-none">
-                  <h2 className="font-serif text-lg font-semibold mb-2">10-Year Fortune Cycle</h2>
+                  <h2 className="font-serif text-lg font-semibold mb-2">{t("reading.decadeCycle", locale)}</h2>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     Your next decade holds remarkable potential. The elemental shifts in your luck pillars suggest...
                   </p>
-                  <h2 className="font-serif text-lg font-semibold mb-2 mt-4">Career · Love · Health</h2>
+                  <h2 className="font-serif text-lg font-semibold mb-2 mt-4">{t("reading.careerWealth", locale)} · {t("reading.loveRelation", locale)} · {t("reading.healthWellness", locale)}</h2>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     Your unique combination of elements creates a natural affinity for roles that require both vision and execution...
                   </p>
@@ -657,9 +663,9 @@ export default function ReadingPageClient() {
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                       <Lock className="w-6 h-6 text-primary" />
                     </div>
-                    <h3 className="font-serif text-lg font-semibold mb-1">Unlock Your Full Destiny</h3>
+                    <h3 className="font-serif text-lg font-semibold mb-1">{t("reading.unlockFull", locale)}</h3>
                     <p className="text-muted-foreground text-xs mb-3 max-w-xs mx-auto">
-                      10-year forecast · Career · Love · Health · Hidden Talent — all personalized to your chart.
+                      {t("reading.unlockDesc", locale)}
                     </p>
                     <Button 
                       className="gold-gradient text-primary-foreground font-semibold px-8"
@@ -669,17 +675,17 @@ export default function ReadingPageClient() {
                       {paymentLoading ? (
                         <span className="flex items-center gap-2">
                           <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                          Processing...
+                          {t("reading.processing", locale)}
                         </span>
                       ) : (
                         <>
                           <Sparkles className="w-4 h-4 mr-2" />
-                          Unlock Full Reading — $9.99
+                          {t("reading.unlockBtn", locale)}
                         </>
                       )}
                     </Button>
-                    <p className="text-xs text-muted-foreground/50 mt-2">One-time payment. Yours forever.</p>
-                    <p className="text-xs text-primary/60 mt-1">Compatibility detailed analysis is already free for everyone!</p>
+                    <p className="text-xs text-muted-foreground/50 mt-2">{t("reading.oneTime", locale)}</p>
+                    <p className="text-xs text-primary/60 mt-1">{t("reading.compatFree", locale)}</p>
                   </div>
                 </div>
               </div>
@@ -704,20 +710,13 @@ export default function ReadingPageClient() {
                     >
                       <div className="w-12 h-12 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                     </motion.div>
-                    <h3 className="font-serif text-xl text-primary mb-1">Crafting Your Full Destiny Reading</h3>
-                    <p className="text-xs text-muted-foreground">Three cosmic scholars are reading your pillars simultaneously</p>
+                    <h3 className="font-serif text-xl text-primary mb-1">{t("reading.craftingFull", locale)}</h3>
+                    <p className="text-xs text-muted-foreground">{t("reading.threeScholars", locale)}</p>
                   </div>
 
                   {/* Progress steps */}
                   <div className="space-y-3 max-w-md mx-auto">
-                    {[
-                      { icon: "💰", title: "Career & Wealth Blueprint", sub: "Mapping your professional destiny..." },
-                      { icon: "💕", title: "Love & Relationships", sub: "Decoding your heart's cosmic pattern..." },
-                      { icon: "🌿", title: "Health & Wellness", sub: "Reading your elemental body map..." },
-                      { icon: "🔮", title: "10-Year Fortune Cycle", sub: "Charting your decade ahead..." },
-                      { icon: "📅", title: "6-Month Energy Flow", sub: "Weaving your near-future story..." },
-                      { icon: "✨", title: "Hidden Talent & Life Purpose", sub: "Unveiling your cosmic gift..." },
-                    ].map((step, i) => {
+                    {genSteps.map((step, i) => {
                       const isActive = generationStep === i;
                       const isDone = generationStep > i;
                       return (
@@ -750,7 +749,7 @@ export default function ReadingPageClient() {
                             )}
                           </div>
                           {isDone && (
-                            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-primary/60">Done</motion.span>
+                            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-primary/60">{t("reading.genDone", locale)}</motion.span>
                           )}
                         </motion.div>
                       );
@@ -767,7 +766,7 @@ export default function ReadingPageClient() {
                     />
                   </div>
                   <p className="text-center text-xs text-muted-foreground/50 mt-3">
-                    This takes about 15-20 seconds — your reading is being personally crafted, not pulled from a template.
+                    {t("reading.genTakes", locale)}
                   </p>
                 </div>
               </div>
@@ -779,29 +778,29 @@ export default function ReadingPageClient() {
             {user ? (
               <div className="bg-card/80 border border-border rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-4">
                 <div className="flex-1 text-center sm:text-left">
-                  <h3 className="font-serif text-lg font-semibold mb-1">Share this reading</h3>
-                  <p className="text-sm text-muted-foreground">Send the link to friends or family</p>
+                  <h3 className="font-serif text-lg font-semibold mb-1">{t("reading.shareReading", locale)}</h3>
+                  <p className="text-sm text-muted-foreground">{t("reading.shareSub", locale)}</p>
                 </div>
                 <div className="flex gap-3">
                   <Button variant="outline" className="gap-2" onClick={handleShareLink}>
                     {linkCopied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
-                    {linkCopied ? "Copied!" : "Copy Link"}
+                    {linkCopied ? t("common.copied", locale) : t("common.copyLink", locale)}
                   </Button>
                   <Link href="/dashboard">
                     <Button variant="outline" className="gap-2">
                       <Bookmark className="w-4 h-4" />
-                      Dashboard
+                      {t("nav.dashboard", locale)}
                     </Button>
                   </Link>
                 </div>
               </div>
             ) : (
               <div className="gold-gradient rounded-2xl p-8 text-center">
-                <h3 className="font-serif text-2xl font-bold text-primary-foreground mb-2">Share Your Cosmic Identity</h3>
-                <p className="text-primary-foreground/80 mb-4">Sign in to save your reading and share it with friends</p>
+                <h3 className="font-serif text-2xl font-bold text-primary-foreground mb-2">{t("reading.shareCosmicId", locale)}</h3>
+                <p className="text-primary-foreground/80 mb-4">{t("reading.shareCosmicIdSub", locale)}</p>
                 <Button variant="secondary" className="bg-background text-foreground hover:bg-background/90 gap-2" onClick={openSignInModal}>
                   <GoogleIcon />
-                  Continue with Google
+                  {t("signIn.continueGoogle", locale)}
                 </Button>
               </div>
             )}
