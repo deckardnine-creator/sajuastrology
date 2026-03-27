@@ -4,6 +4,7 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowRight, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/lib/language-context"
 import Link from "next/link"
 
 const pillars = [
@@ -15,6 +16,7 @@ const pillars = [
 
 export function HeroSection() {
   const [showComingSoon, setShowComingSoon] = useState<"ios" | "android" | null>(null)
+  const { t } = useLanguage()
 
   const handleAppClick = (platform: "ios" | "android") => {
     setShowComingSoon(platform)
@@ -69,15 +71,12 @@ export function HeroSection() {
             className="flex flex-col gap-5 py-8 lg:py-0"
           >
             <h1 className="font-serif text-[2rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.15]">
-              Your Birth Date Holds a{" "}
-              <span className="gold-gradient-text">5,000-Year-Old Code.</span>
+              {t("hero.title1")}{" "}
+              <span className="gold-gradient-text">{t("hero.title2")}</span>
             </h1>
 
             <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl">
-              Western astrology gives you 1 of 12 types. Saju gives you 1 of{" "}
-              <span className="text-primary font-semibold">518,400</span> unique
-              cosmic profiles. Get your free reading in 30 seconds — plus personalized
-              daily fortune updates based on your chart.
+              {t("hero.desc")}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-2">
@@ -86,7 +85,7 @@ export function HeroSection() {
                   size="lg"
                   className="gold-gradient text-primary-foreground font-semibold text-base px-7 group w-full sm:w-auto"
                 >
-                  See My Reading — Free
+                  {t("hero.cta")}
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
@@ -131,7 +130,7 @@ export function HeroSection() {
                     className="text-xs text-muted-foreground/70"
                   >
                     <Smartphone className="w-3 h-3 inline mr-1" />
-                    {showComingSoon === "ios" ? "iOS" : "Android"} app coming very soon — use the web app for now!
+                    {showComingSoon === "ios" ? "iOS" : "Android"} {t("hero.appComingSoon")}
                   </motion.p>
                 )}
               </AnimatePresence>
