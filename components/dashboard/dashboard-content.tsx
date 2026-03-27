@@ -64,7 +64,7 @@ interface CompatResult {
 
 export function DashboardContent() {
   const { user, sajuData, saveSajuChart, claimTrigger } = useAuth();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [dailyScore, setDailyScore] = useState(72);
   const [mounted, setMounted] = useState(false);
   const [savedReadings, setSavedReadings] = useState<SavedReading[]>([]);
@@ -210,18 +210,25 @@ export function DashboardContent() {
     const el = sajuData.chart.dayMaster.element;
     // Load locale-specific fortune data with proper async IIFE
     (async () => {
-      const [baseMod, koMod, jaMod] = await Promise.all([
-        import("@/lib/daily-fortune"),
-        import("@/lib/daily-fortune-ko").catch(() => null),
-        import("@/lib/daily-fortune-ja").catch(() => null),
-      ]);
-      setFortune(baseMod.getDailyFortuneLocale(
-        el,
-        dailyScore,
-        locale,
-        (koMod as any)?.FORTUNES_KO,
-        (jaMod as any)?.FORTUNES_JA,
-      ));
+      try {
+        const [baseMod, koMod, jaMod] = await Promise.all([
+          import("@/lib/daily-fortune"),
+          import("@/lib/daily-fortune-ko").catch(() => null),
+          import("@/lib/daily-fortune-ja").catch(() => null),
+        ]);
+        setFortune(baseMod.getDailyFortuneLocale(
+          el,
+          dailyScore,
+          locale,
+          (koMod as any)?.FORTUNES_KO,
+          (jaMod as any)?.FORTUNES_JA,
+        ));
+      } catch {
+        // Fallback to English fortune on error
+        import("@/lib/daily-fortune").then(mod => {
+          setFortune(mod.getDailyFortune(el, dailyScore));
+        }).catch(() => {});
+      }
     })();
   }, [sajuData.chart, dailyScore, locale]);
 
