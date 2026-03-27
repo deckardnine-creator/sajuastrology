@@ -3,15 +3,25 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronUp } from "lucide-react"
+import { usePathname } from "next/navigation"
+
+// Pages where scroll-to-top should be hidden (has its own bottom-fixed button)
+const HIDDEN_PATHS = ["/calculate", "/compatibility"]
 
 export function ScrollToTop() {
   const [visible, setVisible] = useState(false)
+  const pathname = usePathname()
+
+  // Hide on pages with bottom-fixed submit buttons
+  const isHidden = HIDDEN_PATHS.some(p => pathname?.startsWith(p))
 
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > 400)
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
+
+  if (isHidden) return null
 
   return (
     <AnimatePresence>

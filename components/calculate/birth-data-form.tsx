@@ -246,10 +246,10 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
           {CONST_LINES.map(([a,b],i)=>(
             <line key={`cl${i}`} x1={STARS[a].x} y1={STARS[a].y} x2={STARS[b].x} y2={STARS[b].y}
-              stroke="currentColor" strokeWidth="0.15" className="text-primary/10" />
+              stroke="currentColor" strokeWidth="0.15" className="text-primary/5" />
           ))}
           {STARS.map((s,i)=>(
-            <motion.circle key={i} cx={s.x} cy={s.y} r={s.size} fill="currentColor" className="text-primary"
+            <motion.circle key={i} cx={s.x} cy={s.y} r={s.size} fill="currentColor" className="text-primary/60"
               animate={{ opacity:[s.baseOpacity, s.baseOpacity+0.25, s.baseOpacity] }}
               transition={{ duration:s.dur, repeat:Infinity, delay:s.delay, ease:"easeInOut" }} />
           ))}
@@ -300,7 +300,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
       <div className="lg:w-[58%] p-6 lg:p-12 flex items-center justify-center relative">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {Array.from({length:20},(_,i)=>(
-            <motion.div key={i} className="absolute rounded-full bg-primary/20"
+            <motion.div key={i} className="absolute rounded-full bg-primary/8"
               style={{ width:1,height:1, left:`${((i*47.3)%100)}%`, top:`${((i*61.8)%100)}%` }}
               animate={{ opacity:[0.1,0.4,0.1] }} transition={{ duration:3+i%4, repeat:Infinity, delay:i*0.3 }} />
           ))}

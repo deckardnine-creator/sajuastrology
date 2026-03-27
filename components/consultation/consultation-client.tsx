@@ -134,53 +134,8 @@ export function ConsultationClient() {
   const [error, setError] = useState("");
   const [autoFilled, setAutoFilled] = useState(false);
 
-  /* ─── Auto-fill birth data from existing chart ─── */
-  useEffect(() => {
-    if (autoFilled) return;
-
-    // Try from sajuData (auth context)
-    if (sajuData.chart) {
-      const bd = typeof sajuData.chart.birthDate === "string"
-        ? new Date(sajuData.chart.birthDate)
-        : sajuData.chart.birthDate;
-      setBirthData({
-        name: sajuData.chart.name,
-        gender: sajuData.chart.gender,
-        year: bd.getFullYear(),
-        month: bd.getMonth() + 1,
-        day: bd.getDate(),
-        hour: 12,
-        cityQuery: sajuData.chart.birthCity,
-        selectedCity: { name: sajuData.chart.birthCity, country: "", lat: 0, lng: 0 } as City,
-      });
-      setBirthDataLocked(true);
-      setAutoFilled(true);
-      return;
-    }
-
-    // Try from localStorage
-    try {
-      const raw = safeGet("saju-data");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed.chart) {
-          const bd = new Date(parsed.chart.birthDate);
-          setBirthData({
-            name: parsed.chart.name,
-            gender: parsed.chart.gender,
-            year: bd.getFullYear(),
-            month: bd.getMonth() + 1,
-            day: bd.getDate(),
-            hour: 12,
-            cityQuery: parsed.chart.birthCity,
-            selectedCity: { name: parsed.chart.birthCity, country: "", lat: 0, lng: 0 } as City,
-          });
-          setBirthDataLocked(true);
-          setAutoFilled(true);
-        }
-      }
-    } catch {}
-  }, [sajuData.chart, autoFilled]);
+  /* ─── Auto-fill disabled: always start fresh ─── */
+  // Users should manually enter birth data each consultation session
 
   /* ─── Warn before leaving during generation ─── */
   useEffect(() => {
