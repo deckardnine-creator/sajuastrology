@@ -9,6 +9,8 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
+import { useLanguage } from "@/lib/language-context";
+import { t, type Locale } from "@/lib/translations";
 import { supabase } from "@/lib/supabase-client";
 import { ELEMENT_COLORS } from "@/lib/constants";
 
@@ -53,20 +55,12 @@ function getScoreColor(score: number): string {
   return "#EF4444";
 }
 
-function getLabel(score: number): string {
-  if (score >= 85) return "Cosmic Soulmates";
-  if (score >= 70) return "Natural Harmony";
-  if (score >= 55) return "Dynamic Tension";
-  if (score >= 40) return "Growth Challenge";
-  return "Opposite Forces";
-}
-
-function getLabelKo(score: number): string {
-  if (score >= 85) return "운명적 소울메이트";
-  if (score >= 70) return "자연스러운 조화";
-  if (score >= 55) return "역동적 긴장";
-  if (score >= 40) return "성장의 도전";
-  return "반대 에너지";
+function getScoreLabel(score: number, locale: Locale): string {
+  if (score >= 85) return t("cr.labelSoulmates", locale);
+  if (score >= 70) return t("cr.labelHarmony", locale);
+  if (score >= 55) return t("cr.labelTension", locale);
+  if (score >= 40) return t("cr.labelChallenge", locale);
+  return t("cr.labelOpposite", locale);
 }
 
 export default function CompatibilityResultClient() {
@@ -74,6 +68,7 @@ export default function CompatibilityResultClient() {
   const router = useRouter();
   const slug = params.slug as string;
   const { user, openSignInModal } = useAuth();
+  const { locale } = useLanguage();
 
   const [result, setResult] = useState<CompatResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -96,7 +91,7 @@ export default function CompatibilityResultClient() {
   const handleShare = () => {
     const url = window.location.href;
     const text = result
-      ? `${result.person_a_name} & ${result.person_b_name}: ${result.overall_score}% Compatibility — ${getLabel(result.overall_score)} ✦\n\nCheck yours free: ${url}`
+      ? `${result.person_a_name} & ${result.person_b_name}: ${result.overall_score}% Compatibility — ${getScoreLabel(result.overall_score, locale)} ✦\n\nCheck yours free: ${url}`
       : url;
     if (navigator.share) {
       navigator.share({ text, url }).catch(() => {});
@@ -120,9 +115,9 @@ export default function CompatibilityResultClient() {
       <main className="min-h-screen">
         <Navbar />
         <div className="pt-32 text-center">
-          <h1 className="text-2xl font-serif text-primary mb-4">Result Not Found</h1>
-          <p className="text-muted-foreground mb-8">This compatibility reading may have been removed.</p>
-          <Link href="/compatibility"><Button className="gold-gradient text-primary-foreground">Check Compatibility</Button></Link>
+          <h1 className="text-2xl font-serif text-primary mb-4">{t("cr.notFound", locale)}</h1>
+          <p className="text-muted-foreground mb-8">{t("cr.removed", locale)}</p>
+          <Link href="/compatibility"><Button className="gold-gradient text-primary-foreground">{t("compat.check", locale)}</Button></Link>
         </div>
         <Footer />
       </main>
@@ -138,10 +133,10 @@ export default function CompatibilityResultClient() {
   const overallColor = getScoreColor(result.overall_score);
 
   const categories = [
-    { key: "love", label: "Love", icon: Heart, score: result.love_score, gradient: "from-pink-500/20 to-rose-500/5", border: "border-pink-500/20", iconColor: "#EC4899", content: result.paid_love },
-    { key: "work", label: "Work", icon: Briefcase, score: result.work_score, gradient: "from-blue-500/20 to-cyan-500/5", border: "border-blue-500/20", iconColor: "#3B82F6", content: result.paid_work },
-    { key: "friendship", label: "Friendship", icon: Users, score: result.friendship_score, gradient: "from-emerald-500/20 to-green-500/5", border: "border-emerald-500/20", iconColor: "#10B981", content: result.paid_friendship },
-    { key: "conflict", label: "Conflict", icon: Shield, score: result.conflict_score, gradient: "from-amber-500/20 to-yellow-500/5", border: "border-amber-500/20", iconColor: "#F59E0B", content: result.paid_conflict },
+    { key: "love", label: t("cr.love", locale), compatLabel: t("cr.loveCompat", locale), icon: Heart, score: result.love_score, gradient: "from-pink-500/20 to-rose-500/5", border: "border-pink-500/20", iconColor: "#EC4899", content: result.paid_love },
+    { key: "work", label: t("cr.work", locale), compatLabel: t("cr.workCompat", locale), icon: Briefcase, score: result.work_score, gradient: "from-blue-500/20 to-cyan-500/5", border: "border-blue-500/20", iconColor: "#3B82F6", content: result.paid_work },
+    { key: "friendship", label: t("cr.friendship", locale), compatLabel: t("cr.friendCompat", locale), icon: Users, score: result.friendship_score, gradient: "from-emerald-500/20 to-green-500/5", border: "border-emerald-500/20", iconColor: "#10B981", content: result.paid_friendship },
+    { key: "conflict", label: t("cr.conflict", locale), compatLabel: t("cr.conflictCompat", locale), icon: Shield, score: result.conflict_score, gradient: "from-amber-500/20 to-yellow-500/5", border: "border-amber-500/20", iconColor: "#F59E0B", content: result.paid_conflict },
   ];
 
   return (
@@ -171,7 +166,7 @@ export default function CompatibilityResultClient() {
           {/* Back */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-8">
             <button onClick={() => router.push("/compatibility")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm">
-              <ArrowLeft className="w-4 h-4" /> New Check
+              <ArrowLeft className="w-4 h-4" /> {t("cr.newCheck", locale)}
             </button>
           </motion.div>
 
@@ -302,7 +297,7 @@ export default function CompatibilityResultClient() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.8 }}
                   >
-                    {getLabel(result.overall_score)}
+                    {getScoreLabel(result.overall_score, locale)}
                   </motion.p>
                 </motion.div>
 
@@ -310,7 +305,7 @@ export default function CompatibilityResultClient() {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2 }} className="flex justify-center">
                   <Button variant="outline" size="sm" className="gap-2 text-xs rounded-full px-5 border-white/10 hover:border-white/20 bg-white/5" onClick={handleShare}>
                     {linkCopied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
-                    {linkCopied ? "Copied!" : "Share Result"}
+                    {linkCopied ? t("cr.copied", locale) : t("cr.shareResult", locale)}
                   </Button>
                 </motion.div>
               </div>
@@ -354,7 +349,7 @@ export default function CompatibilityResultClient() {
                 <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center">
                   <Sparkles className="w-4 h-4 text-primary" />
                 </div>
-                <h2 className="font-serif text-lg font-semibold">Your Cosmic Connection</h2>
+                <h2 className="font-serif text-lg font-semibold">{t("cr.yourConnection", locale)}</h2>
               </div>
               <div className="prose prose-invert prose-sm max-w-none">
                 {result.free_summary.split("\n\n").map((para, i) => (
@@ -371,7 +366,7 @@ export default function CompatibilityResultClient() {
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${cat.iconColor}20` }}>
                   <cat.icon className="w-4 h-4" style={{ color: cat.iconColor }} />
                 </div>
-                <h2 className="font-serif text-lg font-semibold">{cat.label} Compatibility</h2>
+                <h2 className="font-serif text-lg font-semibold">{cat.compatLabel}</h2>
               </div>
               <div className="rounded-2xl p-6 sm:p-8" style={{ background: "rgba(15,15,25,0.6)", border: `1px solid ${cat.iconColor}15` }}>
                 <div className="prose prose-invert prose-sm max-w-none">
@@ -390,7 +385,7 @@ export default function CompatibilityResultClient() {
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-primary/15">
                   <Calendar className="w-4 h-4 text-primary" />
                 </div>
-                <h2 className="font-serif text-lg font-semibold">{new Date().getFullYear()} Together</h2>
+                <h2 className="font-serif text-lg font-semibold">{new Date().getFullYear()} {t("cr.together", locale)}</h2>
               </div>
               <div className="rounded-2xl p-6 sm:p-8" style={{ background: "linear-gradient(135deg, rgba(167,139,250,0.06), rgba(15,15,25,0.5))", border: "1px solid rgba(167,139,250,0.15)" }}>
                 <div className="prose prose-invert prose-sm max-w-none">
@@ -408,17 +403,17 @@ export default function CompatibilityResultClient() {
               <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(242,202,80,0.4), rgba(167,139,250,0.4), transparent)" }} />
               <div className="p-6 sm:p-8 text-center">
                 <Sparkles className="w-8 h-8 text-primary mx-auto mb-3" />
-                <h3 className="font-serif text-xl font-semibold mb-2">Discover Your Personal Destiny</h3>
+                <h3 className="font-serif text-xl font-semibold mb-2">{t("cr.discoverDestiny", locale)}</h3>
                 <p className="text-sm text-muted-foreground max-w-md mx-auto mb-5">
-                  Your compatibility is shaped by who you are at your core. Unlock your complete Four Pillars reading.
+                  {t("cr.shapedByCore", locale)}
                 </p>
                 <Link href="/calculate">
                   <Button className="gold-gradient text-primary-foreground font-semibold px-8 rounded-full">
                     <Sparkles className="w-4 h-4 mr-2" />
-                    Get My Full Reading — $9.99
+                    {t("cr.getFullReading", locale)}
                   </Button>
                 </Link>
-                <p className="text-xs text-muted-foreground/40 mt-2">Start free, upgrade when ready</p>
+                <p className="text-xs text-muted-foreground/40 mt-2">{t("cr.startFree", locale)}</p>
               </div>
             </div>
           </motion.section>
@@ -428,28 +423,28 @@ export default function CompatibilityResultClient() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Link href="/compatibility">
                 <Button variant="outline" className="w-full gap-2 rounded-xl border-white/10 hover:border-white/20">
-                  <RotateCcw className="w-4 h-4" /> Check Another Pair
+                  <RotateCcw className="w-4 h-4" /> {t("cr.checkAnother", locale)}
                 </Button>
               </Link>
               <Link href="/calculate">
                 <Button className="w-full gap-2 gold-gradient text-primary-foreground rounded-xl">
-                  <Sparkles className="w-4 h-4" /> Get My Free Reading
+                  <Sparkles className="w-4 h-4" /> {t("cr.getMyFreeReading", locale)}
                 </Button>
               </Link>
             </div>
 
             {!user && (
               <div className="rounded-xl p-4 text-center" style={{ background: "rgba(15,15,25,0.6)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <p className="text-sm text-muted-foreground mb-2">Sign in to save this result to your dashboard</p>
+                <p className="text-sm text-muted-foreground mb-2">{t("cr.signInToSave", locale)}</p>
                 <Button variant="outline" size="sm" className="text-xs gap-2 rounded-full border-white/10" onClick={openSignInModal}>
-                  Sign In with Google
+                  {t("cr.signInGoogle", locale)}
                 </Button>
               </div>
             )}
           </motion.section>
 
           <p className="text-center text-[11px] text-muted-foreground/30 mt-8">
-            This compatibility reading is for entertainment and self-reflection only. See our Terms.
+            {t("cr.entertainment", locale)}
           </p>
         </div>
       </div>

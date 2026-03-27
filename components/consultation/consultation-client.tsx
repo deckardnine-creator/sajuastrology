@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { t } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
 import { searchCities, type City } from "@/lib/cities-data";
 import { safeGet } from "@/lib/safe-storage";
@@ -58,13 +59,13 @@ const HOUR_LABELS: Record<number, string> = {
   18: "6 PM", 19: "7 PM", 20: "8 PM", 21: "9 PM", 22: "10 PM", 23: "11 PM",
 };
 
-const CATEGORIES = [
-  { id: "career", label: "Career & Work", icon: Briefcase, color: "#3B82F6" },
-  { id: "love", label: "Love & Relationships", icon: Heart, color: "#EC4899" },
-  { id: "timing", label: "Timing & Decisions", icon: Clock, color: "#F59E0B" },
-  { id: "wealth", label: "Wealth & Finance", icon: TrendingUp, color: "#10B981" },
-  { id: "health", label: "Health & Wellness", icon: Activity, color: "#8B5CF6" },
-  { id: "general", label: "General Life", icon: HelpCircle, color: "#6B7280" },
+const getCategoryItems = (locale: "en" | "ko" | "ja") => [
+  { id: "career", label: t("cat.career", locale), icon: Briefcase, color: "#3B82F6" },
+  { id: "love", label: t("cat.love", locale), icon: Heart, color: "#EC4899" },
+  { id: "timing", label: t("cat.timing", locale), icon: Clock, color: "#F59E0B" },
+  { id: "wealth", label: t("cat.wealth", locale), icon: TrendingUp, color: "#10B981" },
+  { id: "health", label: t("cat.health", locale), icon: Activity, color: "#8B5CF6" },
+  { id: "general", label: t("cat.general", locale), icon: HelpCircle, color: "#6B7280" },
 ];
 
 const EXAMPLE_QUESTIONS: Record<string, string[]> = {
@@ -437,13 +438,13 @@ export function ConsultationClient() {
       >
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm mb-4">
           <Crown className="w-4 h-4" />
-          Master Consultation
+          {t("consult.badge", locale)}
         </div>
         <h1 className="font-serif text-3xl sm:text-4xl font-bold mb-3">
-          Your Personal <span className="gold-gradient-text">Saju Advisor</span>
+          {t("consult.title1", locale)} <span className="gold-gradient-text">{t("consult.title2", locale)}</span>
         </h1>
         <p className="text-muted-foreground max-w-lg mx-auto">
-          Ask any life question and receive a detailed analysis through the lens of your unique birth chart.
+          {t("consult.desc", locale)}
         </p>
       </motion.div>
 
@@ -461,6 +462,7 @@ export function ConsultationClient() {
               onPurchase={handlePurchase}
               onSignIn={openSignInModal}
               isSubmitting={isSubmitting}
+              locale={locale}
             />
           </motion.div>
         )}
@@ -479,7 +481,7 @@ export function ConsultationClient() {
                 <Sparkles className="w-4 h-4 text-primary" />
                 <span className="text-sm">
                   <span className="text-primary font-semibold">{credits}</span>{" "}
-                  consultation{credits !== 1 ? "s" : ""} remaining
+                  {credits !== 1 ? t("consult.consultations", locale) : t("consult.consultation", locale)} {t("consult.remaining", locale)}
                 </span>
               </div>
             </div>
@@ -487,13 +489,13 @@ export function ConsultationClient() {
             {/* Birth Data Section */}
             <div className="bg-card/50 border border-border rounded-2xl p-5 sm:p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-medium text-foreground">Your Birth Information</h3>
+                <h3 className="text-sm font-medium text-foreground">{t("consult.birthInfo", locale)}</h3>
                 {birthDataLocked && (
                   <button
                     onClick={() => setBirthDataLocked(false)}
                     className="text-xs text-primary hover:underline"
                   >
-                    Edit
+                    {t("consult.edit", locale)}
                   </button>
                 )}
               </div>
@@ -513,17 +515,17 @@ export function ConsultationClient() {
                 </div>
               ) : (
                 /* Editable form */
-                <BirthDataForm data={birthData} onChange={(d) => setBirthData(d)} />
+                <BirthDataForm data={birthData} onChange={(d) => setBirthData(d)} locale={locale} />
               )}
             </div>
 
             {/* Category Selection */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-foreground mb-3">
-                What area of life is your question about?
+                {t("consult.category", locale)}
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {CATEGORIES.map((cat) => {
+                {getCategoryItems(locale).map((cat) => {
                   const Icon = cat.icon;
                   const isSelected = category === cat.id;
                   return (
@@ -552,12 +554,12 @@ export function ConsultationClient() {
             {/* Question Input */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-foreground mb-3">
-                Describe your question or situation
+                {t("consult.questionLabel", locale)}
               </label>
               <textarea
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Be as specific as possible — the more context you provide, the more precise your reading will be..."
+                placeholder={t("consult.questionPlaceholder", locale)}
                 rows={5}
                 maxLength={2000}
                 className="w-full rounded-xl bg-card/50 border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 resize-none transition-colors"
@@ -577,7 +579,7 @@ export function ConsultationClient() {
                 className="mb-6"
               >
                 <p className="text-xs text-muted-foreground/60 mb-2">
-                  Example questions:
+                  {t("consult.exampleQuestions", locale)}
                 </p>
                 <div className="space-y-2">
                   {EXAMPLE_QUESTIONS[category]?.map((ex, i) => (
@@ -611,12 +613,12 @@ export function ConsultationClient() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Analyzing your question...
+                  {t("consult.analyzing", locale)}
                 </>
               ) : (
                 <>
                   <Send className="w-4 h-4 mr-2" />
-                  Submit Consultation
+                  {t("consult.submit", locale)}
                 </>
               )}
             </Button>
@@ -637,9 +639,9 @@ export function ConsultationClient() {
                   <Sparkles className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium text-foreground">A few more details</p>
+                  <p className="font-medium text-foreground">{t("consult.moreDetails", locale)}</p>
                   <p className="text-xs text-muted-foreground">
-                    To give you the most precise reading, I need a bit more context.
+                    {t("consult.moreContext", locale)}
                   </p>
                 </div>
               </div>
@@ -660,7 +662,7 @@ export function ConsultationClient() {
                       rows={3}
                       maxLength={1000}
                       className="w-full rounded-xl bg-background/50 border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 resize-none transition-colors"
-                      placeholder="Your answer..."
+                      placeholder={t("consult.yourAnswer", locale)}
                     />
                   </div>
                 ))}
@@ -676,7 +678,7 @@ export function ConsultationClient() {
                 className="flex-1"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
+                {t("common.back", locale)}
               </Button>
               <Button
                 onClick={handleSubmitAnswers}
@@ -688,7 +690,7 @@ export function ConsultationClient() {
                 ) : (
                   <ChevronRight className="w-4 h-4 mr-2" />
                 )}
-                Generate My Reading
+                {t("consult.generateReading", locale)}
               </Button>
             </div>
           </motion.div>
@@ -701,7 +703,7 @@ export function ConsultationClient() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <ConsultationLoader category={category} />
+            <ConsultationLoader category={category} locale={locale} />
           </motion.div>
         )}
 
@@ -718,13 +720,13 @@ export function ConsultationClient() {
               <div className="px-6 py-5 border-b border-border bg-primary/5">
                 <div className="flex items-center gap-2 text-xs text-primary mb-2">
                   <CheckCircle2 className="w-4 h-4" />
-                  Consultation Complete
+                  {t("consult.complete", locale)}
                 </div>
                 <h2 className="font-serif text-xl font-semibold text-foreground">
                   {report.title}
                 </h2>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {new Date().toLocaleDateString("en-US", {
+                  {new Date().toLocaleDateString(locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US", {
                     weekday: "long",
                     year: "numeric",
                     month: "long",
@@ -773,19 +775,19 @@ export function ConsultationClient() {
                   className="flex-1 gold-gradient text-primary-foreground font-semibold"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
-                  New Consultation ({credits} left)
+                  {t("consult.newConsult", locale)} ({credits})
                 </Button>
               )}
               <Link href="/dashboard" className="flex-1">
                 <Button variant="outline" className="w-full">
                   <FileText className="w-4 h-4 mr-2" />
-                  View All Consultations
+                  {t("consult.viewAll", locale)}
                 </Button>
               </Link>
             </div>
 
             <p className="text-center text-[11px] text-muted-foreground/40 mt-6">
-              This consultation is for entertainment and self-reflection only. See our Terms.
+              {t("consult.entertainment", locale)}
             </p>
           </motion.div>
         )}
@@ -796,7 +798,7 @@ export function ConsultationClient() {
 
 /* ─── Birth Data Form ─── */
 
-function BirthDataForm({ data, onChange }: { data: BirthData; onChange: (d: BirthData) => void }) {
+function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: (d: BirthData) => void; locale: "en" | "ko" | "ja" }) {
   const [showCityDropdown, setShowCityDropdown] = useState(false);
 
   const cityResults = useMemo(() => {
@@ -815,18 +817,18 @@ function BirthDataForm({ data, onChange }: { data: BirthData; onChange: (d: Birt
       {/* Name + Gender row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-muted-foreground mb-1.5">Full Name</label>
+          <label className="block text-xs text-muted-foreground mb-1.5">{t("form.name", locale)}</label>
           <input
             type="text"
             value={data.name}
             onChange={(e) => onChange({ ...data, name: e.target.value })}
-            placeholder="Enter your name"
+            placeholder={t("form.namePlaceholder", locale)}
             maxLength={50}
             className="w-full h-11 rounded-xl bg-background/50 border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
           />
         </div>
         <div>
-          <label className="block text-xs text-muted-foreground mb-1.5">Gender</label>
+          <label className="block text-xs text-muted-foreground mb-1.5">{t("form.gender", locale)}</label>
           <div className="grid grid-cols-2 gap-2">
             {(["male", "female"] as const).map((g) => (
               <button
@@ -838,7 +840,7 @@ function BirthDataForm({ data, onChange }: { data: BirthData; onChange: (d: Birt
                     : "border-border bg-card/50 text-muted-foreground hover:border-muted-foreground/30"
                 }`}
               >
-                {g === "male" ? "♂ Male" : "♀ Female"}
+                {g === "male" ? t("form.male", locale) : t("form.female", locale)}
               </button>
             ))}
           </div>
@@ -847,7 +849,7 @@ function BirthDataForm({ data, onChange }: { data: BirthData; onChange: (d: Birt
 
       {/* Birth Date */}
       <div>
-        <label className="block text-xs text-muted-foreground mb-1.5">Birth Date</label>
+        <label className="block text-xs text-muted-foreground mb-1.5">{t("form.birthDate", locale)}</label>
         <div className="grid grid-cols-3 gap-2">
           <select
             value={data.year}
@@ -877,7 +879,7 @@ function BirthDataForm({ data, onChange }: { data: BirthData; onChange: (d: Birt
 
       {/* Birth Hour */}
       <div>
-        <label className="block text-xs text-muted-foreground mb-1.5">Birth Hour <span className="text-muted-foreground/50">(approximate is fine)</span></label>
+        <label className="block text-xs text-muted-foreground mb-1.5">{t("form.birthHour", locale)} <span className="text-muted-foreground/50">{t("form.birthHourNote", locale)}</span></label>
         <select
           value={data.hour}
           onChange={(e) => onChange({ ...data, hour: Number(e.target.value) })}
@@ -889,12 +891,12 @@ function BirthDataForm({ data, onChange }: { data: BirthData; onChange: (d: Birt
 
       {/* Birth City */}
       <div className="relative">
-        <label className="block text-xs text-muted-foreground mb-1.5">Birth City</label>
+        <label className="block text-xs text-muted-foreground mb-1.5">{t("form.birthCity", locale)}</label>
         <input
           type="text"
           value={data.cityQuery}
           onChange={(e) => onChange({ ...data, cityQuery: e.target.value, selectedCity: null })}
-          placeholder="Search city (e.g., Seoul, Tokyo, New York)"
+          placeholder={t("form.cityPlaceholder", locale)}
           className="w-full h-11 rounded-xl bg-background/50 border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
         />
         {data.selectedCity && (
@@ -951,7 +953,7 @@ const CONSULTATION_STEPS: Record<string, { icon: string; label: string; sub: str
   ],
 };
 
-function ConsultationLoader({ category }: { category: string }) {
+function ConsultationLoader({ category, locale }: { category: string; locale: "en" | "ko" | "ja" }) {
   const [activeStep, setActiveStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -1023,15 +1025,15 @@ function ConsultationLoader({ category }: { category: string }) {
           </div>
         </div>
 
-        <h3 className="font-serif text-xl text-center mb-1">Consulting the Four Pillars</h3>
+        <h3 className="font-serif text-xl text-center mb-1">{t("consult.consultingPillars", locale)}</h3>
         <p className="text-xs text-center text-muted-foreground/60 mb-2">
-          {formatTime(elapsedSeconds)} elapsed · Deep analysis in progress
+          {formatTime(elapsedSeconds)} {t("consult.elapsed", locale)}
         </p>
 
         {/* Do not leave warning */}
         <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2 mb-6">
           <p className="text-[11px] text-amber-400/80 text-center">
-            ⚠️ Please stay on this page. Leaving may interrupt your reading and your session credit cannot be restored.
+            ⚠️ {t("consult.doNotLeave", locale)}
           </p>
         </div>
 
@@ -1093,7 +1095,7 @@ function ConsultationLoader({ category }: { category: string }) {
         </div>
 
         <p className="text-center text-[11px] text-muted-foreground/40 mt-8">
-          Your consultation is crafted uniquely — this takes 30–60 seconds
+          {t("consult.craftedUniquely", locale)}
         </p>
       </div>
     </div>
@@ -1107,11 +1109,13 @@ function NoCreditsCTA({
   onPurchase,
   onSignIn,
   isSubmitting,
+  locale,
 }: {
   isLoggedIn: boolean;
   onPurchase: () => void;
   onSignIn: () => void;
   isSubmitting: boolean;
+  locale: "en" | "ko" | "ja";
 }) {
   return (
     <div className="bg-card/50 border border-border rounded-2xl p-8 text-center">
@@ -1119,20 +1123,20 @@ function NoCreditsCTA({
         <>
           <Crown className="w-12 h-12 text-purple-400 mx-auto mb-4" />
           <h2 className="font-serif text-2xl font-semibold mb-2">
-            Personal Saju Consultations
+            {t("consult.personalTitle", locale)}
           </h2>
           <p className="text-muted-foreground text-sm mb-8 max-w-md mx-auto">
-            Get in-depth answers to your life questions — career, love, timing, and more — analyzed through the lens of your unique birth chart.
+            {t("consult.personalDesc", locale)}
           </p>
           <Button
             onClick={onSignIn}
             className="w-full max-w-sm h-12 gold-gradient text-primary-foreground font-semibold"
             size="lg"
           >
-            Sign In to Get Started
+            {t("consult.signIn", locale)}
           </Button>
           <p className="text-xs text-muted-foreground/50 mt-4">
-            5 sessions for $29.99 · No subscription
+            {t("consult.priceTag", locale)}
           </p>
         </>
       ) : (
@@ -1140,28 +1144,27 @@ function NoCreditsCTA({
           {/* Logged in, needs credits */}
           <Crown className="w-12 h-12 text-purple-400 mx-auto mb-4" />
           <h2 className="font-serif text-2xl font-semibold mb-2">
-            Unlock Master Consultations
+            {t("consult.unlock", locale)}
           </h2>
           <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-            Get 5 in-depth Saju consultations for any life question — career, love, timing, and more.
-            Each session produces a personalized 2,000–4,000 word analysis based on your birth chart.
+            {t("consult.unlockDesc", locale)}
           </p>
 
           <div className="flex items-baseline justify-center gap-1 mb-1">
             <span className="text-4xl font-bold text-primary">$29.99</span>
-            <span className="text-muted-foreground text-sm">one-time</span>
+            <span className="text-muted-foreground text-sm">{t("pricing.oneTime", locale)}</span>
           </div>
           <p className="text-xs text-muted-foreground/60 mb-6">
-            $6 per consultation · No subscription
+            {t("consult.perSession", locale)}
           </p>
 
           <ul className="text-sm text-muted-foreground space-y-2 mb-8 max-w-sm mx-auto text-left">
-            {[
-              "5 personalized consultation sessions",
-              "Ask about any area of life",
-              "Just enter your birth details — no prior reading needed",
-              "All reports saved to your dashboard",
-            ].map((f, i) => (
+            {([
+              t("consult.feat1", locale),
+              t("consult.feat2", locale),
+              t("consult.feat3", locale),
+              t("consult.feat4", locale),
+            ] as string[]).map((f, i) => (
               <li key={i} className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                 {f}
@@ -1184,7 +1187,7 @@ function NoCreditsCTA({
             ) : (
               <Crown className="w-4 h-4 mr-2" />
             )}
-            Get 5 Consultations
+            {t("consult.get5", locale)}
           </Button>
         </>
       )}

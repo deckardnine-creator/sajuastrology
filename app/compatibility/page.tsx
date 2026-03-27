@@ -9,6 +9,7 @@ import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { t } from "@/lib/translations";
 import { searchCities, type City } from "@/lib/cities-data";
 import { safeGet, safeSet } from "@/lib/safe-storage";
 
@@ -27,12 +28,12 @@ const HOUR_LABELS: Record<number, string> = {
   18: "6 PM", 19: "7 PM", 20: "8 PM", 21: "9 PM", 22: "10 PM", 23: "11 PM",
 };
 
-const LOADING_STEPS = [
-  { icon: "☯", label: "Decoding your Day Masters", sub: "Reading the cosmic DNA of two souls" },
-  { icon: "🔥", label: "Measuring elemental chemistry", sub: "Some elements ignite, others soothe" },
-  { icon: "💫", label: "Tracing branch harmonies", sub: "Hidden bonds written in the stars" },
-  { icon: "⚡", label: "Detecting cosmic friction", sub: "A little tension makes things interesting" },
-  { icon: "📜", label: "Crafting your story", sub: "Every pair has a unique chapter" },
+const getLoadingSteps = (locale: "en" | "ko" | "ja") => [
+  { icon: "☯", label: t("compat.load1.label", locale), sub: t("compat.load1.sub", locale) },
+  { icon: "🔥", label: t("compat.load2.label", locale), sub: t("compat.load2.sub", locale) },
+  { icon: "💫", label: t("compat.load3.label", locale), sub: t("compat.load3.sub", locale) },
+  { icon: "⚡", label: t("compat.load4.label", locale), sub: t("compat.load4.sub", locale) },
+  { icon: "📜", label: t("compat.load5.label", locale), sub: t("compat.load5.sub", locale) },
 ];
 
 interface PersonData {
@@ -156,7 +157,7 @@ function CompatibilityContent() {
       personA.month === personB.month &&
       personA.day === personB.day
     ) {
-      setError("Looks like you entered the same person twice. Try entering a different partner!");
+      setError(t("compat.samePerson", locale));
       return;
     }
 
@@ -167,7 +168,7 @@ function CompatibilityContent() {
 
     // Start loading animation
     const stepTimer = setInterval(() => {
-      setLoadingStep((prev) => Math.min(prev + 1, LOADING_STEPS.length - 1));
+      setLoadingStep((prev) => Math.min(prev + 1, getLoadingSteps(locale).length - 1));
     }, 3500);
     const progressTimer = setInterval(() => {
       setProgress((prev) => {
@@ -210,7 +211,7 @@ function CompatibilityContent() {
 
       const data = await res.json();
       if (!res.ok || !data.shareSlug) {
-        setError(data.error || "Something went wrong. Please try again.");
+        setError(data.error || t("common.error", locale));
         setStep("personB");
         return;
       }
@@ -226,7 +227,7 @@ function CompatibilityContent() {
     } catch (err: any) {
       clearInterval(stepTimer);
       clearInterval(progressTimer);
-      setError(err?.name === "AbortError" ? "Request timed out. Please try again." : "Network error. Please check your connection.");
+      setError(err?.name === "AbortError" ? t("common.error", locale) : t("common.error", locale));
       setStep("personB");
     }
   };
@@ -247,7 +248,7 @@ function CompatibilityContent() {
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
             >
               <ArrowLeft className="w-4 h-4" />
-              {step === "personB" ? "Back to your info" : "Back"}
+              {step === "personB" ? t("compat.backToYour", locale) : t("common.back", locale)}
             </button>
           </motion.div>
 
@@ -255,13 +256,13 @@ function CompatibilityContent() {
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-300 text-sm mb-4">
               <Heart className="w-4 h-4" />
-              Compatibility Check
+              {t("compat.badge", locale)}
             </div>
             <h1 className="font-serif text-3xl sm:text-4xl font-bold mb-2">
-              Cosmic <span className="gold-gradient-text">Compatibility</span>
+              {t("compat.title1", locale)} <span className="gold-gradient-text">{t("compat.title2", locale)}</span>
             </h1>
             <p className="text-muted-foreground text-sm">
-              Discover how your Four Pillars align with another person&apos;s destiny.
+              {t("compat.desc", locale)}
             </p>
           </motion.div>
 
@@ -270,12 +271,12 @@ function CompatibilityContent() {
             <div className="flex items-center justify-center gap-3 mb-8">
               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${step === "personA" ? "bg-primary/20 text-primary" : "bg-primary/10 text-primary/60"}`}>
                 <span className="w-5 h-5 rounded-full bg-primary/30 flex items-center justify-center text-[10px]">1</span>
-                You
+                {t("compat.you", locale)}
               </div>
               <div className="w-8 h-px bg-border" />
               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${step === "personB" ? "bg-pink-500/20 text-pink-300" : "bg-muted/30 text-muted-foreground/50"}`}>
                 <span className="w-5 h-5 rounded-full bg-pink-500/20 flex items-center justify-center text-[10px]">2</span>
-                Partner
+                {t("compat.partner", locale)}
               </div>
             </div>
           )}
@@ -287,21 +288,22 @@ function CompatibilityContent() {
                 {autoFilled && (
                   <div className="bg-primary/5 border border-primary/20 rounded-xl px-4 py-3 mb-6 text-center">
                     <p className="text-sm text-primary">
-                      ✦ Auto-filled from your Saju chart
+                      ✦ {t("compat.autoFilled", locale)}
                     </p>
                     <button
                       className="text-xs text-muted-foreground hover:text-foreground mt-1"
                       onClick={() => { setPersonA(emptyPerson()); setAutoFilled(false); }}
                     >
-                      Enter different info instead
+                      {t("compat.enterDifferent", locale)}
                     </button>
                   </div>
                 )}
 
                 <PersonForm
-                  label="Your Information"
+                  label={t("compat.yourInfo", locale)}
                   data={personA}
                   onChange={setPersonA}
+                  locale={locale}
                 />
 
                 <Button
@@ -309,7 +311,7 @@ function CompatibilityContent() {
                   disabled={!isAValid}
                   className="w-full h-12 gold-gradient text-primary-foreground font-semibold mt-6"
                 >
-                  Next: Partner&apos;s Info
+                  {t("compat.next", locale)}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </motion.div>
@@ -319,9 +321,10 @@ function CompatibilityContent() {
             {step === "personB" && (
               <motion.div key="personB" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                 <PersonForm
-                  label="Partner's Information"
+                  label={t("compat.partnerInfo", locale)}
                   data={personB}
                   onChange={setPersonB}
+                  locale={locale}
                 />
 
                 {error && (
@@ -335,11 +338,11 @@ function CompatibilityContent() {
                   style={{ background: "linear-gradient(135deg, #ec4899, #a855f7)", color: "white" }}
                 >
                   <Heart className="w-4 h-4 mr-2" />
-                  Check Compatibility
+                  {t("compat.check", locale)}
                 </Button>
 
                 <p className="text-center text-xs text-muted-foreground/50 mt-3">
-                  Free · No credit card required
+                  {t("compat.freeNoCard", locale)}
                 </p>
               </motion.div>
             )}
@@ -347,7 +350,7 @@ function CompatibilityContent() {
             {/* ─── Loading ─── */}
             {step === "loading" && (
               <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <CompatibilityLoader activeStep={loadingStep} progress={progress} nameA={personA.name} nameB={personB.name} />
+                <CompatibilityLoader activeStep={loadingStep} progress={progress} nameA={personA.name} nameB={personB.name} locale={locale} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -361,10 +364,11 @@ function CompatibilityContent() {
 
 /* ─── Person Form Component ─── */
 
-function PersonForm({ label, data, onChange }: {
+function PersonForm({ label, data, onChange, locale }: {
   label: string;
   data: PersonData;
   onChange: (data: PersonData) => void;
+  locale: "en" | "ko" | "ja";
 }) {
   const [cityResults, setCityResults] = useState<City[]>([]);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
@@ -391,19 +395,19 @@ function PersonForm({ label, data, onChange }: {
 
       {/* Name */}
       <div className="mb-4">
-        <label className="block text-sm text-muted-foreground mb-1.5">Name</label>
+        <label className="block text-sm text-muted-foreground mb-1.5">{t("form.name", locale)}</label>
         <input
           type="text"
           value={data.name}
           onChange={(e) => onChange({ ...data, name: e.target.value })}
-          placeholder="Enter name"
+          placeholder={t("form.namePlaceholder", locale)}
           className="w-full h-11 rounded-xl bg-background/50 border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
         />
       </div>
 
       {/* Gender */}
       <div className="mb-4">
-        <label className="block text-sm text-muted-foreground mb-1.5">Gender</label>
+        <label className="block text-sm text-muted-foreground mb-1.5">{t("form.gender", locale)}</label>
         <div className="grid grid-cols-2 gap-3">
           {(["male", "female"] as const).map((g) => (
             <button
@@ -415,7 +419,7 @@ function PersonForm({ label, data, onChange }: {
                   : "border-border bg-card/50 text-muted-foreground hover:border-muted-foreground/30"
               }`}
             >
-              {g === "male" ? "♂ Male" : "♀ Female"}
+              {g === "male" ? t("form.male", locale) : t("form.female", locale)}
             </button>
           ))}
         </div>
@@ -423,7 +427,7 @@ function PersonForm({ label, data, onChange }: {
 
       {/* Birth Date */}
       <div className="mb-4">
-        <label className="block text-sm text-muted-foreground mb-1.5">Birth Date</label>
+        <label className="block text-sm text-muted-foreground mb-1.5">{t("form.birthDate", locale)}</label>
         <div className="grid grid-cols-3 gap-2">
           <select
             value={data.year}
@@ -453,7 +457,7 @@ function PersonForm({ label, data, onChange }: {
 
       {/* Birth Hour */}
       <div className="mb-4">
-        <label className="block text-sm text-muted-foreground mb-1.5">Birth Hour <span className="text-muted-foreground/50">(approximate is fine)</span></label>
+        <label className="block text-sm text-muted-foreground mb-1.5">{t("form.birthHour", locale)} <span className="text-muted-foreground/50">({t("form.birthHourNote", locale).replace(/[()]/g, "")})</span></label>
         <select
           value={data.hour}
           onChange={(e) => onChange({ ...data, hour: Number(e.target.value) })}
@@ -465,12 +469,12 @@ function PersonForm({ label, data, onChange }: {
 
       {/* Birth City */}
       <div className="relative">
-        <label className="block text-sm text-muted-foreground mb-1.5">Birth City</label>
+        <label className="block text-sm text-muted-foreground mb-1.5">{t("form.birthCity", locale)}</label>
         <input
           type="text"
           value={data.cityQuery}
           onChange={(e) => onChange({ ...data, cityQuery: e.target.value, selectedCity: null })}
-          placeholder="Search city (e.g., Seoul, Tokyo, New York)"
+          placeholder={t("form.cityPlaceholder", locale)}
           className="w-full h-11 rounded-xl bg-background/50 border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
         />
         {data.selectedCity && (
@@ -500,12 +504,14 @@ function PersonForm({ label, data, onChange }: {
 
 /* ─── Loading Animation ─── */
 
-function CompatibilityLoader({ activeStep, progress, nameA, nameB }: {
+function CompatibilityLoader({ activeStep, progress, nameA, nameB, locale }: {
   activeStep: number;
   progress: number;
   nameA: string;
   nameB: string;
+  locale: "en" | "ko" | "ja";
 }) {
+  const loadingSteps = getLoadingSteps(locale);
   return (
     <div className="flex flex-col items-center justify-center min-h-[55vh]">
       <div className="w-full max-w-md">
@@ -551,9 +557,9 @@ function CompatibilityLoader({ activeStep, progress, nameA, nameB }: {
           </div>
         </div>
 
-        <h3 className="font-serif text-xl text-center mb-1">Reading the Stars</h3>
+        <h3 className="font-serif text-xl text-center mb-1">{t("compat.readingStars", locale)}</h3>
         <p className="text-xs text-center text-muted-foreground/60 mb-6">
-          Analyzing {nameA.split(" ")[0]} & {nameB.split(" ")[0]}{"'"}s cosmic connection
+          {nameA.split(" ")[0]} & {nameB.split(" ")[0]} — {t("compat.analyzingPair", locale)}
         </p>
 
         {/* Progress bar */}
@@ -568,13 +574,13 @@ function CompatibilityLoader({ activeStep, progress, nameA, nameB }: {
         {/* Do not leave warning */}
         <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2 mb-6">
           <p className="text-[11px] text-amber-400/80 text-center">
-            ⚠️ Please stay on this page — leaving may interrupt the reading.
+            ⚠️ {t("compat.stayOnPage", locale)}
           </p>
         </div>
 
         {/* Steps */}
         <div className="space-y-3">
-          {LOADING_STEPS.map((s, i) => {
+          {loadingSteps.map((s, i) => {
             const isActive = i === activeStep;
             const isDone = i < activeStep;
             const isFuture = i > activeStep;
@@ -603,7 +609,7 @@ function CompatibilityLoader({ activeStep, progress, nameA, nameB }: {
         </div>
 
         <p className="text-center text-[11px] text-muted-foreground/40 mt-8">
-          Crafting a reading unique to this pair — about 15 seconds
+          {t("compat.craftingPair", locale)}
         </p>
       </div>
     </div>
