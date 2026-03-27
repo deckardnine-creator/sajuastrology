@@ -110,7 +110,8 @@ function CompatibilityContent() {
       return;
     }
 
-    // Try from localStorage
+    // Try from localStorage — only if user is logged in
+    if (!user) return;
     try {
       const raw = safeGet("saju-data");
       if (raw) {
@@ -132,7 +133,7 @@ function CompatibilityContent() {
         }
       }
     } catch {}
-  }, [sajuData.chart, searchParams, autoFilled]);
+  }, [sajuData.chart, searchParams, autoFilled, user]);
 
   // Warn before leaving during generation
   useEffect(() => {

@@ -13,11 +13,13 @@ const LOCALES: { code: Locale; label: string }[] = [
 export function Footer() {
   const { t, locale, setLocale } = useLanguage()
 
-  const footerLinks = [
+  const mainLinks = [
     { label: t("nav.whatIsSaju"), href: "/what-is-saju" },
     { label: t("nav.pricing"),    href: "/pricing" },
     { label: t("nav.compatibility"), href: "/compatibility" },
     { label: t("nav.consultation"), href: "/consultation" },
+  ]
+  const legalLinks = [
     { label: t("footer.privacy"), href: "/privacy" },
     { label: t("footer.terms"),   href: "/terms" },
   ]
@@ -32,14 +34,25 @@ export function Footer() {
             <span className="font-serif text-xl font-bold text-primary">SajuAstrology</span>
           </Link>
 
-          {/* Nav — wraps nicely on mobile */}
-          <nav className="flex flex-wrap justify-center gap-x-4 gap-y-3 max-w-md sm:max-w-none">
-            {footerLinks.map(link => (
-              <Link key={link.href} href={link.href}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                {link.label}
-              </Link>
-            ))}
+          {/* Nav — main links */}
+          <nav className="flex flex-col items-center gap-3">
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+              {mainLinks.map(link => (
+                <Link key={link.href} href={link.href}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+            {/* Legal links — separate row */}
+            <div className="flex items-center gap-4">
+              {legalLinks.map(link => (
+                <Link key={link.href} href={link.href}
+                  className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </nav>
 
           {/* Copyright + Language switcher */}

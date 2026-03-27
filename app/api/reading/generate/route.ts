@@ -25,7 +25,8 @@ export async function POST(request: NextRequest) {
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+    // Use service role key for server-side DB writes (bypasses RLS safely)
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
     if (!supabaseUrl || !supabaseKey) {
       return NextResponse.json({ error: "Server config error" }, { status: 500 });
     }
@@ -163,7 +164,7 @@ export async function POST(request: NextRequest) {
     }
 
     const shareSlug = generateShareSlug();
-    await fetch(`${supabaseUrl}/rest/v1/readings`, {
+    const insertRes = await fetch(`${supabaseUrl}/rest/v1/readings`, {
       method: "POST", headers: { ...dbHeaders, Prefer: "return=minimal" },
       body: JSON.stringify({
         name: chart.name, gender: chart.gender, birth_date: birthDateStr,
@@ -180,6 +181,12 @@ export async function POST(request: NextRequest) {
         ...(userId ? { user_id: userId } : {}),
       }),
     });
+
+    if (!insertRes.ok) {
+      const errText = await insertRes.text().catch(() => "unknown");
+      console.error("DB insert failed:", insertRes.status, errText);
+      return NextResponse.json({ error: `DB insert failed (${insertRes.status})` }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true, shareSlug });
   } catch (err: unknown) {
