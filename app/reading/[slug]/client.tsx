@@ -339,12 +339,24 @@ export default function ReadingPageClient() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">{t("reading.loading", locale)}</p>
+      <main className="min-h-screen">
+        <Navbar />
+        <div className="pt-24 pb-16">
+          <div className="mx-auto max-w-3xl px-4 sm:px-6">
+            {/* Skeleton header */}
+            <div className="mb-8 h-6 w-24 bg-muted/30 rounded animate-pulse" />
+            <div className="mb-6 bg-card/80 border border-primary/20 rounded-xl p-4 animate-pulse">
+              <div className="h-4 bg-muted/30 rounded w-1/2 mb-2" />
+              <div className="h-3 bg-muted/20 rounded w-1/3" />
+            </div>
+            <div className="text-center py-12">
+              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-muted-foreground text-sm">{t("reading.loading", locale)}</p>
+            </div>
+          </div>
         </div>
-      </div>
+        <Footer />
+      </main>
     );
   }
 

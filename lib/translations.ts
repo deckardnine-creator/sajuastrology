@@ -17,6 +17,7 @@ const translations = {
   "nav.getReading": { en: "Get Your Reading — Free", ko: "무료 사주 보기", ja: "無料で鑑定する" },
   "nav.signIn": { en: "Sign In", ko: "로그인", ja: "ログイン" },
   "nav.signOut": { en: "Sign Out", ko: "로그아웃", ja: "ログアウト" },
+  "nav.home": { en: "Home", ko: "홈", ja: "ホーム" },
   "nav.dashboard": { en: "My Dashboard", ko: "내 대시보드", ja: "マイページ" },
 
   // ─── Footer ───
