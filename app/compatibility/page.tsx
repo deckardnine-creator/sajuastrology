@@ -365,6 +365,26 @@ function CompatibilityContent() {
 
 /* ─── Person Form Component ─── */
 
+// ─── Compact number stepper (avoids native full-screen picker on mobile) ───
+function Stepper({ value, onChange, min, max, label }: {
+  value: number; onChange: (v: number) => void; min: number; max: number; label: string;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">{label}</span>
+      <div className="flex items-center bg-background/50 border border-border rounded-xl overflow-hidden">
+        <button type="button" onClick={() => onChange(value <= min ? max : value - 1)}
+          className="w-9 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base font-light">−</button>
+        <span className="w-10 text-center text-sm font-semibold text-primary select-none">
+          {String(value).padStart(2, "0")}
+        </span>
+        <button type="button" onClick={() => onChange(value >= max ? min : value + 1)}
+          className="w-9 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base font-light">+</button>
+      </div>
+    </div>
+  );
+}
+
 function PersonForm({ label, data, onChange, locale }: {
   label: string;
   data: PersonData;
@@ -375,7 +395,7 @@ function PersonForm({ label, data, onChange, locale }: {
   const [showCityDropdown, setShowCityDropdown] = useState(false);
 
   useEffect(() => {
-    if (data.cityQuery.length < 2 || data.selectedCity) {
+    if (!data.cityQuery || data.cityQuery.length < 1 || data.selectedCity) {
       setCityResults([]);
       setShowCityDropdown(false);
       return;
@@ -413,6 +433,7 @@ function PersonForm({ label, data, onChange, locale }: {
           {(["male", "female"] as const).map((g) => (
             <button
               key={g}
+              type="button"
               onClick={() => onChange({ ...data, gender: g })}
               className={`h-11 rounded-xl border text-sm font-medium transition-all ${
                 data.gender === g
@@ -426,46 +447,40 @@ function PersonForm({ label, data, onChange, locale }: {
         </div>
       </div>
 
-      {/* Birth Date */}
+      {/* Birth Date — compact steppers */}
       <div className="mb-4">
-        <label className="block text-sm text-muted-foreground mb-1.5">{t("form.birthDate", locale)}</label>
+        <label className="block text-sm text-muted-foreground mb-2">{t("form.birthDate", locale)}</label>
         <div className="grid grid-cols-3 gap-2">
-          <select
-            value={data.year}
-            onChange={(e) => onChange({ ...data, year: Number(e.target.value) })}
-            className="h-11 rounded-xl bg-background/50 border border-border px-2 text-sm text-foreground focus:border-primary transition-colors appearance-none text-center"
-          >
-            {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-          </select>
-          <select
-            value={data.month}
-            onChange={(e) => onChange({ ...data, month: Number(e.target.value), day: Math.min(data.day, new Date(data.year, Number(e.target.value), 0).getDate()) })}
-            className="h-11 rounded-xl bg-background/50 border border-border px-2 text-sm text-foreground focus:border-primary transition-colors appearance-none text-center"
-          >
-            {MONTHS.map((m) => <option key={m} value={m}>{String(m).padStart(2, "0")}</option>)}
-          </select>
-          <select
-            value={data.day}
-            onChange={(e) => onChange({ ...data, day: Number(e.target.value) })}
-            className="h-11 rounded-xl bg-background/50 border border-border px-2 text-sm text-foreground focus:border-primary transition-colors appearance-none text-center"
-          >
-            {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
-              <option key={d} value={d}>{String(d).padStart(2, "0")}</option>
-            ))}
-          </select>
+          {/* Year - special: wider range, use input instead */}
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">{t("form.year", locale)}</span>
+            <div className="flex items-center bg-background/50 border border-border rounded-xl overflow-hidden">
+              <button type="button" onClick={() => onChange({ ...data, year: data.year - 1 < 1920 ? 1920 : data.year - 1 })}
+                className="w-9 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base font-light">−</button>
+              <span className="w-14 text-center text-sm font-semibold text-primary select-none">{data.year}</span>
+              <button type="button" onClick={() => onChange({ ...data, year: data.year + 1 > CURRENT_YEAR ? CURRENT_YEAR : data.year + 1 })}
+                className="w-9 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base font-light">+</button>
+            </div>
+          </div>
+          <Stepper value={data.month} onChange={(v) => onChange({ ...data, month: v, day: Math.min(data.day, new Date(data.year, v, 0).getDate()) })}
+            min={1} max={12} label={t("form.month", locale)} />
+          <Stepper value={data.day} onChange={(v) => onChange({ ...data, day: v })}
+            min={1} max={daysInMonth} label={t("form.day", locale)} />
         </div>
       </div>
 
-      {/* Birth Hour */}
+      {/* Birth Hour — stepper */}
       <div className="mb-4">
-        <label className="block text-sm text-muted-foreground mb-1.5">{t("form.birthHour", locale)} <span className="text-muted-foreground/50">({t("form.birthHourNote", locale).replace(/[()]/g, "")})</span></label>
-        <select
-          value={data.hour}
-          onChange={(e) => onChange({ ...data, hour: Number(e.target.value) })}
-          className="w-full h-11 rounded-xl bg-background/50 border border-border px-3 text-sm text-foreground focus:border-primary transition-colors"
-        >
-          {HOURS.map((h) => <option key={h} value={h}>{HOUR_LABELS[h]}</option>)}
-        </select>
+        <label className="block text-sm text-muted-foreground mb-2">
+          {t("form.birthHour", locale)} <span className="text-muted-foreground/50 text-xs">({t("form.birthHourNote", locale).replace(/[()]/g, "")})</span>
+        </label>
+        <div className="flex items-center justify-between bg-background/50 border border-border rounded-xl px-3 py-2.5">
+          <button type="button" onClick={() => onChange({ ...data, hour: data.hour <= 0 ? 23 : data.hour - 1 })}
+            className="w-10 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 rounded-lg transition-colors text-lg font-light">−</button>
+          <span className="text-sm font-medium text-primary">{HOUR_LABELS[data.hour]}</span>
+          <button type="button" onClick={() => onChange({ ...data, hour: data.hour >= 23 ? 0 : data.hour + 1 })}
+            className="w-10 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 rounded-lg transition-colors text-lg font-light">+</button>
+        </div>
       </div>
 
       {/* Birth City */}
@@ -475,9 +490,9 @@ function PersonForm({ label, data, onChange, locale }: {
           type="text"
           value={data.cityQuery}
           onChange={(e) => {
-              const val = e.target.value;
-              onChange({ ...data, cityQuery: val, selectedCity: data.selectedCity && val !== data.selectedCity.name ? null : data.selectedCity });
-            }}
+            const val = e.target.value;
+            onChange({ ...data, cityQuery: val, selectedCity: data.selectedCity && val !== data.selectedCity.name ? null : data.selectedCity });
+          }}
           onBlur={() => setTimeout(() => setShowCityDropdown(false), 200)}
           placeholder={t("form.cityPlaceholder", locale)}
           className="w-full h-11 rounded-xl bg-background/50 border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
@@ -490,6 +505,7 @@ function PersonForm({ label, data, onChange, locale }: {
             {cityResults.map((city) => (
               <button
                 key={`${city.name}-${city.lat}`}
+                type="button"
                 onClick={() => {
                   onChange({ ...data, cityQuery: city.name, selectedCity: city });
                   setShowCityDropdown(false);

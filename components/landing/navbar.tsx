@@ -41,28 +41,6 @@ function DesktopLangSwitcher() {
 }
 
 // Mobile menu: large card switcher
-function MobileLangSwitcher({ onSelect }: { onSelect: () => void }) {
-  const { locale, setLocale } = useLanguage()
-  return (
-    <div className="flex items-center gap-3 mb-2">
-      {LOCALES.map(({ code, label, name }) => (
-        <button
-          key={code}
-          onClick={() => { setLocale(code); onSelect() }}
-          className={`flex flex-col items-center gap-1.5 px-5 py-3.5 rounded-2xl border-2 font-medium transition-all min-w-[72px] ${
-            locale === code
-              ? "bg-primary/15 border-primary text-primary"
-              : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-          }`}
-        >
-          <span className="text-sm font-bold tracking-wider">{label}</span>
-          <span className="text-[10px] opacity-70">{name}</span>
-        </button>
-      ))}
-    </div>
-  )
-}
-
 // Mobile header: inline compact switcher next to hamburger
 function MobileInlineSwitcher() {
   const { locale, setLocale } = useLanguage()
@@ -161,7 +139,6 @@ export function Navbar() {
           >
             <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6">
               {/* Large lang switcher in menu */}
-              <MobileLangSwitcher onSelect={closeMenu} />
 
               <Link href="/what-is-saju" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.whatIsSaju")}</Link>
               <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>

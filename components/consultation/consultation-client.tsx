@@ -802,7 +802,7 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
   const [showCityDropdown, setShowCityDropdown] = useState(false);
 
   const cityResults = useMemo(() => {
-    if (data.cityQuery.length < 2) return [];
+    if (!data.cityQuery || data.cityQuery.length < 1) return [];
     return searchCities(data.cityQuery).slice(0, 8);
   }, [data.cityQuery]);
 
@@ -847,46 +847,58 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
         </div>
       </div>
 
-      {/* Birth Date */}
+      {/* Birth Date — steppers */}
       <div>
-        <label className="block text-xs text-muted-foreground mb-1.5">{t("form.birthDate", locale)}</label>
+        <label className="block text-xs text-muted-foreground mb-2">{t("form.birthDate", locale)}</label>
         <div className="grid grid-cols-3 gap-2">
-          <select
-            value={data.year}
-            onChange={(e) => onChange({ ...data, year: Number(e.target.value) })}
-            className="h-11 rounded-xl bg-background/50 border border-border px-2 text-sm text-foreground focus:border-primary transition-colors appearance-none text-center"
-          >
-            {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-          </select>
-          <select
-            value={data.month}
-            onChange={(e) => onChange({ ...data, month: Number(e.target.value), day: Math.min(data.day, new Date(data.year, Number(e.target.value), 0).getDate()) })}
-            className="h-11 rounded-xl bg-background/50 border border-border px-2 text-sm text-foreground focus:border-primary transition-colors appearance-none text-center"
-          >
-            {MONTHS.map((m) => <option key={m} value={m}>{String(m).padStart(2, "0")}</option>)}
-          </select>
-          <select
-            value={data.day}
-            onChange={(e) => onChange({ ...data, day: Number(e.target.value) })}
-            className="h-11 rounded-xl bg-background/50 border border-border px-2 text-sm text-foreground focus:border-primary transition-colors appearance-none text-center"
-          >
-            {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
-              <option key={d} value={d}>{String(d).padStart(2, "0")}</option>
-            ))}
-          </select>
+          {/* Year */}
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[10px] text-muted-foreground/60 uppercase">{t("form.year", locale)}</span>
+            <div className="flex items-center w-full bg-background/50 border border-border rounded-xl overflow-hidden">
+              <button type="button" onClick={() => onChange({ ...data, year: Math.max(1920, data.year - 1) })}
+                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base">−</button>
+              <span className="flex-1 text-center text-xs font-semibold text-primary">{data.year}</span>
+              <button type="button" onClick={() => onChange({ ...data, year: Math.min(CURRENT_YEAR, data.year + 1) })}
+                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base">+</button>
+            </div>
+          </div>
+          {/* Month */}
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[10px] text-muted-foreground/60 uppercase">{t("form.month", locale)}</span>
+            <div className="flex items-center w-full bg-background/50 border border-border rounded-xl overflow-hidden">
+              <button type="button" onClick={() => onChange({ ...data, month: data.month <= 1 ? 12 : data.month - 1 })}
+                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base">−</button>
+              <span className="flex-1 text-center text-sm font-semibold text-primary">{String(data.month).padStart(2,"0")}</span>
+              <button type="button" onClick={() => onChange({ ...data, month: data.month >= 12 ? 1 : data.month + 1 })}
+                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base">+</button>
+            </div>
+          </div>
+          {/* Day */}
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[10px] text-muted-foreground/60 uppercase">{t("form.day", locale)}</span>
+            <div className="flex items-center w-full bg-background/50 border border-border rounded-xl overflow-hidden">
+              <button type="button" onClick={() => onChange({ ...data, day: data.day <= 1 ? daysInMonth : data.day - 1 })}
+                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base">−</button>
+              <span className="flex-1 text-center text-sm font-semibold text-primary">{String(data.day).padStart(2,"0")}</span>
+              <button type="button" onClick={() => onChange({ ...data, day: data.day >= daysInMonth ? 1 : data.day + 1 })}
+                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base">+</button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Birth Hour */}
+      {/* Birth Hour — stepper */}
       <div>
-        <label className="block text-xs text-muted-foreground mb-1.5">{t("form.birthHour", locale)} <span className="text-muted-foreground/50">{t("form.birthHourNote", locale)}</span></label>
-        <select
-          value={data.hour}
-          onChange={(e) => onChange({ ...data, hour: Number(e.target.value) })}
-          className="w-full h-11 rounded-xl bg-background/50 border border-border px-3 text-sm text-foreground focus:border-primary transition-colors"
-        >
-          {HOURS.map((h) => <option key={h} value={h}>{HOUR_LABELS[h]}</option>)}
-        </select>
+        <label className="block text-xs text-muted-foreground mb-2">
+          {t("form.birthHour", locale)} <span className="text-muted-foreground/50 text-[10px]">{t("form.birthHourNote", locale)}</span>
+        </label>
+        <div className="flex items-center justify-between bg-background/50 border border-border rounded-xl px-2 py-2">
+          <button type="button" onClick={() => onChange({ ...data, hour: data.hour <= 0 ? 23 : data.hour - 1 })}
+            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 rounded-lg transition-colors text-lg">−</button>
+          <span className="text-xs font-medium text-primary">{HOUR_LABELS[data.hour]}</span>
+          <button type="button" onClick={() => onChange({ ...data, hour: data.hour >= 23 ? 0 : data.hour + 1 })}
+            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 rounded-lg transition-colors text-lg">+</button>
+        </div>
       </div>
 
       {/* Birth City */}

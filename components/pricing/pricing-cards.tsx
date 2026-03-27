@@ -117,7 +117,7 @@ export function PricingCards() {
                 : plan.highlighted ? "hsl(var(--card))" : "hsl(var(--card) / 0.6)",
               border: isSelected
                 ? `2px solid ${plan.accent}`
-                : plan.highlighted ? "1.5px solid rgba(242,202,80,0.4)" : "1px solid hsl(var(--border))",
+                : plan.highlighted ? "1.5px solid rgba(242,202,80,0.4)" : `1px solid ${plan.accent}30`,
               boxShadow: isSelected
                 ? `0 0 0 1px ${plan.accent}22, 0 8px 40px ${plan.glow}, 0 24px 60px ${plan.glowSoft}, inset 0 1px 0 ${plan.accent}30`
                 : plan.highlighted ? "0 4px 24px rgba(242,202,80,0.15)" : "none",

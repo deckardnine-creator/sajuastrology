@@ -207,8 +207,9 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
   }, [maxDay, dayIdx]);
 
   useEffect(() => {
-    // Don't show dropdown if city is already selected — prevents blocking submit button
-    if (cityQuery.length < 2 || selectedCity) { setCityResults([]); setShowCityDropdown(false); return; }
+    if (!cityQuery || cityQuery.length < 1 || selectedCity) {
+      setCityResults([]); setShowCityDropdown(false); return;
+    }
     const results = searchCities(cityQuery);
     setCityResults(results);
     setShowCityDropdown(results.length > 0);
@@ -222,17 +223,19 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
   const isFormValid = name.trim().length >= 1 && gender && selectedCity;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (e?: React.FormEvent | React.MouseEvent) => {
+    e?.preventDefault();
     if (!isFormValid || !selectedCity) return;
-
-    const day = Number(DAYS_FILTERED[dayIdx]);
-    const hour = unknownTime ? 12 : Number(HOURS[hourIdx]);
-    const minute = unknownTime ? 0 : Number(MINUTES[minuteIdx]);
-
-    const birthDate = new Date(year, month - 1, day);
-    const chart = calculateSaju(birthDate, hour, minute, name.trim(), gender as "male" | "female", selectedCity.name);
-    onCalculate(chart, selectedCity.name);
+    try {
+      const day = Number(DAYS_FILTERED[dayIdx]);
+      const hour = unknownTime ? 12 : Number(HOURS[hourIdx]);
+      const minute = unknownTime ? 0 : Number(MINUTES[minuteIdx]);
+      const birthDate = new Date(year, month - 1, day);
+      const chart = calculateSaju(birthDate, hour, minute, name.trim(), gender as "male" | "female", selectedCity.name);
+      onCalculate(chart, selectedCity.name);
+    } catch (err) {
+      console.error("Form submit error:", err);
+    }
   };
 
   return (
@@ -398,7 +401,8 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
               </div>
 
               {/* Submit */}
-              <Button type="submit" disabled={!isFormValid}
+              <Button type="button" disabled={!isFormValid}
+                onClick={handleSubmit}
                 className="w-full h-14 gold-gradient text-primary-foreground font-semibold text-base tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 style={{ letterSpacing:"0.12em" }}>
                 <Sparkles className="w-4 h-4 mr-2" />
