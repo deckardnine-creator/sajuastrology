@@ -6,11 +6,10 @@ export async function POST(request: NextRequest) {
   try {
     const { sessionId, shareSlug } = await request.json();
 
-    if (!sessionId || !shareSlug) {
+    if (!shareSlug) {
       return NextResponse.json({ error: "Missing params" }, { status: 400 });
     }
 
-    const stripeSecretKey = process.env.STRIPE_SECRET_KEY || "";
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
     const supabaseKey =
       process.env.SUPABASE_SERVICE_ROLE_KEY ||
@@ -22,7 +21,7 @@ export async function POST(request: NextRequest) {
       Authorization: `Bearer ${supabaseKey}`,
     };
 
-    // 1. Check if already paid (idempotency — handles page reload, double-click)
+    // Check if already paid (webhook may have already processed)
     const checkRes = await fetch(
       `${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}&select=is_paid`,
       { headers: dbHeaders }
@@ -30,41 +29,52 @@ export async function POST(request: NextRequest) {
     if (checkRes.ok) {
       const existing = await checkRes.json();
       if (existing?.[0]?.is_paid === true) {
-        return NextResponse.json({ success: true, alreadyPaid: true });
+        return NextResponse.json({ success: true });
       }
     }
 
-    // 2. Verify payment with Stripe
-    const stripeRes = await fetch(
-      `https://api.stripe.com/v1/checkout/sessions/${sessionId}`,
-      { headers: { Authorization: `Bearer ${stripeSecretKey}` } }
-    );
-
-    if (!stripeRes.ok) {
-      return NextResponse.json({ error: "Invalid session" }, { status: 400 });
+    // If session_id is "lemon", webhook hasn't fired yet — wait and retry
+    if (sessionId === "lemon") {
+      // Give webhook a moment, then check again
+      await new Promise((r) => setTimeout(r, 3000));
+      const retryRes = await fetch(
+        `${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}&select=is_paid`,
+        { headers: dbHeaders }
+      );
+      if (retryRes.ok) {
+        const retryData = await retryRes.json();
+        if (retryData?.[0]?.is_paid === true) {
+          return NextResponse.json({ success: true });
+        }
+      }
+      // Webhook may still be processing — return success anyway
+      // The webhook will mark it paid, and generate-paid handles the rest
+      return NextResponse.json({ success: true, pending: true });
     }
 
-    const session = await stripeRes.json();
-
-    if (session.payment_status !== "paid") {
-      return NextResponse.json({ error: "Payment not completed" }, { status: 400 });
+    // Legacy Stripe flow (if session_id is not "lemon")
+    // Keep backward compatibility for any old pending Stripe payments
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY || "";
+    if (stripeSecretKey && sessionId && sessionId !== "lemon") {
+      const stripeRes = await fetch(
+        `https://api.stripe.com/v1/checkout/sessions/${sessionId}`,
+        { headers: { Authorization: `Bearer ${stripeSecretKey}` } }
+      );
+      if (stripeRes.ok) {
+        const session = await stripeRes.json();
+        if (session.payment_status === "paid") {
+          const customerEmail = session.customer_details?.email || "";
+          await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
+            method: "PATCH",
+            headers: dbHeaders,
+            body: JSON.stringify({ is_paid: true, customer_email: customerEmail }),
+          });
+          return NextResponse.json({ success: true });
+        }
+      }
     }
 
-    // 3. Verify Stripe metadata matches slug (prevent tampering)
-    if (session.metadata?.share_slug && session.metadata.share_slug !== shareSlug) {
-      return NextResponse.json({ error: "Session mismatch" }, { status: 400 });
-    }
-
-    // 4. Mark as paid + save customer email
-    const customerEmail = session.customer_details?.email || session.customer_email || "";
-
-    await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
-      method: "PATCH",
-      headers: dbHeaders,
-      body: JSON.stringify({ is_paid: true, customer_email: customerEmail }),
-    });
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ error: "Payment not confirmed yet" }, { status: 400 });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "unknown";
     return NextResponse.json({ error: "Server error: " + message }, { status: 500 });

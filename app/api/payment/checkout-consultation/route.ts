@@ -2,59 +2,83 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "edge";
 
+const LEMON_API_KEY = process.env.LEMONSQUEEZY_API_KEY || "";
+const VARIANT_ID = process.env.LEMONSQUEEZY_VARIANT_CONSULTATION || "1453443";
+
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await request.json();
+    const { userId, userEmail } = await request.json();
 
     if (!userId) {
       return NextResponse.json({ error: "Missing userId" }, { status: 400 });
     }
-
-    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-    if (!stripeSecretKey) {
-      return NextResponse.json({ error: "Stripe not configured" }, { status: 500 });
+    if (!LEMON_API_KEY) {
+      return NextResponse.json({ error: "Payment not configured" }, { status: 500 });
     }
 
-    const params = new URLSearchParams();
-    params.append("mode", "payment");
-    params.append(
-      "success_url",
-      `https://sajuastrology.com/consultation?payment=success&session_id={CHECKOUT_SESSION_ID}`
-    );
-    params.append(
-      "cancel_url",
-      `https://sajuastrology.com/consultation?payment=cancelled`
-    );
-    params.append("line_items[0][price_data][currency]", "usd");
-    params.append("line_items[0][price_data][unit_amount]", "2999"); // $29.99
-    params.append("line_items[0][price_data][product_data][name]", "Master Consultation — 5 Sessions");
-    params.append(
-      "line_items[0][price_data][product_data][description]",
-      "5 personalized Saju consultation sessions with in-depth analysis reports"
-    );
-    params.append("line_items[0][quantity]", "1");
-    params.append("metadata[user_id]", userId);
-    params.append("metadata[product_type]", "master_consultation");
-    params.append("payment_intent_data[metadata][user_id]", userId);
-    params.append("payment_intent_data[metadata][product_type]", "master_consultation");
+    // Get store ID
+    const storesRes = await fetch("https://api.lemonsqueezy.com/v1/stores", {
+      headers: { Authorization: `Bearer ${LEMON_API_KEY}`, Accept: "application/vnd.api+json" },
+    });
+    if (!storesRes.ok) {
+      return NextResponse.json({ error: "Failed to connect to payment provider" }, { status: 500 });
+    }
+    const storesData = await storesRes.json();
+    const storeId = storesData.data?.[0]?.id;
+    if (!storeId) {
+      return NextResponse.json({ error: "Store not found" }, { status: 500 });
+    }
 
-    const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+    // Create checkout
+    const checkoutRes = await fetch("https://api.lemonsqueezy.com/v1/checkouts", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${stripeSecretKey}`,
-        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Bearer ${LEMON_API_KEY}`,
+        Accept: "application/vnd.api+json",
+        "Content-Type": "application/vnd.api+json",
       },
-      body: params.toString(),
+      body: JSON.stringify({
+        data: {
+          type: "checkouts",
+          attributes: {
+            checkout_data: {
+              email: userEmail || undefined,
+              custom: {
+                user_id: userId,
+                payment_type: "consultation",
+              },
+            },
+            checkout_options: {
+              button_color: "#7C3AED",
+            },
+            product_options: {
+              redirect_url: `https://sajuastrology.com/consultation?payment=success&session_id=lemon`,
+              receipt_button_text: "Start Consulting",
+              receipt_link_url: "https://sajuastrology.com/consultation",
+            },
+          },
+          relationships: {
+            store: { data: { type: "stores", id: storeId } },
+            variant: { data: { type: "variants", id: VARIANT_ID } },
+          },
+        },
+      }),
     });
 
-    if (!stripeRes.ok) {
-      const errText = await stripeRes.text();
-      console.error("Stripe error:", stripeRes.status, errText);
+    if (!checkoutRes.ok) {
+      const errText = await checkoutRes.text();
+      console.error("LemonSqueezy consultation checkout error:", checkoutRes.status, errText);
       return NextResponse.json({ error: "Payment setup failed" }, { status: 500 });
     }
 
-    const session = await stripeRes.json();
-    return NextResponse.json({ url: session.url });
+    const checkoutData = await checkoutRes.json();
+    const checkoutUrl = checkoutData.data?.attributes?.url;
+
+    if (!checkoutUrl) {
+      return NextResponse.json({ error: "Failed to create checkout" }, { status: 500 });
+    }
+
+    return NextResponse.json({ url: checkoutUrl });
   } catch (err: any) {
     console.error("Consultation checkout error:", err?.message || err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
