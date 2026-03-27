@@ -244,10 +244,10 @@ export default function ReadingPageClient() {
 
   useEffect(() => {
     async function fetchReading() {
-      // Retry up to 4 times with 700ms delay — covers Supabase write propagation lag
-      // (INSERT completes on server, but SELECT on client may arrive before DB propagates)
-      const MAX_RETRIES = 4;
-      const RETRY_DELAY = 700;
+      // Server now verifies INSERT is readable before returning slug (generate-route.ts)
+      // Still retry 2x as safety net for edge cases (CDN cache, etc.)
+      const MAX_RETRIES = 2;
+      const RETRY_DELAY = 800;
 
       let data: ReadingData | null = null;
       for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {

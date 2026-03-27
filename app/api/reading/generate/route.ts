@@ -188,6 +188,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `DB insert failed (${insertRes.status})` }, { status: 500 });
     }
 
+    // ═══ VERIFY INSERT IS READABLE before returning slug ═══
+    // Eliminates client-side Supabase propagation race condition entirely
+    for (let i = 0; i < 5; i++) {
+      if (i > 0) await new Promise((r) => setTimeout(r, 400));
+      const verifyRes = await fetch(
+        `${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}&select=id`,
+        { headers: dbHeaders }
+      );
+      if (verifyRes.ok) {
+        const vd = await verifyRes.json();
+        if (vd?.length > 0) break; // confirmed readable
+      }
+    }
+
     return NextResponse.json({ success: true, shareSlug });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "unknown";

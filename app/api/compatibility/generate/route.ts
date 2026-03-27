@@ -35,26 +35,38 @@ function toBirthDateStr(d: Date | string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-async function callClaude(prompt: string, label: string): Promise<string> {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": anthropicKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 3000,
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`${label}: API ${res.status} — ${err.substring(0, 200)}`);
+async function callClaude(prompt: string, label: string, retries = 3): Promise<string> {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    if (attempt > 0) {
+      // Exponential backoff: 2s, 4s
+      await new Promise((r) => setTimeout(r, 2000 * attempt));
+    }
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": anthropicKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 3000,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+    // Retry on 529 (overloaded) or 500
+    if (!res.ok) {
+      const err = await res.text();
+      if ((res.status === 529 || res.status === 500) && attempt < retries - 1) {
+        console.warn(`${label}: API ${res.status} — retrying (attempt ${attempt + 1})`);
+        continue;
+      }
+      throw new Error(`${label}: API ${res.status} — ${err.substring(0, 200)}`);
+    }
+    const data = await res.json();
+    return data.content?.[0]?.text || "";
   }
-  const data = await res.json();
-  return data.content?.[0]?.text || "";
+  throw new Error(`${label}: all retries exhausted`);
 }
 
 function parseJSON(raw: string): any {
