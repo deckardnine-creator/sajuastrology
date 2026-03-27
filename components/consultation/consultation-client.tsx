@@ -68,37 +68,103 @@ const getCategoryItems = (locale: "en" | "ko" | "ja") => [
   { id: "general", label: t("cat.general", locale), icon: HelpCircle, color: "#6B7280" },
 ];
 
-const EXAMPLE_QUESTIONS: Record<string, string[]> = {
-  career: [
-    "Should I change jobs this year? I've been at my company for 3 years and feel stuck.",
-    "I'm considering starting a business in tech. Is 2026 a favorable year for entrepreneurship?",
-    "I got two job offers — one stable, one risky but exciting. Which aligns better with my chart?",
-  ],
-  love: [
-    "I'm single and wondering if this year brings romantic opportunities. What should I look for?",
-    "My partner and I are considering marriage in late 2026. Is the timing favorable?",
-    "I keep attracting the wrong type. What does my chart say about my relationship patterns?",
-  ],
-  timing: [
-    "When is the best time to make a major investment this year?",
-    "I'm planning to relocate. Which months in 2026 are most favorable for a big move?",
-    "Should I start my project now or wait until next quarter?",
-  ],
-  wealth: [
-    "What does my chart say about my wealth potential over the next 5 years?",
-    "I'm torn between saving aggressively or investing in real estate. What suits my chart?",
-    "Are there specific months this year where financial opportunities are strongest?",
-  ],
-  health: [
-    "I've been feeling low energy. What does my chart suggest about my health this year?",
-    "Which elements should I focus on to improve my overall vitality?",
-    "Are there any periods this year where I should be extra careful about health?",
-  ],
-  general: [
-    "Give me an overview of what 2026 holds for me across all life areas.",
-    "I feel like I'm at a crossroads. What does my current cycle suggest about my path?",
-    "What are my greatest strengths and blind spots according to my chart?",
-  ],
+const EXAMPLE_QUESTIONS: Record<string, Record<string, string[]>> = {
+  en: {
+    career: [
+      "Should I change jobs this year? I've been at my company for 3 years and feel stuck.",
+      "I'm considering starting a business in tech. Is 2026 a favorable year for entrepreneurship?",
+      "I got two job offers — one stable, one risky but exciting. Which aligns better with my chart?",
+    ],
+    love: [
+      "I'm single and wondering if this year brings romantic opportunities. What should I look for?",
+      "My partner and I are considering marriage in late 2026. Is the timing favorable?",
+      "I keep attracting the wrong type. What does my chart say about my relationship patterns?",
+    ],
+    timing: [
+      "When is the best time to make a major investment this year?",
+      "I'm planning to relocate. Which months in 2026 are most favorable for a big move?",
+      "Should I start my project now or wait until next quarter?",
+    ],
+    wealth: [
+      "What does my chart say about my wealth potential over the next 5 years?",
+      "I'm torn between saving aggressively or investing in real estate. What suits my chart?",
+      "Are there specific months this year where financial opportunities are strongest?",
+    ],
+    health: [
+      "I've been feeling low energy. What does my chart suggest about my health this year?",
+      "Which elements should I focus on to improve my overall vitality?",
+      "Are there any periods this year where I should be extra careful about health?",
+    ],
+    general: [
+      "Give me an overview of what 2026 holds for me across all life areas.",
+      "I feel like I'm at a crossroads. What does my current cycle suggest about my path?",
+      "What are my greatest strengths and blind spots according to my chart?",
+    ],
+  },
+  ko: {
+    career: [
+      "올해 이직을 해야 할까요? 3년째 같은 회사에 다니고 있는데 성장이 멈춘 느낌입니다.",
+      "IT 분야 창업을 고민 중입니다. 2026년이 창업하기 좋은 해인지 사주로 봐주세요.",
+      "두 개의 취업 제안이 있어요. 하나는 안정적이고 하나는 리스크가 있지만 흥미롭습니다. 제 사주와 어울리는 선택은 무엇인가요?",
+    ],
+    love: [
+      "현재 솔로인데 올해 연애운이 어떤지, 어떤 점에 집중해야 하는지 알고 싶습니다.",
+      "파트너와 2026년 하반기 결혼을 생각 중인데, 시기가 적합한지 봐주세요.",
+      "계속 맞지 않는 사람을 만나게 됩니다. 제 사주에서 연애 패턴이 보이나요?",
+    ],
+    timing: [
+      "올해 큰 투자를 하기에 가장 좋은 시기는 언제인가요?",
+      "이사를 계획 중입니다. 2026년 중 큰 이동에 유리한 달은 언제인가요?",
+      "지금 프로젝트를 시작해야 할까요, 아니면 다음 분기까지 기다려야 할까요?",
+    ],
+    wealth: [
+      "향후 5년간 제 재물운은 어떻게 되나요?",
+      "공격적 저축과 부동산 투자 사이에서 고민 중입니다. 제 사주에는 어떤 방향이 맞나요?",
+      "올해 재물 기회가 가장 강한 달이 있나요?",
+    ],
+    health: [
+      "최근 에너지가 많이 떨어졌습니다. 제 사주로 올해 건강운을 봐주세요.",
+      "전반적인 건강을 위해 어떤 오행을 보완해야 하나요?",
+      "올해 건강에 특히 주의해야 하는 시기가 있나요?",
+    ],
+    general: [
+      "2026년 전체적인 운세 흐름을 전반적으로 봐주세요.",
+      "지금 인생의 갈림길에 선 느낌입니다. 현재 대운이 제 방향에 대해 무엇을 말해주나요?",
+      "제 사주에서 가장 큰 강점과 주의해야 할 점은 무엇인가요?",
+    ],
+  },
+  ja: {
+    career: [
+      "今年転職すべきでしょうか？同じ会社に3年いて成長が止まった気がします。",
+      "IT分野での起業を考えています。2026年は起業に適した年ですか？",
+      "2つの内定があります。一つは安定、もう一つはリスクがあるが面白い。どちらが私の命式に合いますか？",
+    ],
+    love: [
+      "現在独身ですが、今年恋愛の機会はありますか？どんな点に注目すべきでしょうか。",
+      "パートナーと2026年後半の結婚を考えています。時期は適切ですか？",
+      "なぜか合わない人ばかり引き寄せてしまいます。私の命式に恋愛パターンは見えますか？",
+    ],
+    timing: [
+      "今年大きな投資をするのに最適な時期はいつですか？",
+      "引越しを計画しています。2026年で大きな移動に有利な月はいつですか？",
+      "今すぐプロジェクトを始めるべきか、来四半期まで待つべきか？",
+    ],
+    wealth: [
+      "今後5年間の財運はどうなりますか？",
+      "積極的な貯蓄と不動産投資の間で迷っています。私の命式にはどちらが合いますか？",
+      "今年財運が特に強い月はありますか？",
+    ],
+    health: [
+      "最近エネルギーが落ちています。今年の健康運を四柱で見てください。",
+      "全体的な健康のために、どの五行を補うべきですか？",
+      "今年特に健康に注意が必要な時期はありますか？",
+    ],
+    general: [
+      "2026年の全体的な運気の流れを教えてください。",
+      "人生の岐路に立っている気がします。現在の大運は私の方向性について何を示していますか？",
+      "私の命式で最大の強みと注意すべき点は何ですか？",
+    ],
+  },
 };
 
 const emptyBirthData = (): BirthData => ({
@@ -559,7 +625,7 @@ export function ConsultationClient() {
                   {t("consult.exampleQuestions", locale)}
                 </p>
                 <div className="space-y-2">
-                  {EXAMPLE_QUESTIONS[category]?.map((ex, i) => (
+                  {EXAMPLE_QUESTIONS[locale]?.[category]?.map((ex, i) => (
                     <button
                       key={i}
                       onClick={() => setQuestion(ex)}
@@ -663,13 +729,16 @@ export function ConsultationClient() {
               {/* Report Content */}
               <div className="px-6 py-6">
                 <div
-                  className="prose prose-invert prose-sm max-w-none 
-                    prose-headings:font-serif prose-headings:text-primary 
-                    prose-h2:text-lg prose-h2:mt-6 prose-h2:mb-3
-                    prose-h3:text-base prose-h3:mt-4 prose-h3:mb-2
-                    prose-p:text-muted-foreground prose-p:leading-relaxed
-                    prose-strong:text-foreground
-                    prose-li:text-muted-foreground"
+                  className="prose prose-invert prose-sm max-w-none
+                    prose-headings:font-serif prose-headings:text-primary prose-headings:font-semibold
+                    prose-h1:text-xl prose-h1:mt-0 prose-h1:mb-4
+                    prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3 prose-h2:pb-1 prose-h2:border-b prose-h2:border-primary/20
+                    prose-h3:text-base prose-h3:mt-5 prose-h3:mb-2 prose-h3:text-primary/80
+                    prose-p:text-foreground/85 prose-p:leading-[1.85] prose-p:mb-4
+                    prose-strong:text-foreground prose-strong:font-semibold
+                    prose-li:text-foreground/85 prose-li:leading-relaxed prose-li:mb-1
+                    prose-ul:my-3 prose-ol:my-3
+                    prose-hr:border-border/30 prose-hr:my-6"
                   dangerouslySetInnerHTML={{ __html: renderMarkdown(report.content) }}
                 />
               </div>
@@ -850,39 +919,97 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
 
 /* ─── Consultation Loader ─── */
 
-const CONSULTATION_STEPS: Record<string, { icon: string; label: string; sub: string }[]> = {
-  career: [
-    { icon: "🏛", label: "Reading your Four Pillars", sub: "Mapping the cosmic blueprint of your career" },
-    { icon: "⚖", label: "Analyzing element balance", sub: "Finding strengths and growth areas" },
-    { icon: "💼", label: "Consulting the Career Palace", sub: "직업궁 (Jigeopgung) — your professional destiny" },
-    { icon: "🔄", label: "Checking current cycles", sub: "How 2026 shapes your work path" },
-    { icon: "✦", label: "Identifying favorable timing", sub: "Best months for bold moves" },
-    { icon: "📜", label: "Weaving your consultation report", sub: "Crafting personalized guidance…" },
-  ],
-  love: [
-    { icon: "🏛", label: "Reading your Four Pillars", sub: "Mapping the cosmic blueprint of your heart" },
-    { icon: "💧", label: "Analyzing element harmony", sub: "Water, Fire, and the dance of connection" },
-    { icon: "💕", label: "Consulting the Relationship Palace", sub: "배우자궁 (Baeujagang) — your love destiny" },
-    { icon: "🔄", label: "Checking current cycles", sub: "Romantic energy in your current phase" },
-    { icon: "✦", label: "Finding auspicious timing", sub: "When the stars favor the heart" },
-    { icon: "📜", label: "Weaving your consultation report", sub: "Crafting personalized guidance…" },
-  ],
-  default: [
-    { icon: "🏛", label: "Reading your Four Pillars", sub: "Year · Month · Day · Hour" },
-    { icon: "🌊", label: "Mapping the Five Elements", sub: "Wood · Fire · Earth · Metal · Water" },
-    { icon: "✦", label: "Analyzing your Day Master", sub: "The core of who you are" },
-    { icon: "🔄", label: "Consulting current cycles", sub: "What this period holds for you" },
-    { icon: "⚖", label: "Weighing cosmic influences", sub: "Balancing opportunities and caution" },
-    { icon: "📜", label: "Weaving your consultation report", sub: "Crafting personalized guidance…" },
-  ],
-};
+function getConsultationSteps(locale: string): Record<string, { icon: string; label: string; sub: string }[]> {
+  const steps: Record<string, Record<string, { icon: string; label: string; sub: string }[]>> = {
+    en: {
+      career: [
+        { icon: "🏛", label: "Reading your Four Pillars", sub: "Mapping the cosmic blueprint of your career" },
+        { icon: "⚖", label: "Analyzing element balance", sub: "Finding strengths and growth areas" },
+        { icon: "💼", label: "Consulting the Career Palace", sub: "Your professional destiny" },
+        { icon: "🔄", label: "Checking current cycles", sub: "How 2026 shapes your work path" },
+        { icon: "✦", label: "Identifying favorable timing", sub: "Best months for bold moves" },
+        { icon: "📜", label: "Weaving your consultation report", sub: "Crafting personalized guidance…" },
+      ],
+      love: [
+        { icon: "🏛", label: "Reading your Four Pillars", sub: "Mapping the cosmic blueprint of your heart" },
+        { icon: "💧", label: "Analyzing element harmony", sub: "Water, Fire, and the dance of connection" },
+        { icon: "💕", label: "Consulting the Relationship Palace", sub: "Your love destiny" },
+        { icon: "🔄", label: "Checking current cycles", sub: "Romantic energy in your current phase" },
+        { icon: "✦", label: "Finding auspicious timing", sub: "When the stars favor the heart" },
+        { icon: "📜", label: "Weaving your consultation report", sub: "Crafting personalized guidance…" },
+      ],
+      default: [
+        { icon: "🏛", label: "Reading your Four Pillars", sub: "Year · Month · Day · Hour" },
+        { icon: "🌊", label: "Mapping the Five Elements", sub: "Wood · Fire · Earth · Metal · Water" },
+        { icon: "✦", label: "Analyzing your Day Master", sub: "The core of who you are" },
+        { icon: "🔄", label: "Consulting current cycles", sub: "What this period holds for you" },
+        { icon: "⚖", label: "Weighing cosmic influences", sub: "Balancing opportunities and caution" },
+        { icon: "📜", label: "Weaving your consultation report", sub: "Crafting personalized guidance…" },
+      ],
+    },
+    ko: {
+      career: [
+        { icon: "🏛", label: "사주팔자 분석 중", sub: "직업 운명의 우주적 청사진을 읽는 중" },
+        { icon: "⚖", label: "오행 균형 분석 중", sub: "강점과 성장 영역 파악 중" },
+        { icon: "💼", label: "직업궁 상담 중", sub: "당신의 직업적 운명을 탐색하는 중" },
+        { icon: "🔄", label: "현재 운세 사이클 확인 중", sub: "2026년이 당신의 직업에 미치는 영향" },
+        { icon: "✦", label: "유리한 시기 파악 중", sub: "대담한 결정을 위한 최적의 달" },
+        { icon: "📜", label: "상담 보고서 작성 중", sub: "맞춤 지침을 만드는 중…" },
+      ],
+      love: [
+        { icon: "🏛", label: "사주팔자 분석 중", sub: "연애 운명의 우주적 청사진을 읽는 중" },
+        { icon: "💧", label: "오행 조화 분석 중", sub: "수(水)와 화(火), 인연의 흐름" },
+        { icon: "💕", label: "배우자궁 상담 중", sub: "당신의 연애 운명을 탐색하는 중" },
+        { icon: "🔄", label: "현재 운세 사이클 확인 중", sub: "현재 시기의 연애 에너지" },
+        { icon: "✦", label: "길한 시기 파악 중", sub: "인연이 빛나는 때를 찾는 중" },
+        { icon: "📜", label: "상담 보고서 작성 중", sub: "맞춤 지침을 만드는 중…" },
+      ],
+      default: [
+        { icon: "🏛", label: "사주팔자 분석 중", sub: "년 · 월 · 일 · 시" },
+        { icon: "🌊", label: "오행 매핑 중", sub: "목 · 화 · 토 · 금 · 수" },
+        { icon: "✦", label: "일주 분석 중", sub: "당신의 본질을 읽는 중" },
+        { icon: "🔄", label: "현재 운세 사이클 상담 중", sub: "이 시기가 당신에게 말하는 것" },
+        { icon: "⚖", label: "우주적 영향 분석 중", sub: "기회와 주의 사항의 균형" },
+        { icon: "📜", label: "상담 보고서 작성 중", sub: "맞춤 지침을 만드는 중…" },
+      ],
+    },
+    ja: {
+      career: [
+        { icon: "🏛", label: "四柱を読み解き中", sub: "仕事の宇宙的設計図をマッピング中" },
+        { icon: "⚖", label: "五行バランスを分析中", sub: "強みと成長エリアを特定中" },
+        { icon: "💼", label: "職業宮を鑑定中", sub: "あなたの職業的運命を探索中" },
+        { icon: "🔄", label: "現在の運勢サイクルを確認中", sub: "2026年があなたの仕事に与える影響" },
+        { icon: "✦", label: "有利なタイミングを特定中", sub: "大胆な行動に最適な月" },
+        { icon: "📜", label: "相談レポートを作成中", sub: "パーソナライズされたガイダンスを作成中…" },
+      ],
+      love: [
+        { icon: "🏛", label: "四柱を読み解き中", sub: "恋愛の宇宙的設計図をマッピング中" },
+        { icon: "💧", label: "五行の調和を分析中", sub: "水と火、縁のダンス" },
+        { icon: "💕", label: "配偶者宮を鑑定中", sub: "あなたの恋愛運命を探索中" },
+        { icon: "🔄", label: "現在の運勢サイクルを確認中", sub: "現在の時期の恋愛エネルギー" },
+        { icon: "✦", label: "吉日を探索中", sub: "縁が輝くタイミング" },
+        { icon: "📜", label: "相談レポートを作成中", sub: "パーソナライズされたガイダンスを作成中…" },
+      ],
+      default: [
+        { icon: "🏛", label: "四柱を読み解き中", sub: "年 · 月 · 日 · 時" },
+        { icon: "🌊", label: "五行をマッピング中", sub: "木 · 火 · 土 · 金 · 水" },
+        { icon: "✦", label: "日主を分析中", sub: "あなたの本質を読んでいます" },
+        { icon: "🔄", label: "現在の運勢サイクルを鑑定中", sub: "この時期があなたに語ること" },
+        { icon: "⚖", label: "宇宙的影響を分析中", sub: "機会と注意事項のバランス" },
+        { icon: "📜", label: "相談レポートを作成中", sub: "パーソナライズされたガイダンスを作成中…" },
+      ],
+    },
+  };
+  return steps[locale] || steps.en;
+}
 
 function ConsultationLoader({ category, locale }: { category: string; locale: "en" | "ko" | "ja" }) {
   const [activeStep, setActiveStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
-  const steps = CONSULTATION_STEPS[category] || CONSULTATION_STEPS.default;
+  const localizedSteps = getConsultationSteps(locale);
+  const steps = localizedSteps[category] || localizedSteps.default;
 
   useEffect(() => {
     const stepInterval = setInterval(() => {

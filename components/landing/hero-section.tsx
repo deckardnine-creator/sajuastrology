@@ -60,7 +60,7 @@ export function HeroSection() {
         ))}
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 lg:gap-8 items-center min-h-[calc(100vh-8rem)]">
 
           {/* Left: Text */}
@@ -68,9 +68,9 @@ export function HeroSection() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="flex flex-col gap-5 py-8 lg:py-0"
+            className="flex flex-col gap-4 py-6 lg:py-0"
           >
-            <h1 className="font-serif text-[2rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.15]">
+            <h1 className="font-serif text-[1.75rem] xs:text-[2rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.2]">
               {t("hero.title1")}{" "}
               <span className="gold-gradient-text">{t("hero.title2")}</span>
             </h1>
@@ -144,19 +144,19 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="flex justify-center lg:justify-end pb-8 lg:pb-0"
           >
-            <div className="flex gap-2 sm:gap-3 lg:gap-4">
+            <div className="flex gap-1.5 xs:gap-2 sm:gap-3 lg:gap-4">
               {pillars.map((pillar, index) => (
                 <motion.div
                   key={pillar.chinese}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                  className={`pillar-card rounded-xl lg:rounded-2xl p-3 sm:p-4 lg:p-6 flex flex-col items-center gap-2 lg:gap-4 glow-${pillar.element}`}
+                  className={`pillar-card rounded-xl lg:rounded-2xl p-2 xs:p-3 sm:p-4 lg:p-6 flex flex-col items-center gap-1.5 lg:gap-4 glow-${pillar.element} min-w-0`}
                 >
-                  <span className={`text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif ${pillar.color}`}>
+                  <span className={`text-2xl xs:text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif ${pillar.color}`}>
                     {pillar.chinese}
                   </span>
-                  <span className="text-[9px] sm:text-xs text-muted-foreground uppercase tracking-wider">
+                  <span className="text-[8px] xs:text-[9px] sm:text-xs text-muted-foreground uppercase tracking-wider">
                     {pillar.english}
                   </span>
                 </motion.div>
