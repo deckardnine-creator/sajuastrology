@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User,
@@ -11,15 +10,16 @@ import {
   Sparkles,
   LogOut,
   Crown,
+  Heart,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 
 export function UserMenu() {
   const { user, signOut, openSignInModal, isPremium, isLoading } = useAuth();
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -63,6 +63,17 @@ export function UserMenu() {
     );
   }
 
+  const handleSignOut = async () => {
+    setIsOpen(false);
+    setSigningOut(true);
+    try {
+      await signOut();
+    } catch {
+      // Force navigation even if signOut errors
+      window.location.href = "/";
+    }
+  };
+
   return (
     <div className="relative" ref={menuRef}>
       <button
@@ -70,6 +81,7 @@ export function UserMenu() {
         className="flex items-center gap-2 p-1 rounded-full hover:bg-muted/50 transition-colors"
         aria-label="User menu"
         aria-expanded={isOpen}
+        disabled={signingOut}
       >
         <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
           {user.image ? (
@@ -132,6 +144,12 @@ export function UserMenu() {
                   onClick={() => setIsOpen(false)}
                 />
                 <MenuItem
+                  href="/compatibility"
+                  icon={<Heart className="w-4 h-4" />}
+                  label="Compatibility"
+                  onClick={() => setIsOpen(false)}
+                />
+                <MenuItem
                   href="/consultation"
                   icon={<Crown className="w-4 h-4" />}
                   label="Consultation"
@@ -142,16 +160,13 @@ export function UserMenu() {
               {/* Sign Out */}
               <div className="border-t border-border p-2">
                 <button
-                  onClick={async () => {
-                    setIsOpen(false);
-                    await signOut();
-                    router.push("/");
-                  }}
+                  onClick={handleSignOut}
+                  disabled={signingOut}
                   className="w-full flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors min-h-[44px]"
                   role="menuitem"
                 >
                   <LogOut className="w-4 h-4" />
-                  Sign Out
+                  {signingOut ? "Signing out..." : "Sign Out"}
                 </button>
               </div>
             </motion.div>
