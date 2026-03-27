@@ -230,26 +230,40 @@ export default function ReadingPageClient() {
 
   useEffect(() => {
     async function fetchReading() {
-      const { data, error: fetchError } = await supabase
-        .from("readings")
-        .select("*")
-        .eq("share_slug", slug)
-        .single();
+      // Retry up to 4 times with 700ms delay — covers Supabase write propagation lag
+      // (INSERT completes on server, but SELECT on client may arrive before DB propagates)
+      const MAX_RETRIES = 4;
+      const RETRY_DELAY = 700;
 
-      if (fetchError || !data) {
+      let data: ReadingData | null = null;
+      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        if (attempt > 0) {
+          await new Promise((r) => setTimeout(r, RETRY_DELAY));
+        }
+        const { data: d, error: fetchError } = await supabase
+          .from("readings")
+          .select("*")
+          .eq("share_slug", slug)
+          .single();
+        if (!fetchError && d) {
+          data = d as ReadingData;
+          break;
+        }
+      }
+
+      if (!data) {
         setError("Reading not found");
         setLoading(false);
         return;
       }
 
-      setReading(data as ReadingData);
+      setReading(data);
       setLoading(false);
-      window.scrollTo({ top: 0 }); // Always start at top
+      window.scrollTo({ top: 0 });
 
-      const r = data as ReadingData;
       // Only auto-generate if paid but content missing AND not already generating
-      if (r.is_paid && !r.paid_reading_career) {
-        setPaidContentLoading(true); // Show loading immediately, not failed UI
+      if (data.is_paid && !data.paid_reading_career) {
+        setPaidContentLoading(true);
         generatePaidContent();
       }
     }
