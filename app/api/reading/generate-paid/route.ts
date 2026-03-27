@@ -4,28 +4,34 @@ import { buildPaidPromptPart1, buildPaidPromptPart2, buildPaidPromptPart3, build
 // Serverless = 60s on Pro
 export const maxDuration = 60;
 
-async function callClaude(prompt: string, apiKey: string, label: string): Promise<string> {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 4000,
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
-
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`${label}: API ${res.status} — ${errText.substring(0, 200)}`);
+async function callClaude(prompt: string, apiKey: string, label: string, retries = 3): Promise<string> {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 2000 * attempt));
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4000,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      if ((res.status === 529 || res.status === 500) && attempt < retries - 1) {
+        console.warn(`${label}: ${res.status} — retrying (${attempt + 1}/${retries})`);
+        continue;
+      }
+      throw new Error(`${label}: API ${res.status} — ${errText.substring(0, 200)}`);
+    }
+    const data = await res.json();
+    return data.content?.[0]?.text || "";
   }
-
-  const data = await res.json();
-  return data.content?.[0]?.text || "";
+  throw new Error(`${label}: all retries exhausted`);
 }
 
 function parseJSON(raw: string): any {
@@ -49,7 +55,10 @@ export async function POST(request: NextRequest) {
     const readings = await readingRes.json();
     const reading = readings?.[0];
     if (!reading) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    if (reading.paid_reading_career) return NextResponse.json({ success: true, alreadyGenerated: true });
+    // EN: skip if already generated. KO/JA: always regenerate (no locale column in DB)
+    if (locale === "en" && reading.paid_reading_career) {
+      return NextResponse.json({ success: true, alreadyGenerated: true });
+    }
 
     // ═══ PILLAR CACHE — English only ═══
     // Cached content is always English. Skip cache for KO/JA to ensure correct language.

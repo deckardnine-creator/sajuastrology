@@ -123,22 +123,30 @@ export async function POST(request: NextRequest) {
     const apiKey = process.env.ANTHROPIC_API_KEY || "";
     if (!apiKey) return NextResponse.json({ error: "AI not configured" }, { status: 500 });
 
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2500,
-        messages: [{ role: "user", content: buildFreeReadingPrompt(chart, locale) }],
-      }),
-    });
-
-    if (!anthropicRes.ok) {
-      return NextResponse.json({ error: `AI error (${anthropicRes.status})` }, { status: 500 });
+    // Retry up to 3x on 529 (overloaded) with exponential backoff
+    let rawText = "";
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt > 0) await new Promise((r) => setTimeout(r, 2000 * attempt));
+      const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 2500,
+          messages: [{ role: "user", content: buildFreeReadingPrompt(chart, locale) }],
+        }),
+      });
+      if (!anthropicRes.ok) {
+        if ((anthropicRes.status === 529 || anthropicRes.status === 500) && attempt < 2) {
+          console.warn(`Free reading: AI ${anthropicRes.status} — retrying (${attempt + 1}/3)`);
+          continue;
+        }
+        return NextResponse.json({ error: `AI error (${anthropicRes.status})` }, { status: 500 });
+      }
+      const aiData = await anthropicRes.json();
+      rawText = aiData.content?.[0]?.text || "";
+      break;
     }
-
-    const aiData = await anthropicRes.json();
-    const rawText = aiData.content?.[0]?.text || "";
 
     let aiReading: { personality: string; year_forecast: string; element_guidance: string };
     try {
@@ -186,20 +194,6 @@ export async function POST(request: NextRequest) {
       const errText = await insertRes.text().catch(() => "unknown");
       console.error("DB insert failed:", insertRes.status, errText);
       return NextResponse.json({ error: `DB insert failed (${insertRes.status})` }, { status: 500 });
-    }
-
-    // ═══ VERIFY INSERT IS READABLE before returning slug ═══
-    // Eliminates client-side Supabase propagation race condition entirely
-    for (let i = 0; i < 5; i++) {
-      if (i > 0) await new Promise((r) => setTimeout(r, 400));
-      const verifyRes = await fetch(
-        `${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}&select=id`,
-        { headers: dbHeaders }
-      );
-      if (verifyRes.ok) {
-        const vd = await verifyRes.json();
-        if (vd?.length > 0) break; // confirmed readable
-      }
     }
 
     return NextResponse.json({ success: true, shareSlug });

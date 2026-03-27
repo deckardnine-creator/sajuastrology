@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export const runtime = "edge";
+// Serverless runtime required for setTimeout reliability
+export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,22 +34,24 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // If session_id is "lemon", webhook hasn't fired yet — wait and retry
+    // LemonSqueezy: webhook may arrive before or after client verify
+    // Poll up to 10s (5 × 2s) for webhook to mark is_paid=true
     if (sessionId === "lemon") {
-      // Give webhook a moment, then check again
-      await new Promise((r) => setTimeout(r, 3000));
-      const retryRes = await fetch(
-        `${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}&select=is_paid`,
-        { headers: dbHeaders }
-      );
-      if (retryRes.ok) {
-        const retryData = await retryRes.json();
-        if (retryData?.[0]?.is_paid === true) {
-          return NextResponse.json({ success: true });
+      for (let i = 0; i < 5; i++) {
+        await new Promise((r) => setTimeout(r, 2000));
+        const retryRes = await fetch(
+          `${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}&select=is_paid`,
+          { headers: dbHeaders }
+        );
+        if (retryRes.ok) {
+          const retryData = await retryRes.json();
+          if (retryData?.[0]?.is_paid === true) {
+            return NextResponse.json({ success: true });
+          }
         }
       }
-      // Webhook may still be processing — return success anyway
-      // The webhook will mark it paid, and generate-paid handles the rest
+      // After 10s still not marked — return success anyway so client shows loading
+      // Webhook will eventually fire and mark is_paid; generate-paid runs regardless
       return NextResponse.json({ success: true, pending: true });
     }
 
