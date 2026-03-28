@@ -219,7 +219,6 @@ export default function ReadingPageClient() {
       }
 
       setGenerationStep(6);
-      await new Promise((resolve) => setTimeout(resolve, 800));
       await refreshReading();
       setPaidContentLoading(false);
       isPaidGeneratingRef.current = false;

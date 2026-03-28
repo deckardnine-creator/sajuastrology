@@ -79,7 +79,9 @@ export function Navbar() {
 
   const handleSignOut = async () => {
     closeMenu()
-    await signOut()
+    try {
+      await signOut()
+    } catch {}
     window.location.href = "/"
   }
 
