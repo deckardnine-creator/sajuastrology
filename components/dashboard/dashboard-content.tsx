@@ -15,6 +15,7 @@ import {
   Palette,
   Zap,
   Heart,
+  LogOut,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
@@ -25,7 +26,7 @@ import type { DailyFortune } from "@/lib/daily-fortune";
 import { Button } from "@/components/ui/button";
 import { ConsultationHistory } from "@/components/consultation/consultation-history";
 import { supabase } from "@/lib/supabase-client";
-import { safeGet, safeSet } from "@/lib/safe-storage";
+import { safeGet, safeSet, safeRemove } from "@/lib/safe-storage";
 
 interface SavedReading {
   id: string;
@@ -63,7 +64,7 @@ interface CompatResult {
 }
 
 export function DashboardContent() {
-  const { user, sajuData, saveSajuChart, claimTrigger } = useAuth();
+  const { user, sajuData, saveSajuChart, claimTrigger, signOut } = useAuth();
   const { t, locale } = useLanguage();
   const [dailyScore, setDailyScore] = useState(72);
   const [mounted, setMounted] = useState(false);
@@ -89,25 +90,45 @@ export function DashboardContent() {
     if (lastChanged === todayLocal) setCanChangeToday(false);
   }, [todayLocal]);
 
-  // Re-fetch readings when tab regains focus (stale-while-revalidate)
+  // Re-fetch readings when tab regains focus or page becomes visible (stale-while-revalidate)
   useEffect(() => {
     if (!user) return;
-    const handleFocus = () => {
+    const READING_COLS = "id,name,gender,birth_date,birth_city,share_slug,archetype,ten_god,harmony_score,day_master_element,day_master_yinyang,dominant_element,weakest_element,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,is_paid,created_at";
+    const refreshAll = () => {
       supabase
         .from("readings")
-        .select("id,name,gender,birth_date,birth_city,share_slug,archetype,ten_god,harmony_score,day_master_element,day_master_yinyang,dominant_element,weakest_element,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,is_paid,created_at")
+        .select(READING_COLS)
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(20)
         .then(({ data }) => {
-          if (data && data.length > 0) {
+          if (data) {
             setSavedReadings(data);
+            setReadingsLoaded(true);
             try { safeSet(`dashboard-readings-${user.id}`, JSON.stringify(data)); } catch {}
           }
         });
+      supabase
+        .from("compatibility_results")
+        .select("id,person_a_name,person_b_name,person_a_element,person_b_element,overall_score,share_slug,created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10)
+        .then(({ data }) => {
+          if (data) {
+            setCompatResults(data);
+            try { safeSet(`dashboard-compat-${user.id}`, JSON.stringify(data)); } catch {}
+          }
+        });
     };
+    const handleFocus = () => refreshAll();
+    const handleVisibility = () => { if (document.visibilityState === "visible") refreshAll(); };
     window.addEventListener("focus", handleFocus);
-    return () => window.removeEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, [user]);
 
   useEffect(() => {
@@ -327,11 +348,20 @@ export function DashboardContent() {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 sm:mb-8">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-foreground">
-          Welcome back, <span className="text-primary">{user?.name?.split(" ")[0]}</span>
-        </h1>
-        <p className="text-sm text-muted-foreground">{formattedDate}</p>
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 sm:mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-foreground">
+            Welcome back, <span className="text-primary">{user?.name?.split(" ")[0]}</span>
+          </h1>
+          <p className="text-sm text-muted-foreground">{formattedDate}</p>
+        </div>
+        <button
+          onClick={async () => { try { await signOut(); } catch {} window.location.href = "/"; }}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          {t("nav.signOut")}
+        </button>
       </motion.div>
 
       {/* Today's Energy + Day Master row */}

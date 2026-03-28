@@ -438,7 +438,13 @@ async function generateReport({
         .join("\n\n")
     : "";
 
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1;
+  const currentDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+
   const systemPrompt = `You are a master-level Saju consultant with decades of experience interpreting the Korean Four Pillars of Destiny. You provide deep, personalized consultations that weave together the querent's birth chart elements, current cosmic cycles, and specific life circumstances.
+
+IMPORTANT: Today's date is ${currentDate}. The current year is ${currentYear}. All forecasts and timing guidance must be based on this date. Do NOT reference past years as current.
 
 YOUR STYLE:
 - Authoritative yet warm, like a trusted advisor who genuinely cares
@@ -488,6 +494,7 @@ CRITICAL FORMATTING RULES — YOU MUST FOLLOW THESE EXACTLY:
   const userPrompt = `CONSULTATION REQUEST
 Category: ${category}
 Question: "${question}"
+Consultation Date: ${currentDate} (Year: ${currentYear})
 
 ${clarificationContext ? `ADDITIONAL CONTEXT FROM QUERENT:\n${clarificationContext}\n` : ""}
 

@@ -36,9 +36,17 @@ function toBirthDateStr(d: Date | string): string {
 
 // ═══ AI ENGINE: Gemini Pro → Claude Sonnet → Claude Haiku ═══
 
-async function callGemini(prompt: string, label: string, model = "gemini-2.5-flash"): Promise<string> {
+async function callGemini(prompt: string, label: string, model = "gemini-2.5-flash", locale = "en"): Promise<string> {
   const apiKey = process.env.GOOGLE_AI_API_KEY || "";
   if (!apiKey) throw new Error("Gemini not configured");
+
+  const genConfig: any = {
+    maxOutputTokens: 5000,
+    thinkingConfig: { thinkingBudget: 0 },
+  };
+  if (locale === "en") {
+    genConfig.responseMimeType = "application/json";
+  }
 
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -47,11 +55,7 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          maxOutputTokens: 5000,
-          thinkingConfig: { thinkingBudget: 0 },
-        },
+        generationConfig: genConfig,
       }),
     }
   );
@@ -105,14 +109,14 @@ async function callClaudeFallback(prompt: string, label: string): Promise<string
   throw new Error(`${label}: all Claude models exhausted`);
 }
 
-async function callAI(prompt: string, label: string): Promise<string> {
+async function callAI(prompt: string, label: string, locale = "en"): Promise<string> {
   // Gemini Flash → Gemini Pro → Claude Haiku
   try {
-    return await callGemini(prompt, label, "gemini-2.5-flash");
+    return await callGemini(prompt, label, "gemini-2.5-flash", locale);
   } catch (err) {
     console.warn(`${label}: Gemini Flash failed —`, err instanceof Error ? err.message : err);
     try {
-      return await callGemini(prompt, label, "gemini-2.5-pro");
+      return await callGemini(prompt, label, "gemini-2.5-pro", locale);
     } catch (err2) {
       console.warn(`${label}: Gemini Pro failed, falling back to Claude —`, err2 instanceof Error ? err2.message : err2);
       return await callClaudeFallback(prompt, label);
@@ -220,10 +224,10 @@ export async function POST(request: NextRequest) {
 
     // ═══ GENERATE ALL CONTENT — Gemini Pro → Claude fallback ═══
     const [freeRaw, raw1, raw2, raw3] = await Promise.all([
-      callAI(buildFreeCompatibilityPrompt(scores, locale), "FreeSummary"),
-      callAI(buildPaidCompatPrompt1(scores, locale), "Paid-Love+Work"),
-      callAI(buildPaidCompatPrompt2(scores, locale), "Paid-Friend+Conflict"),
-      callAI(buildPaidCompatPrompt3(scores, locale), "Paid-Yearly"),
+      callAI(buildFreeCompatibilityPrompt(scores, locale), "FreeSummary", locale),
+      callAI(buildPaidCompatPrompt1(scores, locale), "Paid-Love+Work", locale),
+      callAI(buildPaidCompatPrompt2(scores, locale), "Paid-Friend+Conflict", locale),
+      callAI(buildPaidCompatPrompt3(scores, locale), "Paid-Yearly", locale),
     ]);
 
     let freeSummary: string;

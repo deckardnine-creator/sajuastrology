@@ -13,7 +13,7 @@ import { ELEMENTS, type Element } from "@/lib/saju-calculator";
 import { DAY_MASTER_DISPLAY } from "@/lib/constants";
 import { GoogleIcon } from "@/components/ui/google-icon";
 import { useAuth } from "@/lib/auth-context";
-import { safeGet, safeSet } from "@/lib/safe-storage";
+import { safeGet, safeSet, safeRemove } from "@/lib/safe-storage";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
 
@@ -223,6 +223,15 @@ export default function ReadingPageClient() {
       setPaidContentLoading(false);
       isPaidGeneratingRef.current = false;
 
+      // Invalidate dashboard cache so it shows updated readings
+      try {
+        const userId = user?.id;
+        if (userId) {
+          safeRemove(`dashboard-readings-${userId}`);
+          safeRemove(`dashboard-compat-${userId}`);
+        }
+      } catch {}
+
       // Wait for React to render paid sections, then scroll
       setTimeout(() => {
         const el = document.getElementById("paid-content");
@@ -294,15 +303,31 @@ export default function ReadingPageClient() {
 
     if (payment === "success" && sessionId && slug) {
       window.history.replaceState({}, "", `/reading/${slug}`);
-      // Verify payment in background — fetchReading will detect is_paid && trigger generation
+      // Verify payment (this polls for webhook, up to 10s)
       fetch("/api/payment/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId, shareSlug: slug }),
       })
         .then((res) => res.json())
-        .then(() => setPaymentVerified(true))
-        .catch(() => setPaymentVerified(true)); // Still proceed even if verify fails
+        .then(async () => {
+          // Re-fetch reading AFTER verify — now is_paid should be true
+          const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+          if (data) {
+            setReading(data as ReadingData);
+            setLoading(false);
+          }
+          setPaymentVerified(true);
+        })
+        .catch(async () => {
+          // Even if verify fails, try to proceed
+          const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+          if (data) {
+            setReading(data as ReadingData);
+            setLoading(false);
+          }
+          setPaymentVerified(true);
+        });
     } else if (payment === "cancelled") {
       window.history.replaceState({}, "", `/reading/${slug}`);
       setPaymentLoading(false);

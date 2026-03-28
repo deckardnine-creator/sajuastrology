@@ -7,9 +7,18 @@ export const maxDuration = 60;
 
 // ═══ AI ENGINE: Gemini Pro → Claude Sonnet → Claude Haiku ═══
 
-async function callGemini(prompt: string, model = "gemini-2.5-flash"): Promise<string> {
+async function callGemini(prompt: string, model = "gemini-2.5-flash", locale = "en"): Promise<string> {
   const apiKey = process.env.GOOGLE_AI_API_KEY || "";
   if (!apiKey) throw new Error("Gemini not configured");
+
+  const genConfig: any = {
+    maxOutputTokens: 4000,
+    temperature: 0.7,
+    thinkingConfig: { thinkingBudget: 0 },
+  };
+  if (locale === "en") {
+    genConfig.responseMimeType = "application/json";
+  }
 
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -18,12 +27,7 @@ async function callGemini(prompt: string, model = "gemini-2.5-flash"): Promise<s
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          maxOutputTokens: 4000,
-          temperature: 0.7,
-          thinkingConfig: { thinkingBudget: 0 },
-        },
+        generationConfig: genConfig,
       }),
     }
   );
@@ -70,10 +74,10 @@ async function callClaude(prompt: string, model: string): Promise<string> {
   return data.content?.[0]?.text || "";
 }
 
-async function generateWithFallback(prompt: string): Promise<string> {
+async function generateWithFallback(prompt: string, locale = "en"): Promise<string> {
   const engines = [
-    { name: "Gemini-Flash", fn: () => callGemini(prompt, "gemini-2.5-flash") },
-    { name: "Gemini-Pro",   fn: () => callGemini(prompt, "gemini-2.5-pro") },
+    { name: "Gemini-Flash", fn: () => callGemini(prompt, "gemini-2.5-flash", locale) },
+    { name: "Gemini-Pro",   fn: () => callGemini(prompt, "gemini-2.5-pro", locale) },
     { name: "Haiku",        fn: () => callClaude(prompt, "claude-haiku-4-5-20251001") },
   ];
 
@@ -169,7 +173,7 @@ export async function POST(request: NextRequest) {
 
     // ═══ GENERATE — Gemini Pro → Claude Sonnet → Claude Haiku ═══
     const prompt = buildFreeReadingPrompt(chart, locale);
-    const rawText = await generateWithFallback(prompt);
+    const rawText = await generateWithFallback(prompt, locale);
 
     // ═══ Normalize keys: Gemini may localize JSON keys in KO/JA ═══
     function normalizeReadingKeys(obj: any): { personality: string; year_forecast: string; element_guidance: string } {

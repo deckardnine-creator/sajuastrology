@@ -15,7 +15,10 @@ function langPrefix(locale?: string): string {
 
 export function buildPaidPromptPart1(chartSummary: string, locale?: string): string {
   const lp = langPrefix(locale);
+  const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long" });
   return `You are a master of Saju (사주) with 40 years of experience. You have studied under three different Korean masters and have read over 50,000 charts. Your readings are legendary for their specificity and uncanny accuracy.
+
+TODAY'S DATE: ${today}. All timing guidance must be based on this date.
 
 ${chartSummary}
 
@@ -41,7 +44,10 @@ RESPOND WITH ONLY VALID JSON. No markdown fences, no explanation.`;
 
 export function buildPaidPromptPart2(chartSummary: string, currentYear: number, locale?: string): string {
   const lp = langPrefix(locale);
+  const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long" });
   return `You are a master of Saju (사주) with 40 years of experience. You have studied under three different Korean masters and have read over 50,000 charts. Your readings are legendary for their specificity and uncanny accuracy.
+
+TODAY'S DATE: ${today}. The current year is ${currentYear}. All health advice and forecasts must start from this date, NOT from past years.
 
 ${chartSummary}
 
@@ -67,7 +73,10 @@ RESPOND WITH ONLY VALID JSON. No markdown fences, no explanation.`;
 
 export function buildPaidPromptPart3(chartSummary: string, locale?: string): string {
   const lp = langPrefix(locale);
+  const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long" });
   return `You are a master of Saju (사주) with 40 years of experience. You have studied under three different Korean masters and have read over 50,000 charts. Your readings are legendary for their specificity and uncanny accuracy.
+
+TODAY'S DATE: ${today}. Monthly forecasts must start from THIS month forward.
 
 ${chartSummary}
 

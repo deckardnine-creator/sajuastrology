@@ -6,9 +6,18 @@ export const maxDuration = 60;
 
 // ═══ AI ENGINE: Gemini Pro → Claude Sonnet (no Haiku — paid quality) ═══
 
-async function callGemini(prompt: string, label: string, model = "gemini-2.5-flash"): Promise<string> {
+async function callGemini(prompt: string, label: string, model = "gemini-2.5-flash", locale = "en"): Promise<string> {
   const apiKey = process.env.GOOGLE_AI_API_KEY || "";
   if (!apiKey) throw new Error("Gemini not configured");
+
+  // For non-EN locales, DON'T use responseMimeType — it overrides language instructions
+  const genConfig: any = {
+    maxOutputTokens: 6000,
+    thinkingConfig: { thinkingBudget: 0 },
+  };
+  if (locale === "en") {
+    genConfig.responseMimeType = "application/json";
+  }
 
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -17,11 +26,7 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          maxOutputTokens: 6000,
-          thinkingConfig: { thinkingBudget: 0 },
-        },
+        generationConfig: genConfig,
       }),
     }
   );
@@ -74,14 +79,14 @@ async function callClaude(prompt: string, label: string): Promise<string> {
   throw new Error(`${label}: Claude retries exhausted`);
 }
 
-async function callAI(prompt: string, label: string): Promise<string> {
+async function callAI(prompt: string, label: string, locale = "en"): Promise<string> {
   // Gemini Flash → Gemini Pro → Claude Sonnet
   try {
-    return await callGemini(prompt, label, "gemini-2.5-flash");
+    return await callGemini(prompt, label, "gemini-2.5-flash", locale);
   } catch (err) {
     console.warn(`${label}: Gemini Flash failed —`, err instanceof Error ? err.message : err);
     try {
-      return await callGemini(prompt, label, "gemini-2.5-pro");
+      return await callGemini(prompt, label, "gemini-2.5-pro", locale);
     } catch (err2) {
       console.warn(`${label}: Gemini Pro failed, falling back to Claude —`, err2 instanceof Error ? err2.message : err2);
       return await callClaude(prompt, label);
@@ -174,9 +179,9 @@ export async function POST(request: NextRequest) {
     const forecastYear = currentMonth >= 11 ? currentYear + 1 : currentYear;
 
     const [raw1, raw2, raw3] = await Promise.all([
-      callAI(buildPaidPromptPart1(chartSummary, locale), "Part1-Career+Love"),
-      callAI(buildPaidPromptPart2(chartSummary, currentYear, locale), "Part2-Health+Decade"),
-      callAI(buildPaidPromptPart3(chartSummary, locale), "Part3-Monthly+Talent"),
+      callAI(buildPaidPromptPart1(chartSummary, locale), "Part1-Career+Love", locale),
+      callAI(buildPaidPromptPart2(chartSummary, currentYear, locale), "Part2-Health+Decade", locale),
+      callAI(buildPaidPromptPart3(chartSummary, locale), "Part3-Monthly+Talent", locale),
     ]);
 
     // 3. Parse
