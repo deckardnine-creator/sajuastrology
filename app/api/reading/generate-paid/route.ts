@@ -18,6 +18,7 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
+          responseMimeType: "application/json",
           maxOutputTokens: 4000,
         },
       }),
