@@ -40,7 +40,6 @@ function DesktopLangSwitcher() {
   )
 }
 
-// Mobile menu: large card switcher
 // Mobile header: inline compact switcher next to hamburger
 function MobileInlineSwitcher() {
   const { locale, setLocale } = useLanguage()
@@ -65,7 +64,7 @@ function MobileInlineSwitcher() {
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
-  const { user, openSignInModal, signOut } = useAuth()
+  const { user, isLoading, openSignInModal, signOut } = useAuth()
   const { t } = useLanguage()
   const router = useRouter()
 
@@ -140,14 +139,16 @@ export function Navbar() {
             className="fixed inset-0 z-40 bg-background/98 backdrop-blur-sm md:hidden"
           >
             <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6">
-              {/* Large lang switcher in menu */}
 
               <Link href="/what-is-saju" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.whatIsSaju")}</Link>
               <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>
               <Link href="/compatibility" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.compatibility")}</Link>
               <Link href="/consultation" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.consultation")}</Link>
 
-              {user ? (
+              {/* Show nothing while auth is loading — prevents flash of sign-in button */}
+              {isLoading ? (
+                <div className="h-[44px] w-24 bg-muted/30 rounded-lg animate-pulse" />
+              ) : user ? (
                 <>
                   <Link href="/dashboard" className="text-lg text-primary font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.dashboard")}</Link>
                   <button onClick={handleSignOut} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signOut")}</button>

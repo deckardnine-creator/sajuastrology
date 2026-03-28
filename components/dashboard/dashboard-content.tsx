@@ -63,6 +63,8 @@ interface CompatResult {
   created_at: string;
 }
 
+const READING_COLS = "id,name,gender,birth_date,birth_city,share_slug,archetype,ten_god,harmony_score,day_master_element,day_master_yinyang,dominant_element,weakest_element,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,is_paid,created_at";
+
 export function DashboardContent() {
   const { user, sajuData, saveSajuChart, claimTrigger, signOut } = useAuth();
   const { t, locale } = useLanguage();
@@ -93,7 +95,6 @@ export function DashboardContent() {
   // Re-fetch readings when tab regains focus or page becomes visible (stale-while-revalidate)
   useEffect(() => {
     if (!user) return;
-    const READING_COLS = "id,name,gender,birth_date,birth_city,share_slug,archetype,ten_god,harmony_score,day_master_element,day_master_yinyang,dominant_element,weakest_element,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,is_paid,created_at";
     const refreshAll = () => {
       supabase
         .from("readings")
@@ -138,21 +139,32 @@ export function DashboardContent() {
   useEffect(() => {
     if (!user) return;
     const fetchReadings = async () => {
-      // Show cached readings instantly while fetching fresh data
-      try {
-        const cachedRaw = safeGet(`dashboard-readings-${user.id}`);
-        if (cachedRaw) {
-          const cached = JSON.parse(cachedRaw);
-          if (cached?.length > 0) {
-            setSavedReadings(cached);
-            setReadingsLoaded(true);
+      // Check if dashboard was flagged stale (e.g. after paid content generation)
+      const isStale = safeGet("dashboard-stale") === "true";
+      if (isStale) {
+        // Clear stale flag and skip cache
+        safeRemove("dashboard-stale");
+        safeRemove(`dashboard-readings-${user.id}`);
+        safeRemove(`dashboard-compat-${user.id}`);
+      }
+
+      // Show cached readings instantly while fetching fresh data (skip cache if stale)
+      if (!isStale) {
+        try {
+          const cachedRaw = safeGet(`dashboard-readings-${user.id}`);
+          if (cachedRaw) {
+            const cached = JSON.parse(cachedRaw);
+            if (cached?.length > 0) {
+              setSavedReadings(cached);
+              setReadingsLoaded(true);
+            }
           }
-        }
-      } catch {}
+        } catch {}
+      }
 
       const { data } = await supabase
         .from("readings")
-        .select("id,name,gender,birth_date,birth_city,share_slug,archetype,ten_god,harmony_score,day_master_element,day_master_yinyang,dominant_element,weakest_element,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,is_paid,created_at")
+        .select(READING_COLS)
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(20);
@@ -182,14 +194,19 @@ export function DashboardContent() {
     if (!user) return;
     (async () => {
       try {
-        // Show cached compat instantly
-        try {
-          const cachedRaw = safeGet(`dashboard-compat-${user.id}`);
-          if (cachedRaw) {
-            const cached = JSON.parse(cachedRaw);
-            if (cached?.length > 0) setCompatResults(cached);
-          }
-        } catch {}
+        // Check stale flag for compat too
+        const isStale = safeGet("dashboard-stale") === "true";
+
+        // Show cached compat instantly (skip if stale)
+        if (!isStale) {
+          try {
+            const cachedRaw = safeGet(`dashboard-compat-${user.id}`);
+            if (cachedRaw) {
+              const cached = JSON.parse(cachedRaw);
+              if (cached?.length > 0) setCompatResults(cached);
+            }
+          } catch {}
+        }
 
         // Claim unclaimed compat results from localStorage
         const pendingRaw = safeGet("pending-compat-slugs");

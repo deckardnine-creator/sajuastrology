@@ -107,7 +107,18 @@ export default function ReadingPageClient() {
   const [claimed, setClaimed] = useState(false);
   const isPaidGeneratingRef = useRef(false); // Prevent duplicate generatePaidContent calls
 
-  // Reset payment loading when user returns from Stripe (browser tab regains focus)
+  // ═══ PAYMENT RETURN DETECTION — synchronous, before any useEffect ═══
+  const [isPaymentReturn] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const params = new URLSearchParams(window.location.search);
+    return params.get("payment") === "success" && !!params.get("session_id");
+  });
+  const [paymentSessionId] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("session_id") || "";
+  });
+
+  // Reset payment loading when user returns from LemonSqueezy (browser tab regains focus)
   useEffect(() => {
     const handleFocus = () => { setPaymentLoading(false); };
     window.addEventListener("focus", handleFocus);
@@ -215,6 +226,7 @@ export default function ReadingPageClient() {
         console.error("Paid generation failed:", data.error);
         setPaidContentLoading(false);
         setPaidGenerationFailed(true);
+        isPaidGeneratingRef.current = false;
         return;
       }
 
@@ -231,6 +243,8 @@ export default function ReadingPageClient() {
           safeRemove(`dashboard-compat-${userId}`);
         }
       } catch {}
+      // Signal dashboard to refresh on next visit
+      safeSet("dashboard-stale", "true");
 
       // Wait for React to render paid sections, then scroll
       setTimeout(() => {
@@ -250,10 +264,12 @@ export default function ReadingPageClient() {
     }
   };
 
+  // ═══ NORMAL FLOW — fetch reading on mount (skipped for payment returns) ═══
   useEffect(() => {
+    // Payment returns are handled by the payment flow below — skip normal fetch
+    if (isPaymentReturn) return;
+
     async function fetchReading() {
-      // Server now verifies INSERT is readable before returning slug (generate-route.ts)
-      // Still retry 2x as safety net for edge cases (CDN cache, etc.)
       const MAX_RETRIES = 2;
       const RETRY_DELAY = 800;
 
@@ -291,59 +307,143 @@ export default function ReadingPageClient() {
     }
 
     if (slug) fetchReading();
-  }, [slug]);
+  }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Handle payment success redirect
-  const [paymentVerified, setPaymentVerified] = useState(false);
-
+  // ═══ PAYMENT RETURN FLOW — single sequential pipeline, no race conditions ═══
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const payment = urlParams.get("payment");
-    const sessionId = urlParams.get("session_id");
+    if (!isPaymentReturn || !slug || !paymentSessionId) return;
 
-    if (payment === "success" && sessionId && slug) {
-      window.history.replaceState({}, "", `/reading/${slug}`);
-      // Verify payment (this polls for webhook, up to 10s)
-      fetch("/api/payment/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId, shareSlug: slug }),
-      })
-        .then((res) => res.json())
-        .then(async () => {
-          // Re-fetch reading AFTER verify — now is_paid should be true
+    // Clean URL immediately
+    window.history.replaceState({}, "", `/reading/${slug}`);
+
+    // Show generation loading immediately so user sees progress, not black screen
+    setPaidContentLoading(true);
+    setGenerationStep(0);
+
+    const stepTimer = setInterval(() => {
+      setGenerationStep((prev) => Math.min(prev + 1, 5));
+    }, 3500);
+
+    (async () => {
+      try {
+        // Step 1: Verify payment (polls for webhook, up to 10s)
+        await fetch("/api/payment/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId: paymentSessionId, shareSlug: slug }),
+        }).catch(() => {});
+
+        // Step 2: Fetch reading — now is_paid should be true
+        let readingData: ReadingData | null = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          if (attempt > 0) await new Promise((r) => setTimeout(r, 1000));
           const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
           if (data) {
-            setReading(data as ReadingData);
-            setLoading(false);
+            readingData = data as ReadingData;
+            break;
           }
-          setPaymentVerified(true);
-        })
-        .catch(async () => {
-          // Even if verify fails, try to proceed
-          const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
-          if (data) {
-            setReading(data as ReadingData);
-            setLoading(false);
+        }
+
+        if (!readingData) {
+          clearInterval(stepTimer);
+          setError("Reading not found");
+          setLoading(false);
+          setPaidContentLoading(false);
+          return;
+        }
+
+        setReading(readingData);
+        setLoading(false);
+
+        // Step 3: Generate paid content if needed
+        if (!readingData.paid_reading_career) {
+          // Already showing generation UI — call API directly (skip generatePaidContent to avoid duplicate stepTimer)
+          isPaidGeneratingRef.current = true;
+          try {
+            const res = await fetch("/api/reading/generate-paid", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ shareSlug: slug, locale }),
+            });
+            const result = await res.json();
+            clearInterval(stepTimer);
+
+            if (!res.ok || result.error) {
+              console.error("Paid generation failed:", result.error);
+              setPaidContentLoading(false);
+              setPaidGenerationFailed(true);
+              isPaidGeneratingRef.current = false;
+              return;
+            }
+
+            setGenerationStep(6);
+            await refreshReading();
+            setPaidContentLoading(false);
+            isPaidGeneratingRef.current = false;
+
+            // Signal dashboard stale
+            try {
+              const userId = user?.id;
+              if (userId) {
+                safeRemove(`dashboard-readings-${userId}`);
+                safeRemove(`dashboard-compat-${userId}`);
+              }
+            } catch {}
+            safeSet("dashboard-stale", "true");
+
+            setTimeout(() => {
+              const el = document.getElementById("paid-content");
+              if (el) {
+                const yOffset = -80;
+                const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({ top: y, behavior: "smooth" });
+              }
+            }, 600);
+          } catch (err) {
+            clearInterval(stepTimer);
+            console.error("Paid generation error:", err);
+            setPaidContentLoading(false);
+            setPaidGenerationFailed(true);
+            isPaidGeneratingRef.current = false;
           }
-          setPaymentVerified(true);
-        });
-    } else if (payment === "cancelled") {
+        } else {
+          // Content already exists — just show it
+          clearInterval(stepTimer);
+          setPaidContentLoading(false);
+          setTimeout(() => {
+            const el = document.getElementById("paid-content");
+            if (el) {
+              const yOffset = -80;
+              const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+              window.scrollTo({ top: y, behavior: "smooth" });
+            }
+          }, 600);
+        }
+      } catch (err) {
+        clearInterval(stepTimer);
+        console.error("Payment flow error:", err);
+        // Fallback: try to load reading normally
+        const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+        if (data) {
+          setReading(data as ReadingData);
+          setLoading(false);
+        }
+        setPaidContentLoading(false);
+      }
+    })();
+
+    return () => clearInterval(stepTimer);
+  }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Handle payment=cancelled
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("payment") === "cancelled") {
       window.history.replaceState({}, "", `/reading/${slug}`);
       setPaymentLoading(false);
     }
   }, [slug]);
-
-  // After payment verified + reading loaded, trigger paid generation if needed
-  useEffect(() => {
-    if (!paymentVerified || !reading || isPaidGeneratingRef.current) return;
-    if (!reading.paid_reading_career) {
-      generatePaidContent();
-    } else {
-      // Content already exists — just refresh to show it
-      refreshReading();
-    }
-  }, [paymentVerified, reading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUnlock = async () => {
     if (!reading) return;
@@ -368,6 +468,32 @@ export default function ReadingPageClient() {
       setPaymentLoading(false);
     }
   };
+
+  // ═══ LOADING STATES ═══
+  // Payment return: show generation progress immediately (not skeleton)
+  if (loading && isPaymentReturn) {
+    return (
+      <main className="min-h-screen">
+        <Navbar />
+        <div className="pt-24 pb-16">
+          <div className="mx-auto max-w-3xl px-4 sm:px-6">
+            {/* Show generation progress even before reading is loaded */}
+            <div className="mb-8 h-6 w-24 bg-muted/30 rounded animate-pulse" />
+            {paidContentLoading && (
+              <PaymentReturnProgress generationStep={generationStep} locale={locale} />
+            )}
+            {!paidContentLoading && (
+              <div className="text-center py-12">
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-muted-foreground text-sm">{t("reading.loading", locale)}</p>
+              </div>
+            )}
+          </div>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
 
   if (loading) {
     return (
@@ -895,5 +1021,91 @@ export default function ReadingPageClient() {
       </div>
       <Footer />
     </main>
+  );
+}
+
+// ═══ Payment Return Progress Component (shown while loading=true && isPaymentReturn) ═══
+function PaymentReturnProgress({ generationStep, locale }: { generationStep: number; locale: string }) {
+  const genSteps = [
+    { icon: "💰", title: t("reading.genStep1", locale), sub: t("reading.genStep1Sub", locale) },
+    { icon: "💕", title: t("reading.genStep2", locale), sub: t("reading.genStep2Sub", locale) },
+    { icon: "🌿", title: t("reading.genStep3", locale), sub: t("reading.genStep3Sub", locale) },
+    { icon: "🔮", title: t("reading.genStep4", locale), sub: t("reading.genStep4Sub", locale) },
+    { icon: "📅", title: t("reading.genStep5", locale), sub: t("reading.genStep5Sub", locale) },
+    { icon: "✨", title: t("reading.genStep6", locale), sub: t("reading.genStep6Sub", locale) },
+  ];
+
+  return (
+    <div className="bg-card/80 backdrop-blur border border-primary/30 rounded-2xl p-6 md:p-10 overflow-hidden relative">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-primary/10 blur-[100px]" />
+      </div>
+      <div className="relative">
+        <div className="text-center mb-8">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-primary/30 flex items-center justify-center"
+          >
+            <div className="w-12 h-12 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          </motion.div>
+          <h3 className="font-serif text-xl text-primary mb-1">{t("reading.craftingFull", locale)}</h3>
+          <p className="text-xs text-muted-foreground">{t("reading.threeScholars", locale)}</p>
+        </div>
+        <div className="space-y-3 max-w-md mx-auto">
+          {genSteps.map((step, i) => {
+            const isActive = generationStep === i;
+            const isDone = generationStep > i;
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: isDone || isActive ? 1 : 0.3, x: 0 }}
+                transition={{ delay: i * 0.1, duration: 0.3 }}
+                className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-500 ${
+                  isActive ? "bg-primary/10 border border-primary/30" : isDone ? "bg-primary/5" : ""
+                }`}
+              >
+                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+                  {isDone ? (
+                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-lg">✅</motion.span>
+                  ) : isActive ? (
+                    <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1, repeat: Infinity }} className="text-lg">{step.icon}</motion.span>
+                  ) : (
+                    <span className="text-lg opacity-30">{step.icon}</span>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-medium ${isDone ? "text-primary" : isActive ? "text-foreground" : "text-muted-foreground"}`}>
+                    {step.title}
+                  </p>
+                  {isActive && (
+                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-muted-foreground truncate">
+                      {step.sub}
+                    </motion.p>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+        <div className="mt-6 h-1 bg-muted/30 rounded-full overflow-hidden">
+          <motion.div
+            className="h-full bg-primary rounded-full"
+            initial={{ width: "0%" }}
+            animate={{ width: `${Math.min((generationStep / 6) * 100, 100)}%` }}
+            transition={{ duration: 0.5 }}
+          />
+        </div>
+        <div className="mt-4 bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2">
+          <p className="text-[11px] text-amber-400/80 text-center">
+            ⚠️ {t("reading.doNotLeave", locale)}
+          </p>
+        </div>
+        <p className="text-center text-xs text-muted-foreground/50 mt-3">
+          {t("reading.genTakes", locale)}
+        </p>
+      </div>
+    </div>
   );
 }

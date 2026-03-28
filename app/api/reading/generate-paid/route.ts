@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildPaidPromptPart1, buildPaidPromptPart2, buildPaidPromptPart3, buildChartSummary } from "@/lib/paid-prompts";
+import { getSystemInstruction } from "@/lib/prompt-locale";
 
 // Serverless = 60s on Pro
 export const maxDuration = 60;
 
-// ═══ AI ENGINE: Gemini Pro → Claude Sonnet (no Haiku — paid quality) ═══
+// ═══ AI ENGINE: Gemini Flash → Pro → Claude Sonnet (paid quality) ═══
 
 async function callGemini(prompt: string, label: string, model = "gemini-2.5-flash", locale = "en"): Promise<string> {
   const apiKey = process.env.GOOGLE_AI_API_KEY || "";
@@ -19,15 +20,24 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
     genConfig.responseMimeType = "application/json";
   }
 
+  // Build request body
+  const body: any = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: genConfig,
+  };
+
+  // Add systemInstruction for KO/JA — Gemini respects this even when responseMimeType is absent
+  const sysInstr = getSystemInstruction(locale);
+  if (sysInstr) {
+    body.systemInstruction = { parts: [{ text: sysInstr }] };
+  }
+
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: genConfig,
-      }),
+      body: JSON.stringify(body),
     }
   );
   if (!res.ok) {
@@ -112,6 +122,10 @@ function parseJSON(raw: string): any {
     decade_forecast: "decade_forecast", "대운": "decade_forecast", "10년운": "decade_forecast", "大運": "decade_forecast",
     monthly_energy: "monthly_energy", "월별운세": "monthly_energy", "月間運勢": "monthly_energy",
     hidden_talent: "hidden_talent", "숨겨진재능": "hidden_talent", "隠れた才能": "hidden_talent",
+    "직업": "career", "연애": "love", "십년운세": "decade_forecast", "월간에너지": "monthly_energy",
+    "숨겨진 재능": "hidden_talent", "10년 운세": "decade_forecast", "월별 운세": "monthly_energy",
+    "キャリア運": "career", "仕事運": "career", "恋愛運勢": "love", "健康運勢": "health",
+    "十年運勢": "decade_forecast", "月間エネルギー": "monthly_energy", "隠された才能": "hidden_talent",
   };
   const normalized: any = {};
   for (const [key, value] of Object.entries(obj)) {
@@ -172,7 +186,7 @@ export async function POST(request: NextRequest) {
       } catch { /* cache miss */ }
     }
 
-    // 2. THREE parallel AI calls — Gemini Pro → Claude Sonnet fallback
+    // 2. THREE parallel AI calls — Gemini Flash → Pro → Claude Sonnet fallback
     const chartSummary = buildChartSummary(reading);
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth() + 1;
