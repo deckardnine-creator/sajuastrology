@@ -94,7 +94,7 @@ export default function ReadingPageClient() {
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
-  const { user, openSignInModal } = useAuth();
+  const { user, openSignInModal, isLoading: authLoading } = useAuth();
   const { locale } = useLanguage();
   const [reading, setReading] = useState<ReadingData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -346,8 +346,9 @@ export default function ReadingPageClient() {
   };
 
   // ═══ NORMAL FLOW — fetch reading on mount (skipped for payment returns) ═══
+  // Wait for auth to settle before fetching — prevents RLS failures after OAuth return
   useEffect(() => {
-    if (isPaymentReturn || !slug) return;
+    if (isPaymentReturn || !slug || authLoading) return;
 
     fetchAttemptedRef.current = true;
 
@@ -361,7 +362,7 @@ export default function ReadingPageClient() {
         }
       }
     })();
-  }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [slug, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ═══ AUTH RETURN FIX — re-fetch if login just completed while we're stuck loading ═══
   // After OAuth callback redirect, supabase session may not be ready on first fetch.
@@ -384,6 +385,18 @@ export default function ReadingPageClient() {
 
     return () => clearTimeout(timer);
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ═══ SAFETY TIMEOUT — prevent infinite loading state ═══
+  useEffect(() => {
+    if (!loading || reading || error) return;
+    const safety = setTimeout(() => {
+      if (loading && !reading && !error) {
+        console.warn("[reading-client] Safety timeout — forcing fetch retry");
+        doFetchReading();
+      }
+    }, 12000);
+    return () => clearTimeout(safety);
+  }, [loading, reading, error]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ═══ PAYMENT RETURN FLOW — sequential pipeline + progressive polling ═══
   useEffect(() => {
