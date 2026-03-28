@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildPaidPromptPart1, buildPaidPromptPart2, buildPaidPromptPart3, buildChartSummary } from "@/lib/paid-prompts";
 import { getSystemInstruction } from "@/lib/prompt-locale";
 
-// 120s — enough for retries across multiple AI engines
+// 120s ??enough for retries across multiple AI engines
 export const maxDuration = 120;
 
-// ═══ SERVER-SIDE LOCALE DETECTION ═══
-function detectLocaleFromContent(text: string | null): string | null {
+// ?먥븧??SERVER-SIDE LOCALE DETECTION ?먥븧??function detectLocaleFromContent(text: string | null): string | null {
   if (!text || text.length < 20) return null;
   const sample = text.substring(0, 300);
   if (/[\uAC00-\uD7AF]/.test(sample)) return "ko";
@@ -14,8 +13,7 @@ function detectLocaleFromContent(text: string | null): string | null {
   return "en";
 }
 
-// ═══ AI ENGINE — 5-level fallback per call ═══
-// Flash → Flash retry → Pro → Sonnet → Haiku
+// ?먥븧??AI ENGINE ??5-level fallback per call ?먥븧??// Flash ??Flash retry ??Pro ??Sonnet ??Haiku
 // Customer should NEVER see "generation failed"
 
 async function callGemini(prompt: string, label: string, model: string, locale: string): Promise<string> {
@@ -84,7 +82,7 @@ async function callClaude(prompt: string, label: string, model: string): Promise
   return data.content?.[0]?.text || "";
 }
 
-// 5-level fallback: Flash → Flash(retry) → Pro → Sonnet → Haiku
+// 5-level fallback: Flash ??Flash(retry) ??Pro ??Sonnet ??Haiku
 async function callAIRobust(prompt: string, label: string, locale: string): Promise<string> {
   const engines = [
     { name: "Flash",   fn: () => callGemini(prompt, label, "gemini-2.5-flash", locale) },
@@ -109,8 +107,7 @@ async function callAIRobust(prompt: string, label: string, locale: string): Prom
   throw new Error(`${label}: all 5 engines failed`);
 }
 
-// ═══ JSON PARSING — with extensive key normalization ═══
-
+// ?먥븧??JSON PARSING ??with extensive key normalization ?먥븧??
 function parseJSON(raw: string): any {
   const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
   let obj: any;
@@ -122,19 +119,19 @@ function parseJSON(raw: string): any {
     else throw new Error("No JSON found");
   }
   const keyMap: Record<string, string> = {
-    career: "career", "커리어": "career", "직업운": "career", "직업": "career",
-    "キャリア": "career", "事業運": "career", "キャリア運": "career", "仕事運": "career",
-    love: "love", "연애운": "love", "사랑": "love", "연애": "love",
-    "恋愛": "love", "恋愛運": "love", "恋愛運勢": "love",
-    health: "health", "건강운": "health", "건강": "health",
-    "健康": "health", "健康運": "health", "健康運勢": "health",
-    decade_forecast: "decade_forecast", "대운": "decade_forecast", "10년운": "decade_forecast",
-    "십년운세": "decade_forecast", "10년 운세": "decade_forecast",
-    "大運": "decade_forecast", "十年運勢": "decade_forecast",
-    monthly_energy: "monthly_energy", "월별운세": "monthly_energy", "월간에너지": "monthly_energy",
-    "월별 운세": "monthly_energy", "月間運勢": "monthly_energy", "月間エネルギー": "monthly_energy",
-    hidden_talent: "hidden_talent", "숨겨진재능": "hidden_talent", "숨겨진 재능": "hidden_talent",
-    "隠れた才能": "hidden_talent", "隠された才能": "hidden_talent",
+    career: "career", "而ㅻ━??: "career", "吏곸뾽??: "career", "吏곸뾽": "career",
+    "??깵?ゃ궋": "career", "雅뗦???: "career", "??깵?ゃ궋??: "career", "餓뺜틟??: "career",
+    love: "love", "?곗븷??: "love", "?щ옉": "love", "?곗븷": "love",
+    "?뗦꽋": "love", "?뗦꽋??: "love", "?뗦꽋?뗥떌": "love",
+    health: "health", "嫄닿컯??: "health", "嫄닿컯": "health",
+    "?ε볜": "health", "?ε볜??: "health", "?ε볜?뗥떌": "health",
+    decade_forecast: "decade_forecast", "???: "decade_forecast", "10?꾩슫": "decade_forecast",
+    "??뀈?댁꽭": "decade_forecast", "10???댁꽭": "decade_forecast",
+    "鸚㏝걢": "decade_forecast", "?곩뭅?뗥떌": "decade_forecast",
+    monthly_energy: "monthly_energy", "?붾퀎?댁꽭": "monthly_energy", "?붽컙?먮꼫吏": "monthly_energy",
+    "?붾퀎 ?댁꽭": "monthly_energy", "?덆뼋?뗥떌": "monthly_energy", "?덆뼋?ⓦ깓?ャ궙??: "monthly_energy",
+    hidden_talent: "hidden_talent", "?④꺼吏꾩옱??: "hidden_talent", "?④꺼吏??щ뒫": "hidden_talent",
+    "?졼굦?잍뎺??: "hidden_talent", "?졼걬?뚣걼?띹꺗": "hidden_talent",
   };
   const normalized: any = {};
   for (const [key, value] of Object.entries(obj)) {
@@ -145,8 +142,7 @@ function parseJSON(raw: string): any {
   return normalized;
 }
 
-// ═══ GENERATE ONE PART — call AI + parse, with parse-failure retry ═══
-async function generatePart(
+// ?먥븧??GENERATE ONE PART ??call AI + parse, with parse-failure retry ?먥븧??async function generatePart(
   promptFn: () => string,
   label: string,
   locale: string,
@@ -164,7 +160,7 @@ async function generatePart(
     console.warn(`[${label}] attempt 1 failed:`, err instanceof Error ? err.message : err);
   }
 
-  // Attempt 2 — parse failed or keys missing, try once more
+  // Attempt 2 ??parse failed or keys missing, try once more
   await new Promise((r) => setTimeout(r, 2000));
   try {
     const raw = await callAIRobust(promptFn(), label + "-retry", locale);
@@ -181,8 +177,7 @@ async function generatePart(
   return null; // This part completely failed
 }
 
-// ═══ IMMEDIATE DB PATCH — save each part as soon as it's ready ═══
-async function patchDB(
+// ?먥븧??IMMEDIATE DB PATCH ??save each part as soon as it's ready ?먥븧??async function patchDB(
   supabaseUrl: string,
   dbHeaders: Record<string, string>,
   shareSlug: string,
@@ -226,7 +221,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, alreadyGenerated: true });
     }
 
-    // Pillar cache — EN only
+    // Pillar cache ??EN only
     if (locale === "en") {
       try {
         const cacheRes = await fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
@@ -254,7 +249,7 @@ export async function POST(request: NextRequest) {
       } catch { /* cache miss */ }
     }
 
-    // 2. Generate 3 parts in PARALLEL — each PATCHes DB immediately on completion
+    // 2. Generate 3 parts in PARALLEL ??each PATCHes DB immediately on completion
     const chartSummary = buildChartSummary(reading);
     const currentYear = new Date().getFullYear();
 
