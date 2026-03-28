@@ -180,6 +180,20 @@ body, #__next, main {
     overflow-wrap: break-word;
     line-height: 1.7;
   }
+
+  /* Japanese text: allow natural wrapping */
+  :lang(ja), [lang="ja"], .ja-text {
+    word-break: normal;
+    overflow-wrap: break-word;
+    line-height: 1.7;
+  }
+
+  /* CJK gold gradient text wrapping fix */
+  .gold-gradient-text {
+    display: inline;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
   
   /* Fix overflow on mobile */
   main {
