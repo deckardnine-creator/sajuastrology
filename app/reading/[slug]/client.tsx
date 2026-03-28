@@ -94,7 +94,7 @@ export default function ReadingPageClient() {
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
-  const { user, openSignInModal, isLoading: authLoading } = useAuth();
+  const { user, openSignInModal } = useAuth();
   const { locale } = useLanguage();
   const [reading, setReading] = useState<ReadingData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -204,6 +204,7 @@ export default function ReadingPageClient() {
     const MAX_RETRIES = 4;
     const RETRY_DELAY = 1200;
 
+    console.log(`[reading-client] doFetchReading start slug=${slug}`);
     let data: ReadingData | null = null;
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       if (attempt > 0) {
@@ -216,11 +217,14 @@ export default function ReadingPageClient() {
         .single();
       if (!fetchError && d) {
         data = d as ReadingData;
+        console.log(`[reading-client] fetch success attempt=${attempt + 1}`);
         break;
       }
+      console.warn(`[reading-client] fetch attempt=${attempt + 1} error:`, fetchError?.message);
     }
 
     if (!data) {
+      console.error("[reading-client] all retries failed — showing error");
       setError("Reading not found");
       setLoading(false);
       return null;
@@ -346,9 +350,10 @@ export default function ReadingPageClient() {
   };
 
   // ═══ NORMAL FLOW — fetch reading on mount (skipped for payment returns) ═══
-  // Wait for auth to settle before fetching — prevents RLS failures after OAuth return
+  // Readings are publicly readable — no auth needed for initial fetch
   useEffect(() => {
-    if (isPaymentReturn || !slug || authLoading) return;
+    console.log(`[reading-client] normal flow: slug=${slug} isPaymentReturn=${isPaymentReturn}`);
+    if (isPaymentReturn || !slug) return;
 
     fetchAttemptedRef.current = true;
 
@@ -362,7 +367,7 @@ export default function ReadingPageClient() {
         }
       }
     })();
-  }, [slug, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ═══ AUTH RETURN FIX — re-fetch if login just completed while we're stuck loading ═══
   // After OAuth callback redirect, supabase session may not be ready on first fetch.
@@ -391,10 +396,10 @@ export default function ReadingPageClient() {
     if (!loading || reading || error) return;
     const safety = setTimeout(() => {
       if (loading && !reading && !error) {
-        console.warn("[reading-client] Safety timeout — forcing fetch retry");
+        console.warn("[reading-client] Safety timeout 5s — forcing fetch retry");
         doFetchReading();
       }
-    }, 12000);
+    }, 5000);
     return () => clearTimeout(safety);
   }, [loading, reading, error]); // eslint-disable-line react-hooks/exhaustive-deps
 
