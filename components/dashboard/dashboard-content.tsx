@@ -89,6 +89,27 @@ export function DashboardContent() {
     if (lastChanged === todayLocal) setCanChangeToday(false);
   }, [todayLocal]);
 
+  // Re-fetch readings when tab regains focus (stale-while-revalidate)
+  useEffect(() => {
+    if (!user) return;
+    const handleFocus = () => {
+      supabase
+        .from("readings")
+        .select("id,name,gender,birth_date,birth_city,share_slug,archetype,ten_god,harmony_score,day_master_element,day_master_yinyang,dominant_element,weakest_element,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,is_paid,created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20)
+        .then(({ data }) => {
+          if (data && data.length > 0) {
+            setSavedReadings(data);
+            try { safeSet(`dashboard-readings-${user.id}`, JSON.stringify(data)); } catch {}
+          }
+        });
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [user]);
+
   useEffect(() => {
     if (sajuData.chart) setDailyScore(calculateDailyEnergy(sajuData.chart, new Date()));
   }, [sajuData.chart]);
@@ -96,6 +117,18 @@ export function DashboardContent() {
   useEffect(() => {
     if (!user) return;
     const fetchReadings = async () => {
+      // Show cached readings instantly while fetching fresh data
+      try {
+        const cachedRaw = safeGet(`dashboard-readings-${user.id}`);
+        if (cachedRaw) {
+          const cached = JSON.parse(cachedRaw);
+          if (cached?.length > 0) {
+            setSavedReadings(cached);
+            setReadingsLoaded(true);
+          }
+        }
+      } catch {}
+
       const { data } = await supabase
         .from("readings")
         .select("id,name,gender,birth_date,birth_city,share_slug,archetype,ten_god,harmony_score,day_master_element,day_master_yinyang,dominant_element,weakest_element,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,is_paid,created_at")
@@ -105,6 +138,10 @@ export function DashboardContent() {
       const readings = data || [];
       setSavedReadings(readings);
       setReadingsLoaded(true);
+
+      // Cache for next visit
+      try { safeSet(`dashboard-readings-${user.id}`, JSON.stringify(readings)); } catch {}
+
       const currentPrimary = safeGet("primary-reading-id");
       if (readings.length > 0) {
         const primaryExists = readings.some((r) => r.id === currentPrimary);
@@ -124,6 +161,15 @@ export function DashboardContent() {
     if (!user) return;
     (async () => {
       try {
+        // Show cached compat instantly
+        try {
+          const cachedRaw = safeGet(`dashboard-compat-${user.id}`);
+          if (cachedRaw) {
+            const cached = JSON.parse(cachedRaw);
+            if (cached?.length > 0) setCompatResults(cached);
+          }
+        } catch {}
+
         // Claim unclaimed compat results from localStorage
         const pendingRaw = safeGet("pending-compat-slugs");
         if (pendingRaw) {
@@ -157,7 +203,10 @@ export function DashboardContent() {
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(10);
-        if (data) setCompatResults(data);
+        if (data) {
+          setCompatResults(data);
+          try { safeSet(`dashboard-compat-${user.id}`, JSON.stringify(data)); } catch {}
+        }
       } catch {}
     })();
   }, [user, sajuData.chart?.name]);
