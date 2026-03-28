@@ -239,17 +239,63 @@ export async function POST(request: NextRequest) {
     ]);
 
     let freeSummary: string;
-    try { freeSummary = parseJSON(freeRaw).summary; } catch { return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 }); }
-    if (!freeSummary) return NextResponse.json({ error: "Empty AI response" }, { status: 500 });
+    try {
+      const parsed = parseJSON(freeRaw);
+      freeSummary = parsed.summary || parsed.free_summary || Object.values(parsed).find((v: any) => typeof v === "string" && v.length > 50) as string || "";
+    } catch {
+      // Gemini KO/JA may return plain text instead of JSON — use raw text as summary
+      const cleaned = freeRaw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+      // Try to extract from markdown or plain text
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          const obj = JSON.parse(jsonMatch[0]);
+          freeSummary = obj.summary || obj["요약"] || obj["サマリー"] || obj["概要"] || Object.values(obj).find((v: any) => typeof v === "string" && v.length > 50) as string || "";
+        } catch {
+          freeSummary = cleaned;
+        }
+      } else {
+        freeSummary = cleaned;
+      }
+    }
+    if (!freeSummary || freeSummary.length < 20) {
+      console.error("[compat-generate] Empty free summary. Raw:", freeRaw.substring(0, 300));
+      return NextResponse.json({ error: "Empty AI response" }, { status: 500 });
+    }
 
     let paidData: Record<string, string> = {};
     try {
       const p1 = parseJSON(raw1);
       const p2 = parseJSON(raw2);
       const p3 = parseJSON(raw3);
-      paidData = { love: p1.love, work: p1.work, friendship: p2.friendship, conflict: p2.conflict, yearly: p3.yearly };
+      paidData = {
+        love: p1.love || p1["연애"] || p1["恋愛"] || "",
+        work: p1.work || p1["직장"] || p1["仕事"] || "",
+        friendship: p2.friendship || p2["우정"] || p2["友情"] || "",
+        conflict: p2.conflict || p2["갈등"] || p2["葛藤"] || "",
+        yearly: p3.yearly || p3["연간"] || p3["年間"] || "",
+      };
+      // Fallback: if keys missing, try first/second values
+      if (!paidData.love && Object.values(p1).length > 0) {
+        const vals = Object.values(p1).filter((v: any) => typeof v === "string" && v.length > 50) as string[];
+        if (vals.length >= 2) { paidData.love = vals[0]; paidData.work = vals[1]; }
+        else if (vals.length === 1) { paidData.love = vals[0]; }
+      }
+      if (!paidData.friendship && Object.values(p2).length > 0) {
+        const vals = Object.values(p2).filter((v: any) => typeof v === "string" && v.length > 50) as string[];
+        if (vals.length >= 2) { paidData.friendship = vals[0]; paidData.conflict = vals[1]; }
+        else if (vals.length === 1) { paidData.friendship = vals[0]; }
+      }
+      if (!paidData.yearly && Object.values(p3).length > 0) {
+        const vals = Object.values(p3).filter((v: any) => typeof v === "string" && v.length > 50) as string[];
+        if (vals.length >= 1) { paidData.yearly = vals[0]; }
+      }
     } catch (err) {
-      console.error("Paid compat generation failed:", err);
+      console.error("Paid compat parse failed:", err);
+      // Try raw text fallback for each
+      try { const c = raw1.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim(); const m = c.match(/\{[\s\S]*\}/); if (m) { const o = JSON.parse(m[0]); paidData.love = paidData.love || Object.values(o)[0] as string || ""; paidData.work = paidData.work || Object.values(o)[1] as string || ""; } } catch {}
+      try { const c = raw2.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim(); const m = c.match(/\{[\s\S]*\}/); if (m) { const o = JSON.parse(m[0]); paidData.friendship = paidData.friendship || Object.values(o)[0] as string || ""; paidData.conflict = paidData.conflict || Object.values(o)[1] as string || ""; } } catch {}
+      try { const c = raw3.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim(); const m = c.match(/\{[\s\S]*\}/); if (m) { const o = JSON.parse(m[0]); paidData.yearly = paidData.yearly || Object.values(o)[0] as string || ""; } } catch {}
     }
 
     // ═══ SAVE ═══
