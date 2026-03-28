@@ -120,7 +120,29 @@ async function callAI(prompt: string, label: string): Promise<string> {
 }
 
 function parseJSON(raw: string): any {
-  return JSON.parse(raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim());
+  const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+  let obj: any;
+  try {
+    obj = JSON.parse(cleaned);
+  } catch {
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (match) obj = JSON.parse(match[0]);
+    else throw new Error("No JSON found");
+  }
+  const keyMap: Record<string, string> = {
+    summary: "summary", "요약": "summary", "サマリー": "summary", "概要": "summary",
+    love: "love", "연애": "love", "사랑": "love", "恋愛": "love",
+    work: "work", "직장": "work", "업무": "work", "仕事": "work",
+    friendship: "friendship", "우정": "friendship", "友情": "friendship",
+    conflict: "conflict", "갈등": "conflict", "葛藤": "conflict", "対立": "conflict",
+    yearly: "yearly", "연간": "yearly", "年間": "yearly",
+  };
+  const normalized: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const mapped = keyMap[key] || keyMap[key.toLowerCase()] || key;
+    normalized[mapped] = value;
+  }
+  return normalized;
 }
 
 export async function POST(request: NextRequest) {

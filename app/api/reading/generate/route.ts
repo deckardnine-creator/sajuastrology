@@ -170,17 +170,35 @@ export async function POST(request: NextRequest) {
     const prompt = buildFreeReadingPrompt(chart, locale);
     const rawText = await generateWithFallback(prompt);
 
+    // ═══ Normalize keys: Gemini may localize JSON keys in KO/JA ═══
+    function normalizeReadingKeys(obj: any): { personality: string; year_forecast: string; element_guidance: string } {
+      const keyMap: Record<string, string> = {
+        personality: "personality", "성격": "personality", "性格": "personality", "パーソナリティ": "personality",
+        year_forecast: "year_forecast", "연간운세": "year_forecast", "연간_운세": "year_forecast", "올해운세": "year_forecast",
+        "年間運勢": "year_forecast", "年間予測": "year_forecast", "年运": "year_forecast",
+        element_guidance: "element_guidance", "오행조언": "element_guidance", "오행_조언": "element_guidance", "오행가이드": "element_guidance",
+        "五行アドバイス": "element_guidance", "元素ガイダンス": "element_guidance", "五行指导": "element_guidance",
+      };
+      const normalized: any = {};
+      for (const [key, value] of Object.entries(obj)) {
+        const mapped = keyMap[key] || keyMap[key.toLowerCase().replace(/[\s_-]/g, "")] || key;
+        normalized[mapped] = value;
+      }
+      return normalized as any;
+    }
+
     let aiReading: { personality: string; year_forecast: string; element_guidance: string };
     try {
       const cleaned = rawText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-      aiReading = JSON.parse(cleaned);
+      aiReading = normalizeReadingKeys(JSON.parse(cleaned));
     } catch {
       try {
-        const jsonMatch = rawText.match(/\{[\s\S]*"personality"[\s\S]*"year_forecast"[\s\S]*"element_guidance"[\s\S]*\}/);
+        // Try to extract any JSON object from the response
+        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-          aiReading = JSON.parse(jsonMatch[0]);
+          aiReading = normalizeReadingKeys(JSON.parse(jsonMatch[0]));
         } else {
-          console.error("Failed to find JSON in AI response. Raw (first 500):", rawText.substring(0, 500));
+          console.error("No JSON found in AI response. Raw (first 500):", rawText.substring(0, 500));
           return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
         }
       } catch (e2) {

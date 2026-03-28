@@ -89,7 +89,31 @@ async function callAI(prompt: string, label: string): Promise<string> {
 }
 
 function parseJSON(raw: string): any {
-  return JSON.parse(raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim());
+  const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+  let obj: any;
+  try {
+    obj = JSON.parse(cleaned);
+  } catch {
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (match) obj = JSON.parse(match[0]);
+    else throw new Error("No JSON found");
+  }
+  // Normalize localized keys
+  const keyMap: Record<string, string> = {
+    career: "career", "커리어": "career", "직업운": "career", "キャリア": "career", "事業運": "career",
+    love: "love", "연애운": "love", "사랑": "love", "恋愛": "love", "恋愛運": "love",
+    health: "health", "건강운": "health", "건강": "health", "健康": "health", "健康運": "health",
+    decade_forecast: "decade_forecast", "대운": "decade_forecast", "10년운": "decade_forecast", "大運": "decade_forecast",
+    monthly_energy: "monthly_energy", "월별운세": "monthly_energy", "月間運勢": "monthly_energy",
+    hidden_talent: "hidden_talent", "숨겨진재능": "hidden_talent", "隠れた才能": "hidden_talent",
+  };
+  const normalized: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const k = key.toLowerCase().replace(/[\s_-]/g, "");
+    const mapped = keyMap[key] || keyMap[k] || key;
+    normalized[mapped] = value;
+  }
+  return normalized;
 }
 
 export async function POST(request: NextRequest) {
