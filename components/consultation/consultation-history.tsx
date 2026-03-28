@@ -6,7 +6,6 @@ import { Crown, ChevronDown, ChevronUp, Calendar } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
-import { supabase } from "@/lib/supabase-client";
 import Link from "next/link";
 
 interface ConsultationRecord {
@@ -59,14 +58,17 @@ export function ConsultationHistory() {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabase
-        .from("consultations")
-        .select("id,category,initial_question,report_title,report,status,created_at")
-        .eq("user_id", user.id)
-        .eq("status", "completed")
-        .order("created_at", { ascending: false })
-        .limit(10);
-      setConsultations(data || []);
+      try {
+        const res = await fetch("/api/consultation/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id }),
+        });
+        if (res.ok) {
+          const json = await res.json();
+          setConsultations(json.consultations || []);
+        }
+      } catch {}
       setLoading(false);
     })();
   }, [user]);

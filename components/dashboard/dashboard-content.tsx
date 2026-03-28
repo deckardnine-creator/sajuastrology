@@ -199,7 +199,7 @@ export function DashboardContent() {
   const setAsMyChart = (readingId: string) => {
     if (primaryReadingId === readingId) return;
     if (!canChangeToday) {
-      setSwitchMessage("You already switched today. Try again tomorrow.");
+      setSwitchMessage(locale === "ko" ? "오늘 이미 변경했어요. 내일 다시 시도하세요." : locale === "ja" ? "今日はすでに変更しました。明日もう一度お試しください。" : "You already switched today. Try again tomorrow.");
       setTimeout(() => setSwitchMessage(""), 3000);
       return;
     }
@@ -310,7 +310,7 @@ export function DashboardContent() {
   const dayMasterColor = ELEMENTS[dayMasterElement]?.color || "#F2CA50";
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto pb-24 md:pb-0">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 sm:mb-8 flex items-start justify-between">
         <div>
@@ -407,7 +407,7 @@ export function DashboardContent() {
                 className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 shrink-0 min-h-[32px]"
               >
                 {fortuneCopied ? <Check className="w-3 h-3" /> : <Share2 className="w-3 h-3" />}
-                {fortuneCopied ? "Copied!" : "Share"}
+                {fortuneCopied ? (locale === "ko" ? "복사됨!" : locale === "ja" ? "コピー済み!" : "Copied!") : (locale === "ko" ? "공유" : locale === "ja" ? "共有" : "Share")}
               </button>
             </div>
             <p className="text-sm sm:text-base text-foreground leading-relaxed mb-3">{fortune.message}</p>
@@ -533,12 +533,12 @@ export function DashboardContent() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">
-                      {r.name}&apos;s Reading
-                      {isPrimary && <span className="ml-2 text-[10px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded-full">MY CHART</span>}
+                      {r.name}{locale === "ko" ? "의 사주" : locale === "ja" ? "の四柱" : "'s Reading"}
+                      {isPrimary && <span className="ml-2 text-[10px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded-full">{locale === "ko" ? "내 사주" : locale === "ja" ? "マイチャート" : "MY CHART"}</span>}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {r.archetype}
-                      {r.is_paid && <span className="ml-2 text-primary">· Premium</span>}
+                      {r.is_paid && <span className="ml-2 text-primary">· {locale === "ko" ? "프리미엄" : locale === "ja" ? "プレミアム" : "Premium"}</span>}
                       <span className="ml-2">· {new Date(r.created_at).toLocaleDateString(locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US", { month: "short", day: "numeric" })}</span>
                     </p>
                   </div>
@@ -560,7 +560,7 @@ export function DashboardContent() {
             })}
             {savedReadings.length > 3 && !showAllReadings && (
               <button onClick={() => setShowAllReadings(true)} className="w-full py-2 text-sm text-primary hover:underline">
-                Show all {savedReadings.length} readings
+                {locale === "ko" ? `전체 ${savedReadings.length}개 보기` : locale === "ja" ? `全${savedReadings.length}件を表示` : `Show all ${savedReadings.length} readings`}
               </button>
             )}
           </div>
