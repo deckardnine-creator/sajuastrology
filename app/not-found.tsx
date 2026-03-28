@@ -6,9 +6,11 @@ import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/landing/footer";
+import { useLanguage } from "@/lib/language-context";
 
 export default function NotFound() {
   const [mounted, setMounted] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     setMounted(true);
@@ -45,7 +47,7 @@ export default function NotFound() {
         <div className="text-center max-w-md">
           {/* Animated Sparkle Icon */}
           <motion.div
-            className="w-24 h-24 mx-auto mb-8 rounded-full bg-primary/10 flex items-center justify-center"
+            className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 sm:mb-8 rounded-full bg-primary/10 flex items-center justify-center"
             animate={{
               boxShadow: [
                 "0 0 0 0 rgba(242, 202, 80, 0)",
@@ -62,13 +64,13 @@ export default function NotFound() {
               animate={{ rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
             >
-              <Sparkles className="w-12 h-12 text-primary" />
+              <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
             </motion.div>
           </motion.div>
 
           {/* 404 Number */}
           <motion.p
-            className="text-7xl font-serif font-bold text-primary mb-4"
+            className="text-6xl sm:text-7xl font-serif font-bold text-primary mb-4"
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
@@ -78,40 +80,39 @@ export default function NotFound() {
 
           {/* Heading */}
           <motion.h1
-            className="text-3xl font-serif font-bold text-foreground mb-4"
+            className="text-2xl sm:text-3xl font-serif font-bold text-foreground mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            Lost in the Cosmos?
+            {t("notFound.title")}
           </motion.h1>
 
           {/* Description */}
           <motion.p
-            className="text-muted-foreground mb-8 leading-relaxed"
+            className="text-sm sm:text-base text-muted-foreground mb-8 leading-relaxed px-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            The path you seek doesn't exist in this dimension.
-            Perhaps the stars have redirected you for a reason.
+            {t("notFound.desc")}
           </motion.p>
 
           {/* Action Buttons */}
           <motion.div
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Link href="/">
-              <Button className="gold-gradient text-primary-foreground px-8">
-                Return to Earth
+            <Link href="/" className="w-full sm:w-auto">
+              <Button className="gold-gradient text-primary-foreground px-8 w-full sm:w-auto min-h-[44px]">
+                {t("notFound.returnHome")}
               </Button>
             </Link>
-            <Link href="/calculate">
-              <Button variant="outline" className="px-8">
-                Decode My Destiny
+            <Link href="/calculate" className="w-full sm:w-auto">
+              <Button variant="outline" className="px-8 w-full sm:w-auto min-h-[44px]">
+                {t("notFound.decodeDestiny")}
               </Button>
             </Link>
           </motion.div>

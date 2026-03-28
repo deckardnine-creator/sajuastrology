@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
+import { useLanguage } from "@/lib/language-context";
 import type { Element } from "@/lib/saju-calculator";
 
 interface CompatibilityCheckerProps {
@@ -129,6 +130,7 @@ const elementColors: Record<Element, string> = {
 };
 
 export function CompatibilityChecker({ userElement, userName }: CompatibilityCheckerProps) {
+  const { t } = useLanguage();
   const [birthDate, setBirthDate] = useState("");
   const [gender, setGender] = useState("female");
   const [result, setResult] = useState<{
@@ -170,8 +172,8 @@ export function CompatibilityChecker({ userElement, userName }: CompatibilityChe
           <Heart className="w-5 h-5 text-pink-500" />
         </div>
         <div>
-          <h3 className="text-lg font-serif text-foreground">Check Your Compatibility</h3>
-          <p className="text-sm text-muted-foreground">Enter someone's birth date to see your elemental harmony</p>
+          <h3 className="text-lg font-serif text-foreground">{t("qc.title")}</h3>
+          <p className="text-sm text-muted-foreground">{t("qc.subtitle")}</p>
         </div>
       </div>
 
@@ -186,7 +188,7 @@ export function CompatibilityChecker({ userElement, userName }: CompatibilityChe
           >
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-muted-foreground mb-2 block">Birth Date</label>
+                <label className="text-sm text-muted-foreground mb-2 block">{t("qc.birthDate")}</label>
                 <Input
                   type="date"
                   value={birthDate}
@@ -195,14 +197,14 @@ export function CompatibilityChecker({ userElement, userName }: CompatibilityChe
                 />
               </div>
               <div>
-                <label className="text-sm text-muted-foreground mb-2 block">Gender</label>
+                <label className="text-sm text-muted-foreground mb-2 block">{t("qc.gender")}</label>
                 <Select value={gender} onValueChange={setGender}>
                   <SelectTrigger className="bg-background">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">{t("qc.female")}</SelectItem>
+                    <SelectItem value="male">{t("qc.male")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -219,7 +221,7 @@ export function CompatibilityChecker({ userElement, userName }: CompatibilityChe
               ) : (
                 <Users className="w-4 h-4 mr-2" />
               )}
-              {isChecking ? "Analyzing..." : "Check Compatibility"}
+              {isChecking ? t("qc.analyzing") : t("qc.checkBtn")}
             </Button>
           </motion.div>
         ) : (
@@ -327,11 +329,11 @@ export function CompatibilityChecker({ userElement, userName }: CompatibilityChe
             {/* Actions */}
             <div className="flex gap-2">
               <Button variant="ghost" onClick={handleReset} className="flex-1">
-                Try Another
+                {t("qc.tryAnother")}
               </Button>
               <Link href="/pricing" className="flex-1">
                 <Button className="w-full gold-gradient text-primary-foreground text-sm">
-                  Full Compatibility Report
+                  {t("qc.fullReport")}
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </Link>

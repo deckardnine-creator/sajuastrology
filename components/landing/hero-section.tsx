@@ -36,7 +36,7 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative min-h-screen pt-24 pb-12 overflow-hidden">
+    <section className="relative min-h-screen pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden">
 
       {/* Glow orbs */}
       <motion.div
@@ -69,16 +69,16 @@ export function HeroSection() {
       </div>
 
       <div className="relative mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 lg:gap-8 items-center min-h-[calc(100vh-8rem)]">
+        <div className="grid lg:grid-cols-2 lg:gap-8 items-center lg:min-h-[calc(100vh-8rem)]">
 
           {/* Left: Text */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="flex flex-col gap-4 py-6 lg:py-0"
+            className="flex flex-col gap-3 sm:gap-4 py-4 sm:py-6 lg:py-0"
           >
-            <h1 className="font-serif text-[1.75rem] xs:text-[2rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.2]">
+            <h1 className="font-serif text-2xl xs:text-[2rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.2]">
               {t("hero.title1")}{" "}
               <span className="gold-gradient-text">{t("hero.title2")}</span>
             </h1>
@@ -110,8 +110,8 @@ export function HeroSection() {
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
                   </svg>
                   <div className="text-left">
-                    <span className="text-[9px] text-white/50 block leading-tight">Download on the</span>
-                    <span className="text-sm text-white/90 font-medium leading-tight">App Store</span>
+                    <span className="text-[9px] text-white/50 block leading-tight">{t("hero.downloadOn")}</span>
+                    <span className="text-sm text-white/90 font-medium leading-tight">{t("hero.appStore")}</span>
                   </div>
                 </button>
 
@@ -123,8 +123,8 @@ export function HeroSection() {
                     <path d="M3.18 23.04L13.3 12.93 3.18.96 3.18 23.04zM14.42 11.83L5.3.46 19.03 8.3 14.42 11.83zM14.46 14.07L19.13 17.67 5.24 25.54 14.46 14.07zM20.17 9.48L22.03 10.56C22.72 10.95 22.72 11.95 22.03 12.35L20.05 13.48 15.58 12.92 20.17 9.48z"/>
                   </svg>
                   <div className="text-left">
-                    <span className="text-[9px] text-white/50 block leading-tight">Get it on</span>
-                    <span className="text-sm text-white/90 font-medium leading-tight">Google Play</span>
+                    <span className="text-[9px] text-white/50 block leading-tight">{t("hero.getItOn")}</span>
+                    <span className="text-sm text-white/90 font-medium leading-tight">{t("hero.googlePlay")}</span>
                   </div>
                 </button>
               </div>
@@ -150,7 +150,7 @@ export function HeroSection() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex justify-center lg:justify-end pb-8 lg:pb-0"
+            className="flex justify-center lg:justify-end pb-4 sm:pb-8 lg:pb-0"
           >
             <div className="flex gap-1.5 xs:gap-2 sm:gap-3 lg:gap-4">
               {pillars.map((pillar, index) => (

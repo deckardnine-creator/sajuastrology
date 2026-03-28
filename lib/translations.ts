@@ -539,6 +539,29 @@ const translations = {
   "wis.cta.title": { en: "Ready to decode yours?", ko: "당신의 사주를 해석할 준비가 되셨나요?", ja: "あなたの四柱を解読する準備はできましたか？" },
   "wis.cta.btn": { en: "Enter Your Birth Details", ko: "출생 정보 입력하기", ja: "生年月日を入力する" },
 
+  // ─── Not Found Page ───
+  "notFound.title": { en: "Lost in the Cosmos?", ko: "우주에서 길을 잃으셨나요?", ja: "宇宙で迷子になりましたか？" },
+  "notFound.desc": { en: "The path you seek doesn't exist in this dimension. Perhaps the stars have redirected you for a reason.", ko: "찾으시는 페이지가 이 차원에 존재하지 않습니다. 별이 당신을 다른 곳으로 인도한 이유가 있을 겁니다.", ja: "お探しのページはこの次元に存在しません。星があなたを導いた理由があるかもしれません。" },
+  "notFound.returnHome": { en: "Return to Earth", ko: "홈으로 돌아가기", ja: "ホームに戻る" },
+  "notFound.decodeDestiny": { en: "Decode My Destiny", ko: "내 운명 해석하기", ja: "運命を解読する" },
+
+  // ─── Hero App Buttons ───
+  "hero.downloadOn": { en: "Download on the", ko: "다운로드", ja: "ダウンロード" },
+  "hero.appStore": { en: "App Store", ko: "App Store", ja: "App Store" },
+  "hero.getItOn": { en: "Get it on", ko: "다운로드", ja: "ダウンロード" },
+  "hero.googlePlay": { en: "Google Play", ko: "Google Play", ja: "Google Play" },
+
+  // ─── Compatibility Checker (quick check on reading page) ───
+  "qc.title": { en: "Check Your Compatibility", ko: "궁합 확인하기", ja: "相性をチェック" },
+  "qc.subtitle": { en: "Enter someone's birth date to see your elemental harmony", ko: "상대방의 생년월일을 입력하여 오행 궁합을 확인하세요", ja: "相手の生年月日を入力して五行の相性を確認" },
+  "qc.birthDate": { en: "Birth Date", ko: "생년월일", ja: "生年月日" },
+  "qc.gender": { en: "Gender", ko: "성별", ja: "性別" },
+  "qc.female": { en: "Female", ko: "여성", ja: "女性" },
+  "qc.male": { en: "Male", ko: "남성", ja: "男性" },
+  "qc.analyzing": { en: "Analyzing...", ko: "분석 중...", ja: "分析中..." },
+  "qc.checkBtn": { en: "Check Compatibility", ko: "궁합 확인", ja: "相性チェック" },
+  "qc.tryAnother": { en: "Try Another", ko: "다시 해보기", ja: "もう一度" },
+  "qc.fullReport": { en: "Full Compatibility Report", ko: "전체 궁합 리포트", ja: "詳細相性レポート" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

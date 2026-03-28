@@ -218,7 +218,6 @@ export default function ReadingPageClient() {
     const MAX_RETRIES = 3;
     const RETRY_DELAY = 1500;
 
-    console.log(`[reading-client] doFetchReading start slug=${slug}`);
     let data: ReadingData | null = null;
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       if (attempt > 0) {
@@ -234,7 +233,6 @@ export default function ReadingPageClient() {
           const json = await res.json();
           if (json.reading) {
             data = json.reading as ReadingData;
-            console.log(`[reading-client] fetch success attempt=${attempt + 1}`);
             break;
           }
         }
@@ -371,7 +369,6 @@ export default function ReadingPageClient() {
   // ═══ NORMAL FLOW — fetch reading on mount (skipped for payment returns) ═══
   // Readings are publicly readable — no auth needed for initial fetch
   useEffect(() => {
-    console.log(`[reading-client] normal flow: slug=${slug} isPaymentReturn=${isPaymentReturn}`);
     if (isPaymentReturn || !slug) return;
 
     fetchAttemptedRef.current = true;

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { calculateSaju } from "@/lib/saju-calculator";
 import { getLanguageInstruction } from "@/lib/prompt-locale";
 
@@ -26,8 +26,7 @@ async function sbFetch(path: string, opts: RequestInit = {}) {
   });
 }
 
-// ═══ AI ENGINE: Gemini Pro → Claude Sonnet ═══
-
+// ?먥븧??AI ENGINE: Gemini Pro ??Claude Sonnet ?먥븧??
 async function callGemini(systemPrompt: string, userPrompt: string, model = "gemini-2.5-flash"): Promise<string> {
   const apiKey = process.env.GOOGLE_AI_API_KEY || "";
   if (!apiKey) throw new Error("Gemini not configured");
@@ -90,15 +89,15 @@ async function callClaude(systemPrompt: string, userPrompt: string): Promise<str
 }
 
 async function callAI(systemPrompt: string, userPrompt: string): Promise<string> {
-  // Gemini Flash → Gemini Pro → Claude Sonnet
+  // Gemini Flash ??Gemini Pro ??Claude Sonnet
   try {
     return await callGemini(systemPrompt, userPrompt, "gemini-2.5-flash");
   } catch (err) {
-    console.warn("Consultation: Gemini Flash failed —", err instanceof Error ? err.message : err);
+    console.warn("Consultation: Gemini Flash failed ??, err instanceof Error ? err.message : err);
     try {
       return await callGemini(systemPrompt, userPrompt, "gemini-2.5-pro");
     } catch (err2) {
-      console.warn("Consultation: Gemini Pro failed, falling back to Claude —", err2 instanceof Error ? err2.message : err2);
+      console.warn("Consultation: Gemini Pro failed, falling back to Claude ??, err2 instanceof Error ? err2.message : err2);
       return await callClaude(systemPrompt, userPrompt);
     }
   }
@@ -200,7 +199,7 @@ async function handleGetReport({ consultationId, userId }: { consultationId: str
 
 /* --- Start Consultation --- */
 
-// Basic content moderation — blocks obviously inappropriate input
+// Basic content moderation ??blocks obviously inappropriate input
 function isInappropriate(text: string): boolean {
   const lower = text.toLowerCase().replace(/[^a-z0-9\s]/g, "");
   const blocked = [
@@ -262,7 +261,7 @@ async function handleStart({
     return NextResponse.json({ error: "No credits remaining" }, { status: 403 });
   }
 
-  // 2. Reserve credit (don't deduct yet — deduct only on success)
+  // 2. Reserve credit (don't deduct yet ??deduct only on success)
   const creditId = availableCredit.id;
   const currentUsed = availableCredit.used_credits;
 
@@ -318,7 +317,7 @@ async function handleStart({
   });
   const [consultation] = await insertRes.json();
 
-  // 5. Generate report in 3 PARALLEL parts — progressive save to DB
+  // 5. Generate report in 3 PARALLEL parts ??progressive save to DB
   try {
     const chartSummary = formatChartSummary(chartData);
     const currentYear = new Date().getFullYear();
@@ -327,12 +326,12 @@ async function handleStart({
 
     const baseContext = `Category: ${category}\nQuestion: "${question}"\nDate: ${currentDate} (Year: ${currentYear})\n\nQUERENT'S SAJU CHART:\n${chartSummary}`;
 
-    // Part prompts — each generates a section independently
+    // Part prompts ??each generates a section independently
     const part1System = `You are a master Saju consultant. Generate the OPENING of a consultation report.\n\nYour task: Write a compelling title (as # heading), an opening that acknowledges their question, and a detailed Chart Analysis section showing how their birth chart relates to this question (Day Master, element balance, pillar dynamics).\n\nTarget: 800-1000 words. Start with: # Title\nThen ## sections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI.`;
 
-    const part2System = `You are a master Saju consultant. Generate the MIDDLE SECTIONS of a consultation report.\n\nYour task: Write 3 sections:\n1. ## Current Cycle Reading — what the current year/period means for this area\n2. ## Detailed Guidance — 3-5 specific insights with timing recommendations\n3. ## Favorable and Challenging Periods — specific months or seasons ahead\n\nTarget: 1200-1500 words. Use ## for sections, ### for subsections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI. Reference specific chart elements.`;
+    const part2System = `You are a master Saju consultant. Generate the MIDDLE SECTIONS of a consultation report.\n\nYour task: Write 3 sections:\n1. ## Current Cycle Reading ??what the current year/period means for this area\n2. ## Detailed Guidance ??3-5 specific insights with timing recommendations\n3. ## Favorable and Challenging Periods ??specific months or seasons ahead\n\nTarget: 1200-1500 words. Use ## for sections, ### for subsections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI. Reference specific chart elements.`;
 
-    const part3System = `You are a master Saju consultant. Generate the CLOSING SECTIONS of a consultation report.\n\nYour task: Write 2 sections:\n1. ## Elemental Remedies — practical suggestions aligned with their element needs\n2. ## Closing Reflection — empowering summary that ties everything together\n\nTarget: 500-700 words. Use ## for sections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI.`;
+    const part3System = `You are a master Saju consultant. Generate the CLOSING SECTIONS of a consultation report.\n\nYour task: Write 2 sections:\n1. ## Elemental Remedies ??practical suggestions aligned with their element needs\n2. ## Closing Reflection ??empowering summary that ties everything together\n\nTarget: 500-700 words. Use ## for sections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI.`;
 
     const parts: (string | null)[] = [null, null, null];
     let reportTitle = "";
@@ -361,7 +360,6 @@ async function handleStart({
       callAI(part1System, baseContext).then(async (content) => {
         parts[0] = content;
         await saveProgress();
-        console.log(`[consultation] Part1 saved (${content.length} chars)`);
       }).catch((err) => {
         console.error("[consultation] Part1 failed:", err);
       }),
@@ -369,7 +367,6 @@ async function handleStart({
       callAI(part2System, baseContext).then(async (content) => {
         parts[1] = content;
         await saveProgress();
-        console.log(`[consultation] Part2 saved (${content.length} chars)`);
       }).catch((err) => {
         console.error("[consultation] Part2 failed:", err);
       }),
@@ -377,7 +374,6 @@ async function handleStart({
       callAI(part3System, baseContext).then(async (content) => {
         parts[2] = content;
         await saveProgress();
-        console.log(`[consultation] Part3 saved (${content.length} chars)`);
       }).catch((err) => {
         console.error("[consultation] Part3 failed:", err);
       }),
@@ -501,7 +497,7 @@ async function handleSubmitAnswers({
       body: JSON.stringify({ status: "clarifying" }),
     });
     return NextResponse.json(
-      { error: "Report generation failed. Please try again — your credit is safe." },
+      { error: "Report generation failed. Please try again ??your credit is safe." },
       { status: 500 }
     );
   }
@@ -565,7 +561,7 @@ REPORT STRUCTURE:
 
 TARGET LENGTH: 2,500-3,500 words. Be thorough and specific. Every paragraph should reference their unique chart data.
 
-CRITICAL FORMATTING RULES — YOU MUST FOLLOW THESE EXACTLY:
+CRITICAL FORMATTING RULES ??YOU MUST FOLLOW THESE EXACTLY:
 - Start with the title as: # Title Text
 - Every section MUST begin with: ## Section Name
 - Subsections use: ### Subsection Name

@@ -412,15 +412,15 @@ export function ConsultationClient() {
             setStep("form");
           }
         } catch {
-          setError("Network error. Please try again.");
+          setError(locale === "ko" ? "네트워크 오류. 다시 시도해주세요." : locale === "ja" ? "ネットワークエラー。再試行してください。" : "Network error. Please try again.");
           setStep("form");
         }
       } else {
-        setError("Unexpected response. Please try again.");
+        setError(locale === "ko" ? "예상치 못한 응답입니다. 다시 시도해주세요." : locale === "ja" ? "予期しない応答です。再試行してください。" : "Unexpected response. Please try again.");
         setStep("form");
       }
     } catch {
-      setError("Network error. Please try again.");
+      setError(locale === "ko" ? "네트워크 오류. 다시 시도해주세요." : locale === "ja" ? "ネットワークエラー。再試行してください。" : "Network error. Please try again.");
       setStep("form");
     }
     setIsSubmitting(false);
@@ -463,7 +463,7 @@ export function ConsultationClient() {
       setStep("report");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
-      setError("Network error. Please try again — your credit was not used.");
+      setError(locale === "ko" ? "네트워크 오류. 크레딧은 사용되지 않았습니다. 다시 시도해주세요." : locale === "ja" ? "ネットワークエラー。クレジットは使用されていません。再試行してください。" : "Network error. Please try again — your credit was not used.");
       setStep("clarifying");
     }
     setIsSubmitting(false);
@@ -487,7 +487,7 @@ export function ConsultationClient() {
         window.location.href = data.url;
       }
     } catch {
-      setError("Payment setup failed");
+      setError(locale === "ko" ? "결제 설정 실패" : locale === "ja" ? "決済設定に失敗しました" : "Payment setup failed");
     }
     setIsSubmitting(false);
   };
