@@ -182,6 +182,25 @@ async function generatePart(
   return null; // This part completely failed
 }
 
+// ═══ IMMEDIATE DB PATCH — save each part as soon as it's ready ═══
+async function patchDB(
+  supabaseUrl: string,
+  dbHeaders: Record<string, string>,
+  shareSlug: string,
+  data: Record<string, string>
+): Promise<boolean> {
+  try {
+    const res = await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
+      method: "PATCH",
+      headers: dbHeaders,
+      body: JSON.stringify(data),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -237,55 +256,74 @@ export async function POST(request: NextRequest) {
       } catch { /* cache miss */ }
     }
 
-    // 2. Generate 3 parts INDEPENDENTLY — each has its own 5-level fallback + parse retry
+    // 2. Generate 3 parts in PARALLEL — each PATCHes DB immediately on completion
     const chartSummary = buildChartSummary(reading);
     const currentYear = new Date().getFullYear();
 
-    const [part1, part2, part3] = await Promise.all([
-      generatePart(
+    // Track success count across all parts
+    let successCount = 0;
+
+    const part1Promise = (async () => {
+      const result = await generatePart(
         () => buildPaidPromptPart1(chartSummary, locale),
         "Part1-Career+Love", locale, ["career", "love"]
-      ),
-      generatePart(
+      );
+      if (result) {
+        const patch: Record<string, string> = {};
+        if (result.career) patch.paid_reading_career = result.career;
+        if (result.love) patch.paid_reading_love = result.love;
+        if (Object.keys(patch).length > 0) {
+          await patchDB(supabaseUrl, dbHeaders, shareSlug, patch);
+          successCount += Object.keys(patch).length;
+          console.log(`[generate-paid] Part1 saved: ${Object.keys(patch).join(",")}`);
+        }
+      }
+      return result;
+    })();
+
+    const part2Promise = (async () => {
+      const result = await generatePart(
         () => buildPaidPromptPart2(chartSummary, currentYear, locale),
         "Part2-Health+Decade", locale, ["health", "decade_forecast"]
-      ),
-      generatePart(
+      );
+      if (result) {
+        const patch: Record<string, string> = {};
+        if (result.health) patch.paid_reading_health = result.health;
+        if (result.decade_forecast) patch.paid_reading_decade = result.decade_forecast;
+        if (Object.keys(patch).length > 0) {
+          await patchDB(supabaseUrl, dbHeaders, shareSlug, patch);
+          successCount += Object.keys(patch).length;
+          console.log(`[generate-paid] Part2 saved: ${Object.keys(patch).join(",")}`);
+        }
+      }
+      return result;
+    })();
+
+    const part3Promise = (async () => {
+      const result = await generatePart(
         () => buildPaidPromptPart3(chartSummary, locale),
         "Part3-Monthly+Talent", locale, ["monthly_energy", "hidden_talent"]
-      ),
-    ]);
+      );
+      if (result) {
+        const patch: Record<string, string> = {};
+        if (result.monthly_energy) patch.paid_reading_monthly = result.monthly_energy;
+        if (result.hidden_talent) patch.paid_reading_hidden_talent = result.hidden_talent;
+        if (Object.keys(patch).length > 0) {
+          await patchDB(supabaseUrl, dbHeaders, shareSlug, patch);
+          successCount += Object.keys(patch).length;
+          console.log(`[generate-paid] Part3 saved: ${Object.keys(patch).join(",")}`);
+        }
+      }
+      return result;
+    })();
 
-    // 3. Check results — save whatever succeeded
-    const patchData: Record<string, string | null> = {
-      paid_reading_career: part1?.career || null,
-      paid_reading_love: part1?.love || null,
-      paid_reading_health: part2?.health || null,
-      paid_reading_decade: part2?.decade_forecast || null,
-      paid_reading_monthly: part3?.monthly_energy || null,
-      paid_reading_hidden_talent: part3?.hidden_talent || null,
-    };
+    await Promise.all([part1Promise, part2Promise, part3Promise]);
 
-    // Count successes
-    const successCount = Object.values(patchData).filter(Boolean).length;
-    console.log(`[generate-paid] ${successCount}/6 sections generated successfully`);
+    console.log(`[generate-paid] ${successCount}/6 sections generated and saved progressively`);
 
     if (successCount === 0) {
       return NextResponse.json({ error: "AI generation failed after multiple retries" }, { status: 500 });
     }
-
-    // Save whatever we have — even partial results
-    // Only include non-null values in patch
-    const cleanPatch: Record<string, string> = {};
-    for (const [k, v] of Object.entries(patchData)) {
-      if (v) cleanPatch[k] = v;
-    }
-
-    const patchRes = await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
-      method: "PATCH", headers: dbHeaders,
-      body: JSON.stringify(cleanPatch),
-    });
-    if (!patchRes.ok) return NextResponse.json({ error: "DB save failed" }, { status: 500 });
 
     // Return success with info about what was generated
     return NextResponse.json({
