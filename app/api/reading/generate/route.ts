@@ -20,8 +20,9 @@ async function callGemini(prompt: string, model = "gemini-2.5-flash"): Promise<s
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           responseMimeType: "application/json",
-          maxOutputTokens: 2500,
+          maxOutputTokens: 4000,
           temperature: 0.7,
+          thinkingConfig: { thinkingBudget: 0 },
         },
       }),
     }

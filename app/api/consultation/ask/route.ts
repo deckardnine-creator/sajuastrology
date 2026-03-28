@@ -41,7 +41,8 @@ async function callGemini(systemPrompt: string, userPrompt: string, model = "gem
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: [{ parts: [{ text: userPrompt }] }],
         generationConfig: {
-          maxOutputTokens: 6000,
+          maxOutputTokens: 8000,
+          thinkingConfig: { thinkingBudget: 0 },
         },
       }),
     }
