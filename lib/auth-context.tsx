@@ -22,9 +22,10 @@ export interface UserSajuData {
 interface AuthContextType {
   user: User | null; sajuData: UserSajuData; isLoading: boolean;
   isSignInModalOpen: boolean; openSignInModal: () => void; closeSignInModal: () => void;
-  signIn: () => Promise<void>; signOut: () => void; saveSajuChart: (chart: SajuChart) => void;
+  signIn: () => Promise<void>; signOut: () => Promise<void>; saveSajuChart: (chart: SajuChart) => void;
   isPremium: boolean;
   claimTrigger: number;
+  isSigningOut: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -102,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [claimTrigger, setClaimTrigger] = useState(0);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -121,22 +123,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           safeRemove("saju-data");
           safeRemove("primary-reading-id");
           safeRemove("primary-changed-date");
+          safeRemove("dashboard-stale");
+          safeRemove(`dashboard-readings-${prevUserId}`);
+          safeRemove(`dashboard-compat-${prevUserId}`);
           setSajuData(EMPTY_SAJU);
         }
         safeSet("current-user-id", newUser.id);
         setUser(newUser);
         setIsSignInModalOpen(false);
         setIsLoading(false);
+        setIsSigningOut(false);
         await claimReadings(session.user.id);
         setClaimTrigger(prev => prev + 1);
       } else if (event === "SIGNED_OUT") {
-        setUser(null);
+        // Don't set user to null if signing out — the redirect will handle it
+        // This prevents the flash of logged-out UI before redirect
+        if (!isSigningOut) {
+          setUser(null);
+        }
       } else if (event === "TOKEN_REFRESHED" && session?.user) {
         setUser(mapSupabaseUser(session.user));
       }
     });
     return () => subscription.unsubscribe();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { setSajuData(loadSajuData()); }, []);
 
@@ -179,9 +189,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    // Set signing out flag FIRST — prevents UI flash
+    setIsSigningOut(true);
     try { await supabase.auth.signOut(); } catch {}
-    setUser(null);
-    setSajuData(EMPTY_SAJU);
+    // Clear localStorage
     safeRemove("saju-data");
     safeRemove("primary-reading-id");
     safeRemove("primary-changed-date");
@@ -189,7 +200,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     safeRemove("current-user-id");
     safeRemove("return-to-consultation");
     safeRemove("auth-return-url");
-    // Redirect handled by caller (navbar / user-menu)
+    safeRemove("dashboard-stale");
+    // Do NOT setUser(null) here — the page redirect will handle full reset
+    // This prevents the brief flash of logged-out UI before redirect
   };
 
   const saveSajuChart = (chart: SajuChart) => {
@@ -204,7 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isPremium = user?.subscription === "premium" || user?.subscription === "master";
 
   return (
-    <AuthContext.Provider value={{ user, sajuData, isLoading, isSignInModalOpen, openSignInModal, closeSignInModal, signIn, signOut, saveSajuChart, isPremium, claimTrigger }}>
+    <AuthContext.Provider value={{ user, sajuData, isLoading, isSignInModalOpen, openSignInModal, closeSignInModal, signIn, signOut, saveSajuChart, isPremium, claimTrigger, isSigningOut }}>
       {children}
     </AuthContext.Provider>
   );

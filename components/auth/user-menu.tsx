@@ -18,7 +18,7 @@ import { t } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
 
 export function UserMenu() {
-  const { user, signOut, openSignInModal, isPremium, isLoading } = useAuth();
+  const { user, signOut, openSignInModal, isPremium, isLoading, isSigningOut } = useAuth();
   const { locale } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -39,7 +39,8 @@ export function UserMenu() {
     return () => document.removeEventListener("keydown", handleKey);
   }, [isOpen]);
 
-  if (!mounted || isLoading) {
+  // Show skeleton during loading, signing out, or before mount
+  if (!mounted || isLoading || isSigningOut || signingOut) {
     return (
       <div className="flex items-center gap-3">
         <div className="w-16 h-4 bg-muted animate-pulse rounded" />
