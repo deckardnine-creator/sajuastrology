@@ -111,7 +111,11 @@ export function Navbar() {
             {/* Desktop right: lang + user */}
             <div className="hidden md:flex md:items-center md:gap-3">
               <DesktopLangSwitcher />
-              <UserMenu />
+              {(isLoading || isSigningOut) ? (
+                <div className="h-10 w-24 bg-muted/30 rounded-lg animate-pulse" />
+              ) : (
+                <UserMenu />
+              )}
             </div>
 
             {/* Mobile right: inline lang switcher + hamburger */}
