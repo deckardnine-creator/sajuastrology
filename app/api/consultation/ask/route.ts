@@ -52,8 +52,14 @@ async function callGemini(systemPrompt: string, userPrompt: string, model = "gem
   }
   const data = await res.json();
   const parts = data.candidates?.[0]?.content?.parts || [];
-  const text = parts.filter((p: any) => p.text).map((p: any) => p.text).join("");
-  return text;
+  const textParts = parts.filter((p: any) => p.text && !p.thought);
+  if (textParts.length === 0) {
+    const allText = parts.filter((p: any) => p.text).map((p: any) => p.text).join("");
+    if (allText) return allText;
+    console.error("Gemini empty. Parts:", JSON.stringify(parts).substring(0, 500));
+    throw new Error("Gemini returned empty response");
+  }
+  return textParts.map((p: any) => p.text).join("");
 }
 
 async function callClaude(systemPrompt: string, userPrompt: string): Promise<string> {

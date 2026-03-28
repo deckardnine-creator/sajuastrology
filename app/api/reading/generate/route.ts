@@ -20,6 +20,7 @@ async function callGemini(prompt: string, model = "gemini-2.5-flash"): Promise<s
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           maxOutputTokens: 2500,
+          temperature: 0.7,
         },
       }),
     }
@@ -29,10 +30,17 @@ async function callGemini(prompt: string, model = "gemini-2.5-flash"): Promise<s
     throw new Error(`Gemini ${res.status}: ${err.substring(0, 200)}`);
   }
   const data = await res.json();
-  // Extract text from all parts (skip thinking parts)
+  // Gemini 2.5 Flash returns thinking parts (thought:true) — skip them
   const parts = data.candidates?.[0]?.content?.parts || [];
-  const text = parts.filter((p: any) => p.text).map((p: any) => p.text).join("");
-  return text;
+  const textParts = parts.filter((p: any) => p.text && !p.thought);
+  if (textParts.length === 0) {
+    // Fallback: try all text parts if no non-thought parts found
+    const allText = parts.filter((p: any) => p.text).map((p: any) => p.text).join("");
+    if (allText) return allText;
+    console.error("Gemini empty response. Parts:", JSON.stringify(parts).substring(0, 500));
+    throw new Error("Gemini returned empty response");
+  }
+  return textParts.map((p: any) => p.text).join("");
 }
 
 async function callClaude(prompt: string, model: string): Promise<string> {
@@ -171,9 +179,11 @@ export async function POST(request: NextRequest) {
         if (jsonMatch) {
           aiReading = JSON.parse(jsonMatch[0]);
         } else {
+          console.error("Failed to find JSON in AI response. Raw (first 500):", rawText.substring(0, 500));
           return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
         }
-      } catch {
+      } catch (e2) {
+        console.error("JSON parse error:", e2, "Raw (first 500):", rawText.substring(0, 500));
         return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
       }
     }
