@@ -18,7 +18,6 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          responseMimeType: "application/json",
           maxOutputTokens: 4000,
         },
       }),
@@ -29,7 +28,9 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
     throw new Error(`${label} Gemini ${res.status}: ${err.substring(0, 200)}`);
   }
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  const parts = data.candidates?.[0]?.content?.parts || [];
+  const text = parts.filter((p: any) => p.text).map((p: any) => p.text).join("");
+  return text;
 }
 
 async function callClaude(prompt: string, label: string): Promise<string> {

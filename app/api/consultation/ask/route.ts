@@ -51,7 +51,9 @@ async function callGemini(systemPrompt: string, userPrompt: string, model = "gem
     throw new Error(`Gemini ${res.status}: ${err.substring(0, 200)}`);
   }
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  const parts = data.candidates?.[0]?.content?.parts || [];
+  const text = parts.filter((p: any) => p.text).map((p: any) => p.text).join("");
+  return text;
 }
 
 async function callClaude(systemPrompt: string, userPrompt: string): Promise<string> {
