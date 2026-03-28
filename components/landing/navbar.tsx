@@ -113,8 +113,15 @@ export function Navbar() {
               <DesktopLangSwitcher />
               {(isLoading || isSigningOut) ? (
                 <div className="h-10 w-24 bg-muted/30 rounded-lg animate-pulse" />
-              ) : (
+              ) : user ? (
                 <UserMenu />
+              ) : (
+                <button
+                  onClick={openSignInModal}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t("nav.signIn")}
+                </button>
               )}
             </div>
 
@@ -156,14 +163,13 @@ export function Navbar() {
                 <>
                   <Link href="/dashboard" className="text-lg text-primary font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.dashboard")}</Link>
                   <button onClick={handleSignOut} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signOut")}</button>
+                  <Link href="/calculate" onClick={closeMenu} className="mt-4 w-full max-w-xs">
+                    <Button className="w-full h-12 gold-gradient text-primary-foreground font-semibold text-base">{t("nav.getReading")}</Button>
+                  </Link>
                 </>
               ) : (
                 <button onClick={() => { closeMenu(); openSignInModal() }} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signIn")}</button>
               )}
-
-              <Link href="/calculate" onClick={closeMenu} className="mt-4 w-full max-w-xs">
-                <Button className="w-full h-12 gold-gradient text-primary-foreground font-semibold text-base">{t("nav.getReading")}</Button>
-              </Link>
             </div>
           </motion.div>
         )}

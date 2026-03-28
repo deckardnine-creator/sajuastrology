@@ -107,6 +107,7 @@ export default function ReadingPageClient() {
   const isPaidGeneratingRef = useRef(false);
   const fetchAttemptedRef = useRef(false);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [partialPaidReading, setPartialPaidReading] = useState<ReadingData | null>(null);
 
   // ═══ PROGRESSIVE RENDERING — helpers ═══
   const PAID_FIELDS = [
@@ -255,10 +256,9 @@ export default function ReadingPageClient() {
     return data;
   }, [slug]);
 
-  // ═══ PROGRESSIVE RENDERING — poll DB for partial results ═══
+  // ═══ PROGRESSIVE RENDERING — poll DB for partial results (preview mode) ═══
   const startProgressivePolling = () => {
     stopPolling();
-    let scrolledToFirst = false;
     pollIntervalRef.current = setInterval(async () => {
       try {
         const res = await fetch("/api/reading/get", {
@@ -272,24 +272,14 @@ export default function ReadingPageClient() {
         const rd = json.reading as ReadingData;
         const count = countPaidFields(rd);
         if (count > 0) {
-          setReading(rd);
+          setPartialPaidReading(rd);
           setGenerationStep(count);
-          // Scroll to first paid section once it appears
-          if (!scrolledToFirst) {
-            scrolledToFirst = true;
-            setTimeout(() => {
-              const el = document.getElementById("paid-content");
-              if (el) {
-                const yOffset = -80;
-                const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                window.scrollTo({ top: y, behavior: "smooth" });
-              }
-            }, 400);
-          }
         }
         // All 6 done via polling — stop early
         if (count >= 6) {
           stopPolling();
+          setReading(rd);
+          setPartialPaidReading(null);
           setPaidContentLoading(false);
           isPaidGeneratingRef.current = false;
           safeSet("dashboard-stale", "true");
@@ -327,6 +317,7 @@ export default function ReadingPageClient() {
       if (finalData) {
         const rd = finalData as ReadingData;
         setReading(rd);
+        setPartialPaidReading(null);
         const count = countPaidFields(rd);
         setGenerationStep(count);
 
@@ -338,6 +329,7 @@ export default function ReadingPageClient() {
         setPaidGenerationFailed(true);
       }
 
+      setPartialPaidReading(null);
       setPaidContentLoading(false);
       isPaidGeneratingRef.current = false;
 
@@ -370,6 +362,7 @@ export default function ReadingPageClient() {
       } catch {
         setPaidGenerationFailed(true);
       }
+      setPartialPaidReading(null);
       setPaidContentLoading(false);
       isPaidGeneratingRef.current = false;
     }
@@ -496,6 +489,7 @@ export default function ReadingPageClient() {
             if (finalData) {
               const rd = finalData as ReadingData;
               setReading(rd);
+              setPartialPaidReading(null);
               const count = countPaidFields(rd);
               setGenerationStep(count);
 
@@ -507,6 +501,7 @@ export default function ReadingPageClient() {
               setPaidGenerationFailed(true);
             }
 
+            setPartialPaidReading(null);
             setPaidContentLoading(false);
             isPaidGeneratingRef.current = false;
 
@@ -535,6 +530,7 @@ export default function ReadingPageClient() {
                 }
               }
             } catch { setPaidGenerationFailed(true); }
+            setPartialPaidReading(null);
             setPaidContentLoading(false);
             isPaidGeneratingRef.current = false;
           }
@@ -1105,6 +1101,62 @@ export default function ReadingPageClient() {
                   </p>
                 </div>
               </div>
+
+              {/* Preview panel — show partial results while generating */}
+              {partialPaidReading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-6"
+                >
+                  <div className="bg-card/50 border border-primary/20 rounded-2xl overflow-hidden">
+                    <div className="px-6 py-3 border-b border-border bg-primary/5 flex items-center gap-2">
+                      <div className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      <span className="text-xs text-primary font-medium">
+                        {locale === "ko" ? "미리보기 — 생성 중..." : locale === "ja" ? "プレビュー — 生成中..." : "Preview — generating..."}
+                      </span>
+                    </div>
+                    <div className="p-6 space-y-6">
+                      {partialPaidReading.paid_reading_career && (
+                        <div>
+                          <h3 className="font-serif text-lg font-semibold mb-3">{t("reading.careerWealth", locale)}</h3>
+                          <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(partialPaidReading.paid_reading_career) }} />
+                        </div>
+                      )}
+                      {partialPaidReading.paid_reading_love && (
+                        <div>
+                          <h3 className="font-serif text-lg font-semibold mb-3">{t("reading.loveRelation", locale)}</h3>
+                          <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(partialPaidReading.paid_reading_love) }} />
+                        </div>
+                      )}
+                      {partialPaidReading.paid_reading_health && (
+                        <div>
+                          <h3 className="font-serif text-lg font-semibold mb-3">{t("reading.healthWellness", locale)}</h3>
+                          <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(partialPaidReading.paid_reading_health) }} />
+                        </div>
+                      )}
+                      {partialPaidReading.paid_reading_decade && (
+                        <div>
+                          <h3 className="font-serif text-lg font-semibold mb-3">{t("reading.decadeCycle", locale)}</h3>
+                          <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(partialPaidReading.paid_reading_decade) }} />
+                        </div>
+                      )}
+                      {partialPaidReading.paid_reading_monthly && (
+                        <div>
+                          <h3 className="font-serif text-lg font-semibold mb-3">{t("reading.monthlyEnergy", locale)}</h3>
+                          <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(partialPaidReading.paid_reading_monthly) }} />
+                        </div>
+                      )}
+                      {partialPaidReading.paid_reading_hidden_talent && (
+                        <div>
+                          <h3 className="font-serif text-lg font-semibold mb-3">{t("reading.hiddenTalent", locale)}</h3>
+                          <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(partialPaidReading.paid_reading_hidden_talent) }} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </motion.section>
           )}
 
