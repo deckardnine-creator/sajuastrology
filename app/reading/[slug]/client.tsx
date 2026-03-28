@@ -107,6 +107,24 @@ export default function ReadingPageClient() {
   const [claimed, setClaimed] = useState(false);
   const isPaidGeneratingRef = useRef(false);
   const fetchAttemptedRef = useRef(false);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // ═══ PROGRESSIVE RENDERING — helpers ═══
+  const PAID_FIELDS = [
+    "paid_reading_career", "paid_reading_love", "paid_reading_health",
+    "paid_reading_decade", "paid_reading_monthly", "paid_reading_hidden_talent",
+  ] as const;
+
+  const countPaidFields = (r: ReadingData): number =>
+    PAID_FIELDS.filter((f) => r[f] && (r[f] as string).length > 10).length;
+
+  // Stop polling helper
+  const stopPolling = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+  };
 
   // ═══ PAYMENT RETURN DETECTION — synchronous, before any useEffect ═══
   const [isPaymentReturn] = useState(() => {
@@ -176,24 +194,10 @@ export default function ReadingPageClient() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [paidContentLoading]);
 
-  // Re-fetch reading from Supabase
-  const refreshReading = async () => {
-    for (let i = 0; i < 6; i++) {
-      if (i > 0) await new Promise((r) => setTimeout(r, 1000));
-      const { data } = await supabase
-        .from("readings")
-        .select("*")
-        .eq("share_slug", slug)
-        .single();
-      if (data && (data as ReadingData).paid_reading_career) {
-        setReading(data as ReadingData);
-        return data as ReadingData;
-      }
-    }
-    const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
-    if (data) setReading(data as ReadingData);
-    return data as ReadingData | null;
-  };
+  // Cleanup poll interval on unmount
+  useEffect(() => {
+    return () => stopPolling();
+  }, []);
 
   // Reusable fetch reading function
   const doFetchReading = useCallback(async () => {
@@ -227,7 +231,44 @@ export default function ReadingPageClient() {
     return data;
   }, [slug]);
 
-  // Generate paid content
+  // ═══ PROGRESSIVE RENDERING — poll DB for partial results ═══
+  const startProgressivePolling = () => {
+    stopPolling();
+    let scrolledToFirst = false;
+    pollIntervalRef.current = setInterval(async () => {
+      try {
+        const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+        if (!data) return;
+        const rd = data as ReadingData;
+        const count = countPaidFields(rd);
+        if (count > 0) {
+          setReading(rd);
+          setGenerationStep(count);
+          // Scroll to first paid section once it appears
+          if (!scrolledToFirst) {
+            scrolledToFirst = true;
+            setTimeout(() => {
+              const el = document.getElementById("paid-content");
+              if (el) {
+                const yOffset = -80;
+                const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({ top: y, behavior: "smooth" });
+              }
+            }, 400);
+          }
+        }
+        // All 6 done via polling — stop early
+        if (count >= 6) {
+          stopPolling();
+          setPaidContentLoading(false);
+          isPaidGeneratingRef.current = false;
+          safeSet("dashboard-stale", "true");
+        }
+      } catch {}
+    }, 2500);
+  };
+
+  // Generate paid content — fires API + polls DB for progressive rendering
   const generatePaidContent = async () => {
     if (isPaidGeneratingRef.current) return;
     isPaidGeneratingRef.current = true;
@@ -239,9 +280,8 @@ export default function ReadingPageClient() {
       document.getElementById("generation-progress")?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 300);
 
-    const stepTimer = setInterval(() => {
-      setGenerationStep((prev) => Math.min(prev + 1, 5));
-    }, 5000);
+    // Start polling DB for progressive rendering
+    startProgressivePolling();
 
     try {
       const res = await fetch("/api/reading/generate-paid", {
@@ -250,18 +290,24 @@ export default function ReadingPageClient() {
         body: JSON.stringify({ shareSlug: slug, locale }),
       });
       const data = await res.json();
-      clearInterval(stepTimer);
+      stopPolling();
 
-      if (!res.ok || data.error) {
-        console.error("Paid generation failed:", data.error);
-        setPaidContentLoading(false);
+      // Final fetch to get complete state
+      const { data: finalData } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+      if (finalData) {
+        const rd = finalData as ReadingData;
+        setReading(rd);
+        const count = countPaidFields(rd);
+        setGenerationStep(count);
+
+        if (!res.ok || data.error) {
+          console.error("Paid generation failed:", data.error);
+          if (count === 0) setPaidGenerationFailed(true);
+        }
+      } else if (!res.ok || data.error) {
         setPaidGenerationFailed(true);
-        isPaidGeneratingRef.current = false;
-        return;
       }
 
-      setGenerationStep(6);
-      await refreshReading();
       setPaidContentLoading(false);
       isPaidGeneratingRef.current = false;
 
@@ -273,20 +319,28 @@ export default function ReadingPageClient() {
         }
       } catch {}
       safeSet("dashboard-stale", "true");
-
-      setTimeout(() => {
-        const el = document.getElementById("paid-content");
-        if (el) {
-          const yOffset = -80;
-          const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-          window.scrollTo({ top: y, behavior: "smooth" });
-        }
-      }, 600);
     } catch (err) {
-      clearInterval(stepTimer);
+      stopPolling();
       console.error("Paid generation error:", err);
+      // Check if partial results were saved
+      try {
+        const { data: finalData } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+        if (finalData) {
+          const rd = finalData as ReadingData;
+          const count = countPaidFields(rd);
+          if (count > 0) {
+            setReading(rd);
+            setGenerationStep(count);
+          } else {
+            setPaidGenerationFailed(true);
+          }
+        } else {
+          setPaidGenerationFailed(true);
+        }
+      } catch {
+        setPaidGenerationFailed(true);
+      }
       setPaidContentLoading(false);
-      setPaidGenerationFailed(true);
       isPaidGeneratingRef.current = false;
     }
   };
@@ -331,7 +385,7 @@ export default function ReadingPageClient() {
     return () => clearTimeout(timer);
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ═══ PAYMENT RETURN FLOW — single sequential pipeline, no race conditions ═══
+  // ═══ PAYMENT RETURN FLOW — sequential pipeline + progressive polling ═══
   useEffect(() => {
     if (!isPaymentReturn || !slug || !paymentSessionId) return;
 
@@ -340,10 +394,6 @@ export default function ReadingPageClient() {
     // Show generation loading immediately
     setPaidContentLoading(true);
     setGenerationStep(0);
-
-    const stepTimer = setInterval(() => {
-      setGenerationStep((prev) => Math.min(prev + 1, 5));
-    }, 5000);
 
     (async () => {
       try {
@@ -366,7 +416,6 @@ export default function ReadingPageClient() {
         }
 
         if (!readingData) {
-          clearInterval(stepTimer);
           setError("Reading not found");
           setLoading(false);
           setPaidContentLoading(false);
@@ -379,14 +428,16 @@ export default function ReadingPageClient() {
         // Scroll to generation progress after page renders
         setTimeout(() => {
           const el = document.getElementById("generation-progress");
-          if (el) {
-            el.scrollIntoView({ behavior: "smooth", block: "center" });
-          }
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
         }, 400);
 
-        // Step 3: Generate paid content if needed
+        // Step 3: Generate paid content if needed (uses progressive polling)
         if (!readingData.paid_reading_career) {
           isPaidGeneratingRef.current = true;
+
+          // Start progressive polling
+          startProgressivePolling();
+
           try {
             const res = await fetch("/api/reading/generate-paid", {
               method: "POST",
@@ -394,18 +445,24 @@ export default function ReadingPageClient() {
               body: JSON.stringify({ shareSlug: slug, locale }),
             });
             const result = await res.json();
-            clearInterval(stepTimer);
+            stopPolling();
 
-            if (!res.ok || result.error) {
-              console.error("Paid generation failed:", result.error);
-              setPaidContentLoading(false);
+            // Final fetch
+            const { data: finalData } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+            if (finalData) {
+              const rd = finalData as ReadingData;
+              setReading(rd);
+              const count = countPaidFields(rd);
+              setGenerationStep(count);
+
+              if (!res.ok || result.error) {
+                console.error("Paid generation failed:", result.error);
+                if (count === 0) setPaidGenerationFailed(true);
+              }
+            } else if (!res.ok || result.error) {
               setPaidGenerationFailed(true);
-              isPaidGeneratingRef.current = false;
-              return;
             }
 
-            setGenerationStep(6);
-            await refreshReading();
             setPaidContentLoading(false);
             isPaidGeneratingRef.current = false;
 
@@ -417,24 +474,27 @@ export default function ReadingPageClient() {
               }
             } catch {}
             safeSet("dashboard-stale", "true");
-
-            setTimeout(() => {
-              const el = document.getElementById("paid-content");
-              if (el) {
-                const yOffset = -80;
-                const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                window.scrollTo({ top: y, behavior: "smooth" });
-              }
-            }, 600);
           } catch (err) {
-            clearInterval(stepTimer);
+            stopPolling();
             console.error("Paid generation error:", err);
+            // Check partial results
+            try {
+              const { data: fd } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+              if (fd) {
+                const rd = fd as ReadingData;
+                const count = countPaidFields(rd);
+                if (count > 0) {
+                  setReading(rd);
+                  setGenerationStep(count);
+                } else {
+                  setPaidGenerationFailed(true);
+                }
+              }
+            } catch { setPaidGenerationFailed(true); }
             setPaidContentLoading(false);
-            setPaidGenerationFailed(true);
             isPaidGeneratingRef.current = false;
           }
         } else {
-          clearInterval(stepTimer);
           setPaidContentLoading(false);
           setTimeout(() => {
             const el = document.getElementById("paid-content");
@@ -446,7 +506,7 @@ export default function ReadingPageClient() {
           }, 600);
         }
       } catch (err) {
-        clearInterval(stepTimer);
+        stopPolling();
         console.error("Payment flow error:", err);
         const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
         if (data) {
@@ -457,7 +517,7 @@ export default function ReadingPageClient() {
       }
     })();
 
-    return () => clearInterval(stepTimer);
+    return () => stopPolling();
   }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle payment=cancelled
@@ -768,10 +828,11 @@ export default function ReadingPageClient() {
             </Link>
           </motion.section>
 
-          {/* Paid Content (visible after payment) */}
-          {reading.is_paid && reading.paid_reading_career && (
+          {/* Paid Content — progressive rendering: show each section as it becomes available */}
+          {reading.is_paid && (reading.paid_reading_career || reading.paid_reading_love || reading.paid_reading_health || reading.paid_reading_decade || reading.paid_reading_monthly || reading.paid_reading_hidden_talent) && (
             <div id="paid-content">
-              <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
+              {reading.paid_reading_career && (
+              <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-10">
                 <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.careerWealth", locale)}</h2>
                 <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
                   <div className="prose prose-invert prose-sm max-w-none">
@@ -779,6 +840,7 @@ export default function ReadingPageClient() {
                   </div>
                 </div>
               </motion.section>
+              )}
 
               {reading.paid_reading_love && (
                 <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }} className="mb-10">
@@ -844,7 +906,7 @@ export default function ReadingPageClient() {
           )}
 
           {/* Paid content generation failed — retry button */}
-          {reading.is_paid && !reading.paid_reading_career && !paidContentLoading && paidGenerationFailed && (
+          {reading.is_paid && !(reading.paid_reading_career || reading.paid_reading_love || reading.paid_reading_health || reading.paid_reading_decade || reading.paid_reading_monthly || reading.paid_reading_hidden_talent) && !paidContentLoading && paidGenerationFailed && (
             <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
               <div className="bg-card/80 border border-red-500/30 rounded-2xl p-8 text-center">
                 <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
