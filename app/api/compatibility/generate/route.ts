@@ -118,15 +118,19 @@ async function callClaudeFallback(prompt: string, label: string): Promise<string
 }
 
 async function callAI(prompt: string, label: string, locale = "en"): Promise<string> {
-  // Gemini Flash → Gemini Pro → Claude Haiku
+  // KO/JA: Gemini Pro first (Flash often ignores language instructions)
+  // EN: Gemini Flash → Pro → Claude
+  const useProFirst = locale !== "en";
+  const firstModel = useProFirst ? "gemini-2.5-pro" : "gemini-2.5-flash";
+  const secondModel = useProFirst ? "gemini-2.5-flash" : "gemini-2.5-pro";
   try {
-    return await callGemini(prompt, label, "gemini-2.5-flash", locale);
+    return await callGemini(prompt, label, firstModel, locale);
   } catch (err) {
-    console.warn(`${label}: Gemini Flash failed —`, err instanceof Error ? err.message : err);
+    console.warn(`${label}: ${firstModel} failed —`, err instanceof Error ? err.message : err);
     try {
-      return await callGemini(prompt, label, "gemini-2.5-pro", locale);
+      return await callGemini(prompt, label, secondModel, locale);
     } catch (err2) {
-      console.warn(`${label}: Gemini Pro failed, falling back to Claude —`, err2 instanceof Error ? err2.message : err2);
+      console.warn(`${label}: ${secondModel} failed, falling back to Claude —`, err2 instanceof Error ? err2.message : err2);
       return await callClaudeFallback(prompt, label);
     }
   }

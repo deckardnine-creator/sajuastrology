@@ -597,14 +597,19 @@ export default function ReadingPageClient() {
         <Navbar />
         <div className="pt-24 pb-16">
           <div className="mx-auto max-w-3xl px-4 sm:px-6">
-            <div className="mb-8 h-6 w-24 bg-muted/30 rounded animate-pulse" />
-            {paidContentLoading && (
+            {paidContentLoading ? (
               <PaymentReturnProgress generationStep={generationStep} locale={locale} />
-            )}
-            {!paidContentLoading && (
-              <div className="text-center py-12">
-                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-muted-foreground text-sm">{t("reading.loading", locale)}</p>
+            ) : (
+              <div className="bg-card/80 backdrop-blur border border-primary/30 rounded-2xl p-8 md:p-12 text-center">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full border-2 border-primary/30 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                </div>
+                <h3 className="font-serif text-xl text-primary mb-2">
+                  {locale === "ko" ? "결제 확인 중..." : locale === "ja" ? "決済確認中..." : "Verifying payment..."}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {locale === "ko" ? "잠시만 기다려주세요. 곧 리딩이 시작됩니다." : locale === "ja" ? "少々お待ちください。まもなく鑑定が始まります。" : "Please wait — your reading will begin shortly."}
+                </p>
               </div>
             )}
           </div>

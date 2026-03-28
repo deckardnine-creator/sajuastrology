@@ -84,11 +84,18 @@ async function callClaude(prompt: string, model: string): Promise<string> {
 }
 
 async function generateWithFallback(prompt: string, locale = "en"): Promise<string> {
-  const engines = [
-    { name: "Gemini-Flash", fn: () => callGemini(prompt, "gemini-2.5-flash", locale) },
-    { name: "Gemini-Pro",   fn: () => callGemini(prompt, "gemini-2.5-pro", locale) },
-    { name: "Haiku",        fn: () => callClaude(prompt, "claude-haiku-4-5-20251001") },
-  ];
+  // KO/JA: Gemini Pro first (Flash often ignores language instructions)
+  const engines = locale !== "en"
+    ? [
+        { name: "Gemini-Pro",   fn: () => callGemini(prompt, "gemini-2.5-pro", locale) },
+        { name: "Gemini-Flash", fn: () => callGemini(prompt, "gemini-2.5-flash", locale) },
+        { name: "Haiku",        fn: () => callClaude(prompt, "claude-haiku-4-5-20251001") },
+      ]
+    : [
+        { name: "Gemini-Flash", fn: () => callGemini(prompt, "gemini-2.5-flash", locale) },
+        { name: "Gemini-Pro",   fn: () => callGemini(prompt, "gemini-2.5-pro", locale) },
+        { name: "Haiku",        fn: () => callClaude(prompt, "claude-haiku-4-5-20251001") },
+      ];
 
   for (let i = 0; i < engines.length; i++) {
     try {

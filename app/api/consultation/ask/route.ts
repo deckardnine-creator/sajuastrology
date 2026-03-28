@@ -89,16 +89,20 @@ async function callClaude(systemPrompt: string, userPrompt: string): Promise<str
   return data.content?.[0]?.text || "";
 }
 
-async function callAI(systemPrompt: string, userPrompt: string): Promise<string> {
-  // Gemini Flash → Gemini Pro → Claude Sonnet
+async function callAI(systemPrompt: string, userPrompt: string, locale?: string): Promise<string> {
+  // KO/JA: Gemini Pro first (Flash often ignores language instructions)
+  // EN: Gemini Flash → Pro → Claude
+  const useProFirst = locale && locale !== "en";
+  const firstModel = useProFirst ? "gemini-2.5-pro" : "gemini-2.5-flash";
+  const secondModel = useProFirst ? "gemini-2.5-flash" : "gemini-2.5-pro";
   try {
-    return await callGemini(systemPrompt, userPrompt, "gemini-2.5-flash");
+    return await callGemini(systemPrompt, userPrompt, firstModel);
   } catch (err) {
-    console.warn("Consultation: Gemini Flash failed —", err instanceof Error ? err.message : err);
+    console.warn(`Consultation: ${firstModel} failed —`, err instanceof Error ? err.message : err);
     try {
-      return await callGemini(systemPrompt, userPrompt, "gemini-2.5-pro");
+      return await callGemini(systemPrompt, userPrompt, secondModel);
     } catch (err2) {
-      console.warn("Consultation: Gemini Pro failed, falling back to Claude —", err2 instanceof Error ? err2.message : err2);
+      console.warn(`Consultation: ${secondModel} failed, falling back to Claude —`, err2 instanceof Error ? err2.message : err2);
       return await callClaude(systemPrompt, userPrompt);
     }
   }
@@ -358,21 +362,21 @@ async function handleStart({
 
     // Run 3 parts in parallel
     await Promise.all([
-      callAI(part1System, baseContext).then(async (content) => {
+      callAI(part1System, baseContext, locale).then(async (content) => {
         parts[0] = content;
         await saveProgress();
       }).catch((err) => {
         console.error("[consultation] Part1 failed:", err);
       }),
 
-      callAI(part2System, baseContext).then(async (content) => {
+      callAI(part2System, baseContext, locale).then(async (content) => {
         parts[1] = content;
         await saveProgress();
       }).catch((err) => {
         console.error("[consultation] Part2 failed:", err);
       }),
 
-      callAI(part3System, baseContext).then(async (content) => {
+      callAI(part3System, baseContext, locale).then(async (content) => {
         parts[2] = content;
         await saveProgress();
       }).catch((err) => {
@@ -597,7 +601,7 @@ ${chartSummary}
 
 Generate a comprehensive, personalized Saju consultation report. Start with a compelling title (as a # heading), then the full analysis.`;
 
-  const content = await callAI(systemPrompt, userPrompt);
+  const content = await callAI(systemPrompt, userPrompt, locale);
 
   // Extract title from the first heading
   const titleMatch = content.match(/^#\s+(.+)/m);

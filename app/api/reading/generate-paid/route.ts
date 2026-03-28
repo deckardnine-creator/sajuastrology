@@ -85,14 +85,23 @@ async function callClaude(prompt: string, label: string, model: string): Promise
 }
 
 // 5-level fallback: Flash → Flash(retry) → Pro → Sonnet → Haiku
+// KO/JA: Pro first (Flash often ignores language instructions for non-EN)
 async function callAIRobust(prompt: string, label: string, locale: string): Promise<string> {
-  const engines = [
-    { name: "Flash",   fn: () => callGemini(prompt, label, "gemini-2.5-flash", locale) },
-    { name: "Flash-R", fn: () => callGemini(prompt, label, "gemini-2.5-flash", locale) },
-    { name: "Pro",     fn: () => callGemini(prompt, label, "gemini-2.5-pro", locale) },
-    { name: "Sonnet",  fn: () => callClaude(prompt, label, "claude-sonnet-4-20250514") },
-    { name: "Haiku",   fn: () => callClaude(prompt, label, "claude-haiku-4-5-20251001") },
-  ];
+  const engines = locale !== "en"
+    ? [
+        { name: "Pro",     fn: () => callGemini(prompt, label, "gemini-2.5-pro", locale) },
+        { name: "Flash",   fn: () => callGemini(prompt, label, "gemini-2.5-flash", locale) },
+        { name: "Flash-R", fn: () => callGemini(prompt, label, "gemini-2.5-flash", locale) },
+        { name: "Sonnet",  fn: () => callClaude(prompt, label, "claude-sonnet-4-20250514") },
+        { name: "Haiku",   fn: () => callClaude(prompt, label, "claude-haiku-4-5-20251001") },
+      ]
+    : [
+        { name: "Flash",   fn: () => callGemini(prompt, label, "gemini-2.5-flash", locale) },
+        { name: "Flash-R", fn: () => callGemini(prompt, label, "gemini-2.5-flash", locale) },
+        { name: "Pro",     fn: () => callGemini(prompt, label, "gemini-2.5-pro", locale) },
+        { name: "Sonnet",  fn: () => callClaude(prompt, label, "claude-sonnet-4-20250514") },
+        { name: "Haiku",   fn: () => callClaude(prompt, label, "claude-haiku-4-5-20251001") },
+      ];
 
   for (let i = 0; i < engines.length; i++) {
     try {
@@ -221,9 +230,12 @@ export async function POST(request: NextRequest) {
     const detectedLocale = detectLocaleFromContent(reading.free_reading_personality);
     const locale = detectedLocale || clientLocale;
 
-    // Skip if already generated (EN only)
-    if (locale === "en" && reading.paid_reading_career) {
-      return NextResponse.json({ success: true, alreadyGenerated: true });
+    // Skip if already generated in the same language
+    if (reading.paid_reading_career) {
+      const existingLocale = detectLocaleFromContent(reading.paid_reading_career);
+      if (existingLocale === locale || (!existingLocale && locale === "en")) {
+        return NextResponse.json({ success: true, alreadyGenerated: true });
+      }
     }
 
     // Pillar cache — EN only
