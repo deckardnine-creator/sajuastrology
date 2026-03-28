@@ -376,6 +376,14 @@ export default function ReadingPageClient() {
         setReading(readingData);
         setLoading(false);
 
+        // Scroll to generation progress after page renders
+        setTimeout(() => {
+          const el = document.getElementById("generation-progress");
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 400);
+
         // Step 3: Generate paid content if needed
         if (!readingData.paid_reading_career) {
           isPaidGeneratingRef.current = true;
