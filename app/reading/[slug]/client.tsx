@@ -285,6 +285,8 @@ export default function ReadingPageClient() {
   }, [slug]);
 
   // Handle payment success redirect
+  const [paymentVerified, setPaymentVerified] = useState(false);
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const payment = urlParams.get("payment");
@@ -292,25 +294,31 @@ export default function ReadingPageClient() {
 
     if (payment === "success" && sessionId && slug) {
       window.history.replaceState({}, "", `/reading/${slug}`);
+      // Verify payment in background — fetchReading will detect is_paid && trigger generation
       fetch("/api/payment/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId, shareSlug: slug }),
       })
         .then((res) => res.json())
-        .then((data) => {
-          if (!data.success) throw new Error("Verification failed");
-          generatePaidContent();
-        })
-        .catch((err) => {
-          console.error("Payment verification error:", err);
-          generatePaidContent();
-        });
+        .then(() => setPaymentVerified(true))
+        .catch(() => setPaymentVerified(true)); // Still proceed even if verify fails
     } else if (payment === "cancelled") {
       window.history.replaceState({}, "", `/reading/${slug}`);
       setPaymentLoading(false);
     }
   }, [slug]);
+
+  // After payment verified + reading loaded, trigger paid generation if needed
+  useEffect(() => {
+    if (!paymentVerified || !reading || isPaidGeneratingRef.current) return;
+    if (!reading.paid_reading_career) {
+      generatePaidContent();
+    } else {
+      // Content already exists — just refresh to show it
+      refreshReading();
+    }
+  }, [paymentVerified, reading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUnlock = async () => {
     if (!reading) return;
