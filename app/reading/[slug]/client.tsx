@@ -8,7 +8,6 @@ import { ArrowLeft, Lock, Sparkles, Bookmark, Share2, Check, Heart } from "lucid
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase-client";
 import { ELEMENTS, type Element } from "@/lib/saju-calculator";
 import { DAY_MASTER_DISPLAY } from "@/lib/constants";
 import { GoogleIcon } from "@/components/ui/google-icon";
@@ -126,6 +125,20 @@ export default function ReadingPageClient() {
     }
   };
 
+  // Fetch reading via server API — avoids supabase client session hang
+  const fetchReadingAPI = async (shareSlug: string): Promise<ReadingData | null> => {
+    try {
+      const res = await fetch("/api/reading/get", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareSlug }),
+      });
+      if (!res.ok) return null;
+      const json = await res.json();
+      return (json.reading as ReadingData) || null;
+    } catch { return null; }
+  };
+
   // ═══ PAYMENT RETURN DETECTION — synchronous, before any useEffect ═══
   const [isPaymentReturn] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -199,10 +212,10 @@ export default function ReadingPageClient() {
     return () => stopPolling();
   }, []);
 
-  // Reusable fetch reading function
+  // Reusable fetch reading function — uses server API to bypass supabase client session issues
   const doFetchReading = useCallback(async () => {
-    const MAX_RETRIES = 4;
-    const RETRY_DELAY = 1200;
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 1500;
 
     console.log(`[reading-client] doFetchReading start slug=${slug}`);
     let data: ReadingData | null = null;
@@ -210,17 +223,24 @@ export default function ReadingPageClient() {
       if (attempt > 0) {
         await new Promise((r) => setTimeout(r, RETRY_DELAY));
       }
-      const { data: d, error: fetchError } = await supabase
-        .from("readings")
-        .select("*")
-        .eq("share_slug", slug)
-        .single();
-      if (!fetchError && d) {
-        data = d as ReadingData;
-        console.log(`[reading-client] fetch success attempt=${attempt + 1}`);
-        break;
+      try {
+        const res = await fetch("/api/reading/get", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ shareSlug: slug }),
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.reading) {
+            data = json.reading as ReadingData;
+            console.log(`[reading-client] fetch success attempt=${attempt + 1}`);
+            break;
+          }
+        }
+        console.warn(`[reading-client] fetch attempt=${attempt + 1} status=${res.status}`);
+      } catch (err) {
+        console.warn(`[reading-client] fetch attempt=${attempt + 1} error:`, err);
       }
-      console.warn(`[reading-client] fetch attempt=${attempt + 1} error:`, fetchError?.message);
     }
 
     if (!data) {
@@ -241,9 +261,15 @@ export default function ReadingPageClient() {
     let scrolledToFirst = false;
     pollIntervalRef.current = setInterval(async () => {
       try {
-        const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
-        if (!data) return;
-        const rd = data as ReadingData;
+        const res = await fetch("/api/reading/get", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ shareSlug: slug }),
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!json.reading) return;
+        const rd = json.reading as ReadingData;
         const count = countPaidFields(rd);
         if (count > 0) {
           setReading(rd);
@@ -297,7 +323,7 @@ export default function ReadingPageClient() {
       stopPolling();
 
       // Final fetch to get complete state
-      const { data: finalData } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+      const finalData = await fetchReadingAPI(slug);
       if (finalData) {
         const rd = finalData as ReadingData;
         setReading(rd);
@@ -328,7 +354,7 @@ export default function ReadingPageClient() {
       console.error("Paid generation error:", err);
       // Check if partial results were saved
       try {
-        const { data: finalData } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+        const finalData = await fetchReadingAPI(slug);
         if (finalData) {
           const rd = finalData as ReadingData;
           const count = countPaidFields(rd);
@@ -426,7 +452,7 @@ export default function ReadingPageClient() {
         let readingData: ReadingData | null = null;
         for (let attempt = 0; attempt < 3; attempt++) {
           if (attempt > 0) await new Promise((r) => setTimeout(r, 1000));
-          const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+          const data = await fetchReadingAPI(slug);
           if (data) {
             readingData = data as ReadingData;
             break;
@@ -466,7 +492,7 @@ export default function ReadingPageClient() {
             stopPolling();
 
             // Final fetch
-            const { data: finalData } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+            const finalData = await fetchReadingAPI(slug);
             if (finalData) {
               const rd = finalData as ReadingData;
               setReading(rd);
@@ -497,7 +523,7 @@ export default function ReadingPageClient() {
             console.error("Paid generation error:", err);
             // Check partial results
             try {
-              const { data: fd } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+              const fd = await fetchReadingAPI(slug);
               if (fd) {
                 const rd = fd as ReadingData;
                 const count = countPaidFields(rd);
@@ -526,7 +552,7 @@ export default function ReadingPageClient() {
       } catch (err) {
         stopPolling();
         console.error("Payment flow error:", err);
-        const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
+        const data = await fetchReadingAPI(slug);
         if (data) {
           setReading(data as ReadingData);
           setLoading(false);
