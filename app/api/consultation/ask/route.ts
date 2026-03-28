@@ -10,7 +10,6 @@ const supabaseKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   "";
-const anthropicKey = process.env.ANTHROPIC_API_KEY || "";
 
 /* --- helpers --- */
 
@@ -27,12 +26,43 @@ async function sbFetch(path: string, opts: RequestInit = {}) {
   });
 }
 
-async function callClaude(systemPrompt: string, userPrompt: string) {
+// ═══ AI ENGINE: Gemini Pro → Claude Sonnet ═══
+
+async function callGemini(systemPrompt: string, userPrompt: string, model = "gemini-2.5-flash"): Promise<string> {
+  const apiKey = process.env.GOOGLE_AI_API_KEY || "";
+  if (!apiKey) throw new Error("Gemini not configured");
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ parts: [{ text: userPrompt }] }],
+        generationConfig: {
+          maxOutputTokens: 6000,
+        },
+      }),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Gemini ${res.status}: ${err.substring(0, 200)}`);
+  }
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+}
+
+async function callClaude(systemPrompt: string, userPrompt: string): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY || "";
+  if (!apiKey) throw new Error("Claude not configured");
+
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": anthropicKey,
+      "x-api-key": apiKey,
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
@@ -44,10 +74,25 @@ async function callClaude(systemPrompt: string, userPrompt: string) {
   });
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Claude API error: ${res.status} ${err}`);
+    throw new Error(`Claude ${res.status}: ${err.substring(0, 200)}`);
   }
   const data = await res.json();
   return data.content?.[0]?.text || "";
+}
+
+async function callAI(systemPrompt: string, userPrompt: string): Promise<string> {
+  // Gemini Flash → Gemini Pro → Claude Sonnet
+  try {
+    return await callGemini(systemPrompt, userPrompt, "gemini-2.5-flash");
+  } catch (err) {
+    console.warn("Consultation: Gemini Flash failed —", err instanceof Error ? err.message : err);
+    try {
+      return await callGemini(systemPrompt, userPrompt, "gemini-2.5-pro");
+    } catch (err2) {
+      console.warn("Consultation: Gemini Pro failed, falling back to Claude —", err2 instanceof Error ? err2.message : err2);
+      return await callClaude(systemPrompt, userPrompt);
+    }
+  }
 }
 
 /* --- main handler --- */
@@ -217,9 +262,6 @@ async function handleStart({
       hour: { stem: { zh: chart.pillars.hour.stem.zh, en: chart.pillars.hour.stem.en }, branch: { zh: chart.pillars.hour.branch.zh, en: chart.pillars.hour.branch.en } },
     },
   };
-
-  // Skip clarification entirely — generate report directly
-  const chartSummary = formatChartSummary(chartData);
 
   // 4. Create consultation record
   const insertRes = await sbFetch("consultations", {
@@ -445,7 +487,7 @@ ${chartSummary}
 
 Generate a comprehensive, personalized Saju consultation report. Start with a compelling title (as a # heading), then the full analysis.`;
 
-  const content = await callClaude(systemPrompt, userPrompt);
+  const content = await callAI(systemPrompt, userPrompt);
 
   // Extract title from the first heading
   const titleMatch = content.match(/^#\s+(.+)/m);

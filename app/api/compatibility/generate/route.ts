@@ -15,7 +15,6 @@ const supabaseKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   "";
-const anthropicKey = process.env.ANTHROPIC_API_KEY || "";
 
 const dbHeaders = {
   "Content-Type": "application/json",
@@ -35,37 +34,81 @@ function toBirthDateStr(d: Date | string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-async function callClaude(prompt: string, label: string): Promise<string> {
-  // Sonnet x2 → Haiku x1 fallback on 529/500
-  const models = ["claude-sonnet-4-20250514", "claude-sonnet-4-20250514", "claude-haiku-4-5-20251001"];
-  for (let attempt = 0; attempt < models.length; attempt++) {
-    if (attempt > 0) await new Promise((r) => setTimeout(r, 2000));
-    const model = models[attempt];
+// ═══ AI ENGINE: Gemini Pro → Claude Sonnet → Claude Haiku ═══
+
+async function callGemini(prompt: string, label: string, model = "gemini-2.5-flash"): Promise<string> {
+  const apiKey = process.env.GOOGLE_AI_API_KEY || "";
+  if (!apiKey) throw new Error("Gemini not configured");
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          maxOutputTokens: 3000,
+        },
+      }),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`${label} Gemini ${res.status}: ${err.substring(0, 200)}`);
+  }
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+}
+
+async function callClaudeFallback(prompt: string, label: string): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY || "";
+  if (!apiKey) throw new Error("Claude not configured");
+
+  const models = ["claude-sonnet-4-20250514", "claude-haiku-4-5-20251001"];
+  for (let i = 0; i < models.length; i++) {
+    if (i > 0) await new Promise((r) => setTimeout(r, 2000));
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": anthropicKey,
+        "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model,
+        model: models[i],
         max_tokens: 3000,
         messages: [{ role: "user", content: prompt }],
       }),
     });
     if (!res.ok) {
-      const err = await res.text();
-      if ((res.status === 529 || res.status === 500) && attempt < models.length - 1) {
-        console.warn(`${label}: ${model} ${res.status} — trying next model`);
+      if ((res.status === 529 || res.status === 500) && i < models.length - 1) {
+        console.warn(`${label}: ${models[i]} ${res.status} — trying next`);
         continue;
       }
-      throw new Error(`${label}: API ${res.status} — ${err.substring(0, 200)}`);
+      const err = await res.text();
+      throw new Error(`${label}: Claude ${res.status} — ${err.substring(0, 200)}`);
     }
     const data = await res.json();
     return data.content?.[0]?.text || "";
   }
-  throw new Error(`${label}: all models exhausted`);
+  throw new Error(`${label}: all Claude models exhausted`);
+}
+
+async function callAI(prompt: string, label: string): Promise<string> {
+  // Gemini Flash → Gemini Pro → Claude Haiku
+  try {
+    return await callGemini(prompt, label, "gemini-2.5-flash");
+  } catch (err) {
+    console.warn(`${label}: Gemini Flash failed —`, err instanceof Error ? err.message : err);
+    try {
+      return await callGemini(prompt, label, "gemini-2.5-pro");
+    } catch (err2) {
+      console.warn(`${label}: Gemini Pro failed, falling back to Claude —`, err2 instanceof Error ? err2.message : err2);
+      return await callClaudeFallback(prompt, label);
+    }
+  }
 }
 
 function parseJSON(raw: string): any {
@@ -102,7 +145,6 @@ export async function POST(request: NextRequest) {
       if (cacheRes.ok) {
         const cached = await cacheRes.json();
         if (cached?.length > 0 && cached[0].free_summary && cached[0].paid_love) {
-          // Full cache hit — has both free and paid content
           if (userId) {
             fetch(`${supabaseUrl}/rest/v1/compatibility_results?share_slug=eq.${cached[0].share_slug}&user_id=is.null`, {
               method: "PATCH", headers: { ...dbHeaders, Prefer: "return=minimal" },
@@ -111,7 +153,6 @@ export async function POST(request: NextRequest) {
           }
           return NextResponse.json({ success: true, shareSlug: cached[0].share_slug, cached: true });
         }
-        // If cached but no paid content → fall through to regenerate
       }
       // Reverse check
       const revRes = await fetch(`${supabaseUrl}/rest/v1/compatibility_results?${new URLSearchParams({
@@ -146,16 +187,12 @@ export async function POST(request: NextRequest) {
     const chartB = calculateSaju(personB.name, personB.gender, dateB, hourB, personB.birthCity);
     const scores = calculateCompatibility(chartA, chartB);
 
-    if (!anthropicKey) {
-      return NextResponse.json({ error: "AI not configured" }, { status: 500 });
-    }
-
-    // ═══ GENERATE ALL CONTENT — FREE + PAID (all free for users) ═══
+    // ═══ GENERATE ALL CONTENT — Gemini Pro → Claude fallback ═══
     const [freeRaw, raw1, raw2, raw3] = await Promise.all([
-      callClaude(buildFreeCompatibilityPrompt(scores, locale), "FreeSummary"),
-      callClaude(buildPaidCompatPrompt1(scores, locale), "Paid-Love+Work"),
-      callClaude(buildPaidCompatPrompt2(scores, locale), "Paid-Friend+Conflict"),
-      callClaude(buildPaidCompatPrompt3(scores, locale), "Paid-Yearly"),
+      callAI(buildFreeCompatibilityPrompt(scores, locale), "FreeSummary"),
+      callAI(buildPaidCompatPrompt1(scores, locale), "Paid-Love+Work"),
+      callAI(buildPaidCompatPrompt2(scores, locale), "Paid-Friend+Conflict"),
+      callAI(buildPaidCompatPrompt3(scores, locale), "Paid-Yearly"),
     ]);
 
     let freeSummary: string;
@@ -170,7 +207,6 @@ export async function POST(request: NextRequest) {
       paidData = { love: p1.love, work: p1.work, friendship: p2.friendship, conflict: p2.conflict, yearly: p3.yearly };
     } catch (err) {
       console.error("Paid compat generation failed:", err);
-      // Free still works
     }
 
     // ═══ SAVE ═══

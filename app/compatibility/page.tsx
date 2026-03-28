@@ -50,7 +50,7 @@ interface PersonData {
 const emptyPerson = (): PersonData => ({
   name: "",
   gender: "",
-  year: CURRENT_YEAR - 25,
+  year: 1990,
   month: 1,
   day: 1,
   hour: 12,
@@ -439,7 +439,7 @@ function PersonForm({ label, data, onChange, locale }: {
 
       {/* Birth Date — 3 equal columns, no overlap */}
       <div className="mb-4">
-        <label className="block text-sm text-muted-foreground mb-2">{t("form.birthDate", locale)}</label>
+        <label className="block text-sm text-muted-foreground mb-2">{t("form.birthDate", locale)} <span className="text-xs opacity-60">({locale === "ko" ? "양력" : locale === "ja" ? "新暦" : "Solar Calendar"})</span></label>
         <div className="grid grid-cols-3 gap-2">
           {/* Year */}
           <div className="flex flex-col items-center gap-1">

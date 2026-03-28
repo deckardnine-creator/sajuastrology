@@ -5,6 +5,79 @@ import type { SajuChart } from "@/lib/saju-calculator";
 // Serverless = 60s on Pro (Edge is always 25s even on Pro)
 export const maxDuration = 60;
 
+// ═══ AI ENGINE: Gemini Pro → Claude Sonnet → Claude Haiku ═══
+
+async function callGemini(prompt: string, model = "gemini-2.5-flash"): Promise<string> {
+  const apiKey = process.env.GOOGLE_AI_API_KEY || "";
+  if (!apiKey) throw new Error("Gemini not configured");
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          maxOutputTokens: 2500,
+        },
+      }),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Gemini ${res.status}: ${err.substring(0, 200)}`);
+  }
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+}
+
+async function callClaude(prompt: string, model: string): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY || "";
+  if (!apiKey) throw new Error("Claude not configured");
+
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 2500,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Claude ${model} ${res.status}: ${err.substring(0, 200)}`);
+  }
+  const data = await res.json();
+  return data.content?.[0]?.text || "";
+}
+
+async function generateWithFallback(prompt: string): Promise<string> {
+  const engines = [
+    { name: "Gemini-Flash", fn: () => callGemini(prompt, "gemini-2.5-flash") },
+    { name: "Gemini-Pro",   fn: () => callGemini(prompt, "gemini-2.5-pro") },
+    { name: "Haiku",        fn: () => callClaude(prompt, "claude-haiku-4-5-20251001") },
+  ];
+
+  for (let i = 0; i < engines.length; i++) {
+    try {
+      if (i > 0) await new Promise((r) => setTimeout(r, 1500));
+      const result = await engines[i].fn();
+      if (result) return result;
+    } catch (err) {
+      console.warn(`Free reading: ${engines[i].name} failed —`, err instanceof Error ? err.message : err);
+      if (i === engines.length - 1) throw err;
+    }
+  }
+  throw new Error("All AI engines failed");
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -25,7 +98,6 @@ export async function POST(request: NextRequest) {
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-    // Use service role key for server-side DB writes (bypasses RLS safely)
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
     if (!supabaseUrl || !supabaseKey) {
       return NextResponse.json({ error: "Server config error" }, { status: 500 });
@@ -46,7 +118,7 @@ export async function POST(request: NextRequest) {
     const ds = chart.pillars.day.stem.zh, db = chart.pillars.day.branch.zh;
     const hs = chart.pillars.hour.stem.zh, hb = chart.pillars.hour.branch.zh;
 
-    // ═══ RATE LIMITING — prevent Claude API cost abuse ═══
+    // ═══ RATE LIMITING — prevent AI API cost abuse ═══
     const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
     try {
       const rateRes = await fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
@@ -61,102 +133,37 @@ export async function POST(request: NextRequest) {
       }
     } catch { /* rate limit check failed — allow through */ }
 
-    // ═══ PARALLEL CACHE CHECK ═══
-    const [exactResult, pillarResult] = await Promise.allSettled([
-      fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
+    // ═══ EXACT MATCH CHECK — same person gets same slug (no AI re-generation) ═══
+    try {
+      const exactRes = await fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
         name: `eq.${chart.name}`, gender: `eq.${chart.gender}`,
         birth_date: `eq.${birthDateStr}`, birth_city: `eq.${chart.birthCity}`,
-        select: "share_slug,free_reading_personality", limit: "1",
-      })}`, { headers: dbHeaders }).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
-        year_stem: `eq.${ys}`, year_branch: `eq.${yb}`, month_stem: `eq.${ms}`, month_branch: `eq.${mb}`,
-        day_stem: `eq.${ds}`, day_branch: `eq.${db}`, hour_stem: `eq.${hs}`, hour_branch: `eq.${hb}`,
-        select: "free_reading_personality,free_reading_year,free_reading_element,paid_reading_career,paid_reading_love,paid_reading_health,paid_reading_decade,paid_reading_monthly,paid_reading_hidden_talent",
-        "free_reading_personality": "not.is.null", limit: "1",
-      })}`, { headers: dbHeaders }).then(r => r.ok ? r.json() : null).catch(() => null),
-    ]);
-
-    const exactData = exactResult.status === "fulfilled" ? exactResult.value : null;
-    const pillarData = pillarResult.status === "fulfilled" ? pillarResult.value : null;
-
-    if (exactData?.length > 0 && exactData[0].free_reading_personality) {
-      // If user is logged in and reading isn't claimed yet, claim it
-      if (userId) {
-        await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${exactData[0].share_slug}&user_id=is.null`, {
-          method: "PATCH",
-          headers: { ...dbHeaders, Prefer: "return=minimal" },
-          body: JSON.stringify({ user_id: userId }),
-        }).catch(() => {}); // Non-critical
-      }
-      return NextResponse.json({ success: true, shareSlug: exactData[0].share_slug, existing: true });
-    }
-
-    if (pillarData?.length > 0 && pillarData[0].free_reading_personality) {
-      const shareSlug = generateShareSlug();
-      const c = pillarData[0];
-      const insertBody: Record<string, any> = {
-        name: chart.name, gender: chart.gender, birth_date: birthDateStr,
-        birth_hour: 12, birth_city: chart.birthCity,
-        year_stem: ys, year_branch: yb, month_stem: ms, month_branch: mb,
-        day_stem: ds, day_branch: db, hour_stem: hs, hour_branch: hb,
-        day_master_element: chart.dayMaster.element, day_master_yinyang: chart.dayMaster.yinYang,
-        archetype: chart.archetype, ten_god: chart.tenGod, harmony_score: chart.harmonyScore,
-        dominant_element: chart.dominantElement, weakest_element: chart.weakestElement,
-        elements_wood: chart.elements.wood, elements_fire: chart.elements.fire,
-        elements_earth: chart.elements.earth, elements_metal: chart.elements.metal, elements_water: chart.elements.water,
-        free_reading_personality: c.free_reading_personality, free_reading_year: c.free_reading_year,
-        free_reading_element: c.free_reading_element, share_slug: shareSlug, is_paid: false,
-        ...(userId ? { user_id: userId } : {}),
-      };
-      if (c.paid_reading_career) {
-        insertBody.paid_reading_career = c.paid_reading_career; insertBody.paid_reading_love = c.paid_reading_love;
-        insertBody.paid_reading_health = c.paid_reading_health; insertBody.paid_reading_decade = c.paid_reading_decade;
-        insertBody.paid_reading_monthly = c.paid_reading_monthly; insertBody.paid_reading_hidden_talent = c.paid_reading_hidden_talent;
-      }
-      const dbRes = await fetch(`${supabaseUrl}/rest/v1/readings`, {
-        method: "POST", headers: { ...dbHeaders, Prefer: "return=minimal" }, body: JSON.stringify(insertBody),
-      });
-      if (dbRes.ok) return NextResponse.json({ success: true, shareSlug, cached: true });
-    }
-
-    // ═══ GENERATE: Sonnet 4 — no timeout, Vercel handles 60s limit ═══
-    const apiKey = process.env.ANTHROPIC_API_KEY || "";
-    if (!apiKey) return NextResponse.json({ error: "AI not configured" }, { status: 500 });
-
-    // Sonnet x2 → Haiku x1 fallback on 529/500
-    let rawText = "";
-    const freeModels = ["claude-sonnet-4-20250514", "claude-sonnet-4-20250514", "claude-haiku-4-5-20251001"];
-    for (let attempt = 0; attempt < freeModels.length; attempt++) {
-      if (attempt > 0) await new Promise((r) => setTimeout(r, 2000));
-      const model = freeModels[attempt];
-      const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-        body: JSON.stringify({
-          model,
-          max_tokens: 2500,
-          messages: [{ role: "user", content: buildFreeReadingPrompt(chart, locale) }],
-        }),
-      });
-      if (!anthropicRes.ok) {
-        if ((anthropicRes.status === 529 || anthropicRes.status === 500) && attempt < freeModels.length - 1) {
-          console.warn(`Free reading: ${model} ${anthropicRes.status} — trying next model`);
-          continue;
+        select: "share_slug", limit: "1",
+      })}`, { headers: dbHeaders });
+      if (exactRes.ok) {
+        const exactData = await exactRes.json();
+        if (exactData?.length > 0 && exactData[0].share_slug) {
+          if (userId) {
+            await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${exactData[0].share_slug}&user_id=is.null`, {
+              method: "PATCH",
+              headers: { ...dbHeaders, Prefer: "return=minimal" },
+              body: JSON.stringify({ user_id: userId }),
+            }).catch(() => {});
+          }
+          return NextResponse.json({ success: true, shareSlug: exactData[0].share_slug, existing: true });
         }
-        return NextResponse.json({ error: `AI error (${anthropicRes.status})` }, { status: 500 });
       }
-      const aiData = await anthropicRes.json();
-      rawText = aiData.content?.[0]?.text || "";
-      break;
-    }
+    } catch { /* exact check failed — generate new */ }
+
+    // ═══ GENERATE — Gemini Pro → Claude Sonnet → Claude Haiku ═══
+    const prompt = buildFreeReadingPrompt(chart, locale);
+    const rawText = await generateWithFallback(prompt);
 
     let aiReading: { personality: string; year_forecast: string; element_guidance: string };
     try {
-      // Try direct parse first
       const cleaned = rawText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
       aiReading = JSON.parse(cleaned);
     } catch {
-      // Fallback: extract JSON object from anywhere in the text
       try {
         const jsonMatch = rawText.match(/\{[\s\S]*"personality"[\s\S]*"year_forecast"[\s\S]*"element_guidance"[\s\S]*\}/);
         if (jsonMatch) {

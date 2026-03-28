@@ -186,7 +186,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
   const { locale } = useLanguage();
   const [name, setName] = useState("");
   const [gender, setGender] = useState<"male" | "female" | "">("");
-  const [yearIdx, setYearIdx] = useState(YEARS.indexOf(String(CUR_YEAR - 25)));
+  const [yearIdx, setYearIdx] = useState(YEARS.indexOf(String(1990)));
   const [monthIdx, setMonthIdx] = useState(0);
   const [dayIdx, setDayIdx] = useState(0);
   const [hourIdx, setHourIdx] = useState(12);
@@ -334,7 +334,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
               {/* Date drums */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">{t("form.birthDate", locale)} <span className="normal-case tracking-normal text-muted-foreground/50">{t("form.birthDateNote", locale)}</span></label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">{t("form.birthDate", locale)} <span className="normal-case tracking-normal text-muted-foreground/50">{t("form.birthDateNote", locale)} · {locale === "ko" ? "양력" : locale === "ja" ? "新暦" : "Solar Calendar"}</span></label>
                 <div className="flex gap-2 justify-center items-center">
                   <DrumRoller values={YEARS}  selectedIndex={yearIdx}  onChange={setYearIdx}  label={t("form.year", locale)}  width={88} />
                   <span className="text-primary/25 text-2xl font-light select-none pb-1">·</span>

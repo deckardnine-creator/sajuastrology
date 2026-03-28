@@ -170,7 +170,7 @@ const EXAMPLE_QUESTIONS: Record<string, Record<string, string[]>> = {
 const emptyBirthData = (): BirthData => ({
   name: "",
   gender: "",
-  year: CURRENT_YEAR - 25,
+  year: 1990,
   month: 1,
   day: 1,
   hour: 12,
@@ -841,7 +841,7 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
 
       {/* Birth Date — steppers */}
       <div>
-        <label className="block text-xs text-muted-foreground mb-2">{t("form.birthDate", locale)}</label>
+        <label className="block text-xs text-muted-foreground mb-2">{t("form.birthDate", locale)} <span className="text-[10px] opacity-60">({locale === "ko" ? "양력" : locale === "ja" ? "新暦" : "Solar Calendar"})</span></label>
         <div className="grid grid-cols-3 gap-2">
           {/* Year */}
           <div className="flex flex-col items-center gap-1">

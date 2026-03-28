@@ -324,7 +324,7 @@ export default function CompatibilityResultClient() {
 
                 {/* Share button */}
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2 }} className="flex justify-center">
-                  <Button variant="outline" size="sm" className="gap-2 text-xs rounded-full px-5 border-white/10 hover:border-white/20 bg-white/5" onClick={handleShare}>
+                  <Button variant="outline" size="sm" className="gap-2 text-xs rounded-full px-6 border-amber-500/30 hover:border-amber-500/50 bg-amber-500/10 hover:bg-amber-500/15 text-amber-200" onClick={handleShare}>
                     {linkCopied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
                     {linkCopied ? t("cr.copied", locale) : t("cr.shareResult", locale)}
                   </Button>
@@ -434,6 +434,14 @@ export default function CompatibilityResultClient() {
               </div>
             </div>
           </motion.section>
+
+          {/* ═══ Bottom Share Button ═══ */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }} className="flex justify-center mb-6">
+            <Button variant="outline" size="sm" className="gap-2 text-xs rounded-full px-6 border-white/10 hover:border-white/20 bg-white/5" onClick={handleShare}>
+              {linkCopied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+              {linkCopied ? t("cr.copied", locale) : t("cr.shareResult", locale)}
+            </Button>
+          </motion.div>
 
           {/* ═══ Bottom CTAs ═══ */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.95 }} className="space-y-3">
