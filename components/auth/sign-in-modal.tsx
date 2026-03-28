@@ -59,13 +59,13 @@ export function SignInModal() {
                 ))}
               </div>
 
-              {/* Close button — 44px touch target */}
+              {/* Close button — large touch target, visible icon */}
               <button
                 onClick={closeSignInModal}
-                className="absolute top-3 right-3 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute top-2 right-2 w-12 h-12 flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors z-10"
                 aria-label="Close sign-in modal"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </button>
 
               {/* Content */}
@@ -100,7 +100,7 @@ export function SignInModal() {
                   )}
                 </Button>
 
-                <p className="text-xs text-muted-foreground mt-6">
+                <p className="text-xs text-muted-foreground/70 mt-6 leading-relaxed">
                   {t("signIn.agreeTo", locale)}{" "}
                   <Link href="/terms" onClick={closeSignInModal} className="text-primary hover:underline">
                     {t("footer.terms", locale)}
