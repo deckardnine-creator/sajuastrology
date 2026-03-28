@@ -99,7 +99,6 @@ async function callAIRobust(prompt: string, label: string, locale: string): Prom
       if (i > 0) await new Promise((r) => setTimeout(r, 1000));
       const result = await engines[i].fn();
       if (result) {
-        if (i > 0) console.log(`[${label}] succeeded on ${engines[i].name} (attempt ${i + 1})`);
         return result;
       }
     } catch (err) {
@@ -221,7 +220,6 @@ export async function POST(request: NextRequest) {
     // Server-side locale detection
     const detectedLocale = detectLocaleFromContent(reading.free_reading_personality);
     const locale = detectedLocale || clientLocale;
-    console.log(`[generate-paid] slug=${shareSlug} locale=${locale} (detected=${detectedLocale}, client=${clientLocale})`);
 
     // Skip if already generated (EN only)
     if (locale === "en" && reading.paid_reading_career) {
@@ -275,7 +273,6 @@ export async function POST(request: NextRequest) {
         if (Object.keys(patch).length > 0) {
           await patchDB(supabaseUrl, dbHeaders, shareSlug, patch);
           successCount += Object.keys(patch).length;
-          console.log(`[generate-paid] Part1 saved: ${Object.keys(patch).join(",")}`);
         }
       }
       return result;
@@ -293,7 +290,6 @@ export async function POST(request: NextRequest) {
         if (Object.keys(patch).length > 0) {
           await patchDB(supabaseUrl, dbHeaders, shareSlug, patch);
           successCount += Object.keys(patch).length;
-          console.log(`[generate-paid] Part2 saved: ${Object.keys(patch).join(",")}`);
         }
       }
       return result;
@@ -311,15 +307,12 @@ export async function POST(request: NextRequest) {
         if (Object.keys(patch).length > 0) {
           await patchDB(supabaseUrl, dbHeaders, shareSlug, patch);
           successCount += Object.keys(patch).length;
-          console.log(`[generate-paid] Part3 saved: ${Object.keys(patch).join(",")}`);
         }
       }
       return result;
     })();
 
     await Promise.all([part1Promise, part2Promise, part3Promise]);
-
-    console.log(`[generate-paid] ${successCount}/6 sections generated and saved progressively`);
 
     if (successCount === 0) {
       return NextResponse.json({ error: "AI generation failed after multiple retries" }, { status: 500 });

@@ -361,7 +361,6 @@ async function handleStart({
       callAI(part1System, baseContext).then(async (content) => {
         parts[0] = content;
         await saveProgress();
-        console.log(`[consultation] Part1 saved (${content.length} chars)`);
       }).catch((err) => {
         console.error("[consultation] Part1 failed:", err);
       }),
@@ -369,7 +368,6 @@ async function handleStart({
       callAI(part2System, baseContext).then(async (content) => {
         parts[1] = content;
         await saveProgress();
-        console.log(`[consultation] Part2 saved (${content.length} chars)`);
       }).catch((err) => {
         console.error("[consultation] Part2 failed:", err);
       }),
@@ -377,7 +375,6 @@ async function handleStart({
       callAI(part3System, baseContext).then(async (content) => {
         parts[2] = content;
         await saveProgress();
-        console.log(`[consultation] Part3 saved (${content.length} chars)`);
       }).catch((err) => {
         console.error("[consultation] Part3 failed:", err);
       }),

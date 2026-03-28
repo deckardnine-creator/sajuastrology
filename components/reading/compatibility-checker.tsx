@@ -32,7 +32,8 @@ function calculatePartnerElement(year: number, month: number, day: number): Elem
 // Element relationship checker
 function getElementRelationship(
   userElement: Element,
-  partnerElement: Element
+  partnerElement: Element,
+  locale: string = "en"
 ): { type: string; score: number; label: string; emoji: string; description: string; description2: string } {
   const creationCycle: Record<Element, Element> = {
     wood: "fire",
@@ -50,74 +51,58 @@ function getElementRelationship(
     water: "fire",
   };
 
-  // Same element
-  if (userElement === partnerElement) {
-    return {
-      type: "same",
-      score: 75,
-      label: "Mirror Bond",
-      emoji: "mirror",
-      description: `Your ${userElement} energy reflects their ${partnerElement} essence — you understand each other intuitively.`,
-      description2: "This pairing suggests deep understanding but watch for amplified weaknesses."
-    };
-  }
+  const elName: Record<string, Record<Element, string>> = {
+    en: { wood: "Wood", fire: "Fire", earth: "Earth", metal: "Metal", water: "Water" },
+    ko: { wood: "목", fire: "화", earth: "토", metal: "금", water: "수" },
+    ja: { wood: "木", fire: "火", earth: "土", metal: "金", water: "水" },
+  };
+  const el = (e: Element) => (elName[locale] || elName.en)[e];
 
-  // User creates partner (supporting relationship)
-  if (creationCycle[userElement] === partnerElement) {
-    return {
-      type: "creates",
-      score: 90,
-      label: "Natural Harmony",
-      emoji: "star",
-      description: `Your ${userElement} energy nurtures their ${partnerElement} essence — a naturally supportive bond.`,
-      description2: "This pairing suggests one of the most harmonious connections in element theory."
-    };
-  }
+  const labels: Record<string, Record<string, { label: string; desc: string; desc2: string }>> = {
+    en: {
+      same: { label: "Mirror Bond", desc: `Your ${el(userElement)} energy reflects their ${el(partnerElement)} essence — you understand each other intuitively.`, desc2: "This pairing suggests deep understanding but watch for amplified weaknesses." },
+      creates: { label: "Natural Harmony", desc: `Your ${el(userElement)} energy nurtures their ${el(partnerElement)} essence — a naturally supportive bond.`, desc2: "This pairing suggests one of the most harmonious connections in element theory." },
+      "created-by": { label: "Receiving Support", desc: `Their ${el(partnerElement)} energy nourishes your ${el(userElement)} essence — they naturally uplift you.`, desc2: "This pairing suggests a supportive dynamic where you flourish from their presence." },
+      controls: { label: "Dynamic Tension", desc: `Your ${el(userElement)} energy challenges their ${el(partnerElement)} essence — expect friction but also passion.`, desc2: "This pairing suggests transformation through conflict — not easy, but growth-oriented." },
+      "controlled-by": { label: "Growth Challenge", desc: `Their ${el(partnerElement)} energy challenges your ${el(userElement)} essence — you'll be pushed to evolve.`, desc2: "This pairing suggests personal growth through navigating differences." },
+      neutral: { label: "Balanced Connection", desc: `Your ${el(userElement)} energy exists in balance with their ${el(partnerElement)} essence — neither supporting nor challenging.`, desc2: "This pairing suggests stability and mutual respect without extreme highs or lows." },
+    },
+    ko: {
+      same: { label: "거울 인연", desc: `당신의 ${el(userElement)} 에너지가 상대의 ${el(partnerElement)} 본질을 비춥니다 — 서로를 직관적으로 이해합니다.`, desc2: "깊은 이해가 가능하지만 약점도 증폭될 수 있습니다." },
+      creates: { label: "자연스러운 조화", desc: `당신의 ${el(userElement)} 에너지가 상대의 ${el(partnerElement)} 본질을 키워줍니다 — 자연스러운 지지 관계.`, desc2: "오행 이론에서 가장 조화로운 관계 중 하나입니다." },
+      "created-by": { label: "지지 받는 관계", desc: `상대의 ${el(partnerElement)} 에너지가 당신의 ${el(userElement)} 본질을 성장시킵니다 — 자연스럽게 당신을 올려줍니다.`, desc2: "상대의 존재로 당신이 빛나는 관계입니다." },
+      controls: { label: "역동적 긴장", desc: `당신의 ${el(userElement)} 에너지가 상대의 ${el(partnerElement)} 본질에 도전합니다 — 마찰이 있지만 열정도 함께.`, desc2: "갈등을 통한 변화 — 쉽지는 않지만 성장 지향적인 관계." },
+      "controlled-by": { label: "성장의 도전", desc: `상대의 ${el(partnerElement)} 에너지가 당신의 ${el(userElement)} 본질에 도전합니다 — 진화를 향해 밀어줍니다.`, desc2: "차이를 극복하며 개인적 성장을 이루는 관계입니다." },
+      neutral: { label: "균형 잡힌 관계", desc: `당신의 ${el(userElement)} 에너지와 상대의 ${el(partnerElement)} 본질이 균형을 이룹니다 — 지지도 도전도 없는 안정적 관계.`, desc2: "극단적 기복 없이 안정과 상호 존중을 나타냅니다." },
+    },
+    ja: {
+      same: { label: "鏡の絆", desc: `あなたの${el(userElement)}のエネルギーが相手の${el(partnerElement)}の本質を映し出します — 直感的に理解し合えます。`, desc2: "深い理解が可能ですが、弱点も増幅されることがあります。" },
+      creates: { label: "自然な調和", desc: `あなたの${el(userElement)}のエネルギーが相手の${el(partnerElement)}の本質を育てます — 自然な支え合いの関係。`, desc2: "五行理論で最も調和的な関係の一つです。" },
+      "created-by": { label: "支えを受ける関係", desc: `相手の${el(partnerElement)}のエネルギーがあなたの${el(userElement)}の本質を成長させます — 自然とあなたを高めてくれます。`, desc2: "相手の存在であなたが輝く関係です。" },
+      controls: { label: "ダイナミックな緊張", desc: `あなたの${el(userElement)}のエネルギーが相手の${el(partnerElement)}の本質に挑戦します — 摩擦もあれば情熱も。`, desc2: "葛藤を通じた変化 — 簡単ではないが成長志向の関係。" },
+      "controlled-by": { label: "成長の挑戦", desc: `相手の${el(partnerElement)}のエネルギーがあなたの${el(userElement)}の本質に挑戦します — 進化へと導かれます。`, desc2: "違いを乗り越え、個人的成長を遂げる関係です。" },
+      neutral: { label: "バランスの取れた関係", desc: `あなたの${el(userElement)}と相手の${el(partnerElement)}が均衡を保ちます — 支えも挑戦もない安定した関係。`, desc2: "極端な起伏なく、安定と相互尊重を示します。" },
+    },
+  };
 
-  // Partner creates user (being supported)
-  if (creationCycle[partnerElement] === userElement) {
-    return {
-      type: "created-by",
-      score: 85,
-      label: "Receiving Support",
-      emoji: "heart",
-      description: `Their ${partnerElement} energy nourishes your ${userElement} essence — they naturally uplift you.`,
-      description2: "This pairing suggests a supportive dynamic where you flourish from their presence."
-    };
-  }
+  const emojiMap: Record<string, string> = { same: "mirror", creates: "star", "created-by": "heart", controls: "zap", "controlled-by": "zap", neutral: "scale" };
+  const scoreMap: Record<string, number> = { same: 75, creates: 90, "created-by": 85, controls: 55, "controlled-by": 50, neutral: 70 };
 
-  // User controls partner
-  if (destructionCycle[userElement] === partnerElement) {
-    return {
-      type: "controls",
-      score: 55,
-      label: "Dynamic Tension",
-      emoji: "zap",
-      description: `Your ${userElement} energy challenges their ${partnerElement} essence — expect friction but also passion.`,
-      description2: "This pairing suggests transformation through conflict — not easy, but growth-oriented."
-    };
-  }
+  let relType = "neutral";
+  if (userElement === partnerElement) relType = "same";
+  else if (creationCycle[userElement] === partnerElement) relType = "creates";
+  else if (creationCycle[partnerElement] === userElement) relType = "created-by";
+  else if (destructionCycle[userElement] === partnerElement) relType = "controls";
+  else if (destructionCycle[partnerElement] === userElement) relType = "controlled-by";
 
-  // Partner controls user
-  if (destructionCycle[partnerElement] === userElement) {
-    return {
-      type: "controlled-by",
-      score: 50,
-      label: "Growth Challenge",
-      emoji: "zap",
-      description: `Their ${partnerElement} energy challenges your ${userElement} essence — you'll be pushed to evolve.`,
-      description2: "This pairing suggests personal growth through navigating differences."
-    };
-  }
-
-  // Neutral
+  const l = (labels[locale] || labels.en)[relType];
   return {
-    type: "neutral",
-    score: 70,
-    label: "Balanced Connection",
-    emoji: "scale",
-    description: `Your ${userElement} energy exists in balance with their ${partnerElement} essence — neither supporting nor challenging.`,
-    description2: "This pairing suggests stability and mutual respect without extreme highs or lows."
+    type: relType,
+    score: scoreMap[relType],
+    label: l.label,
+    emoji: emojiMap[relType],
+    description: l.desc,
+    description2: l.desc2,
   };
 }
 
@@ -130,7 +115,7 @@ const elementColors: Record<Element, string> = {
 };
 
 export function CompatibilityChecker({ userElement, userName }: CompatibilityCheckerProps) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [birthDate, setBirthDate] = useState("");
   const [gender, setGender] = useState("female");
   const [result, setResult] = useState<{
@@ -152,7 +137,7 @@ export function CompatibilityChecker({ userElement, userName }: CompatibilityChe
         date.getMonth() + 1,
         date.getDate()
       );
-      const relationship = getElementRelationship(userElement, partnerElement);
+      const relationship = getElementRelationship(userElement, partnerElement, locale);
 
       setResult({ partnerElement, relationship });
       setIsChecking(false);
