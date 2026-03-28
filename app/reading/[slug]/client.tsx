@@ -241,7 +241,7 @@ export default function ReadingPageClient() {
 
     const stepTimer = setInterval(() => {
       setGenerationStep((prev) => Math.min(prev + 1, 5));
-    }, 3500);
+    }, 5000);
 
     try {
       const res = await fetch("/api/reading/generate-paid", {
@@ -343,7 +343,7 @@ export default function ReadingPageClient() {
 
     const stepTimer = setInterval(() => {
       setGenerationStep((prev) => Math.min(prev + 1, 5));
-    }, 3500);
+    }, 5000);
 
     (async () => {
       try {
@@ -925,6 +925,13 @@ export default function ReadingPageClient() {
                 </div>
 
                 <div className="relative">
+                  {/* Warning at TOP — most visible position */}
+                  <div className="mb-6 bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2.5">
+                    <p className="text-xs text-amber-400/80 text-center font-medium">
+                      ⚠️ {t("reading.doNotLeave", locale)}
+                    </p>
+                  </div>
+
                   <div className="text-center mb-8">
                     <motion.div
                       animate={{ rotate: 360 }}
@@ -944,6 +951,7 @@ export default function ReadingPageClient() {
                       return (
                         <motion.div
                           key={i}
+                          ref={isActive ? (el: HTMLDivElement | null) => { if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); } : undefined}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: isDone || isActive ? 1 : 0.3, x: 0 }}
                           transition={{ delay: i * 0.1, duration: 0.3 }}
@@ -985,11 +993,6 @@ export default function ReadingPageClient() {
                       animate={{ width: `${Math.min((generationStep / 6) * 100, 100)}%` }}
                       transition={{ duration: 0.5 }}
                     />
-                  </div>
-                  <div className="mt-4 bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2">
-                    <p className="text-[11px] text-amber-400/80 text-center">
-                      ⚠️ {t("reading.doNotLeave", locale)}
-                    </p>
                   </div>
                   <p className="text-center text-xs text-muted-foreground/50 mt-3">
                     {t("reading.genTakes", locale)}
@@ -1056,6 +1059,13 @@ function PaymentReturnProgress({ generationStep, locale }: { generationStep: num
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-primary/10 blur-[100px]" />
       </div>
       <div className="relative">
+        {/* Warning at TOP */}
+        <div className="mb-6 bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2.5">
+          <p className="text-xs text-amber-400/80 text-center font-medium">
+            ⚠️ {t("reading.doNotLeave", locale)}
+          </p>
+        </div>
+
         <div className="text-center mb-8">
           <motion.div
             animate={{ rotate: 360 }}
@@ -1074,6 +1084,7 @@ function PaymentReturnProgress({ generationStep, locale }: { generationStep: num
             return (
               <motion.div
                 key={i}
+                ref={isActive ? (el: HTMLDivElement | null) => { if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); } : undefined}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: isDone || isActive ? 1 : 0.3, x: 0 }}
                 transition={{ delay: i * 0.1, duration: 0.3 }}
@@ -1111,11 +1122,6 @@ function PaymentReturnProgress({ generationStep, locale }: { generationStep: num
             animate={{ width: `${Math.min((generationStep / 6) * 100, 100)}%` }}
             transition={{ duration: 0.5 }}
           />
-        </div>
-        <div className="mt-4 bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2">
-          <p className="text-[11px] text-amber-400/80 text-center">
-            ⚠️ {t("reading.doNotLeave", locale)}
-          </p>
         </div>
         <p className="text-center text-xs text-muted-foreground/50 mt-3">
           {t("reading.genTakes", locale)}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildFreeReadingPrompt, generateShareSlug } from "@/lib/reading-prompts";
+import { getSystemInstruction } from "@/lib/prompt-locale";
 import type { SajuChart } from "@/lib/saju-calculator";
 
 // Serverless = 60s on Pro (Edge is always 25s even on Pro)
@@ -20,15 +21,23 @@ async function callGemini(prompt: string, model = "gemini-2.5-flash", locale = "
     genConfig.responseMimeType = "application/json";
   }
 
+  const body: any = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: genConfig,
+  };
+
+  // Add systemInstruction for KO/JA — forces correct language output
+  const sysInstr = getSystemInstruction(locale);
+  if (sysInstr) {
+    body.systemInstruction = { parts: [{ text: sysInstr }] };
+  }
+
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: genConfig,
-      }),
+      body: JSON.stringify(body),
     }
   );
   if (!res.ok) {

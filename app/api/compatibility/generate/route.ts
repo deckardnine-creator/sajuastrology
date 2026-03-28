@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { calculateSaju, type SajuChart } from "@/lib/saju-calculator";
 import { calculateCompatibility } from "@/lib/compatibility-calculator";
+import { getSystemInstruction } from "@/lib/prompt-locale";
 import {
   buildFreeCompatibilityPrompt,
   buildPaidCompatPrompt1,
@@ -8,7 +9,7 @@ import {
   buildPaidCompatPrompt3,
 } from "@/lib/compatibility-prompts";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey =
@@ -48,15 +49,22 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
     genConfig.responseMimeType = "application/json";
   }
 
+  const body: any = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: genConfig,
+  };
+
+  const sysInstr = getSystemInstruction(locale);
+  if (sysInstr) {
+    body.systemInstruction = { parts: [{ text: sysInstr }] };
+  }
+
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: genConfig,
-      }),
+      body: JSON.stringify(body),
     }
   );
   if (!res.ok) {

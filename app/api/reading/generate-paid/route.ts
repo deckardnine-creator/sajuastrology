@@ -2,29 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildPaidPromptPart1, buildPaidPromptPart2, buildPaidPromptPart3, buildChartSummary } from "@/lib/paid-prompts";
 import { getSystemInstruction } from "@/lib/prompt-locale";
 
-// Serverless = 60s on Pro
-export const maxDuration = 60;
+// 120s — enough for retries across multiple AI engines
+export const maxDuration = 120;
 
 // ═══ SERVER-SIDE LOCALE DETECTION ═══
-// Client locale can be wrong (hydration timing, default "en" on page reload)
-// The free reading was already generated in the correct language — detect from it
 function detectLocaleFromContent(text: string | null): string | null {
   if (!text || text.length < 20) return null;
   const sample = text.substring(0, 300);
-  // Korean: Hangul syllables
   if (/[\uAC00-\uD7AF]/.test(sample)) return "ko";
-  // Japanese: Hiragana or Katakana
   if (/[\u3040-\u309F\u30A0-\u30FF]/.test(sample)) return "ja";
   return "en";
 }
 
-// ═══ AI ENGINE: Gemini Flash → Pro → Claude Sonnet (paid quality) ═══
+// ═══ AI ENGINE — 5-level fallback per call ═══
+// Flash → Flash retry → Pro → Sonnet → Haiku
+// Customer should NEVER see "generation failed"
 
-async function callGemini(prompt: string, label: string, model = "gemini-2.5-flash", locale = "en"): Promise<string> {
+async function callGemini(prompt: string, label: string, model: string, locale: string): Promise<string> {
   const apiKey = process.env.GOOGLE_AI_API_KEY || "";
   if (!apiKey) throw new Error("Gemini not configured");
 
-  // For non-EN locales, DON'T use responseMimeType — it overrides language instructions
   const genConfig: any = {
     maxOutputTokens: 6000,
     thinkingConfig: { thinkingBudget: 0 },
@@ -33,13 +30,11 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
     genConfig.responseMimeType = "application/json";
   }
 
-  // Build request body
   const body: any = {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: genConfig,
   };
 
-  // Add systemInstruction for KO/JA — Gemini respects this even when responseMimeType is absent
   const sysInstr = getSystemInstruction(locale);
   if (sysInstr) {
     body.systemInstruction = { parts: [{ text: sysInstr }] };
@@ -47,15 +42,11 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
 
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    }
+    { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
   );
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`${label} Gemini ${res.status}: ${err.substring(0, 200)}`);
+    throw new Error(`${label} Gemini ${model} ${res.status}: ${err.substring(0, 200)}`);
   }
   const data = await res.json();
   const parts = data.candidates?.[0]?.content?.parts || [];
@@ -63,58 +54,63 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
   if (textParts.length === 0) {
     const allText = parts.filter((p: any) => p.text).map((p: any) => p.text).join("");
     if (allText) return allText;
-    console.error(`${label} Gemini empty. Parts:`, JSON.stringify(parts).substring(0, 500));
-    throw new Error(`${label} Gemini returned empty response`);
+    throw new Error(`${label} Gemini ${model} empty response`);
   }
   return textParts.map((p: any) => p.text).join("");
 }
 
-async function callClaude(prompt: string, label: string): Promise<string> {
+async function callClaude(prompt: string, label: string, model: string): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY || "";
   if (!apiKey) throw new Error("Claude not configured");
 
-  for (let attempt = 0; attempt < 2; attempt++) {
-    if (attempt > 0) await new Promise((r) => setTimeout(r, 2000));
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 4000,
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
-    if (!res.ok) {
-      if ((res.status === 529 || res.status === 500) && attempt < 1) {
-        console.warn(`${label}: Sonnet ${res.status} — retrying`);
-        continue;
-      }
-      const err = await res.text();
-      throw new Error(`${label}: Claude ${res.status} — ${err.substring(0, 200)}`);
-    }
-    const data = await res.json();
-    return data.content?.[0]?.text || "";
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 4000,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`${label} Claude ${model} ${res.status}: ${err.substring(0, 200)}`);
   }
-  throw new Error(`${label}: Claude retries exhausted`);
+  const data = await res.json();
+  return data.content?.[0]?.text || "";
 }
 
-async function callAI(prompt: string, label: string, locale = "en"): Promise<string> {
-  try {
-    return await callGemini(prompt, label, "gemini-2.5-flash", locale);
-  } catch (err) {
-    console.warn(`${label}: Gemini Flash failed —`, err instanceof Error ? err.message : err);
+// 5-level fallback: Flash → Flash(retry) → Pro → Sonnet → Haiku
+async function callAIRobust(prompt: string, label: string, locale: string): Promise<string> {
+  const engines = [
+    { name: "Flash",   fn: () => callGemini(prompt, label, "gemini-2.5-flash", locale) },
+    { name: "Flash-R", fn: () => callGemini(prompt, label, "gemini-2.5-flash", locale) },
+    { name: "Pro",     fn: () => callGemini(prompt, label, "gemini-2.5-pro", locale) },
+    { name: "Sonnet",  fn: () => callClaude(prompt, label, "claude-sonnet-4-20250514") },
+    { name: "Haiku",   fn: () => callClaude(prompt, label, "claude-haiku-4-5-20251001") },
+  ];
+
+  for (let i = 0; i < engines.length; i++) {
     try {
-      return await callGemini(prompt, label, "gemini-2.5-pro", locale);
-    } catch (err2) {
-      console.warn(`${label}: Gemini Pro failed, falling back to Claude —`, err2 instanceof Error ? err2.message : err2);
-      return await callClaude(prompt, label);
+      if (i > 0) await new Promise((r) => setTimeout(r, 1000));
+      const result = await engines[i].fn();
+      if (result) {
+        if (i > 0) console.log(`[${label}] succeeded on ${engines[i].name} (attempt ${i + 1})`);
+        return result;
+      }
+    } catch (err) {
+      console.warn(`[${label}] ${engines[i].name} failed:`, err instanceof Error ? err.message : err);
+      if (i === engines.length - 1) throw err;
     }
   }
+  throw new Error(`${label}: all 5 engines failed`);
 }
+
+// ═══ JSON PARSING — with extensive key normalization ═══
 
 function parseJSON(raw: string): any {
   const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
@@ -127,16 +123,19 @@ function parseJSON(raw: string): any {
     else throw new Error("No JSON found");
   }
   const keyMap: Record<string, string> = {
-    career: "career", "커리어": "career", "직업운": "career", "キャリア": "career", "事業運": "career",
-    love: "love", "연애운": "love", "사랑": "love", "恋愛": "love", "恋愛運": "love",
-    health: "health", "건강운": "health", "건강": "health", "健康": "health", "健康運": "health",
-    decade_forecast: "decade_forecast", "대운": "decade_forecast", "10년운": "decade_forecast", "大運": "decade_forecast",
-    monthly_energy: "monthly_energy", "월별운세": "monthly_energy", "月間運勢": "monthly_energy",
-    hidden_talent: "hidden_talent", "숨겨진재능": "hidden_talent", "隠れた才能": "hidden_talent",
-    "직업": "career", "연애": "love", "십년운세": "decade_forecast", "월간에너지": "monthly_energy",
-    "숨겨진 재능": "hidden_talent", "10년 운세": "decade_forecast", "월별 운세": "monthly_energy",
-    "キャリア運": "career", "仕事運": "career", "恋愛運勢": "love", "健康運勢": "health",
-    "十年運勢": "decade_forecast", "月間エネルギー": "monthly_energy", "隠された才能": "hidden_talent",
+    career: "career", "커리어": "career", "직업운": "career", "직업": "career",
+    "キャリア": "career", "事業運": "career", "キャリア運": "career", "仕事運": "career",
+    love: "love", "연애운": "love", "사랑": "love", "연애": "love",
+    "恋愛": "love", "恋愛運": "love", "恋愛運勢": "love",
+    health: "health", "건강운": "health", "건강": "health",
+    "健康": "health", "健康運": "health", "健康運勢": "health",
+    decade_forecast: "decade_forecast", "대운": "decade_forecast", "10년운": "decade_forecast",
+    "십년운세": "decade_forecast", "10년 운세": "decade_forecast",
+    "大運": "decade_forecast", "十年運勢": "decade_forecast",
+    monthly_energy: "monthly_energy", "월별운세": "monthly_energy", "월간에너지": "monthly_energy",
+    "월별 운세": "monthly_energy", "月間運勢": "monthly_energy", "月間エネルギー": "monthly_energy",
+    hidden_talent: "hidden_talent", "숨겨진재능": "hidden_talent", "숨겨진 재능": "hidden_talent",
+    "隠れた才能": "hidden_talent", "隠された才能": "hidden_talent",
   };
   const normalized: any = {};
   for (const [key, value] of Object.entries(obj)) {
@@ -145,6 +144,42 @@ function parseJSON(raw: string): any {
     normalized[mapped] = value;
   }
   return normalized;
+}
+
+// ═══ GENERATE ONE PART — call AI + parse, with parse-failure retry ═══
+async function generatePart(
+  promptFn: () => string,
+  label: string,
+  locale: string,
+  expectedKeys: string[]
+): Promise<Record<string, string> | null> {
+  // Attempt 1
+  try {
+    const raw = await callAIRobust(promptFn(), label, locale);
+    const parsed = parseJSON(raw);
+    // Verify expected keys exist
+    const hasKeys = expectedKeys.every((k) => parsed[k] && typeof parsed[k] === "string" && parsed[k].length > 50);
+    if (hasKeys) return parsed;
+    console.warn(`[${label}] parsed but missing keys. Got: ${Object.keys(parsed).join(",")}`);
+  } catch (err) {
+    console.warn(`[${label}] attempt 1 failed:`, err instanceof Error ? err.message : err);
+  }
+
+  // Attempt 2 — parse failed or keys missing, try once more
+  await new Promise((r) => setTimeout(r, 2000));
+  try {
+    const raw = await callAIRobust(promptFn(), label + "-retry", locale);
+    const parsed = parseJSON(raw);
+    const hasKeys = expectedKeys.every((k) => parsed[k] && typeof parsed[k] === "string" && parsed[k].length > 50);
+    if (hasKeys) return parsed;
+    // Accept even with short content
+    const hasAnyKeys = expectedKeys.some((k) => parsed[k]);
+    if (hasAnyKeys) return parsed;
+  } catch (err) {
+    console.warn(`[${label}] attempt 2 failed:`, err instanceof Error ? err.message : err);
+  }
+
+  return null; // This part completely failed
 }
 
 export async function POST(request: NextRequest) {
@@ -164,18 +199,17 @@ export async function POST(request: NextRequest) {
     const reading = readings?.[0];
     if (!reading) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    // ═══ SERVER-SIDE LOCALE — detect from existing free reading content ═══
-    // Client locale is unreliable (can be "en" due to hydration timing on payment return)
+    // Server-side locale detection
     const detectedLocale = detectLocaleFromContent(reading.free_reading_personality);
     const locale = detectedLocale || clientLocale;
-    console.log(`[generate-paid] slug=${shareSlug} clientLocale=${clientLocale} detectedLocale=${detectedLocale} finalLocale=${locale}`);
+    console.log(`[generate-paid] slug=${shareSlug} locale=${locale} (detected=${detectedLocale}, client=${clientLocale})`);
 
-    // EN: skip if already generated. KO/JA: always regenerate
+    // Skip if already generated (EN only)
     if (locale === "en" && reading.paid_reading_career) {
       return NextResponse.json({ success: true, alreadyGenerated: true });
     }
 
-    // ═══ PILLAR CACHE — English only ═══
+    // Pillar cache — EN only
     if (locale === "en") {
       try {
         const cacheRes = await fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
@@ -203,36 +237,63 @@ export async function POST(request: NextRequest) {
       } catch { /* cache miss */ }
     }
 
-    // 2. THREE parallel AI calls
+    // 2. Generate 3 parts INDEPENDENTLY — each has its own 5-level fallback + parse retry
     const chartSummary = buildChartSummary(reading);
     const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth() + 1;
-    const forecastYear = currentMonth >= 11 ? currentYear + 1 : currentYear;
 
-    const [raw1, raw2, raw3] = await Promise.all([
-      callAI(buildPaidPromptPart1(chartSummary, locale), "Part1-Career+Love", locale),
-      callAI(buildPaidPromptPart2(chartSummary, currentYear, locale), "Part2-Health+Decade", locale),
-      callAI(buildPaidPromptPart3(chartSummary, locale), "Part3-Monthly+Talent", locale),
+    const [part1, part2, part3] = await Promise.all([
+      generatePart(
+        () => buildPaidPromptPart1(chartSummary, locale),
+        "Part1-Career+Love", locale, ["career", "love"]
+      ),
+      generatePart(
+        () => buildPaidPromptPart2(chartSummary, currentYear, locale),
+        "Part2-Health+Decade", locale, ["health", "decade_forecast"]
+      ),
+      generatePart(
+        () => buildPaidPromptPart3(chartSummary, locale),
+        "Part3-Monthly+Talent", locale, ["monthly_energy", "hidden_talent"]
+      ),
     ]);
 
-    // 3. Parse
-    let part1, part2, part3;
-    try { part1 = parseJSON(raw1); } catch { return NextResponse.json({ error: "Parse error: career/love" }, { status: 500 }); }
-    try { part2 = parseJSON(raw2); } catch { return NextResponse.json({ error: "Parse error: health/decade" }, { status: 500 }); }
-    try { part3 = parseJSON(raw3); } catch { return NextResponse.json({ error: "Parse error: monthly/talent" }, { status: 500 }); }
+    // 3. Check results — save whatever succeeded
+    const patchData: Record<string, string | null> = {
+      paid_reading_career: part1?.career || null,
+      paid_reading_love: part1?.love || null,
+      paid_reading_health: part2?.health || null,
+      paid_reading_decade: part2?.decade_forecast || null,
+      paid_reading_monthly: part3?.monthly_energy || null,
+      paid_reading_hidden_talent: part3?.hidden_talent || null,
+    };
 
-    // 4. Save
+    // Count successes
+    const successCount = Object.values(patchData).filter(Boolean).length;
+    console.log(`[generate-paid] ${successCount}/6 sections generated successfully`);
+
+    if (successCount === 0) {
+      return NextResponse.json({ error: "AI generation failed after multiple retries" }, { status: 500 });
+    }
+
+    // Save whatever we have — even partial results
+    // Only include non-null values in patch
+    const cleanPatch: Record<string, string> = {};
+    for (const [k, v] of Object.entries(patchData)) {
+      if (v) cleanPatch[k] = v;
+    }
+
     const patchRes = await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
       method: "PATCH", headers: dbHeaders,
-      body: JSON.stringify({
-        paid_reading_career: part1.career, paid_reading_love: part1.love,
-        paid_reading_health: part2.health, paid_reading_decade: part2.decade_forecast,
-        paid_reading_monthly: part3.monthly_energy, paid_reading_hidden_talent: part3.hidden_talent,
-      }),
+      body: JSON.stringify(cleanPatch),
     });
     if (!patchRes.ok) return NextResponse.json({ error: "DB save failed" }, { status: 500 });
 
-    return NextResponse.json({ success: true });
+    // Return success with info about what was generated
+    return NextResponse.json({
+      success: true,
+      generated: successCount,
+      total: 6,
+      partial: successCount < 6,
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Server error";
     return NextResponse.json({ error: message }, { status: 500 });
