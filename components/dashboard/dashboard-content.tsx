@@ -25,7 +25,6 @@ import { reconstructChartFromReading, getElementColor } from "@/lib/constants";
 import type { DailyFortune } from "@/lib/daily-fortune";
 import { Button } from "@/components/ui/button";
 import { ConsultationHistory } from "@/components/consultation/consultation-history";
-import { supabase } from "@/lib/supabase-client";
 import { safeGet, safeSet, safeRemove } from "@/lib/safe-storage";
 
 interface SavedReading {
@@ -92,162 +91,110 @@ export function DashboardContent() {
     if (lastChanged === todayLocal) setCanChangeToday(false);
   }, [todayLocal]);
 
-  // Re-fetch readings when tab regains focus or page becomes visible (stale-while-revalidate)
+  // ═══ SERVER API FETCH — bypasses supabase client session hang ═══
+  const fetchDashboardData = async (opts?: { skipCache?: boolean; claimSlugs?: string[]; claimName?: string }) => {
+    if (!user) return;
+    try {
+      const res = await fetch("/api/dashboard/data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          claimCompatSlugs: opts?.claimSlugs,
+          claimCompatName: opts?.claimName,
+        }),
+      });
+      if (!res.ok) return;
+      const { readings, compat } = await res.json();
+
+      if (readings) {
+        setSavedReadings(readings);
+        setReadingsLoaded(true);
+        try { safeSet(`dashboard-readings-${user.id}`, JSON.stringify(readings)); } catch {}
+
+        const currentPrimary = safeGet("primary-reading-id");
+        if (readings.length > 0) {
+          const primaryExists = readings.some((r: SavedReading) => r.id === currentPrimary);
+          if (!currentPrimary || !primaryExists) {
+            const d = readings[0];
+            setPrimaryReadingId(d.id);
+            safeSet("primary-reading-id", d.id);
+            if (!sajuData.chart) saveSajuChart(reconstructChartFromReading(d) as SajuChart);
+          }
+        }
+      }
+
+      if (compat) {
+        setCompatResults(compat);
+        try { safeSet(`dashboard-compat-${user.id}`, JSON.stringify(compat)); } catch {}
+      }
+    } catch {}
+  };
+
+  // Re-fetch when tab regains focus
   useEffect(() => {
     if (!user) return;
-    const refreshAll = () => {
-      supabase
-        .from("readings")
-        .select(READING_COLS)
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(20)
-        .then(({ data }) => {
-          if (data) {
-            setSavedReadings(data);
-            setReadingsLoaded(true);
-            try { safeSet(`dashboard-readings-${user.id}`, JSON.stringify(data)); } catch {}
-          }
-        });
-      supabase
-        .from("compatibility_results")
-        .select("id,person_a_name,person_b_name,person_a_element,person_b_element,overall_score,share_slug,created_at")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(10)
-        .then(({ data }) => {
-          if (data) {
-            setCompatResults(data);
-            try { safeSet(`dashboard-compat-${user.id}`, JSON.stringify(data)); } catch {}
-          }
-        });
-    };
-    const handleFocus = () => refreshAll();
-    const handleVisibility = () => { if (document.visibilityState === "visible") refreshAll(); };
+    const handleFocus = () => fetchDashboardData();
+    const handleVisibility = () => { if (document.visibilityState === "visible") fetchDashboardData(); };
     window.addEventListener("focus", handleFocus);
     document.addEventListener("visibilitychange", handleVisibility);
     return () => {
       window.removeEventListener("focus", handleFocus);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [user]);
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (sajuData.chart) setDailyScore(calculateDailyEnergy(sajuData.chart, new Date()));
   }, [sajuData.chart]);
 
+  // Main data fetch on mount
   useEffect(() => {
     if (!user) return;
-    const fetchReadings = async () => {
-      // Check if dashboard was flagged stale (e.g. after paid content generation)
-      const isStale = safeGet("dashboard-stale") === "true";
-      if (isStale) {
-        // Clear stale flag and skip cache
-        safeRemove("dashboard-stale");
-        safeRemove(`dashboard-readings-${user.id}`);
-        safeRemove(`dashboard-compat-${user.id}`);
-      }
 
-      // Show cached readings instantly while fetching fresh data (skip cache if stale)
-      if (!isStale) {
-        try {
-          const cachedRaw = safeGet(`dashboard-readings-${user.id}`);
-          if (cachedRaw) {
-            const cached = JSON.parse(cachedRaw);
-            if (cached?.length > 0) {
-              setSavedReadings(cached);
-              setReadingsLoaded(true);
-            }
-          }
-        } catch {}
-      }
+    // Check stale flag
+    const isStale = safeGet("dashboard-stale") === "true";
+    if (isStale) {
+      safeRemove("dashboard-stale");
+      safeRemove(`dashboard-readings-${user.id}`);
+      safeRemove(`dashboard-compat-${user.id}`);
+    }
 
-      const { data } = await supabase
-        .from("readings")
-        .select(READING_COLS)
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(20);
-      const readings = data || [];
-      setSavedReadings(readings);
-      setReadingsLoaded(true);
-
-      // Cache for next visit
-      try { safeSet(`dashboard-readings-${user.id}`, JSON.stringify(readings)); } catch {}
-
-      const currentPrimary = safeGet("primary-reading-id");
-      if (readings.length > 0) {
-        const primaryExists = readings.some((r) => r.id === currentPrimary);
-        if (!currentPrimary || !primaryExists) {
-          const d = readings[0];
-          setPrimaryReadingId(d.id);
-          safeSet("primary-reading-id", d.id);
-          if (!sajuData.chart) saveSajuChart(reconstructChartFromReading(d) as SajuChart);
-        }
-      }
-    };
-    fetchReadings();
-  }, [user, claimTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Fetch compatibility results + claim unclaimed ones
-  useEffect(() => {
-    if (!user) return;
-    (async () => {
+    // Show cached data instantly (skip if stale)
+    if (!isStale) {
       try {
-        // Check stale flag for compat too
-        const isStale = safeGet("dashboard-stale") === "true";
-
-        // Show cached compat instantly (skip if stale)
-        if (!isStale) {
-          try {
-            const cachedRaw = safeGet(`dashboard-compat-${user.id}`);
-            if (cachedRaw) {
-              const cached = JSON.parse(cachedRaw);
-              if (cached?.length > 0) setCompatResults(cached);
-            }
-          } catch {}
-        }
-
-        // Claim unclaimed compat results from localStorage
-        const pendingRaw = safeGet("pending-compat-slugs");
-        if (pendingRaw) {
-          try {
-            const pending = JSON.parse(pendingRaw) as string[];
-            for (const slug of pending) {
-              await supabase
-                .from("compatibility_results")
-                .update({ user_id: user.id })
-                .eq("share_slug", slug)
-                .is("user_id", null);
-            }
-            safeSet("pending-compat-slugs", "[]");
-          } catch {}
-        }
-
-        // Backup claim: match compat results by user's chart name (cross-device)
-        if (sajuData.chart?.name) {
-          try {
-            await supabase
-              .from("compatibility_results")
-              .update({ user_id: user.id })
-              .eq("person_a_name", sajuData.chart.name)
-              .is("user_id", null);
-          } catch {}
-        }
-
-        const { data } = await supabase
-          .from("compatibility_results")
-          .select("id,person_a_name,person_b_name,person_a_element,person_b_element,overall_score,share_slug,created_at")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(10);
-        if (data) {
-          setCompatResults(data);
-          try { safeSet(`dashboard-compat-${user.id}`, JSON.stringify(data)); } catch {}
+        const cachedRaw = safeGet(`dashboard-readings-${user.id}`);
+        if (cachedRaw) {
+          const cached = JSON.parse(cachedRaw);
+          if (cached?.length > 0) { setSavedReadings(cached); setReadingsLoaded(true); }
         }
       } catch {}
-    })();
-  }, [user, sajuData.chart?.name]);
+      try {
+        const cachedRaw = safeGet(`dashboard-compat-${user.id}`);
+        if (cachedRaw) {
+          const cached = JSON.parse(cachedRaw);
+          if (cached?.length > 0) setCompatResults(cached);
+        }
+      } catch {}
+    }
+
+    // Prepare claim data
+    let claimSlugs: string[] | undefined;
+    try {
+      const pendingRaw = safeGet("pending-compat-slugs");
+      if (pendingRaw) {
+        claimSlugs = JSON.parse(pendingRaw) as string[];
+        if (claimSlugs.length > 0) safeSet("pending-compat-slugs", "[]");
+        else claimSlugs = undefined;
+      }
+    } catch {}
+
+    fetchDashboardData({
+      skipCache: isStale,
+      claimSlugs,
+      claimName: sajuData.chart?.name || undefined,
+    });
+  }, [user, claimTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setAsMyChart = (readingId: string) => {
     if (primaryReadingId === readingId) return;
