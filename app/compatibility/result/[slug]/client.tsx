@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { t, type Locale } from "@/lib/translations";
-import { supabase } from "@/lib/supabase-client";
 import { ELEMENT_COLORS } from "@/lib/constants";
 
 interface CompatResult {
@@ -97,13 +96,17 @@ export default function CompatibilityResultClient() {
 
   useEffect(() => {
     async function fetchResult() {
-      const { data, error } = await supabase
-        .from("compatibility_results")
-        .select("*")
-        .eq("share_slug", slug)
-        .single();
-      if (error || !data) { setLoading(false); return; }
-      setResult(data as CompatResult);
+      try {
+        const res = await fetch("/api/compatibility/get", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ shareSlug: slug }),
+        });
+        if (!res.ok) { setLoading(false); return; }
+        const json = await res.json();
+        if (!json.result) { setLoading(false); return; }
+        setResult(json.result as CompatResult);
+      } catch {}
       setLoading(false);
     }
     if (slug) fetchResult();
