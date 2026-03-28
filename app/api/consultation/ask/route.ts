@@ -116,6 +116,8 @@ export async function POST(request: NextRequest) {
         return handleCheckCredits(body);
       case "start":
         return handleStart(body);
+      case "poll":
+        return handlePoll(body);
       case "submit-answers":
         return handleSubmitAnswers(body);
       case "get-report":
@@ -140,6 +142,36 @@ async function handleCheckCredits({ userId }: { userId: string }) {
     0
   );
   return NextResponse.json({ remaining });
+}
+
+/* --- Poll Consultation Status (for progressive rendering) --- */
+
+async function handlePoll({ consultationId, userId }: { consultationId?: string; userId: string }) {
+  if (!userId) {
+    return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+  }
+
+  // If consultationId provided, poll specific consultation
+  // Otherwise, find the latest generating consultation for this user
+  let query = consultationId
+    ? `consultations?id=eq.${consultationId}&user_id=eq.${userId}&select=id,status,report_title,report`
+    : `consultations?user_id=eq.${userId}&status=eq.generating&select=id,status,report_title,report&order=created_at.desc&limit=1`;
+
+  const res = await sbFetch(query);
+  const results = await res.json();
+  const consultation = results?.[0];
+
+  if (!consultation) {
+    return NextResponse.json({ status: "none", report: null });
+  }
+  return NextResponse.json({
+    status: consultation.status,
+    consultationId: consultation.id,
+    report: consultation.report ? {
+      title: consultation.report_title || "",
+      content: consultation.report,
+    } : null,
+  });
 }
 
 /* --- Get Saved Report --- */
@@ -286,38 +318,103 @@ async function handleStart({
   });
   const [consultation] = await insertRes.json();
 
-  // 5. Generate report directly — deduct credit only AFTER success
+  // 5. Generate report in 3 PARALLEL parts — progressive save to DB
   try {
-    const report = await generateReport({
-      category,
-      question,
-      birthData: chartData,
-      clarifyingQuestions: null,
-      clarifyingAnswers: null,
-      locale,
-    });
+    const chartSummary = formatChartSummary(chartData);
+    const currentYear = new Date().getFullYear();
+    const currentDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    const langInstr = getLanguageInstruction(locale);
 
-    // Success! Now deduct credit
+    const baseContext = `Category: ${category}\nQuestion: "${question}"\nDate: ${currentDate} (Year: ${currentYear})\n\nQUERENT'S SAJU CHART:\n${chartSummary}`;
+
+    // Part prompts — each generates a section independently
+    const part1System = `You are a master Saju consultant. Generate the OPENING of a consultation report.\n\nYour task: Write a compelling title (as # heading), an opening that acknowledges their question, and a detailed Chart Analysis section showing how their birth chart relates to this question (Day Master, element balance, pillar dynamics).\n\nTarget: 800-1000 words. Start with: # Title\nThen ## sections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI.`;
+
+    const part2System = `You are a master Saju consultant. Generate the MIDDLE SECTIONS of a consultation report.\n\nYour task: Write 3 sections:\n1. ## Current Cycle Reading — what the current year/period means for this area\n2. ## Detailed Guidance — 3-5 specific insights with timing recommendations\n3. ## Favorable and Challenging Periods — specific months or seasons ahead\n\nTarget: 1200-1500 words. Use ## for sections, ### for subsections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI. Reference specific chart elements.`;
+
+    const part3System = `You are a master Saju consultant. Generate the CLOSING SECTIONS of a consultation report.\n\nYour task: Write 2 sections:\n1. ## Elemental Remedies — practical suggestions aligned with their element needs\n2. ## Closing Reflection — empowering summary that ties everything together\n\nTarget: 500-700 words. Use ## for sections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI.`;
+
+    const parts: (string | null)[] = [null, null, null];
+    let reportTitle = "";
+    const consultId = consultation.id;
+
+    // Save accumulated parts to DB
+    const saveProgress = async () => {
+      const combined = parts.filter(Boolean).join("\n\n");
+      if (combined.length < 20) return;
+      // Extract title from part 1
+      if (parts[0] && !reportTitle) {
+        const match = parts[0].match(/^#\s+(.+)/m);
+        reportTitle = match ? match[1].trim() : `${category} Consultation`;
+      }
+      await sbFetch(`consultations?id=eq.${consultId}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          report: combined,
+          report_title: reportTitle || `${category} Consultation`,
+        }),
+      });
+    };
+
+    // Run 3 parts in parallel
+    await Promise.all([
+      callAI(part1System, baseContext).then(async (content) => {
+        parts[0] = content;
+        await saveProgress();
+        console.log(`[consultation] Part1 saved (${content.length} chars)`);
+      }).catch((err) => {
+        console.error("[consultation] Part1 failed:", err);
+      }),
+
+      callAI(part2System, baseContext).then(async (content) => {
+        parts[1] = content;
+        await saveProgress();
+        console.log(`[consultation] Part2 saved (${content.length} chars)`);
+      }).catch((err) => {
+        console.error("[consultation] Part2 failed:", err);
+      }),
+
+      callAI(part3System, baseContext).then(async (content) => {
+        parts[2] = content;
+        await saveProgress();
+        console.log(`[consultation] Part3 saved (${content.length} chars)`);
+      }).catch((err) => {
+        console.error("[consultation] Part3 failed:", err);
+      }),
+    ]);
+
+    // Combine final
+    const finalContent = parts.filter(Boolean).join("\n\n");
+    if (!finalContent || finalContent.length < 100) {
+      throw new Error("All parts failed or too short");
+    }
+
+    if (!reportTitle) {
+      const match = finalContent.match(/^#\s+(.+)/m);
+      reportTitle = match ? match[1].trim() : `${category} Consultation`;
+    }
+
+    // Success! Deduct credit
     await sbFetch(`consultation_credits?id=eq.${creditId}`, {
       method: "PATCH",
       body: JSON.stringify({ used_credits: currentUsed + 1 }),
     });
 
-    // Save report
-    await sbFetch(`consultations?id=eq.${consultation.id}`, {
+    // Save final report
+    await sbFetch(`consultations?id=eq.${consultId}`, {
       method: "PATCH",
       body: JSON.stringify({
-        report_title: report.title,
-        report: report.content,
+        report_title: reportTitle,
+        report: finalContent,
         status: "completed",
         completed_at: new Date().toISOString(),
       }),
     });
 
     return NextResponse.json({
-      consultationId: consultation.id,
+      consultationId: consultId,
       needsClarification: false,
-      report: { title: report.title, content: report.content },
+      report: { title: reportTitle, content: finalContent },
     });
   } catch {
     await sbFetch(`consultations?id=eq.${consultation.id}`, {

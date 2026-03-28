@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -197,6 +197,8 @@ export function ConsultationClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [autoFilled, setAutoFilled] = useState(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [partialReport, setPartialReport] = useState<Report | null>(null);
 
   /* ─── Auto-fill disabled: always start fresh ─── */
   // Users should manually enter birth data each consultation session
@@ -212,6 +214,33 @@ export function ConsultationClient() {
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [step]);
+
+  /* ─── Progressive polling — show partial report while generating ─── */
+  useEffect(() => {
+    if (step !== "generating" || !user) return;
+    // Start polling after 5 seconds (give AI time to start)
+    const startDelay = setTimeout(() => {
+      pollRef.current = setInterval(async () => {
+        try {
+          const res = await fetch("/api/consultation/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "poll", userId: user.id }),
+          });
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data.report && data.report.content && data.report.content.length > 50) {
+            setPartialReport(data.report);
+          }
+        } catch {}
+      }, 3000);
+    }, 5000);
+
+    return () => {
+      clearTimeout(startDelay);
+      if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+    };
+  }, [step, user]);
 
   /* ─── Payment callback ─── */
   useEffect(() => {
@@ -349,6 +378,8 @@ export function ConsultationClient() {
 
       if (data.report) {
         setReport(data.report);
+        setPartialReport(null);
+        if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
         setCredits((c) => Math.max(0, c - 1));
         setStep("report");
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -693,6 +724,43 @@ export function ConsultationClient() {
             animate={{ opacity: 1 }}
           >
             <ConsultationLoader category={category} locale={locale} />
+
+            {/* Progressive preview — show partial report as it generates */}
+            {partialReport && partialReport.content && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6"
+              >
+                <div className="bg-card/50 border border-primary/20 rounded-2xl overflow-hidden">
+                  <div className="px-6 py-3 border-b border-border bg-primary/5 flex items-center gap-2">
+                    <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
+                    <span className="text-xs text-primary font-medium">
+                      {locale === "ko" ? "미리보기 — 생성 중..." : locale === "ja" ? "プレビュー — 生成中..." : "Preview — generating..."}
+                    </span>
+                  </div>
+                  {partialReport.title && (
+                    <div className="px-6 pt-4">
+                      <h2 className="font-serif text-lg font-semibold text-foreground">{partialReport.title}</h2>
+                    </div>
+                  )}
+                  <div className="px-6 py-4">
+                    <div
+                      className="prose prose-invert prose-sm max-w-none
+                        prose-headings:font-serif prose-headings:text-primary prose-headings:font-semibold
+                        prose-h1:text-xl prose-h1:mt-0 prose-h1:mb-4
+                        prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3 prose-h2:pb-1 prose-h2:border-b prose-h2:border-primary/20
+                        prose-h3:text-base prose-h3:mt-5 prose-h3:mb-2 prose-h3:text-primary/80
+                        prose-p:text-foreground/85 prose-p:leading-[1.85] prose-p:mb-4
+                        prose-strong:text-foreground prose-strong:font-semibold
+                        prose-li:text-foreground/85 prose-li:leading-relaxed prose-li:mb-1
+                        prose-ul:my-3 prose-ol:my-3"
+                      dangerouslySetInnerHTML={{ __html: renderMarkdown(partialReport.content) }}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         )}
 
