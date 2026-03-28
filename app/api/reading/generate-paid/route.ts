@@ -5,6 +5,19 @@ import { getSystemInstruction } from "@/lib/prompt-locale";
 // Serverless = 60s on Pro
 export const maxDuration = 60;
 
+// ═══ SERVER-SIDE LOCALE DETECTION ═══
+// Client locale can be wrong (hydration timing, default "en" on page reload)
+// The free reading was already generated in the correct language — detect from it
+function detectLocaleFromContent(text: string | null): string | null {
+  if (!text || text.length < 20) return null;
+  const sample = text.substring(0, 300);
+  // Korean: Hangul syllables
+  if (/[\uAC00-\uD7AF]/.test(sample)) return "ko";
+  // Japanese: Hiragana or Katakana
+  if (/[\u3040-\u309F\u30A0-\u30FF]/.test(sample)) return "ja";
+  return "en";
+}
+
 // ═══ AI ENGINE: Gemini Flash → Pro → Claude Sonnet (paid quality) ═══
 
 async function callGemini(prompt: string, label: string, model = "gemini-2.5-flash", locale = "en"): Promise<string> {
@@ -90,7 +103,6 @@ async function callClaude(prompt: string, label: string): Promise<string> {
 }
 
 async function callAI(prompt: string, label: string, locale = "en"): Promise<string> {
-  // Gemini Flash → Gemini Pro → Claude Sonnet
   try {
     return await callGemini(prompt, label, "gemini-2.5-flash", locale);
   } catch (err) {
@@ -114,7 +126,6 @@ function parseJSON(raw: string): any {
     if (match) obj = JSON.parse(match[0]);
     else throw new Error("No JSON found");
   }
-  // Normalize localized keys
   const keyMap: Record<string, string> = {
     career: "career", "커리어": "career", "직업운": "career", "キャリア": "career", "事業運": "career",
     love: "love", "연애운": "love", "사랑": "love", "恋愛": "love", "恋愛運": "love",
@@ -140,7 +151,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { shareSlug } = body;
-    const locale = body.locale || "en";
+    const clientLocale = body.locale || "en";
     if (!shareSlug) return NextResponse.json({ error: "Missing slug" }, { status: 400 });
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
@@ -153,7 +164,13 @@ export async function POST(request: NextRequest) {
     const reading = readings?.[0];
     if (!reading) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    // EN: skip if already generated. KO/JA: always regenerate (no locale column in DB)
+    // ═══ SERVER-SIDE LOCALE — detect from existing free reading content ═══
+    // Client locale is unreliable (can be "en" due to hydration timing on payment return)
+    const detectedLocale = detectLocaleFromContent(reading.free_reading_personality);
+    const locale = detectedLocale || clientLocale;
+    console.log(`[generate-paid] slug=${shareSlug} clientLocale=${clientLocale} detectedLocale=${detectedLocale} finalLocale=${locale}`);
+
+    // EN: skip if already generated. KO/JA: always regenerate
     if (locale === "en" && reading.paid_reading_career) {
       return NextResponse.json({ success: true, alreadyGenerated: true });
     }
@@ -186,7 +203,7 @@ export async function POST(request: NextRequest) {
       } catch { /* cache miss */ }
     }
 
-    // 2. THREE parallel AI calls — Gemini Flash → Pro → Claude Sonnet fallback
+    // 2. THREE parallel AI calls
     const chartSummary = buildChartSummary(reading);
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth() + 1;

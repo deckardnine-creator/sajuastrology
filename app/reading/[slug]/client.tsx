@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -105,7 +105,8 @@ export default function ReadingPageClient() {
   const [paidGenerationFailed, setPaidGenerationFailed] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [claimed, setClaimed] = useState(false);
-  const isPaidGeneratingRef = useRef(false); // Prevent duplicate generatePaidContent calls
+  const isPaidGeneratingRef = useRef(false);
+  const fetchAttemptedRef = useRef(false);
 
   // ═══ PAYMENT RETURN DETECTION — synchronous, before any useEffect ═══
   const [isPaymentReturn] = useState(() => {
@@ -122,7 +123,6 @@ export default function ReadingPageClient() {
   useEffect(() => {
     const handleFocus = () => { setPaymentLoading(false); };
     window.addEventListener("focus", handleFocus);
-    // Also handle page visibility change (mobile)
     const handleVisibility = () => {
       if (document.visibilityState === "visible") setPaymentLoading(false);
     };
@@ -133,14 +133,13 @@ export default function ReadingPageClient() {
     };
   }, []);
 
-  // Claim reading for logged-in user — only if it's their own (not a shared link)
+  // Claim reading for logged-in user
   useEffect(() => {
     if (!user || !reading || claimed) return;
     if (reading.user_id) {
       setClaimed(reading.user_id === user.id);
       return;
     }
-    // Only claim if reading name matches user's localStorage chart
     try {
       const raw = safeGet("saju-data");
       if (!raw) return;
@@ -177,7 +176,7 @@ export default function ReadingPageClient() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [paidContentLoading]);
 
-  // Re-fetch reading from Supabase — retry until paid content appears (max 6 attempts, 1s interval)
+  // Re-fetch reading from Supabase
   const refreshReading = async () => {
     for (let i = 0; i < 6; i++) {
       if (i > 0) await new Promise((r) => setTimeout(r, 1000));
@@ -191,15 +190,46 @@ export default function ReadingPageClient() {
         return data as ReadingData;
       }
     }
-    // Last attempt — set whatever we have even without paid content
     const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
     if (data) setReading(data as ReadingData);
     return data as ReadingData | null;
   };
 
-  // Generate paid content and update state in-place (no page reload)
+  // Reusable fetch reading function
+  const doFetchReading = useCallback(async () => {
+    const MAX_RETRIES = 4;
+    const RETRY_DELAY = 1200;
+
+    let data: ReadingData | null = null;
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      if (attempt > 0) {
+        await new Promise((r) => setTimeout(r, RETRY_DELAY));
+      }
+      const { data: d, error: fetchError } = await supabase
+        .from("readings")
+        .select("*")
+        .eq("share_slug", slug)
+        .single();
+      if (!fetchError && d) {
+        data = d as ReadingData;
+        break;
+      }
+    }
+
+    if (!data) {
+      setError("Reading not found");
+      setLoading(false);
+      return null;
+    }
+
+    setReading(data);
+    setLoading(false);
+    return data;
+  }, [slug]);
+
+  // Generate paid content
   const generatePaidContent = async () => {
-    if (isPaidGeneratingRef.current) return; // Prevent duplicate calls
+    if (isPaidGeneratingRef.current) return;
     isPaidGeneratingRef.current = true;
     setPaidContentLoading(true);
     setPaidGenerationFailed(false);
@@ -235,7 +265,6 @@ export default function ReadingPageClient() {
       setPaidContentLoading(false);
       isPaidGeneratingRef.current = false;
 
-      // Invalidate dashboard cache so it shows updated readings
       try {
         const userId = user?.id;
         if (userId) {
@@ -243,14 +272,12 @@ export default function ReadingPageClient() {
           safeRemove(`dashboard-compat-${userId}`);
         }
       } catch {}
-      // Signal dashboard to refresh on next visit
       safeSet("dashboard-stale", "true");
 
-      // Wait for React to render paid sections, then scroll
       setTimeout(() => {
         const el = document.getElementById("paid-content");
         if (el) {
-          const yOffset = -80; // Account for navbar
+          const yOffset = -80;
           const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
           window.scrollTo({ top: y, behavior: "smooth" });
         }
@@ -266,57 +293,51 @@ export default function ReadingPageClient() {
 
   // ═══ NORMAL FLOW — fetch reading on mount (skipped for payment returns) ═══
   useEffect(() => {
-    // Payment returns are handled by the payment flow below — skip normal fetch
-    if (isPaymentReturn) return;
+    if (isPaymentReturn || !slug) return;
 
-    async function fetchReading() {
-      const MAX_RETRIES = 2;
-      const RETRY_DELAY = 800;
+    fetchAttemptedRef.current = true;
 
-      let data: ReadingData | null = null;
-      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-        if (attempt > 0) {
-          await new Promise((r) => setTimeout(r, RETRY_DELAY));
-        }
-        const { data: d, error: fetchError } = await supabase
-          .from("readings")
-          .select("*")
-          .eq("share_slug", slug)
-          .single();
-        if (!fetchError && d) {
-          data = d as ReadingData;
-          break;
+    (async () => {
+      const data = await doFetchReading();
+      if (data) {
+        window.scrollTo({ top: 0 });
+        if (data.is_paid && !data.paid_reading_career) {
+          setPaidContentLoading(true);
+          generatePaidContent();
         }
       }
-
-      if (!data) {
-        setError("Reading not found");
-        setLoading(false);
-        return;
-      }
-
-      setReading(data);
-      setLoading(false);
-      window.scrollTo({ top: 0 });
-
-      // Only auto-generate if paid but content missing AND not already generating
-      if (data.is_paid && !data.paid_reading_career) {
-        setPaidContentLoading(true);
-        generatePaidContent();
-      }
-    }
-
-    if (slug) fetchReading();
+    })();
   }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ═══ AUTH RETURN FIX — re-fetch if login just completed while we're stuck loading ═══
+  // After OAuth callback redirect, supabase session may not be ready on first fetch.
+  // When user state appears (auth complete), retry if reading is still null.
+  useEffect(() => {
+    if (!user || reading || !loading || isPaymentReturn || !slug) return;
+    // Only retry if first fetch was already attempted
+    if (!fetchAttemptedRef.current) return;
+
+    const timer = setTimeout(async () => {
+      const data = await doFetchReading();
+      if (data) {
+        window.scrollTo({ top: 0 });
+        if (data.is_paid && !data.paid_reading_career) {
+          setPaidContentLoading(true);
+          generatePaidContent();
+        }
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ═══ PAYMENT RETURN FLOW — single sequential pipeline, no race conditions ═══
   useEffect(() => {
     if (!isPaymentReturn || !slug || !paymentSessionId) return;
 
-    // Clean URL immediately
     window.history.replaceState({}, "", `/reading/${slug}`);
 
-    // Show generation loading immediately so user sees progress, not black screen
+    // Show generation loading immediately
     setPaidContentLoading(true);
     setGenerationStep(0);
 
@@ -326,14 +347,14 @@ export default function ReadingPageClient() {
 
     (async () => {
       try {
-        // Step 1: Verify payment (polls for webhook, up to 10s)
+        // Step 1: Verify payment
         await fetch("/api/payment/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sessionId: paymentSessionId, shareSlug: slug }),
         }).catch(() => {});
 
-        // Step 2: Fetch reading — now is_paid should be true
+        // Step 2: Fetch reading
         let readingData: ReadingData | null = null;
         for (let attempt = 0; attempt < 3; attempt++) {
           if (attempt > 0) await new Promise((r) => setTimeout(r, 1000));
@@ -357,7 +378,6 @@ export default function ReadingPageClient() {
 
         // Step 3: Generate paid content if needed
         if (!readingData.paid_reading_career) {
-          // Already showing generation UI — call API directly (skip generatePaidContent to avoid duplicate stepTimer)
           isPaidGeneratingRef.current = true;
           try {
             const res = await fetch("/api/reading/generate-paid", {
@@ -381,7 +401,6 @@ export default function ReadingPageClient() {
             setPaidContentLoading(false);
             isPaidGeneratingRef.current = false;
 
-            // Signal dashboard stale
             try {
               const userId = user?.id;
               if (userId) {
@@ -407,7 +426,6 @@ export default function ReadingPageClient() {
             isPaidGeneratingRef.current = false;
           }
         } else {
-          // Content already exists — just show it
           clearInterval(stepTimer);
           setPaidContentLoading(false);
           setTimeout(() => {
@@ -422,7 +440,6 @@ export default function ReadingPageClient() {
       } catch (err) {
         clearInterval(stepTimer);
         console.error("Payment flow error:", err);
-        // Fallback: try to load reading normally
         const { data } = await supabase.from("readings").select("*").eq("share_slug", slug).single();
         if (data) {
           setReading(data as ReadingData);
@@ -447,7 +464,6 @@ export default function ReadingPageClient() {
 
   const handleUnlock = async () => {
     if (!reading) return;
-    // Require login before payment (need account to save paid content)
     if (!user) {
       safeSet("auth-return-url", window.location.href);
       openSignInModal();
@@ -470,14 +486,12 @@ export default function ReadingPageClient() {
   };
 
   // ═══ LOADING STATES ═══
-  // Payment return: show generation progress immediately (not skeleton)
   if (loading && isPaymentReturn) {
     return (
       <main className="min-h-screen">
         <Navbar />
         <div className="pt-24 pb-16">
           <div className="mx-auto max-w-3xl px-4 sm:px-6">
-            {/* Show generation progress even before reading is loaded */}
             <div className="mb-8 h-6 w-24 bg-muted/30 rounded animate-pulse" />
             {paidContentLoading && (
               <PaymentReturnProgress generationStep={generationStep} locale={locale} />
@@ -501,7 +515,6 @@ export default function ReadingPageClient() {
         <Navbar />
         <div className="pt-24 pb-16">
           <div className="mx-auto max-w-3xl px-4 sm:px-6">
-            {/* Skeleton header */}
             <div className="mb-8 h-6 w-24 bg-muted/30 rounded animate-pulse" />
             <div className="mb-6 bg-card/80 border border-primary/20 rounded-xl p-4 animate-pulse">
               <div className="h-4 bg-muted/30 rounded w-1/2 mb-2" />
@@ -851,7 +864,6 @@ export default function ReadingPageClient() {
           {!reading.is_paid && (
             <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
               <div className="relative overflow-hidden rounded-2xl border border-border" style={{ minHeight: 280 }}>
-                {/* Blurred preview — compact */}
                 <div className="p-6 blur-sm select-none pointer-events-none">
                   <h2 className="font-serif text-lg font-semibold mb-2">{t("reading.decadeCycle", locale)}</h2>
                   <p className="text-muted-foreground text-sm leading-relaxed">
@@ -862,7 +874,6 @@ export default function ReadingPageClient() {
                     Your unique combination of elements creates a natural affinity for roles that require both vision and execution...
                   </p>
                 </div>
-                {/* Lock overlay */}
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/70 to-background flex items-end justify-center pb-6">
                   <div className="text-center px-4">
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
@@ -901,7 +912,6 @@ export default function ReadingPageClient() {
           {paidContentLoading && (
             <motion.section id="generation-progress" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-10">
               <div className="bg-card/80 backdrop-blur border border-primary/30 rounded-2xl p-6 md:p-10 overflow-hidden relative">
-                {/* Background glow */}
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-primary/10 blur-[100px]" />
                 </div>
@@ -919,7 +929,6 @@ export default function ReadingPageClient() {
                     <p className="text-xs text-muted-foreground">{t("reading.threeScholars", locale)}</p>
                   </div>
 
-                  {/* Progress steps */}
                   <div className="space-y-3 max-w-md mx-auto">
                     {genSteps.map((step, i) => {
                       const isActive = generationStep === i;
@@ -961,7 +970,6 @@ export default function ReadingPageClient() {
                     })}
                   </div>
 
-                  {/* Progress bar */}
                   <div className="mt-6 h-1 bg-muted/30 rounded-full overflow-hidden">
                     <motion.div
                       className="h-full bg-primary rounded-full"
@@ -970,7 +978,6 @@ export default function ReadingPageClient() {
                       transition={{ duration: 0.5 }}
                     />
                   </div>
-                  {/* Do not leave warning */}
                   <div className="mt-4 bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2">
                     <p className="text-[11px] text-amber-400/80 text-center">
                       ⚠️ {t("reading.doNotLeave", locale)}
@@ -1024,7 +1031,7 @@ export default function ReadingPageClient() {
   );
 }
 
-// ═══ Payment Return Progress Component (shown while loading=true && isPaymentReturn) ═══
+// ═══ Payment Return Progress Component ═══
 function PaymentReturnProgress({ generationStep, locale }: { generationStep: number; locale: string }) {
   const genSteps = [
     { icon: "💰", title: t("reading.genStep1", locale), sub: t("reading.genStep1Sub", locale) },
