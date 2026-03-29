@@ -21,6 +21,49 @@ export const metadata: Metadata = {
   },
 }
 
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Rimfactory",
+  url: "https://sajuastrology.com",
+  logo: "https://sajuastrology.com/logo1.png",
+  description: "Astrology-technology company digitizing the world's oldest divination systems with modern AI.",
+  foundingDate: "2025",
+  founder: {
+    "@type": "Person",
+    name: "Chandler Yun",
+    jobTitle: "CEO",
+  },
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "243, 1F, Sindorim Technomart, 97 Saemallo",
+    addressLocality: "Guro-gu",
+    addressRegion: "Seoul",
+    addressCountry: "KR",
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "info@rimfactory.co.kr",
+    telephone: "+82-10-4648-6793",
+    contactType: "customer service",
+  },
+  sameAs: [],
+  knowsAbout: [
+    "Korean Four Pillars (Saju)",
+    "Astrology Technology",
+    "AI-powered divination",
+    "Eastern metaphysics",
+  ],
+}
+
 export default function AboutPage() {
-  return <AboutClient />
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+      <AboutClient />
+    </>
+  )
 }
