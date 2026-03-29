@@ -1,21 +1,18 @@
 // app/api/rag/seed/route.ts
-// ì½”í¼???œë”© API (?í??? admin??
-// POST /api/rag/seed?key=SERVICE_KEY ??corpus-data.json???„ë² ?©í•˜??Supabase???€??// POST /api/rag/seed?key=SERVICE_KEY&batch=3 ???¹ì • ë°°ì¹˜ë¶€???´ì–´?˜ê¸°
-
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { embedBatch } from '@/lib/rag/embedding';
 import corpusData from '@/lib/rag/corpus-data.json';
 
 export const runtime = 'nodejs';
-export const maxDuration = 300; // 5ë¶?(Vercel Serverless)
+export const maxDuration = 300;
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function POST(request: NextRequest) {
   try {
-    // ?¸ì¦: service keyë¥?ì¿¼ë¦¬ ?Œë¼ë¯¸í„°ë¡?    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(request.url);
     const key = searchParams.get('key');
     if (key !== supabaseServiceKey) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -36,13 +33,11 @@ export async function POST(request: NextRequest) {
       const batchNum = Math.floor(i / BATCH_SIZE) + 1;
 
       try {
-        // 1. ë°°ì¹˜ ?„ë² ??(OpenAI)
         const texts = batch.map((c: any) =>
           `${c.source_name_cn} ${c.chapter} ${c.chunk_text_cn}`
         );
         const embeddings = await embedBatch(texts);
 
-        // 2. Supabase upsert
         const rows = batch.map((chunk: any, idx: number) => ({
           chunk_id: chunk.id,
           source: chunk.source,
@@ -72,7 +67,6 @@ export async function POST(request: NextRequest) {
       } catch (batchErr: any) {
         results.push(`Batch ${batchNum}/${totalBatches}: ERROR - ${batchErr.message}`);
         errors += batch.length;
-        // ?¤íŒ¨??ë°°ì¹˜ ë²ˆí˜¸ ?Œë ¤ì£¼ê¸° (?´ì–´?˜ê¸°??
         return NextResponse.json({
           success: false,
           processed,
@@ -83,11 +77,10 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Rate limiting (OpenAI ë¶„ë‹¹ ?œí•œ ë°©ì?)
       await new Promise(r => setTimeout(r, 500));
     }
 
-    // ìµœì¢… ì¹´ìš´??    const { count } = await supabase
+    const { count } = await supabase
       .from('sj_corpus_chunks')
       .select('*', { count: 'exact', head: true });
 
@@ -104,8 +97,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET: ?„ìž¬ ì½”í¼???íƒœ ?•ì¸
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -118,21 +110,19 @@ export async function GET(request: NextRequest) {
       .select('*', { count: 'exact', head: true })
       .not('embedding', 'is', null);
 
-    // ?ŒìŠ¤ë³?ì¹´ìš´??    const { data: sourceCounts } = await supabase
+    const { data: rows } = await supabase
       .from('sj_corpus_chunks')
-      .select('source_name_ko')
-      .then(({ data }) => {
-        const counts: Record<string, number> = {};
-        data?.forEach((row: any) => {
-          counts[row.source_name_ko] = (counts[row.source_name_ko] || 0) + 1;
-        });
-        return { data: counts };
-      });
+      .select('source_name_ko');
+
+    const bySource: Record<string, number> = {};
+    rows?.forEach((row: any) => {
+      bySource[row.source_name_ko] = (bySource[row.source_name_ko] || 0) + 1;
+    });
 
     return NextResponse.json({
       total: totalCount || 0,
       embedded: embeddedCount || 0,
-      bySource: sourceCounts,
+      bySource,
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

@@ -1,5 +1,4 @@
 // lib/rag/vector-search.ts
-// Supabase pgvector ? ì‚¬??ê²€??
 import { createClient } from '@supabase/supabase-js';
 import { embedText } from './embedding';
 
@@ -31,8 +30,6 @@ interface SearchOptions {
   minSimilarity?: number;
 }
 
-/**
- * ?¬ì£¼ ?¹ì„± ê¸°ë°˜ ì½”í¼??ë²¡í„° ê²€?? */
 export async function searchCorpus(
   queryText: string,
   options: SearchOptions = {}
@@ -46,9 +43,8 @@ export async function searchCorpus(
   } = options;
 
   try {
-    // 1. ê²€??ì¿¼ë¦¬ë¥?ë²¡í„°ë¡?ë³€??    const queryEmbedding = await embedText(queryText);
-
-    // 2. Supabase RPCë¡?? ì‚¬??ê²€??    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const queryEmbedding = await embedText(queryText);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
     const { data, error } = await supabase.rpc('match_corpus_chunks', {
       query_embedding: queryEmbedding,
@@ -63,20 +59,17 @@ export async function searchCorpus(
       return [];
     }
 
-    // 3. ìµœì†Œ ? ì‚¬???„í„°ë§?    const filtered = (data as CorpusChunk[]).filter(
+    const filtered = (data as CorpusChunk[]).filter(
       (chunk) => chunk.similarity >= minSimilarity
     );
 
     return filtered;
   } catch (err) {
     console.error('searchCorpus failed:', err);
-    return []; // RAG ?¤íŒ¨ ??ë¹?ë°°ì—´ ??ê¸°ì¡´ ë¦¬ë”© ?•ìƒ ?‘ë™
+    return [];
   }
 }
 
-/**
- * ?ŒìŠ¤ë³?ê²€??(?¹ì • ?ì „?ì„œë§?ê²€??
- */
 export async function searchFromSource(
   queryText: string,
   source: 'dripping_heaven' | 'penetrating_treasure' | 'true_interpretation' | 'ocean_ziping' | 'geju_lunming',
@@ -85,9 +78,6 @@ export async function searchFromSource(
   return searchCorpus(queryText, { topK, filterSource: source });
 }
 
-/**
- * ì²œê°„ ê¸°ë°˜ ê²€??(?¹ì • ì²œê°„ ê´€??ì²?¬ë§?
- */
 export async function searchByStem(
   queryText: string,
   stems: string[],
