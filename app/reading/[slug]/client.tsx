@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ArrowLeft, Lock, Sparkles, Bookmark, Share2, Check, Heart } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
+import { TechBadge } from "@/components/reading/tech-badge";
 import { Button } from "@/components/ui/button";
 import { ELEMENTS, type Element } from "@/lib/saju-calculator";
 import { DAY_MASTER_DISPLAY } from "@/lib/constants";
@@ -1196,6 +1197,9 @@ export default function ReadingPageClient() {
           </motion.section>
 
         </div>
+      </div>
+      <div className="mx-auto max-w-3xl px-4 sm:px-6">
+        <TechBadge locale={locale} />
       </div>
       <Footer />
     </main>

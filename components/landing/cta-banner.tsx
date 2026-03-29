@@ -2,12 +2,15 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
 import { t } from "@/lib/translations"
 
 export function CTABanner() {
   const { locale } = useLanguage()
+
+  const handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
 
   return (
     <section className="relative py-24 overflow-hidden">
@@ -40,15 +43,14 @@ export function CTABanner() {
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground mb-6">
               {t("cta.title", locale)}
             </h2>
-            <Link href="/calculate">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="bg-background text-foreground hover:bg-background/90 font-semibold text-lg px-8"
-              >
-                {t("cta.btn", locale)}
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="bg-background text-foreground hover:bg-background/90 font-semibold text-lg px-8"
+              onClick={handleScrollToTop}
+            >
+              {t("cta.btn", locale)}
+            </Button>
           </div>
         </motion.div>
       </div>
