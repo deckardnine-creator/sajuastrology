@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { calculateSaju } from "@/lib/saju-calculator";
 import { getLanguageInstruction } from "@/lib/prompt-locale";
+import { buildRAGContext } from "@/lib/rag/prompt-injector";
 
 // Node.js runtime for longer timeout (no edge)
 export const maxDuration = 300;
@@ -329,7 +330,51 @@ async function handleStart({
     const currentDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
     const langInstr = getLanguageInstruction(locale);
 
-    const baseContext = `Category: ${category}\nQuestion: "${question}"\nDate: ${currentDate} (Year: ${currentYear})\n\nQUERENT'S SAJU CHART:\n${chartSummary}`;
+    // RAG: Classical corpus search based on querent's saju (fails silently)
+    let ragPrefix = "";
+    let citationMeta: any = null;
+    try {
+      const sajuDataForRAG = {
+        dayStem: chart.pillars.day.stem.zh,
+        dayBranch: chart.pillars.day.branch.zh,
+        monthStem: chart.pillars.month.stem.zh,
+        monthBranch: chart.pillars.month.branch.zh,
+        yearStem: chart.pillars.year.stem.zh,
+        yearBranch: chart.pillars.year.branch.zh,
+        hourStem: chart.pillars.hour.stem.zh,
+        hourBranch: chart.pillars.hour.branch.zh,
+        dominantElement: chart.dominantElement,
+        weakElement: chart.weakestElement,
+      };
+      const ragContext = await buildRAGContext(
+        sajuDataForRAG, 'consultation', (locale as 'ko' | 'en' | 'ja')
+      );
+      ragPrefix = ragContext.contextText || "";
+      if (ragContext.citations && ragContext.citations.length > 0) {
+        citationMeta = {
+          totalCorpusSize: 562,
+          sourceCount: new Set(ragContext.citations.map((c: any) => c.source_name_ko)).size,
+          matchCount: ragContext.citations.length,
+          topSimilarity: Math.round(Math.max(...ragContext.citations.map((c: any) => c.similarity)) * 1000) / 1000,
+          queryDimensions: 1536,
+          dayMaster: chart.pillars.day.stem.zh,
+          monthBranch: chart.pillars.month.branch.zh,
+          citations: ragContext.citations.map((c: any) => ({
+            source: '',
+            source_name_ko: c.source_name_ko,
+            source_name_cn: c.source_name_cn,
+            chapter: c.chapter,
+            excerpt: c.excerpt,
+            similarity: Math.round(c.similarity * 1000) / 1000,
+          })),
+        };
+      }
+    } catch (ragErr) {
+      console.warn("[consultation] RAG context failed (continuing without):", ragErr);
+      ragPrefix = "";
+    }
+
+    const baseContext = `${ragPrefix}Category: ${category}\nQuestion: "${question}"\nDate: ${currentDate} (Year: ${currentYear})\n\nQUERENT'S SAJU CHART:\n${chartSummary}`;
 
     // Part prompts — each generates a section independently
     const part1System = `You are a master Saju consultant. Generate the OPENING of a consultation report.\n\nYour task: Write a compelling title (as # heading), an opening that acknowledges their question, and a detailed Chart Analysis section showing how their birth chart relates to this question (Day Master, element balance, pillar dynamics).\n\nTarget: 800-1000 words. Start with: # Title\nThen ## sections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI.`;
@@ -409,6 +454,7 @@ async function handleStart({
         report: finalContent,
         status: "completed",
         completed_at: new Date().toISOString(),
+        ...(citationMeta ? { citation_meta: citationMeta } : {}),
       }),
     });
 

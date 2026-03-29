@@ -273,6 +273,7 @@ export async function POST(request: NextRequest) {
 
     // RAG: 사주 특성 기반 고전 원전 검색 (실패 시 빈 컨텍스트 → 기존과 동일)
     let ragPrefix = "";
+    let citationMeta: any = null;
     try {
       const sajuDataForRAG = {
         dayStem: reading.day_stem,
@@ -290,6 +291,29 @@ export async function POST(request: NextRequest) {
         sajuDataForRAG, 'paid', (locale as 'ko' | 'en' | 'ja')
       );
       ragPrefix = ragContext.contextText || "";
+
+      // Build citation metadata for frontend UI
+      if (ragContext.citations && ragContext.citations.length > 0) {
+        citationMeta = {
+          totalCorpusSize: 562,
+          sourceCount: new Set(ragContext.citations.map((c: any) => c.source_name_ko)).size,
+          matchCount: ragContext.citations.length,
+          topSimilarity: Math.round(Math.max(...ragContext.citations.map((c: any) => c.similarity)) * 1000) / 1000,
+          queryDimensions: 1536,
+          dayMaster: reading.day_stem,
+          monthBranch: reading.month_branch,
+          citations: ragContext.citations.map((c: any) => ({
+            source: '',
+            source_name_ko: c.source_name_ko,
+            source_name_cn: c.source_name_cn,
+            chapter: c.chapter,
+            excerpt: c.excerpt,
+            similarity: Math.round(c.similarity * 1000) / 1000,
+          })),
+        };
+        // Save citation metadata to DB immediately (before parallel generation)
+        await patchDB(supabaseUrl, dbHeaders, shareSlug, { citation_meta: citationMeta } as any);
+      }
     } catch (ragErr) {
       console.warn("RAG context failed (continuing without):", ragErr);
       ragPrefix = "";

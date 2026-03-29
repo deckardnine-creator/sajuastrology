@@ -8,6 +8,7 @@ import {
   buildPaidCompatPrompt2,
   buildPaidCompatPrompt3,
 } from "@/lib/compatibility-prompts";
+import { buildRAGContext } from "@/lib/rag/prompt-injector";
 
 export const maxDuration = 120;
 
@@ -234,12 +235,56 @@ export async function POST(request: NextRequest) {
     const chartB = calculateSaju(personB.name, personB.gender, dateB, hourB, personB.birthCity);
     const scores = calculateCompatibility(chartA, chartB);
 
+    // ═══ RAG: Classical corpus search based on Person A's saju ═══
+    let ragPrefix = "";
+    let citationMeta: any = null;
+    try {
+      const sajuDataForRAG = {
+        dayStem: chartA.pillars.day.stem.zh,
+        dayBranch: chartA.pillars.day.branch.zh,
+        monthStem: chartA.pillars.month.stem.zh,
+        monthBranch: chartA.pillars.month.branch.zh,
+        yearStem: chartA.pillars.year.stem.zh,
+        yearBranch: chartA.pillars.year.branch.zh,
+        hourStem: chartA.pillars.hour.stem.zh,
+        hourBranch: chartA.pillars.hour.branch.zh,
+        dominantElement: chartA.dominantElement,
+        weakElement: chartA.weakestElement,
+      };
+      const ragContext = await buildRAGContext(
+        sajuDataForRAG, 'compatibility', (locale as 'ko' | 'en' | 'ja')
+      );
+      ragPrefix = ragContext.contextText || "";
+      if (ragContext.citations && ragContext.citations.length > 0) {
+        citationMeta = {
+          totalCorpusSize: 562,
+          sourceCount: new Set(ragContext.citations.map((c: any) => c.source_name_ko)).size,
+          matchCount: ragContext.citations.length,
+          topSimilarity: Math.round(Math.max(...ragContext.citations.map((c: any) => c.similarity)) * 1000) / 1000,
+          queryDimensions: 1536,
+          dayMaster: chartA.pillars.day.stem.zh,
+          monthBranch: chartA.pillars.month.branch.zh,
+          citations: ragContext.citations.map((c: any) => ({
+            source: '',
+            source_name_ko: c.source_name_ko,
+            source_name_cn: c.source_name_cn,
+            chapter: c.chapter,
+            excerpt: c.excerpt,
+            similarity: Math.round(c.similarity * 1000) / 1000,
+          })),
+        };
+      }
+    } catch (ragErr) {
+      console.warn("[compat] RAG context failed (continuing without):", ragErr);
+      ragPrefix = "";
+    }
+
     // ═══ GENERATE ALL CONTENT — Gemini Pro → Claude fallback ═══
     const [freeRaw, raw1, raw2, raw3] = await Promise.all([
-      callAI(buildFreeCompatibilityPrompt(scores, locale), "FreeSummary", locale),
-      callAI(buildPaidCompatPrompt1(scores, locale), "Paid-Love+Work", locale),
-      callAI(buildPaidCompatPrompt2(scores, locale), "Paid-Friend+Conflict", locale),
-      callAI(buildPaidCompatPrompt3(scores, locale), "Paid-Yearly", locale),
+      callAI(ragPrefix + buildFreeCompatibilityPrompt(scores, locale), "FreeSummary", locale),
+      callAI(ragPrefix + buildPaidCompatPrompt1(scores, locale), "Paid-Love+Work", locale),
+      callAI(ragPrefix + buildPaidCompatPrompt2(scores, locale), "Paid-Friend+Conflict", locale),
+      callAI(ragPrefix + buildPaidCompatPrompt3(scores, locale), "Paid-Yearly", locale),
     ]);
 
     let freeSummary: string;
@@ -323,6 +368,10 @@ export async function POST(request: NextRequest) {
       insertBody.paid_friendship = paidData.friendship;
       insertBody.paid_conflict = paidData.conflict;
       insertBody.paid_yearly = paidData.yearly;
+    }
+
+    if (citationMeta) {
+      insertBody.citation_meta = citationMeta;
     }
 
     await fetch(`${supabaseUrl}/rest/v1/compatibility_results`, {
