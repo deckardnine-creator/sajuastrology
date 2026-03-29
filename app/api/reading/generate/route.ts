@@ -8,7 +8,6 @@ import type { SajuChart } from "@/lib/saju-calculator";
 export const maxDuration = 60;
 
 // ═══ AI ENGINE: Gemini Pro → Claude Sonnet → Claude Haiku ═══
-
 async function callGemini(prompt: string, model = "gemini-2.5-flash", locale = "en"): Promise<string> {
   const apiKey = process.env.GOOGLE_AI_API_KEY || "";
   if (!apiKey) throw new Error("Gemini not configured");
@@ -104,7 +103,7 @@ async function generateWithFallback(prompt: string, locale = "en"): Promise<stri
       const result = await engines[i].fn();
       if (result) return result;
     } catch (err) {
-      console.warn(`Free reading: ${engines[i].name} failed —`, err instanceof Error ? err.message : err);
+      console.warn(`Free reading: ${engines[i].name} failed`, err instanceof Error ? err.message : err);
       if (i === engines.length - 1) throw err;
     }
   }
@@ -190,8 +189,8 @@ export async function POST(request: NextRequest) {
 
     // ═══ GENERATE — with RAG injection ═══
     const basePrompt = buildFreeReadingPrompt(chart, locale);
-    
-    // RAG: 사주 특성을 기반으로 고전 원전 검색 후 프롬프트에 주입
+
+    // RAG: 사주 특성을 기준으로 고전 원전 검색 → 프롬프트에 주입
     // 실패 시 basePrompt 그대로 사용 (폴백)
     const sajuDataForRAG = {
       dayStem: ds,
@@ -205,20 +204,39 @@ export async function POST(request: NextRequest) {
       dominantElement: chart.dominantElement,
       weakElement: chart.weakestElement,
     };
-    const { prompt } = await injectRAGIntoPrompt(
+    const { prompt, citations: ragCitations } = await injectRAGIntoPrompt(
       basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja'
     );
+
+    // Build citation metadata for frontend UI
+    const citationMeta = ragCitations && ragCitations.length > 0 ? {
+      totalCorpusSize: 562,
+      sourceCount: new Set(ragCitations.map((c: any) => c.source_name_ko)).size,
+      matchCount: ragCitations.length,
+      topSimilarity: Math.round(Math.max(...ragCitations.map((c: any) => c.similarity)) * 1000) / 1000,
+      queryDimensions: 1536,
+      dayMaster: ds,
+      monthBranch: mb,
+      citations: ragCitations.map((c: any) => ({
+        source: '',
+        source_name_ko: c.source_name_ko,
+        source_name_cn: c.source_name_cn,
+        chapter: c.chapter,
+        excerpt: c.excerpt,
+        similarity: Math.round(c.similarity * 1000) / 1000,
+      })),
+    } : null;
 
     const rawText = await generateWithFallback(prompt, locale);
 
     // ═══ Normalize keys: Gemini may localize JSON keys in KO/JA ═══
     function normalizeReadingKeys(obj: any): { personality: string; year_forecast: string; element_guidance: string } {
       const keyMap: Record<string, string> = {
-        personality: "personality", "성격": "personality", "性格": "personality", "パーソナリティ": "personality",
-        year_forecast: "year_forecast", "연간운세": "year_forecast", "연간_운세": "year_forecast", "올해운세": "year_forecast",
-        "年間運勢": "year_forecast", "年間予測": "year_forecast", "年运": "year_forecast",
-        element_guidance: "element_guidance", "오행조언": "element_guidance", "오행_조언": "element_guidance", "오행가이드": "element_guidance",
-        "五行アドバイス": "element_guidance", "元素ガイダンス": "element_guidance", "五行指导": "element_guidance",
+        personality: "personality", "\uC131\uACA9": "personality", "\u6027\u683C": "personality", "\u30D1\u30FC\u30BD\u30CA\u30EA\u30C6\u30A3": "personality",
+        year_forecast: "year_forecast", "\uC62C\uD574\uC6B4\uC138": "year_forecast", "\uC62C\uD574_\uC6B4\uC138": "year_forecast", "\uB144\uD574\uC6B4\uC138": "year_forecast",
+        "\u4ECA\u5E74\u306E\u904B\u52E2": "year_forecast", "\u4ECA\u5E74\u904B\u52E2": "year_forecast", "\u4ECA\u5E74\u904B": "year_forecast",
+        element_guidance: "element_guidance", "\uC624\uD589\uC870\uC5B8": "element_guidance", "\uC624\uD589_\uC870\uC5B8": "element_guidance", "\uC624\uD589\uAC00\uC774\uB4DC": "element_guidance",
+        "\u4E94\u884C\u30A2\u30C9\u30D0\u30A4\u30B9": "element_guidance", "\u30A8\u30EC\u30E1\u30F3\u30C8\u30AC\u30A4\u30C0\u30F3\u30B9": "element_guidance", "\u4E94\u884C\u6307\u5357": "element_guidance",
       };
       const normalized: any = {};
       for (const [key, value] of Object.entries(obj)) {
@@ -268,6 +286,7 @@ export async function POST(request: NextRequest) {
         free_reading_personality: aiReading.personality, free_reading_year: aiReading.year_forecast,
         free_reading_element: aiReading.element_guidance, share_slug: shareSlug, is_paid: false,
         ...(userId ? { user_id: userId } : {}),
+        ...(citationMeta ? { citation_meta: citationMeta } : {}),
       }),
     });
 

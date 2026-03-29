@@ -14,6 +14,7 @@ import { DAY_MASTER_DISPLAY } from "@/lib/constants";
 import { GoogleIcon } from "@/components/ui/google-icon";
 import { useAuth } from "@/lib/auth-context";
 import { safeGet, safeSet, safeRemove } from "@/lib/safe-storage";
+import { CitationBanner, CitationCards, CitationMethodology, type CitationMeta } from "@/components/reading/citation-display";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
 
@@ -77,6 +78,7 @@ interface ReadingData {
   share_slug: string;
   created_at: string;
   user_id: string | null;
+  citation_meta: CitationMeta | null;
 }
 
 const ELEMENT_COLORS: Record<string, string> = {
@@ -786,6 +788,13 @@ export default function ReadingPageClient() {
             </div>
           </motion.section>
 
+          {/* Classical Corpus Analysis Banner */}
+          {reading.citation_meta && (
+            <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="mb-6">
+              <CitationBanner citationMeta={reading.citation_meta} locale={locale} />
+            </motion.section>
+          )}
+
           {/* AI Personality Reading */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mb-10">
             <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
@@ -803,6 +812,13 @@ export default function ReadingPageClient() {
               </div>
             </div>
           </motion.section>
+
+          {/* Classical Citation Cards */}
+          {reading.citation_meta && (
+            <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+              <CitationCards citationMeta={reading.citation_meta} locale={locale} />
+            </motion.section>
+          )}
 
           {/* Five Elements Balance */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-10">
@@ -858,6 +874,13 @@ export default function ReadingPageClient() {
               </p>
             </div>
           </motion.section>
+
+          {/* Analysis Methodology */}
+          {reading.citation_meta && (
+            <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }} className="mb-10">
+              <CitationMethodology citationMeta={reading.citation_meta} locale={locale} />
+            </motion.section>
+          )}
 
           {/* Compatibility CTA */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }} className="mb-10">
