@@ -1,11 +1,10 @@
 // lib/rag/vector-search.ts
-// Supabase pgvector 유사도 검색
-
+// Supabase pgvector ?�사??검??
 import { createClient } from '@supabase/supabase-js';
 import { embedText } from './embedding';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 interface CorpusChunk {
   id: string;
@@ -33,8 +32,7 @@ interface SearchOptions {
 }
 
 /**
- * 사주 특성 기반 코퍼스 벡터 검색
- */
+ * ?�주 ?�성 기반 코퍼??벡터 검?? */
 export async function searchCorpus(
   queryText: string,
   options: SearchOptions = {}
@@ -48,11 +46,9 @@ export async function searchCorpus(
   } = options;
 
   try {
-    // 1. 검색 쿼리를 벡터로 변환
-    const queryEmbedding = await embedText(queryText);
+    // 1. 검??쿼리�?벡터�?변??    const queryEmbedding = await embedText(queryText);
 
-    // 2. Supabase RPC로 유사도 검색
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // 2. Supabase RPC�??�사??검??    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
     const { data, error } = await supabase.rpc('match_corpus_chunks', {
       query_embedding: queryEmbedding,
@@ -67,20 +63,19 @@ export async function searchCorpus(
       return [];
     }
 
-    // 3. 최소 유사도 필터링
-    const filtered = (data as CorpusChunk[]).filter(
+    // 3. 최소 ?�사???�터�?    const filtered = (data as CorpusChunk[]).filter(
       (chunk) => chunk.similarity >= minSimilarity
     );
 
     return filtered;
   } catch (err) {
     console.error('searchCorpus failed:', err);
-    return []; // RAG 실패 시 빈 배열 → 기존 리딩 정상 작동
+    return []; // RAG ?�패 ??�?배열 ??기존 리딩 ?�상 ?�동
   }
 }
 
 /**
- * 소스별 검색 (특정 원전에서만 검색)
+ * ?�스�?검??(?�정 ?�전?�서�?검??
  */
 export async function searchFromSource(
   queryText: string,
@@ -91,7 +86,7 @@ export async function searchFromSource(
 }
 
 /**
- * 천간 기반 검색 (특정 천간 관련 청크만)
+ * 천간 기반 검??(?�정 천간 관??�?���?
  */
 export async function searchByStem(
   queryText: string,
