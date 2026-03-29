@@ -182,6 +182,11 @@ export default function CalculatePage() {
   const apiErrorRef = useRef<string | null>(null);
   const animDoneRef = useRef(false);
 
+  // Scroll to top on page mount (fixes mobile CTA navigation)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+  }, []);
+
   const tryNavigate = useCallback(() => {
     if (shareSlugRef.current && (animDoneRef.current || apiDoneRef.current)) {
       router.push(`/reading/${shareSlugRef.current}`);

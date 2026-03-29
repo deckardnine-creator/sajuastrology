@@ -10,27 +10,27 @@ import { ArrowRight, Brain, Shield, TrendingUp, Globe, Zap, Database } from "luc
 const content = {
   badge: { en: "About Rimfactory", ko: "Rimfactory 소개", ja: "Rimfactoryについて" },
   headline: {
-    en: "Astrology Meets Science.",
-    ko: "점성술, 과학을 만나다.",
-    ja: "占星術、科学と出会う。",
+    en: "Ancient Wisdom. Modern Intelligence.",
+    ko: "고전의 지혜. 현대의 지능.",
+    ja: "古典の知恵。現代の知能。",
   },
   subhead: {
-    en: "Rimfactory is an astrology-technology company that digitizes the world's oldest divination systems with modern AI — starting with Korean Four Pillars (사주).",
-    ko: "Rimfactory는 세계에서 가장 오래된 점술 체계를 최첨단 AI로 디지털화하는 점성술 테크 기업입니다. 한국 사주(四柱)에서 시작합니다.",
-    ja: "Rimfactoryは、世界最古の占術体系を最先端AIでデジタル化する占星術テック企業です。韓国の四柱推命から始めます。",
+    en: "Rimfactory is an astrology-technology company that applies vector search, retrieval-augmented generation, and multi-model AI validation to the world's oldest divination systems — starting with Korean Four Pillars (사주).",
+    ko: "Rimfactory는 벡터 검색, 검색 증강 생성(RAG), 멀티 모델 AI 교차 검증을 세계에서 가장 오래된 점술 체계에 적용하는 점성술 테크 기업입니다. 한국 사주(四柱)에서 시작합니다.",
+    ja: "Rimfactoryは、ベクトル検索、RAG（検索拡張生成）、マルチモデルAI交差検証を世界最古の占術体系に適用する占星術テック企業です。韓国の四柱推命から始めます。",
   },
 
   // Vision
   visionBadge: { en: "OUR VISION", ko: "비전", ja: "ビジョン" },
   visionTitle: {
-    en: "Scientifying Global Astrology",
+    en: "Computational Astrology at Scale",
     ko: "전 세계 점성술의 과학화",
-    ja: "世界の占星術を科学する",
+    ja: "世界の占星術をコンピュテーショナルに",
   },
   visionDesc: {
-    en: "In an age of uncertainty, billions seek guidance from astrology. But most services offer surface-level readings based on crude categorizations. We believe ancient wisdom deserves modern precision. Rimfactory bridges millennia of Eastern philosophy with cutting-edge AI to deliver deeply personalized, trustworthy insights.",
-    ko: "불안한 시대, 수십억 명이 점성술에서 답을 찾습니다. 그러나 대부분의 서비스는 조잡한 분류에 기반한 피상적 결과를 제공합니다. 수천 년의 지혜는 현대적 정밀함을 만날 자격이 있습니다. Rimfactory는 동양 철학과 최첨단 AI를 결합해 깊이 있는 맞춤 분석을 제공합니다.",
-    ja: "不安な時代、数十億の人々が占星術に答えを求めています。しかし多くのサービスは粗い分類に基づく表面的な結果です。数千年の知恵は現代の精度で語られるべきです。Rimfactoryは東洋哲学と最先端AIを融合し、深くパーソナライズされた分析を提供します。",
+    en: "In an age of uncertainty, billions seek guidance from astrology. But most services offer surface-level readings based on crude categorizations. We believe millennia of accumulated pattern recognition deserves rigorous computational analysis. Rimfactory bridges 2,000+ years of Eastern metaphysical theory with retrieval-augmented AI — every reading grounded in classical source texts, every claim verifiable.",
+    ko: "불안한 시대, 수십억 명이 점성술에서 답을 찾습니다. 그러나 대부분의 서비스는 조잡한 분류에 기반한 피상적 결과를 제공합니다. 수천 년간 축적된 패턴 인식은 엄밀한 연산 분석을 받을 자격이 있습니다. Rimfactory는 2,000년 이상의 동양 명리학을 검색 증강 AI와 결합 — 모든 리딩은 고전 원전에 근거하고, 모든 판단은 검증 가능합니다.",
+    ja: "不安な時代、数十億の人々が占星術に答えを求めています。しかし多くのサービスは粗い分類に基づく表面的な結果です。数千年蓄積されたパターン認識は厳密な計算分析に値します。Rimfactoryは2,000年以上の東洋命理学を検索拡張AIと融合 — すべての鑑定は古典原典に根拠を持ち、すべての判断は検証可能です。",
   },
 
   // Products
@@ -43,9 +43,9 @@ const content = {
   product1Title: { en: "SajuAstrology.com", ko: "SajuAstrology.com", ja: "SajuAstrology.com" },
   product1Badge: { en: "LIVE", ko: "서비스 중", ja: "サービス中" },
   product1Desc: {
-    en: "AI-powered Korean Four Pillars reading service. 518,400 unique cosmic profiles, dual AI verification, three-tier pricing (Free / $9.99 / $29.99), and full EN/KO/JA localization. Targeting English-speaking Western users, Japanese users, and K-culture fans globally.",
-    ko: "AI 기반 한국 사주 리딩 서비스. 518,400가지 고유 프로필, 이중 AI 검증, 3단계 요금제 (무료/$9.99/$29.99), EN/KO/JA 완전 현지화. 영어권 서양 사용자, 일본 사용자, K-컬처 팬 글로벌 타겟.",
-    ja: "AI搭載韓国四柱推命サービス。518,400通りの固有プロフィール、デュアルAI検証、3段階料金（無料/$9.99/$29.99）、EN/KO/JA完全ローカライズ。英語圏・日本・K-cultureファンをグローバルにターゲット。",
+    en: "AI-powered Korean Four Pillars reading service. 518,400 unique cosmic profiles, RAG engine analyzing 562 classical passages per reading, multi-LLM verification, three-tier pricing (Free / $9.99 / $29.99), full EN/KO/JA localization.",
+    ko: "AI 기반 한국 사주 리딩 서비스. 518,400가지 고유 프로필, 562개 고전 패시지 실시간 RAG 분석, 멀티 LLM 교차 검증, 3단계 요금제 (무료/$9.99/$29.99), EN/KO/JA 완전 현지화.",
+    ja: "AI搭載韓国四柱推命サービス。518,400通りの固有プロフィール、562古典パッセージのリアルタイムRAG分析、マルチLLMクロス検証、3段階料金（無料/$9.99/$29.99）、EN/KO/JA完全ローカライズ。",
   },
   product2Title: { en: "ggmate.me", ko: "ggmate.me", ja: "ggmate.me" },
   product2Badge: { en: "IN DEVELOPMENT", ko: "개발 중", ja: "開発中" },
@@ -63,23 +63,23 @@ const content = {
     ja: "なぜ追いつけないのか",
   },
 
-  moat1Title: { en: "Classical Theory Corpus", ko: "사주 이론 코퍼스", ja: "古典理論コーパス" },
+  moat1Title: { en: "Classical Theory RAG Engine", ko: "고전 이론 RAG 엔진", ja: "古典理論RAGエンジン" },
   moat1Desc: {
-    en: "Thousands of years of Eastern metaphysics, structured and vectorized into our LLM pipeline. Not a simple API wrapper — a domain-specialized AI architecture.",
-    ko: "수천 년간 축적된 동양 명리학 원전을 구조화·벡터화하여 LLM 파이프라인에 주입. 단순 API 래퍼가 아닌 도메인 특화 AI 아키텍처.",
-    ja: "数千年の東洋命理学をLLMパイプラインに構造化・ベクトル化。単なるAPIラッパーではないドメイン特化AIアーキテクチャ。",
+    en: "562 passages from 5 foundational texts (滴天髓, 穷通宝鉴, 子平真诠, 渊海子平, 格局论命) — vectorized into 1,536-dimensional embeddings and matched to each user's birth chart in real time via cosine similarity search. Not a lookup table — a live retrieval-augmented generation pipeline.",
+    ko: "적천수·궁통보감·자평진전·연해자평·격국론명 5대 원전에서 추출한 562개 패시지를 1,536차원 벡터로 임베딩, 사용자의 사주에 실시간 코사인 유사도 매칭. 단순 검색이 아닌 RAG(검색 증강 생성) 파이프라인.",
+    ja: "滴天髓・穹通宝鑑・子平真詮・淵海子平・格局論命の5大原典から562パッセージを1,536次元ベクトルに埋め込み、ユーザーの四柱にリアルタイムでコサイン類似度マッチング。単なる検索ではないRAGパイプライン。",
   },
-  moat2Title: { en: "Multi-LLM Pipeline", ko: "멀티 LLM 파이프라인", ja: "マルチLLMパイプライン" },
+  moat2Title: { en: "RAG + Multi-LLM Pipeline", ko: "RAG + 멀티 LLM 파이프라인", ja: "RAG + マルチLLMパイプライン" },
   moat2Desc: {
-    en: "Gemini (interpretation) + Claude (verification), 5-stage fallback chain achieving 99.9% response reliability. Cross-model validation ensures accuracy no single AI can match.",
-    ko: "Gemini(해석) + Claude(검증) 이중 엔진, 5단계 폴백으로 99.9% 응답 안정성. 교차 검증으로 단일 AI가 도달할 수 없는 정확도.",
-    ja: "Gemini（解釈）+ Claude（検証）デュアルエンジン、5段階フォールバックで99.9%の応答安定性。クロス検証で単一AIでは到達できない精度。",
+    en: "Classical passages injected into prompts via vector search → Gemini (interpretation) + Claude (verification), 5-stage fallback achieving 99.9% uptime. Each reading cites specific classical sources with similarity scores — verifiable, not hallucinated.",
+    ko: "벡터 검색으로 고전 구절을 프롬프트에 주입 → Gemini(해석) + Claude(검증) 5단계 폴백으로 99.9% 가동률. 모든 리딩에 고전 원전명과 유사도 점수가 명시 — 검증 가능한 근거 기반.",
+    ja: "ベクトル検索で古典をプロンプトに注入 → Gemini（解釈）+ Claude（検証）5段階フォールバックで99.9%稼働率。各鑑定に原典名と類似度スコアを明示 — 検証可能な根拠ベース。",
   },
-  moat3Title: { en: "Prompt Engineering", ko: "프롬프트 엔지니어링", ja: "プロンプトエンジニアリング" },
+  moat3Title: { en: "Domain-Specialized Architecture", ko: "도메인 특화 아키텍처", ja: "ドメイン特化アーキテクチャ" },
   moat3Desc: {
-    en: "6 months and thousands of iterations refining saju-specialized prompt chains. The result is not reproducible by simply calling an API.",
-    ko: "6개월간 수만 회 최적화한 사주 전문 프롬프트 체인. API 콜만으로는 재현 불가.",
-    ja: "6ヶ月、数千回の反復で最適化した四柱専門プロンプトチェーン。API呼び出しだけでは再現不可。",
+    en: "Purpose-built saju calculation engine (만세력 calendar + solar time correction), custom embedding pipeline, and 6 months of prompt optimization across 3 languages. The stack is not reproducible by calling a generic API.",
+    ko: "만세력 기반 사주 계산 엔진(진태양시 보정), 맞춤 임베딩 파이프라인, 3개 언어 6개월 프롬프트 최적화. 범용 API 호출로는 재현 불가능한 기술 스택.",
+    ja: "万年暦ベース四柱計算エンジン（真太陽時補正）、カスタム埋め込みパイプライン、3言語6ヶ月のプロンプト最適化。汎用APIでは再現不可能な技術スタック。",
   },
   moat4Title: { en: "Data Compound Effect", ko: "데이터 복리 효과", ja: "データ複利効果" },
   moat4Desc: {
@@ -351,10 +351,11 @@ export default function AboutClient() {
           </motion.div>
 
           {/* Key numbers */}
-          <div className="grid grid-cols-3 gap-4 mt-10">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10">
             {[
               { num: "$14B+", label: { en: "Global Astrology Market", ko: "글로벌 점성술 시장", ja: "グローバル占星術市場" } },
-              { num: "518,400", label: { en: "Unique Saju Profiles", ko: "고유 사주 프로필", ja: "固有四柱プロフィール" } },
+              { num: "518K+", label: { en: "Unique Saju Profiles", ko: "고유 사주 프로필", ja: "固有四柱プロフィール" } },
+              { num: "562", label: { en: "Classical Passages Indexed", ko: "고전 원전 패시지", ja: "古典パッセージ" } },
               { num: "3", label: { en: "Languages Supported", ko: "지원 언어", ja: "対応言語" } },
             ].map((stat, i) => (
               <motion.div
@@ -363,10 +364,10 @@ export default function AboutClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="text-center p-4"
+                className="text-center p-3 sm:p-4"
               >
-                <p className="font-serif text-2xl sm:text-3xl font-bold gold-gradient-text">{stat.num}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">{tx(stat.label, l)}</p>
+                <p className="font-serif text-xl sm:text-3xl font-bold gold-gradient-text whitespace-nowrap">{stat.num}</p>
+                <p className="text-[11px] sm:text-sm text-muted-foreground mt-1 leading-tight">{tx(stat.label, l)}</p>
               </motion.div>
             ))}
           </div>

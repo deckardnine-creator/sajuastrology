@@ -3,10 +3,10 @@ import AboutClient from "@/components/about/about-client"
 
 export const metadata: Metadata = {
   title: "About Rimfactory — Astrology Technology Company",
-  description: "Rimfactory is an astrology-technology company digitizing the world's oldest divination systems with AI. Starting with Korean Four Pillars (사주), expanding globally.",
+  description: "Rimfactory applies retrieval-augmented generation (RAG) and multi-model AI to the world's oldest divination systems. 562 classical passages, 518,400 unique profiles, 3 languages.",
   openGraph: {
-    title: "Rimfactory — Astrology Meets Science",
-    description: "Astrology-technology company. AI-powered Korean Four Pillars reading service with 518,400 unique cosmic profiles. Dual AI verification, 3 languages.",
+    title: "Rimfactory — Ancient Wisdom. Modern Intelligence.",
+    description: "Astrology-technology company. RAG-powered Korean Four Pillars reading service with 562 classical passages, 518,400 unique cosmic profiles, multi-LLM verification.",
     url: "https://sajuastrology.com/about",
     siteName: "SajuAstrology",
     type: "website",
@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Rimfactory — Astrology Meets Science",
-    description: "Astrology-technology company digitizing the world's oldest divination systems with AI.",
+    title: "Rimfactory — Ancient Wisdom. Modern Intelligence.",
+    description: "Astrology-technology company applying RAG and multi-model AI to the world's oldest divination systems.",
     images: ["https://sajuastrology.com/og-image1.png"],
   },
   alternates: {
@@ -35,7 +35,7 @@ const organizationJsonLd = {
   name: "Rimfactory",
   url: "https://sajuastrology.com",
   logo: "https://sajuastrology.com/logo1.png",
-  description: "Astrology-technology company digitizing the world's oldest divination systems with modern AI.",
+  description: "Astrology-technology company applying retrieval-augmented generation (RAG) and multi-model AI to the world's oldest divination systems.",
   foundingDate: "2025",
   founder: {
     "@type": "Person",
@@ -58,9 +58,10 @@ const organizationJsonLd = {
   sameAs: [],
   knowsAbout: [
     "Korean Four Pillars (Saju)",
-    "Astrology Technology",
-    "AI-powered divination",
-    "Eastern metaphysics",
+    "Retrieval-Augmented Generation (RAG)",
+    "Vector Similarity Search",
+    "Multi-LLM AI Architecture",
+    "Classical Eastern Metaphysics Corpus",
   ],
 }
 
