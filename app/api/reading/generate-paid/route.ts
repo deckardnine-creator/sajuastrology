@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildPaidPromptPart1, buildPaidPromptPart2, buildPaidPromptPart3, buildChartSummary } from "@/lib/paid-prompts";
 import { getSystemInstruction } from "@/lib/prompt-locale";
+import { buildRAGContext } from "@/lib/rag/prompt-injector";
 
 // 120s — enough for retries across multiple AI engines
 export const maxDuration = 120;
@@ -266,16 +267,40 @@ export async function POST(request: NextRequest) {
       } catch { /* cache miss */ }
     }
 
-    // 2. Generate 3 parts in PARALLEL — each PATCHes DB immediately on completion
+    // 2. Build chart summary + RAG context
     const chartSummary = buildChartSummary(reading);
     const currentYear = new Date().getFullYear();
+
+    // RAG: 사주 특성 기반 고전 원전 검색 (실패 시 빈 컨텍스트 → 기존과 동일)
+    let ragPrefix = "";
+    try {
+      const sajuDataForRAG = {
+        dayStem: reading.day_stem,
+        dayBranch: reading.day_branch,
+        monthStem: reading.month_stem,
+        monthBranch: reading.month_branch,
+        yearStem: reading.year_stem,
+        yearBranch: reading.year_branch,
+        hourStem: reading.hour_stem,
+        hourBranch: reading.hour_branch,
+        dominantElement: reading.dominant_element,
+        weakElement: reading.weakest_element,
+      };
+      const ragContext = await buildRAGContext(
+        sajuDataForRAG, 'paid', (locale as 'ko' | 'en' | 'ja')
+      );
+      ragPrefix = ragContext.contextText || "";
+    } catch (ragErr) {
+      console.warn("RAG context failed (continuing without):", ragErr);
+      ragPrefix = "";
+    }
 
     // Track success count across all parts
     let successCount = 0;
 
     const part1Promise = (async () => {
       const result = await generatePart(
-        () => buildPaidPromptPart1(chartSummary, locale),
+        () => ragPrefix + buildPaidPromptPart1(chartSummary, locale),
         "Part1-Career+Love", locale, ["career", "love"]
       );
       if (result) {
@@ -292,7 +317,7 @@ export async function POST(request: NextRequest) {
 
     const part2Promise = (async () => {
       const result = await generatePart(
-        () => buildPaidPromptPart2(chartSummary, currentYear, locale),
+        () => ragPrefix + buildPaidPromptPart2(chartSummary, currentYear, locale),
         "Part2-Health+Decade", locale, ["health", "decade_forecast"]
       );
       if (result) {
@@ -309,7 +334,7 @@ export async function POST(request: NextRequest) {
 
     const part3Promise = (async () => {
       const result = await generatePart(
-        () => buildPaidPromptPart3(chartSummary, locale),
+        () => ragPrefix + buildPaidPromptPart3(chartSummary, locale),
         "Part3-Monthly+Talent", locale, ["monthly_energy", "hidden_talent"]
       );
       if (result) {

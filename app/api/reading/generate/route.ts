@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildFreeReadingPrompt, generateShareSlug } from "@/lib/reading-prompts";
 import { getSystemInstruction } from "@/lib/prompt-locale";
+import { injectRAGIntoPrompt } from "@/lib/rag/prompt-injector";
 import type { SajuChart } from "@/lib/saju-calculator";
 
 // Serverless = 60s on Pro (Edge is always 25s even on Pro)
@@ -187,8 +188,27 @@ export async function POST(request: NextRequest) {
       }
     } catch { /* exact check failed — generate new */ }
 
-    // ═══ GENERATE — Gemini Pro → Claude Sonnet → Claude Haiku ═══
-    const prompt = buildFreeReadingPrompt(chart, locale);
+    // ═══ GENERATE — with RAG injection ═══
+    const basePrompt = buildFreeReadingPrompt(chart, locale);
+    
+    // RAG: 사주 특성을 기반으로 고전 원전 검색 후 프롬프트에 주입
+    // 실패 시 basePrompt 그대로 사용 (폴백)
+    const sajuDataForRAG = {
+      dayStem: ds,
+      dayBranch: db,
+      monthStem: ms,
+      monthBranch: mb,
+      yearStem: ys,
+      yearBranch: yb,
+      hourStem: hs,
+      hourBranch: hb,
+      dominantElement: chart.dominantElement,
+      weakElement: chart.weakestElement,
+    };
+    const { prompt } = await injectRAGIntoPrompt(
+      basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja'
+    );
+
     const rawText = await generateWithFallback(prompt, locale);
 
     // ═══ Normalize keys: Gemini may localize JSON keys in KO/JA ═══
