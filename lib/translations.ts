@@ -1,4 +1,4 @@
-export type Locale = "en" | "ko" | "ja";
+﻿export type Locale = "en" | "ko" | "ja";
 
 export const LOCALE_LABELS: Record<Locale, string> = {
   en: "English",
@@ -142,7 +142,7 @@ const translations = {
   "faq.q12": { en: "What payment methods do you accept?", ko: "어떤 결제 방법을 지원하나요?", ja: "対応決済方法は？" },
   "faq.a12": { en: "All major credit and debit cards (Visa, Mastercard, Amex), Apple Pay, and Google Pay. All transactions are encrypted and your payment details are never stored on our servers.", ko: "주요 카드(Visa, Mastercard, Amex), Apple Pay, Google Pay. 거래 암호화, 결제 정보 미저장.", ja: "主要カード（Visa, Mastercard, Amex）、Apple Pay、Google Pay。すべて暗号化、決済情報はサーバーに保存しません。" },
   "faq.q13": { en: "What is your refund policy?", ko: "환불 정책은?", ja: "返金ポリシーは？" },
-  "faq.a13": { en: "Since readings are generated instantly and uniquely for your birth chart, we generally cannot offer refunds on completed readings. For technical issues, contact info@rimfactory.co.kr within 7 days. Unused consultation credits remain in your account indefinitely.", ko: "리딩은 즉시 생성되므로 환불 불가. 기술적 문제는 7일 이내 info@rimfactory.co.kr로 연락. 미사용 상담 크레딧은 무기한 유지.", ja: "鑑定は即時生成のため原則返金不可。技術的問題は7日以内にinfo@rimfactory.co.krまで。未使用クレジットは無期限。" },
+  "faq.a13": { en: "Since readings are generated instantly and uniquely for your birth chart, we generally cannot offer refunds on completed readings. For technical issues, contact info@rimfactory.io within 7 days. Unused consultation credits remain in your account indefinitely.", ko: "리딩은 즉시 생성되므로 환불 불가. 기술적 문제는 7일 이내 info@rimfactory.io로 연락. 미사용 상담 크레딧은 무기한 유지.", ja: "鑑定は即時生成のため原則返金不可。技術的問題は7日以内にinfo@rimfactory.ioまで。未使用クレジットは無期限。" },
   "faq.q14": { en: "Is my birth data private?", ko: "출생 정보는 안전한가요?", ja: "データは安全ですか？" },
   "faq.a14": { en: "Yes. Your data is stored securely and never shared with third parties. We use industry-standard encryption and security. Request deletion anytime by contacting us.", ko: "네. 안전하게 저장, 제3자 미공유. 업계 표준 암호화. 언제든 삭제 요청 가능.", ja: "はい。安全に保存、第三者と共有しません。いつでも削除リクエスト可能。" },
 

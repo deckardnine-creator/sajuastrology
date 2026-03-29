@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next'
+﻿import type { Metadata, Viewport } from 'next'
 import { Inter, Playfair_Display, Noto_Sans_KR, Noto_Serif_KR } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/lib/auth-context'
@@ -142,7 +142,7 @@ const jsonLd = {
     { "@type": "Offer", price: "9.99", priceCurrency: "USD", description: "Full Destiny Reading" },
     { "@type": "Offer", price: "29.99", priceCurrency: "USD", description: "Master Consultation (5 sessions)" },
   ],
-  creator: { "@type": "Organization", name: "Rimfactory", url: "https://rimfactory.co.kr" },
+  creator: { "@type": "Organization", name: "Rimfactory", url: "https://rimfactory.io" },
 };
 
 export default function RootLayout({

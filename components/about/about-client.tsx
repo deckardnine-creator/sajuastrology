@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { motion } from "framer-motion"
 import { Navbar } from "@/components/landing/navbar"
@@ -387,7 +387,7 @@ export default function AboutClient() {
             <div className="space-y-2 text-muted-foreground">
               <p className="font-medium text-foreground">Rimfactory</p>
               <p>CEO: Chandler Yun</p>
-              <p>info@rimfactory.co.kr</p>
+              <p>info@rimfactory.io</p>
               <p>243, 1F, Sindorim Technomart, 97 Saemallo, Guro-gu, Seoul, Korea</p>
             </div>
           </motion.div>

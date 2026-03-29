@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+﻿import type { Metadata } from "next"
 import AboutClient from "@/components/about/about-client"
 
 export const metadata: Metadata = {
@@ -51,7 +51,7 @@ const organizationJsonLd = {
   },
   contactPoint: {
     "@type": "ContactPoint",
-    email: "info@rimfactory.co.kr",
+    email: "info@rimfactory.io",
     telephone: "+82-10-4648-6793",
     contactType: "customer service",
   },

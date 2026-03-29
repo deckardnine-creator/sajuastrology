@@ -1,4 +1,4 @@
-import { Navbar } from "@/components/landing/navbar"
+﻿import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
 
 export const metadata = { title: "Terms of Service" }
@@ -40,7 +40,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">6. Payments and Refunds</h2>
               <p className="mb-2">Payments processed securely through LemonSqueezy. We accept Visa, Mastercard, Amex, Apple Pay, and Google Pay. We never store your credit card details.</p>
-              <p>Digital content is delivered instantly — sales are generally final. For technical issues, contact <a href="mailto:info@rimfactory.co.kr" className="text-primary hover:underline">info@rimfactory.co.kr</a> within 7 days. Unused consultation credits remain indefinitely.</p>
+              <p>Digital content is delivered instantly — sales are generally final. For technical issues, contact <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> within 7 days. Unused consultation credits remain indefinitely.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">7. AI Content</h2>
@@ -54,7 +54,7 @@ export default function TermsPage() {
               <h2 className="text-lg font-serif text-primary mb-3">Contact</h2>
               <div className="bg-card/50 border border-border rounded-xl p-4">
                 <p><strong>Rimfactory</strong> — 243, 1F, Sindorim Technomart, 97 Saemallo, Guro-gu, Seoul</p>
-                <p className="mt-1">Email: <a href="mailto:info@rimfactory.co.kr" className="text-primary hover:underline">info@rimfactory.co.kr</a> · Phone: +82-10-4648-6793</p>
+                <p className="mt-1">Email: <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> · Phone: +82-10-4648-6793</p>
               </div>
             </section>
           </div>

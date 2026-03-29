@@ -1,4 +1,4 @@
-import { Navbar } from "@/components/landing/navbar"
+﻿import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
 
 export const metadata = { title: "Privacy Policy" }
@@ -49,7 +49,7 @@ export default function PrivacyPage() {
               <h2 className="text-lg font-serif text-primary mb-3">Contact</h2>
               <div className="bg-card/50 border border-border rounded-xl p-4">
                 <p><strong>Rimfactory</strong> — 243, 1F, Sindorim Technomart, 97 Saemallo, Guro-gu, Seoul</p>
-                <p className="mt-1">Email: <a href="mailto:info@rimfactory.co.kr" className="text-primary hover:underline">info@rimfactory.co.kr</a> · Phone: +82-10-4648-6793</p>
+                <p className="mt-1">Email: <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> · Phone: +82-10-4648-6793</p>
               </div>
             </section>
           </div>
