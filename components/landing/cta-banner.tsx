@@ -37,9 +37,16 @@ export function CTABanner() {
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
 
           <div className="relative">
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground mb-6">
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground mb-3">
               {t("cta.title", locale)}
             </h2>
+            <p className="text-sm sm:text-base text-primary-foreground/70 mb-6">
+              {locale === "ko"
+                ? "2,000년 고전 원전에 근거한 당신만의 분석"
+                : locale === "ja"
+                ? "2,000年の古典原典に基づくあなただけの分析"
+                : "Grounded in 2,000 years of classical texts"}
+            </p>
             <Link href="/calculate">
               <Button
                 size="lg"

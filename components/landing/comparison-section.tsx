@@ -13,6 +13,7 @@ export function ComparisonSection() {
     t("comp.western2", locale),
     t("comp.western3", locale),
     t("comp.western4", locale),
+    locale === "ko" ? "출처 불명의 해석" : locale === "ja" ? "出典不明の解釈" : "No source attribution",
   ]
 
   const sajuFeatures = [
@@ -20,6 +21,7 @@ export function ComparisonSection() {
     t("comp.saju2", locale),
     t("comp.saju3", locale),
     t("comp.saju4", locale),
+    locale === "ko" ? "고전 원전 근거 제시" : locale === "ja" ? "古典原典の根拠を提示" : "Grounded in classical texts",
   ]
 
   return (

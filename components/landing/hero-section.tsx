@@ -28,7 +28,7 @@ export function HeroSection() {
       }))
     )
   }, [])
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
 
   const handleAppClick = (platform: "ios" | "android") => {
     setShowComingSoon(platform)
@@ -36,7 +36,7 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative min-h-screen pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden">
+    <section className="relative min-h-[80vh] lg:min-h-screen pt-20 sm:pt-24 pb-8 sm:pb-12 overflow-hidden">
 
       {/* Glow orbs */}
       <motion.div
@@ -86,6 +86,16 @@ export function HeroSection() {
 
             <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl">
               {t("hero.desc")}
+            </p>
+
+            {/* Tech credibility line */}
+            <p className="text-[11px] sm:text-xs text-muted-foreground/60 flex items-center gap-1.5 flex-wrap">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500/80 animate-pulse" />
+              {locale === "ko"
+                ? "5대 고전 원전 562개 패시지 실시간 벡터 분석"
+                : locale === "ja"
+                ? "5大古典原典562パッセージをリアルタイムベクトル分析"
+                : "562 classical passages from 5 ancient texts — vector-matched in real time"}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-2">
