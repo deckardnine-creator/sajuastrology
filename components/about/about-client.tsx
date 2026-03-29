@@ -137,11 +137,78 @@ export default function AboutClient() {
   ]
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen relative">
       <Navbar />
 
+      {/* Scientific dot-line network background — mobile optimized */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+        <svg className="w-full h-full" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="dotGrid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+              <circle cx="20" cy="20" r="0.8" fill="rgba(242, 202, 80, 0.12)" />
+            </pattern>
+            <pattern id="dotGridLarge" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+              <circle cx="60" cy="60" r="1.5" fill="rgba(242, 202, 80, 0.08)" />
+            </pattern>
+          </defs>
+          {/* Dot grids — visible on all screens */}
+          <rect width="100%" height="100%" fill="url(#dotGrid)" />
+          <rect width="100%" height="100%" fill="url(#dotGridLarge)" />
+        </svg>
+        {/* Lines + nodes + hexagons — desktop only (hidden on mobile for performance) */}
+        <svg className="hidden md:block absolute inset-0 w-full h-full" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900">
+          {/* Connecting lines */}
+          <g stroke="rgba(242, 202, 80, 0.04)" strokeWidth="0.5" fill="none">
+            <line x1="120" y1="135" x2="300" y2="72" />
+            <line x1="300" y1="72" x2="480" y2="162" />
+            <line x1="480" y1="162" x2="420" y2="270" />
+            <line x1="420" y1="270" x2="120" y2="135" />
+            <line x1="720" y1="45" x2="900" y2="108" />
+            <line x1="900" y1="108" x2="1020" y2="225" />
+            <line x1="1020" y1="225" x2="840" y2="315" />
+            <line x1="840" y1="315" x2="720" y2="45" />
+            <line x1="180" y1="405" x2="360" y2="495" />
+            <line x1="360" y1="495" x2="240" y2="630" />
+            <line x1="240" y1="630" x2="60" y2="540" />
+            <line x1="60" y1="540" x2="180" y2="405" />
+            <line x1="660" y1="450" x2="840" y2="405" />
+            <line x1="840" y1="405" x2="960" y2="540" />
+            <line x1="960" y1="540" x2="780" y2="630" />
+            <line x1="780" y1="630" x2="660" y2="450" />
+            <line x1="300" y1="720" x2="540" y2="765" />
+            <line x1="540" y1="765" x2="480" y2="855" />
+            <line x1="480" y1="855" x2="240" y2="810" />
+            <line x1="240" y1="810" x2="300" y2="720" />
+            <line x1="900" y1="675" x2="1080" y2="720" />
+            <line x1="1080" y1="720" x2="1020" y2="855" />
+            <line x1="1020" y1="855" x2="900" y2="675" />
+          </g>
+          {/* Node highlights */}
+          <g fill="rgba(242, 202, 80, 0.06)">
+            <circle cx="120" cy="135" r="3" />
+            <circle cx="300" cy="72" r="2.5" />
+            <circle cx="480" cy="162" r="3.5" />
+            <circle cx="900" cy="108" r="3" />
+            <circle cx="1020" cy="225" r="2.5" />
+            <circle cx="360" cy="495" r="3" />
+            <circle cx="840" cy="405" r="3.5" />
+            <circle cx="660" cy="450" r="2.5" />
+            <circle cx="540" cy="765" r="3" />
+            <circle cx="1080" cy="720" r="2.5" />
+          </g>
+          {/* Hexagons (면) */}
+          <g stroke="rgba(89, 222, 155, 0.03)" strokeWidth="0.5" fill="rgba(89, 222, 155, 0.01)">
+            <polygon points="200,100 230,85 260,100 260,130 230,145 200,130" />
+            <polygon points="700,300 730,285 760,300 760,330 730,345 700,330" />
+            <polygon points="400,500 430,485 460,500 460,530 430,545 400,530" />
+            <polygon points="100,700 130,685 160,700 160,730 130,745 100,730" />
+            <polygon points="950,550 980,535 1010,550 1010,580 980,595 950,580" />
+          </g>
+        </svg>
+      </div>
+
       {/* Hero */}
-      <section className="relative pt-28 sm:pt-36 pb-16 overflow-hidden">
+      <section className="relative z-10 pt-28 sm:pt-36 pb-16 overflow-hidden">
         <motion.div
           animate={{ y: [0, -30, 0] }}
           transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
@@ -169,7 +236,7 @@ export default function AboutClient() {
       </section>
 
       {/* Vision */}
-      <section className="py-16 sm:py-24">
+      <section className="relative z-10 py-16 sm:py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <span className="inline-block px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-xs font-semibold text-secondary tracking-wider uppercase mb-4">
@@ -186,7 +253,7 @@ export default function AboutClient() {
       </section>
 
       {/* Products */}
-      <section className="py-16 sm:py-24 bg-card/50">
+      <section className="relative z-10 py-16 sm:py-24 bg-card/50">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <span className="inline-block px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary tracking-wider uppercase mb-4">
@@ -233,7 +300,7 @@ export default function AboutClient() {
       </section>
 
       {/* Technical Moat */}
-      <section className="py-16 sm:py-24">
+      <section className="relative z-10 py-16 sm:py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <span className="inline-block px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary tracking-wider uppercase mb-4">
@@ -269,7 +336,7 @@ export default function AboutClient() {
       </section>
 
       {/* Market */}
-      <section className="py-16 sm:py-24 bg-card/50">
+      <section className="relative z-10 py-16 sm:py-24 bg-card/50">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <span className="inline-block px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-xs font-semibold text-secondary tracking-wider uppercase mb-4">
@@ -307,7 +374,7 @@ export default function AboutClient() {
       </section>
 
       {/* Contact */}
-      <section className="py-16 sm:py-24">
+      <section className="relative z-10 py-16 sm:py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <span className="inline-block px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary tracking-wider uppercase mb-4">
@@ -326,7 +393,9 @@ export default function AboutClient() {
         </div>
       </section>
 
-      <Footer />
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </main>
   )
 }
