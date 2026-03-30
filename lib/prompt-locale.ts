@@ -50,3 +50,31 @@ export function getSystemInstruction(locale?: string): string | null {
       return null; // EN uses responseMimeType, no system instruction needed
   }
 }
+
+// Top-level language enforcement — placed at very start of prompt
+export function getLanguageHeader(locale?: string): string {
+  switch (locale) {
+    case "ko":
+      return `[OUTPUT LANGUAGE: KOREAN]
+모든 JSON value를 반드시 한국어로 작성하세요. 영어로 작성하면 안 됩니다.
+All JSON string values MUST be written in Korean (한국어). Writing in English is STRICTLY FORBIDDEN.\n\n`;
+    case "ja":
+      return `[OUTPUT LANGUAGE: JAPANESE]
+すべてのJSON valueは必ず日本語で書いてください。英語で書くことは禁止です。
+All JSON string values MUST be written in Japanese (日本語). Writing in English is STRICTLY FORBIDDEN.\n\n`;
+    default:
+      return "";
+  }
+}
+
+// Bottom-level language reminder — placed at very end of prompt
+export function getLanguageFooter(locale?: string): string {
+  switch (locale) {
+    case "ko":
+      return `\n⚠️ LANGUAGE REMINDER: 모든 JSON value는 반드시 한국어로 작성하세요. 영어 한 문장이라도 포함되면 실패입니다.`;
+    case "ja":
+      return `\n⚠️ LANGUAGE REMINDER: すべてのJSON valueは必ず日本語で書いてください。英語が1文でも含まれると失敗です。`;
+    default:
+      return "";
+  }
+}

@@ -3,7 +3,7 @@
 
 import type { SajuChart, Element } from "./saju-calculator";
 import { calculateAdvancedSaju } from "./saju-advanced";
-import { getLanguageInstruction } from "./prompt-locale";
+import { getLanguageInstruction, getLanguageHeader, getLanguageFooter } from "./prompt-locale";
 
 // Day Master personality seeds - unique metaphors per element+polarity
 const DAY_MASTER_SEEDS: Record<string, { metaphor: string; energy: string; shadow: string }> = {
@@ -110,7 +110,7 @@ export function buildFreeReadingPrompt(chart: SajuChart, locale?: string): strin
   // Build element distribution description
   const elementStr = `Wood: ${chart.elements.wood}, Fire: ${chart.elements.fire}, Earth: ${chart.elements.earth}, Metal: ${chart.elements.metal}, Water: ${chart.elements.water}`;
 
-  return `You are a master of Saju (사주, Four Pillars of Destiny) with 40 years of experience. You speak with warmth, wisdom, and poetic precision. Your readings feel like a conversation with a sage who has known the seeker their entire life.
+  return `${getLanguageHeader(locale)}You are a master of Saju (사주, Four Pillars of Destiny) with 40 years of experience. You speak with warmth, wisdom, and poetic precision. Your readings feel like a conversation with a sage who has known the seeker their entire life.
 
 CRITICAL RULES:
 - ${getLanguageInstruction(locale)}
@@ -159,7 +159,7 @@ GENERATE THREE SECTIONS in this exact JSON format:
   "element_guidance": "1-2 paragraphs of practical wisdom based on their element balance. Their dominant element is ${dominant} and weakest is ${weakest}. Give specific, actionable advice — colors to incorporate, environments to seek, habits to build. Make it feel like a prescription from a wise doctor, not a horoscope. Approximately 120-180 words."
 }
 
-RESPOND WITH ONLY THE JSON. No markdown, no backticks, no explanation.`;
+RESPOND WITH ONLY THE JSON. No markdown, no backticks, no explanation.${getLanguageFooter(locale)}`;
 }
 
 // Generate a unique share slug
