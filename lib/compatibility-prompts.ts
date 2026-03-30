@@ -3,7 +3,7 @@
 // Paid: 3 parallel Claude calls → detailed 4-category analysis
 
 import type { CompatibilityScores } from "./compatibility-calculator";
-import { getLanguageInstruction } from "./prompt-locale";
+import { getLanguageInstruction, getLanguageHeader, getLanguageFooter } from "./prompt-locale";
 
 function buildChartPairSummary(scores: CompatibilityScores): string {
   const a = scores.personA;
@@ -46,7 +46,7 @@ KEY INTERACTIONS:
 export function buildFreeCompatibilityPrompt(scores: CompatibilityScores, locale?: string): string {
   const summary = buildChartPairSummary(scores);
 
-  return `You are a master of Saju (사주, Korean Four Pillars of Destiny) compatibility analysis with 40 years of experience reading couples, business partners, and friendships.
+  return `${getLanguageHeader(locale)}You are a master of Saju (사주, Korean Four Pillars of Destiny) compatibility analysis with 40 years of experience reading couples, business partners, and friendships.
 
 ${summary}
 
@@ -66,7 +66,7 @@ GENERATE as JSON:
   "summary": "2 paragraphs (180-250 words total). First paragraph: describe the core dynamic between these two people — what makes their connection unique, how their Day Masters interact, what they bring out in each other. Second paragraph: the most important thing they should know about this pairing — one key strength and one area to be mindful of. End with something memorable and shareable. This should feel like insider knowledge about their relationship."
 }
 
-RESPOND WITH ONLY VALID JSON. No markdown fences.`;
+RESPOND WITH ONLY VALID JSON. No markdown fences.${getLanguageFooter(locale)}`;
 }
 
 // ── Paid Detailed Prompts (3 parallel calls) ────────────────────────
@@ -75,7 +75,7 @@ export function buildPaidCompatPrompt1(scores: CompatibilityScores, locale?: str
   const summary = buildChartPairSummary(scores);
   const currentYear = new Date().getFullYear();
 
-  return `You are a master of Saju (사주) compatibility with 40 years of experience.
+  return `${getLanguageHeader(locale)}You are a master of Saju (사주) compatibility with 40 years of experience.
 
 ${summary}
 
@@ -93,13 +93,13 @@ GENERATE as JSON:
   "work": "3-4 paragraphs of professional compatibility analysis. How do their archetypes collaborate? Who is the visionary vs the executor? What kind of projects bring out their best together? Where does friction arise in decision-making? Identify the ideal working arrangement (side by side, complementary roles, or keep work separate). Write approximately 300-400 words."
 }
 
-RESPOND WITH ONLY VALID JSON. No markdown fences.`;
+RESPOND WITH ONLY VALID JSON. No markdown fences.${getLanguageFooter(locale)}`;
 }
 
 export function buildPaidCompatPrompt2(scores: CompatibilityScores, locale?: string): string {
   const summary = buildChartPairSummary(scores);
 
-  return `You are a master of Saju (사주) compatibility with 40 years of experience.
+  return `${getLanguageHeader(locale)}You are a master of Saju (사주) compatibility with 40 years of experience.
 
 ${summary}
 
@@ -117,14 +117,14 @@ GENERATE as JSON:
   "conflict": "3-4 paragraphs about conflict resolution patterns. How does each person handle disagreement based on their element? What triggers each person's defensive mode? The specific pattern their arguments likely follow (who escalates, who withdraws, what breaks the cycle). Give concrete advice for resolving their most common friction points. Write approximately 300-400 words."
 }
 
-RESPOND WITH ONLY VALID JSON. No markdown fences.`;
+RESPOND WITH ONLY VALID JSON. No markdown fences.${getLanguageFooter(locale)}`;
 }
 
 export function buildPaidCompatPrompt3(scores: CompatibilityScores, locale?: string): string {
   const summary = buildChartPairSummary(scores);
   const currentYear = new Date().getFullYear();
 
-  return `You are a master of Saju (사주) compatibility with 40 years of experience.
+  return `${getLanguageHeader(locale)}You are a master of Saju (사주) compatibility with 40 years of experience.
 
 ${summary}
 
@@ -140,5 +140,5 @@ GENERATE as JSON:
   "yearly": "3-4 paragraphs about this pairing's energy in ${currentYear}. How does this year's elemental energy affect their compatibility specifically? Are there months that are especially harmonious or challenging for them together? What should they focus on this year to strengthen their bond? Include one specific timing recommendation (e.g., 'The period between May and July is ideal for...'). Write approximately 300-400 words."
 }
 
-RESPOND WITH ONLY VALID JSON. No markdown fences.`;
+RESPOND WITH ONLY VALID JSON. No markdown fences.${getLanguageFooter(locale)}`;
 }

@@ -3,7 +3,7 @@
 
 import { calculateAdvancedSaju } from "./saju-advanced";
 import { reconstructChartFromReading } from "./constants";
-import { getLanguageInstruction } from "./prompt-locale";
+import { getLanguageInstruction, getLanguageHeader, getLanguageFooter } from "./prompt-locale";
 import type { SajuChart } from "./saju-calculator";
 
 // Force language in JSON field descriptions — Gemini ignores top-level rules in JSON mode
@@ -16,7 +16,7 @@ function langPrefix(locale?: string): string {
 export function buildPaidPromptPart1(chartSummary: string, locale?: string): string {
   const lp = langPrefix(locale);
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long" });
-  return `You are a master of Saju (사주) with 40 years of experience. You have studied under three different Korean masters and have read over 50,000 charts. Your readings are legendary for their specificity and uncanny accuracy.
+  return `${getLanguageHeader(locale)}You are a master of Saju (사주) with 40 years of experience. You have studied under three different Korean masters and have read over 50,000 charts. Your readings are legendary for their specificity and uncanny accuracy.
 
 TODAY'S DATE: ${today}. All timing guidance must be based on this date.
 
@@ -39,13 +39,13 @@ GENERATE as JSON:
   "love": "${lp}5-6 paragraphs of deep relationship analysis. Start with how their Day Master loves — the specific way they express and receive affection based on their element. Describe the exact type of partner energy that complements theirs (be specific about personality traits, communication style, even physical energy). Analyze their relationship patterns: what they unconsciously seek, what triggers withdrawal, what creates deepening intimacy. Discuss the role of their archetype in relationships — how it creates both magnetic attraction and potential friction. Map relationship timing: when their chart favors new connections, deepening commitments, or necessary solitude. Address their shadow pattern in love — the one blind spot that, once recognized, transforms their relationships. Write approximately 500-600 words."
 }
 
-RESPOND WITH ONLY VALID JSON. No markdown fences, no explanation.`;
+RESPOND WITH ONLY VALID JSON. No markdown fences, no explanation.${getLanguageFooter(locale)}`;
 }
 
 export function buildPaidPromptPart2(chartSummary: string, currentYear: number, locale?: string): string {
   const lp = langPrefix(locale);
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long" });
-  return `You are a master of Saju (사주) with 40 years of experience. You have studied under three different Korean masters and have read over 50,000 charts. Your readings are legendary for their specificity and uncanny accuracy.
+  return `${getLanguageHeader(locale)}You are a master of Saju (사주) with 40 years of experience. You have studied under three different Korean masters and have read over 50,000 charts. Your readings are legendary for their specificity and uncanny accuracy.
 
 TODAY'S DATE: ${today}. The current year is ${currentYear}. All health advice and forecasts must start from this date, NOT from past years.
 
@@ -68,13 +68,13 @@ GENERATE as JSON:
   "decade_forecast": "${lp}6-8 paragraphs covering ${currentYear} through ${currentYear + 10}. This should read like a detailed roadmap with year-by-year insights. For each significant year, explain what elemental energy dominates and how it interacts with their natal chart. Clearly identify: the single BEST year of the decade and why, the most CHALLENGING year and how to navigate it, a major TRANSITION year that changes their life direction. Cover career peaks, relationship milestones, financial windows, and personal growth phases. Include specific seasonal timing within key years (e.g., 'the spring of ${currentYear + 3} brings...'). Address the overall arc of the decade — what theme connects these ten years, and what the person they become by ${currentYear + 10} looks like compared to who they are now. End with their 'decade gift' — the wisdom or achievement this particular ten-year cycle is designed to deliver. Write approximately 600-700 words."
 }
 
-RESPOND WITH ONLY VALID JSON. No markdown fences, no explanation.`;
+RESPOND WITH ONLY VALID JSON. No markdown fences, no explanation.${getLanguageFooter(locale)}`;
 }
 
 export function buildPaidPromptPart3(chartSummary: string, locale?: string): string {
   const lp = langPrefix(locale);
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long" });
-  return `You are a master of Saju (사주) with 40 years of experience. You have studied under three different Korean masters and have read over 50,000 charts. Your readings are legendary for their specificity and uncanny accuracy.
+  return `${getLanguageHeader(locale)}You are a master of Saju (사주) with 40 years of experience. You have studied under three different Korean masters and have read over 50,000 charts. Your readings are legendary for their specificity and uncanny accuracy.
 
 TODAY'S DATE: ${today}. Monthly forecasts must start from THIS month forward.
 
@@ -97,7 +97,7 @@ GENERATE as JSON:
   "hidden_talent": "${lp}5-6 paragraphs. This is the crown jewel of the reading — the section they screenshot and share. Begin with: 'There is something encoded in your Four Pillars that most readings overlook — a talent so quietly embedded in the interaction between your pillars that only a deep reading reveals it.' Then unveil a SPECIFIC, SURPRISING insight about a hidden ability or calling. This must NOT be generic ('you're creative' or 'you're a leader'). It must be derived from the specific interplay of their stems and branches — for example, how the clash between their month and hour pillars creates an unusual ability, or how their Day Master's relationship with a hidden stem reveals an unexpected gift. Connect this talent to concrete manifestations in their life — moments they may have already experienced this gift without recognizing it. Explain why this talent has been hidden (usually their dominant element overshadows it). Give a specific, actionable 3-step process to activate this potential: a daily practice, an environmental change, and a relationship shift. End with a vision of who they become when this hidden talent is fully expressed — paint a vivid picture that feels both surprising and deeply true. Write approximately 500-600 words."
 }
 
-RESPOND WITH ONLY VALID JSON. No markdown fences, no explanation.`;
+RESPOND WITH ONLY VALID JSON. No markdown fences, no explanation.${getLanguageFooter(locale)}`;
 }
 
 export function buildChartSummary(reading: any): string {

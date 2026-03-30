@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { calculateSaju } from "@/lib/saju-calculator";
-import { getLanguageInstruction } from "@/lib/prompt-locale";
+import { getLanguageInstruction, getLanguageHeader, getLanguageFooter } from "@/lib/prompt-locale";
 import { buildRAGContext } from "@/lib/rag/prompt-injector";
 
 // Node.js runtime for longer timeout (no edge)
@@ -377,11 +377,11 @@ async function handleStart({
     const baseContext = `${ragPrefix}Category: ${category}\nQuestion: "${question}"\nDate: ${currentDate} (Year: ${currentYear})\n\nQUERENT'S SAJU CHART:\n${chartSummary}`;
 
     // Part prompts — each generates a section independently
-    const part1System = `You are a master Saju consultant. Generate the OPENING of a consultation report.\n\nYour task: Write a compelling title (as # heading), an opening that acknowledges their question, and a detailed Chart Analysis section showing how their birth chart relates to this question (Day Master, element balance, pillar dynamics).\n\nTarget: 800-1000 words. Start with: # Title\nThen ## sections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI.`;
+    const part1System = `${getLanguageHeader(locale)}You are a master Saju consultant. Generate the OPENING of a consultation report.\n\nYour task: Write a compelling title (as # heading), an opening that acknowledges their question, and a detailed Chart Analysis section showing how their birth chart relates to this question (Day Master, element balance, pillar dynamics).\n\nTarget: 800-1000 words. Start with: # Title\nThen ## sections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI.`;
 
-    const part2System = `You are a master Saju consultant. Generate the MIDDLE SECTIONS of a consultation report.\n\nYour task: Write 3 sections:\n1. ## Current Cycle Reading — what the current year/period means for this area\n2. ## Detailed Guidance — 3-5 specific insights with timing recommendations\n3. ## Favorable and Challenging Periods — specific months or seasons ahead\n\nTarget: 1200-1500 words. Use ## for sections, ### for subsections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI. Reference specific chart elements.`;
+    const part2System = `${getLanguageHeader(locale)}You are a master Saju consultant. Generate the MIDDLE SECTIONS of a consultation report.\n\nYour task: Write 3 sections:\n1. ## Current Cycle Reading — what the current year/period means for this area\n2. ## Detailed Guidance — 3-5 specific insights with timing recommendations\n3. ## Favorable and Challenging Periods — specific months or seasons ahead\n\nTarget: 1200-1500 words. Use ## for sections, ### for subsections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI. Reference specific chart elements.`;
 
-    const part3System = `You are a master Saju consultant. Generate the CLOSING SECTIONS of a consultation report.\n\nYour task: Write 2 sections:\n1. ## Elemental Remedies — practical suggestions aligned with their element needs\n2. ## Closing Reflection — empowering summary that ties everything together\n\nTarget: 500-700 words. Use ## for sections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI.`;
+    const part3System = `${getLanguageHeader(locale)}You are a master Saju consultant. Generate the CLOSING SECTIONS of a consultation report.\n\nYour task: Write 2 sections:\n1. ## Elemental Remedies — practical suggestions aligned with their element needs\n2. ## Closing Reflection — empowering summary that ties everything together\n\nTarget: 500-700 words. Use ## for sections. Use **bold** for key terms. ${langInstr}\nNEVER mention you are AI.`;
 
     const parts: (string | null)[] = [null, null, null];
     let reportTitle = "";
@@ -586,7 +586,7 @@ async function generateReport({
   const currentMonth = new Date().getMonth() + 1;
   const currentDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
-  const systemPrompt = `You are a master-level Saju consultant with decades of experience interpreting the Korean Four Pillars of Destiny. You provide deep, personalized consultations that weave together the querent's birth chart elements, current cosmic cycles, and specific life circumstances.
+  const systemPrompt = `${getLanguageHeader(locale)}You are a master-level Saju consultant with decades of experience interpreting the Korean Four Pillars of Destiny. You provide deep, personalized consultations that weave together the querent's birth chart elements, current cosmic cycles, and specific life circumstances.
 
 IMPORTANT: Today's date is ${currentDate}. The current year is ${currentYear}. All forecasts and timing guidance must be based on this date. Do NOT reference past years as current.
 
@@ -645,7 +645,7 @@ ${clarificationContext ? `ADDITIONAL CONTEXT FROM QUERENT:\n${clarificationConte
 QUERENT'S SAJU CHART:
 ${chartSummary}
 
-Generate a comprehensive, personalized Saju consultation report. Start with a compelling title (as a # heading), then the full analysis.`;
+Generate a comprehensive, personalized Saju consultation report. Start with a compelling title (as a # heading), then the full analysis.${getLanguageFooter(locale)}`;
 
   const content = await callAI(systemPrompt, userPrompt, locale);
 
