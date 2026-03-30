@@ -212,7 +212,14 @@ export default function CalculatePage() {
       const res = await fetch("/api/reading/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chart, userId: user?.id || null, locale }),
+        body: JSON.stringify({
+          chart,
+          userId: user?.id || null,
+          locale,
+          birthDateStr: chart.birthDate instanceof Date
+            ? `${chart.birthDate.getFullYear()}-${String(chart.birthDate.getMonth() + 1).padStart(2, "0")}-${String(chart.birthDate.getDate()).padStart(2, "0")}`
+            : undefined,
+        }),
       });
 
       if (!res.ok) {

@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
     const chart = body.chart as SajuChart;
     const userId = body.userId || null;
     const locale = body.locale || "en";
+    const clientBirthDateStr = body.birthDateStr || null; // Client sends local-TZ date string
 
     if (!chart || !chart.name || !chart.dayMaster) {
       return NextResponse.json({ error: "Invalid chart data" }, { status: 400 });
@@ -138,7 +139,10 @@ export async function POST(request: NextRequest) {
     const dbHeaders = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}`, "Content-Type": "application/json" };
 
     let birthDateStr: string;
-    if (chart.birthDate instanceof Date) {
+    if (clientBirthDateStr && /^\d{4}-\d{2}-\d{2}$/.test(clientBirthDateStr)) {
+      // Use client-provided date string (avoids UTC timezone shift)
+      birthDateStr = clientBirthDateStr;
+    } else if (chart.birthDate instanceof Date) {
       const d = chart.birthDate;
       birthDateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     } else {
