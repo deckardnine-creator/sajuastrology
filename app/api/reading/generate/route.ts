@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     const chart = body.chart as SajuChart;
     const userId = body.userId || null;
     const locale = body.locale || "en";
-    const clientBirthDateStr = body.birthDateStr || null; // Client sends local-TZ date string
+    const clientBirthDateStr = body.birthDateStr || null;
 
     if (!chart || !chart.name || !chart.dayMaster) {
       return NextResponse.json({ error: "Invalid chart data" }, { status: 400 });
@@ -140,7 +140,6 @@ export async function POST(request: NextRequest) {
 
     let birthDateStr: string;
     if (clientBirthDateStr && /^\d{4}-\d{2}-\d{2}$/.test(clientBirthDateStr)) {
-      // Use client-provided date string (avoids UTC timezone shift)
       birthDateStr = clientBirthDateStr;
     } else if (chart.birthDate instanceof Date) {
       const d = chart.birthDate;
@@ -170,15 +169,18 @@ export async function POST(request: NextRequest) {
     } catch { /* rate limit check failed — allow through */ }
 
     // ═══ EXACT MATCH CHECK — same person gets same slug (no AI re-generation) ═══
+    // Match includes birth_hour to avoid collisions (e.g., two "Mike" born same day in same city)
+    // Also requires citation_meta to exist — old readings without RAG get regenerated
     try {
       const exactRes = await fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
         name: `eq.${chart.name}`, gender: `eq.${chart.gender}`,
         birth_date: `eq.${birthDateStr}`, birth_city: `eq.${chart.birthCity}`,
-        select: "share_slug", limit: "1",
+        birth_hour: `eq.${chart.birthHour || 12}`,
+        select: "share_slug,citation_meta", limit: "1",
       })}`, { headers: dbHeaders });
       if (exactRes.ok) {
         const exactData = await exactRes.json();
-        if (exactData?.length > 0 && exactData[0].share_slug) {
+        if (exactData?.length > 0 && exactData[0].share_slug && exactData[0].citation_meta) {
           if (userId) {
             await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${exactData[0].share_slug}&user_id=is.null`, {
               method: "PATCH",
