@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next"
+import type { Metadata } from "next"
 import AboutClient from "@/components/about/about-client"
 
 export const metadata: Metadata = {
@@ -39,7 +39,7 @@ const organizationJsonLd = {
   foundingDate: "2025",
   founder: {
     "@type": "Person",
-    name: "Chandler Yun",
+    name: "Cho Yeon Yun",
     jobTitle: "CEO",
   },
   address: {

@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
@@ -89,7 +89,7 @@ export function Footer() {
               <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground/55">
                 <span>Reg. No.: 402-44-01247</span>
                 <span className="hidden sm:inline">|</span>
-                <span>CEO: Chandler Yun</span>
+                <span>CEO: Cho Yeon Yun</span>
               </div>
               <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground/55">
                 <span>info@rimfactory.io</span>

@@ -1,4 +1,4 @@
-﻿import { Navbar } from "@/components/landing/navbar"
+import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
 
 export const metadata = { title: "Privacy Policy" }
@@ -14,7 +14,7 @@ export default function PrivacyPage() {
           <div className="space-y-8 text-sm text-foreground/90 leading-relaxed">
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Who We Are</h2>
-              <p>SajuAstrology.com is operated by <strong>Rimfactory</strong> (Reg. No. 402-44-01247), 243, 1F, Sindorim Technomart, 97 Saemallo, Guro-gu, Seoul, Korea. CEO: Chandler Yun.</p>
+              <p>SajuAstrology.com is operated by <strong>Rimfactory</strong> (Reg. No. 402-44-01247), 243, 1F, Sindorim Technomart, 97 Saemallo, Guro-gu, Seoul, Korea. CEO: Cho Yeon Yun.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Information We Collect</h2>
@@ -33,7 +33,11 @@ export default function PrivacyPage() {
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Third Parties</h2>
-              <p>Google OAuth, Supabase, LemonSqueezy (payments), Vercel (hosting), and Anthropic Claude API (AI readings). Each has their own privacy policies.</p>
+              <p>Google OAuth, Supabase, LemonSqueezy (payments), Vercel (hosting), Google Gemini API and Anthropic Claude API (AI readings). Each has their own privacy policies.</p>
+            </section>
+            <section>
+              <h2 className="text-lg font-serif text-primary mb-3">Cookies</h2>
+              <p>We use Vercel Analytics (cookie-free). However, our payment provider, LemonSqueezy, may use essential cookies to process transactions securely.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Your Rights</h2>
