@@ -16,6 +16,27 @@ const aboutLabel: Record<Locale, string> = {
   ja: "会社概要",
 }
 
+const bugBounty: Record<Locale, { badge: string; title: string; desc: string; cta: string }> = {
+  en: {
+    badge: "Early Access",
+    title: "Found a bug? Get a free Master Consultation ($29.99)",
+    desc: "We're in early launch — your feedback makes us better. Report any bug with your Google account email and receive a free Master Consultation credit.",
+    cta: "Report a Bug",
+  },
+  ko: {
+    badge: "얼리 액세스",
+    title: "버그를 발견하셨나요? 마스터 상담($29.99)을 무료로 드립니다",
+    desc: "초기 서비스 기간입니다. 구글 계정 이메일과 함께 버그를 알려주시면, 감사의 의미로 마스터 상담 1회 이용권을 드립니다.",
+    cta: "버그 제보하기",
+  },
+  ja: {
+    badge: "アーリーアクセス",
+    title: "バグを発見しましたか？マスター鑑定（$29.99）を無料で差し上げます",
+    desc: "サービス初期段階です。Googleアカウントのメールアドレスと共にバグをご報告いただければ、マスター鑑定1回分を無料で提供いたします。",
+    cta: "バグを報告する",
+  },
+}
+
 export function Footer() {
   const { t, locale, setLocale } = useLanguage()
 
@@ -30,6 +51,8 @@ export function Footer() {
     { label: t("footer.privacy"), href: "/privacy" },
     { label: t("footer.terms"),   href: "/terms" },
   ]
+
+  const bb = bugBounty[locale]
 
   return (
     <footer className="bg-card py-10 sm:py-12">
@@ -61,6 +84,28 @@ export function Footer() {
               ))}
             </div>
           </nav>
+
+          {/* Bug Bounty Banner */}
+          <div className="w-full max-w-lg rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-4 sm:px-5 sm:py-5 text-center">
+            <span className="inline-block px-2.5 py-0.5 text-[10px] sm:text-xs font-semibold uppercase tracking-wider bg-primary/15 text-primary rounded-full mb-2.5">
+              {bb.badge}
+            </span>
+            <p className="text-xs sm:text-sm font-semibold text-foreground leading-snug mb-1.5">
+              {bb.title}
+            </p>
+            <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed mb-3">
+              {bb.desc}
+            </p>
+            <a
+              href="mailto:info@rimfactory.io?subject=Bug%20Report%20-%20SajuAstrology"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+            >
+              <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+              </svg>
+              {bb.cta}
+            </a>
+          </div>
 
           {/* Copyright + Language switcher */}
           <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap justify-center">
