@@ -96,15 +96,7 @@ export function Footer() {
             <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed mb-3">
               {bb.desc}
             </p>
-            <a
-              href="mailto:info@rimfactory.io?subject=Bug%20Report%20-%20SajuAstrology"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-            >
-              <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-              </svg>
-              {bb.cta}
-            </a>
+            <a<a href="mailto:info@rimfactory.io?subject=Bug%20Report%20-%20SajuAstrology" className="text-primary font-semibold text-sm hover:underline">info@rimfactory.io</a>
           </div>
 
           {/* Copyright + Language switcher */}
