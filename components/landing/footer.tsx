@@ -16,24 +16,21 @@ const aboutLabel: Record<Locale, string> = {
   ja: "会社概要",
 }
 
-const bugBounty: Record<Locale, { badge: string; title: string; desc: string; cta: string }> = {
+const bugBounty: Record<Locale, { badge: string; title: string; desc: string }> = {
   en: {
     badge: "Early Access",
     title: "Found a bug? Get a free Master Consultation ($29.99)",
-    desc: "We're in early launch — your feedback makes us better. Report any bug with your Google account email and receive a free Master Consultation credit.",
-    cta: "Report a Bug",
+    desc: "We're in early launch — your feedback makes us better. Report any bug with your Google account email to the address below and receive a free Master Consultation credit.",
   },
   ko: {
     badge: "얼리 액세스",
     title: "버그를 발견하셨나요? 마스터 상담($29.99)을 무료로 드립니다",
-    desc: "초기 서비스 기간입니다. 구글 계정 이메일과 함께 버그를 알려주시면, 감사의 의미로 마스터 상담 1회 이용권을 드립니다.",
-    cta: "버그 제보하기",
+    desc: "초기 서비스 기간입니다. 구글 계정 이메일과 함께 아래 주소로 버그를 알려주시면, 감사의 의미로 마스터 상담 1회 이용권을 드립니다.",
   },
   ja: {
     badge: "アーリーアクセス",
     title: "バグを発見しましたか？マスター鑑定（$29.99）を無料で差し上げます",
-    desc: "サービス初期段階です。Googleアカウントのメールアドレスと共にバグをご報告いただければ、マスター鑑定1回分を無料で提供いたします。",
-    cta: "バグを報告する",
+    desc: "サービス初期段階です。Googleアカウントのメールアドレスと共に、下記アドレスへバグをご報告いただければ、マスター鑑定1回分を無料で提供いたします。",
   },
 }
 
@@ -96,7 +93,9 @@ export function Footer() {
             <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed mb-3">
               {bb.desc}
             </p>
-            <a<a href="mailto:info@rimfactory.io?subject=Bug%20Report%20-%20SajuAstrology" className="text-primary font-semibold text-sm hover:underline">info@rimfactory.io</a>
+            <p className="text-primary font-semibold text-sm sm:text-base select-all">
+              info@rimfactory.io
+            </p>
           </div>
 
           {/* Copyright + Language switcher */}
