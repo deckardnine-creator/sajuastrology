@@ -15,9 +15,9 @@ const content = {
     ja: "古典の知恵。現代の知能。",
   },
   subhead: {
-    en: "Rimfactory is an astrology-technology company that applies vector search, retrieval-augmented generation, and multi-model AI validation to the world's oldest divination systems — starting with Korean Four Pillars (사주).",
-    ko: "Rimfactory는 벡터 검색, 검색 증강 생성(RAG), 멀티 모델 AI 교차 검증을 세계에서 가장 오래된 점술 체계에 적용하는 점성술 테크 기업입니다. 한국 사주(四柱)에서 시작합니다.",
-    ja: "Rimfactoryは、ベクトル検索、RAG（検索拡張生成）、マルチモデルAI交差検証を世界最古の占術体系に適用する占星術テック企業です。韓国の四柱推命から始めます。",
+    en: "Rimfactory is a cultural intelligence company that applies vector search, retrieval-augmented generation, and multi-model AI validation to classical Eastern wisdom systems — starting with Korean Four Pillars (사주).",
+    ko: "Rimfactory는 벡터 검색, 검색 증강 생성(RAG), 멀티 모델 AI 교차 검증을 고전 동양 명리 체계에 적용하는 문화 분석 테크 기업입니다. 한국 사주(四柱)에서 시작합니다.",
+    ja: "Rimfactoryは、ベクトル検索、RAG（検索拡張生成）、マルチモデルAI交差検証を古典東洋命理体系に適用する文化分析テック企業です。韓国の四柱推命から始めます。",
   },
 
   // Vision

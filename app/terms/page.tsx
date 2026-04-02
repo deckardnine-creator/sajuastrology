@@ -35,12 +35,12 @@ export default function TermsPage() {
               <p className="mb-2"><strong>Free:</strong> Personal reading (personality, elements, year forecast), full compatibility analysis (love, work, friendship, conflict, yearly forecast), daily fortune, shareable profiles.</p>
               <p className="mb-2"><strong>Full Destiny Reading ($9.99):</strong> Career and wealth blueprint, love and relationship insights, health timing, 10-year fortune cycle, monthly energy calendar, hidden talent analysis. One-time payment per reading.</p>
               <p className="mb-2"><strong>Master Consultation ($29.99):</strong> 5 sessions for specific life questions. Credits never expire.</p>
-              <p className="text-muted-foreground">All prices USD. In-app purchases may include additional platform fees from Apple or Google. For the best value, purchase through our website.</p>
+              <p className="text-muted-foreground">All prices USD. One-time payments only — no subscriptions or recurring charges.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">6. Payments and Refunds</h2>
-              <p className="mb-2">Payments are processed securely by PayPal. We accept PayPal, Visa, Mastercard, Amex, and other major payment methods via PayPal Checkout. We never store your credit card details.</p>
-              <p>Digital content is delivered instantly — sales are generally final. If an AI analysis error occurs before your results are delivered, you may request a refund within 7 days by contacting <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. Unused consultation credits remain indefinitely.</p>
+              <p className="mb-2">Payments are processed securely through our payment partners. On the web, payments are handled via PayPal Checkout (Visa, Mastercard, Amex, and other major methods accepted). In the mobile app, payments are processed through Apple App Store (iOS) or Google Play (Android) in-app purchase. We never store your credit card details.</p>
+              <p>Digital content is delivered instantly — sales are generally final. If an AI analysis error occurs before your results are delivered, you may request a refund within 7 days by contacting <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. For in-app purchases, refunds are handled by Apple or Google according to their respective refund policies. Unused consultation credits remain indefinitely.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">7. AI Content</h2>

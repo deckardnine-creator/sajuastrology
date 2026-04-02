@@ -2,11 +2,11 @@ import type { Metadata } from "next"
 import AboutClient from "@/components/about/about-client"
 
 export const metadata: Metadata = {
-  title: "About Rimfactory — Astrology Technology Company",
-  description: "Rimfactory applies retrieval-augmented generation (RAG) and multi-model AI to the world's oldest divination systems. 562 classical passages, 518,400 unique profiles, 3 languages.",
+  title: "About Rimfactory — Cultural Intelligence Company",
+  description: "Rimfactory applies retrieval-augmented generation (RAG) and multi-model AI to classical Eastern wisdom systems. 562 classical passages, 518,400 unique profiles, 3 languages.",
   openGraph: {
     title: "Rimfactory — Ancient Wisdom. Modern Intelligence.",
-    description: "Astrology-technology company. RAG-powered Korean Four Pillars reading service with 562 classical passages, 518,400 unique cosmic profiles, multi-LLM verification.",
+    description: "Cultural intelligence company. RAG-powered Korean Four Pillars personality analytics with 562 classical passages, 518,400 unique profiles, multi-LLM verification.",
     url: "https://sajuastrology.com/about",
     siteName: "SajuAstrology",
     type: "website",
@@ -14,14 +14,14 @@ export const metadata: Metadata = {
       url: "https://sajuastrology.com/og-image1.png",
       width: 1200,
       height: 630,
-      alt: "Rimfactory — Astrology Meets Science",
+      alt: "Rimfactory — Ancient Wisdom Meets Modern AI",
       type: "image/png",
     }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Rimfactory — Ancient Wisdom. Modern Intelligence.",
-    description: "Astrology-technology company applying RAG and multi-model AI to the world's oldest divination systems.",
+    description: "Cultural intelligence company applying RAG and multi-model AI to classical Eastern wisdom systems.",
     images: ["https://sajuastrology.com/og-image1.png"],
   },
   alternates: {
@@ -35,7 +35,7 @@ const organizationJsonLd = {
   name: "Rimfactory",
   url: "https://sajuastrology.com",
   logo: "https://sajuastrology.com/logo1.png",
-  description: "Astrology-technology company applying retrieval-augmented generation (RAG) and multi-model AI to the world's oldest divination systems.",
+  description: "Cultural intelligence company applying retrieval-augmented generation (RAG) and multi-model AI to classical Eastern wisdom systems.",
   foundingDate: "2025",
   founder: {
     "@type": "Person",

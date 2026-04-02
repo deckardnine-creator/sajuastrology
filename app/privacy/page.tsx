@@ -20,7 +20,7 @@ export default function PrivacyPage() {
               <h2 className="text-lg font-serif text-primary mb-3">Information We Collect</h2>
               <p className="mb-2"><strong>Account:</strong> Name, email, and profile picture via Google sign-in. We never receive your Google password.</p>
               <p className="mb-2"><strong>Birth Data:</strong> Name, gender, birth date/time/city you voluntarily provide for readings, compatibility checks, and consultations.</p>
-              <p className="mb-2"><strong>Payments:</strong> Processed securely by PayPal. We never store credit card numbers.</p>
+              <p className="mb-2"><strong>Payments:</strong> Processed securely through our payment partners (PayPal for web, Apple App Store or Google Play for mobile app). We never store credit card numbers.</p>
               <p><strong>Analytics:</strong> Anonymous usage data via Vercel Analytics (cookie-free).</p>
             </section>
             <section>
@@ -33,7 +33,7 @@ export default function PrivacyPage() {
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Third Parties</h2>
-              <p>Google OAuth, Supabase, PayPal (payments), Vercel (hosting), Google Gemini API and Anthropic Claude API (AI readings). Each has their own privacy policies.</p>
+              <p>Google OAuth, Supabase, PayPal (web payments), Apple App Store and Google Play (in-app purchases), Vercel (hosting), Google Gemini API and Anthropic Claude API (AI readings). Each has their own privacy policies.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Cookies</h2>
