@@ -10,7 +10,7 @@ export default function PrivacyPage() {
       <div className="pt-24 md:pt-28 pb-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <h1 className="text-3xl md:text-4xl font-serif text-primary mb-2">Privacy Policy</h1>
-          <p className="text-sm text-muted-foreground mb-10">Last updated: March 2026</p>
+          <p className="text-sm text-muted-foreground mb-10">Last updated: April 2026</p>
           <div className="space-y-8 text-sm text-foreground/90 leading-relaxed">
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Who We Are</h2>
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
               <h2 className="text-lg font-serif text-primary mb-3">Information We Collect</h2>
               <p className="mb-2"><strong>Account:</strong> Name, email, and profile picture via Google sign-in. We never receive your Google password.</p>
               <p className="mb-2"><strong>Birth Data:</strong> Name, gender, birth date/time/city you voluntarily provide for readings, compatibility checks, and consultations.</p>
-              <p className="mb-2"><strong>Payments:</strong> Processed entirely by LemonSqueezy. We never store credit card numbers.</p>
+              <p className="mb-2"><strong>Payments:</strong> Processed securely by PayPal. We never store credit card numbers.</p>
               <p><strong>Analytics:</strong> Anonymous usage data via Vercel Analytics (cookie-free).</p>
             </section>
             <section>
@@ -33,11 +33,11 @@ export default function PrivacyPage() {
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Third Parties</h2>
-              <p>Google OAuth, Supabase, LemonSqueezy (payments), Vercel (hosting), Google Gemini API and Anthropic Claude API (AI readings). Each has their own privacy policies.</p>
+              <p>Google OAuth, Supabase, PayPal (payments), Vercel (hosting), Google Gemini API and Anthropic Claude API (AI readings). Each has their own privacy policies.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Cookies</h2>
-              <p>We use Vercel Analytics (cookie-free). However, our payment provider, LemonSqueezy, may use essential cookies to process transactions securely.</p>
+              <p>We use Vercel Analytics (cookie-free). However, our payment provider, PayPal, may use essential cookies to process transactions securely.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Your Rights</h2>

@@ -10,7 +10,7 @@ export default function TermsPage() {
       <div className="pt-24 md:pt-28 pb-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <h1 className="text-3xl md:text-4xl font-serif text-primary mb-2">Terms of Service</h1>
-          <p className="text-sm text-muted-foreground mb-10">Last updated: March 2026</p>
+          <p className="text-sm text-muted-foreground mb-10">Last updated: April 2026</p>
           <div className="space-y-8 text-sm text-foreground/90 leading-relaxed">
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">1. Agreement</h2>
@@ -39,7 +39,7 @@ export default function TermsPage() {
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">6. Payments and Refunds</h2>
-              <p className="mb-2">Our order process is conducted by our online reseller LemonSqueezy. LemonSqueezy is the Merchant of Record for all our orders. We accept Visa, Mastercard, Amex, Apple Pay, and Google Pay. We never store your credit card details.</p>
+              <p className="mb-2">Payments are processed securely by PayPal. We accept PayPal, Visa, Mastercard, Amex, and other major payment methods via PayPal Checkout. We never store your credit card details.</p>
               <p>Digital content is delivered instantly — sales are generally final. If an AI analysis error occurs before your results are delivered, you may request a refund within 7 days by contacting <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. Unused consultation credits remain indefinitely.</p>
             </section>
             <section>
