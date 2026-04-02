@@ -147,11 +147,11 @@ export default function ReadingPageClient() {
   const [isPaymentReturn] = useState(() => {
     if (typeof window === "undefined") return false;
     const params = new URLSearchParams(window.location.search);
-    return params.get("payment") === "success" && !!params.get("session_id");
+    return params.get("payment") === "success" && (!!params.get("session_id") || !!params.get("token"));
   });
   const [paymentSessionId] = useState(() => {
     if (typeof window === "undefined") return "";
-    return new URLSearchParams(window.location.search).get("session_id") || "";
+    const p = new URLSearchParams(window.location.search); return p.get("session_id") || p.get("token") || "";
   });
 
   // Reset payment loading when user returns from LemonSqueezy (browser tab regains focus)
