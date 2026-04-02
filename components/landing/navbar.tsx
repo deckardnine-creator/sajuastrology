@@ -147,7 +147,7 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-background/98 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-[45] bg-background/98 backdrop-blur-sm md:hidden"
           >
             <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6">
 

@@ -19,7 +19,7 @@ export function BottomNav() {
   const { locale } = useLanguage();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
       {/* Top border glow */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#c8a97e]/40 to-transparent" />
 

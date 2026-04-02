@@ -576,7 +576,7 @@ export type TranslationKey = keyof typeof translations;
 export function t(key: TranslationKey, locale: Locale): string {
   const entry = translations[key];
   if (!entry) return key;
-  return entry[locale] || entry.en;
+  return entry[locale] ?? entry.en;
 }
 
 export default translations;
