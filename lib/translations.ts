@@ -1,4 +1,4 @@
-﻿export type Locale = "en" | "ko" | "ja";
+export type Locale = "en" | "ko" | "ja";
 
 export const LOCALE_LABELS: Record<Locale, string> = {
   en: "English",
@@ -128,7 +128,7 @@ const translations = {
   "faq.q5": { en: "Is there a mobile app?", ko: "모바일 앱이 있나요?", ja: "モバイルアプリはありますか？" },
   "faq.a5": { en: "Yes! SajuAstrology is available on both iOS (App Store) and Android (Google Play). The app includes push notifications for your daily fortune, offline access to your readings, and a seamless mobile experience.", ko: "네! iOS(앱스토어)와 Android(구글 플레이) 모두 지원. 일일 운세 푸시 알림, 오프라인 리딩, 원활한 모바일 경험.", ja: "はい！iOS・Android両方で利用可能。毎日の運勢プッシュ通知、オフライン鑑定閲覧、シームレスなモバイル体験。" },
   "faq.q6": { en: "How is web payment different from the app?", ko: "웹 결제와 앱 결제의 차이는?", ja: "Web決済とアプリ内課金の違いは？" },
-  "faq.a6": { en: "When you purchase through our website (sajuastrology.com), payments go through our secure payment processor at our listed prices ($9.99 / $29.99). In-app purchases through the App Store or Google Play may include platform fees set by Apple and Google (typically 15–30%), which could make in-app prices slightly higher. For the best value, we recommend purchasing through our website.", ko: "웹사이트에서 결제 시 표시 가격 그대로. 앱 인앱 결제는 플랫폼 수수료(15~30%)가 포함될 수 있습니다. 웹사이트 결제 권장.", ja: "ウェブからのお支払いは表示価格のまま。アプリ内課金にはプラットフォーム手数料（15〜30%）が含まれる場合があります。ウェブサイトからの購入をお勧めします。" },
+  "faq.a6": { en: "Prices are the same whether you purchase on our website or through the app ($9.99 / $29.99). On the web, payments are processed via PayPal. In the app, payments go through Apple App Store (iOS) or Google Play (Android). Your purchase is linked to your account and accessible on any device.", ko: "웹사이트와 앱 모두 동일 가격($9.99 / $29.99). 웹은 PayPal, 앱은 App Store(iOS) 또는 Google Play(Android)로 결제. 구매 내역은 계정에 연결되어 모든 기기에서 이용 가능.", ja: "ウェブとアプリで同一価格（$9.99 / $29.99）。ウェブはPayPal、アプリはApp Store（iOS）またはGoogle Play（Android）で決済。購入はアカウントに紐付けられ全デバイスで利用可能。" },
   "faq.q7": { en: "Do I need to sign in to pay?", ko: "결제하려면 로그인해야 하나요?", ja: "支払いにはログインが必要ですか？" },
   "faq.a7": { en: "Yes. We require Google sign-in before any purchase so your paid content is permanently saved to your account and accessible from your dashboard on any device. Sign-in is free and takes one click.", ko: "네. 구매 전 구글 로그인 필요. 유료 콘텐츠가 계정에 영구 저장. 로그인은 무료이며 클릭 한 번.", ja: "はい。購入前にGoogleログインが必要。有料コンテンツがアカウントに永久保存。ログインは無料でワンクリック。" },
   "faq.q8": { en: "How does the daily fortune work?", ko: "일일 운세는 어떻게 작동하나요?", ja: "毎日の運勢はどう機能しますか？" },
