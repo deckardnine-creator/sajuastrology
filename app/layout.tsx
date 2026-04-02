@@ -5,6 +5,7 @@ import { AuthProvider } from '@/lib/auth-context'
 import { LanguageProvider } from '@/lib/language-context'
 import { SignInModal } from '@/components/auth/sign-in-modal'
 import { ScrollToTop } from '@/components/ui/scroll-to-top'
+import { BottomNav } from '@/components/app/bottom-nav'
 import './globals.css'
 
 const inter = Inter({ 
@@ -159,9 +160,12 @@ export default function RootLayout({
       <body className={`${inter.variable} ${playfair.variable} ${notoSansKR.variable} ${notoSerifKR.variable} font-sans antialiased`}>
         <AuthProvider>
           <LanguageProvider>
-            {children}
+            <div className="pb-14 md:pb-0">
+              {children}
+            </div>
             <SignInModal />
             <ScrollToTop />
+            <BottomNav />
           </LanguageProvider>
         </AuthProvider>
         <Analytics />

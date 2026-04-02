@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SajuAstrology</string>
+    <string name="title_activity_main">SajuAstrology</string>
+    <string name="package_name">com.rimfactory.sajuastrology</string>
+    <string name="custom_url_scheme">com.rimfactory.sajuastrology</string>
+</resources>

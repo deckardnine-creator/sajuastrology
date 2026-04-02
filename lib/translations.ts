@@ -469,9 +469,9 @@ const translations = {
   // ─── What is Saju Page ───
 
   // Hero
-  "wis.hero.titleMain": { en: "What is", ko: "사주란", ja: "사주とは" },
-  "wis.hero.titleGold": { en: "Saju", ko: "사주", ja: "사주" },
-  "wis.hero.titleSuffix": { en: "?", ko: "무엇인가요?", ja: "何ですか？" },
+  "wis.hero.titleMain": { en: "What is", ko: "", ja: "" },
+  "wis.hero.titleGold": { en: "Saju", ko: "사주", ja: "四柱推命" },
+  "wis.hero.titleSuffix": { en: "?", ko: "란 무엇인가요?", ja: "とは何ですか？" },
   "wis.hero.desc": { en: "The 1,000-year-old system that maps your entire life from the moment you were born.", ko: "태어난 순간부터 인생 전체를 그려내는 1,000년의 지혜.", ja: "生まれた瞬間から人生全体を描く、1,000年の知恵。" },
 
   // Comparison Hook
@@ -562,6 +562,13 @@ const translations = {
   "qc.checkBtn": { en: "Check Compatibility", ko: "궁합 확인", ja: "相性チェック" },
   "qc.tryAnother": { en: "Try Another", ko: "다시 해보기", ja: "もう一度" },
   "qc.fullReport": { en: "Full Compatibility Report", ko: "전체 궁합 리포트", ja: "詳細相性レポート" },
+
+  // ─── Bottom Navigation ───
+  "bnav.home": { en: "Home", ko: "홈", ja: "ホーム" },
+  "bnav.reading": { en: "Reading", ko: "사주", ja: "鑑定" },
+  "bnav.compatibility": { en: "Match", ko: "궁합", ja: "相性" },
+  "bnav.consultation": { en: "Consult", ko: "상담", ja: "相談" },
+  "bnav.my": { en: "My", ko: "마이", ja: "マイ" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;
