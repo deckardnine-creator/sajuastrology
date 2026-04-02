@@ -18,20 +18,13 @@ export function BottomNav() {
   const pathname = usePathname();
   const { locale } = useLanguage();
 
-  // Hide on pages where bottom nav doesn't make sense
-  const hiddenPaths = ["/terms", "/privacy", "/about"];
-  if (hiddenPaths.some((p) => pathname.startsWith(p))) return null;
-
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
-      style={{ WebkitBackfaceVisibility: "hidden" }}
-    >
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
       {/* Top border glow */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#c8a97e]/40 to-transparent" />
 
       <div
-        className="flex items-center justify-around bg-[#0a0e1a]/95 backdrop-blur-md"
+        className="flex items-center justify-around bg-[#0a0e1a] border-t border-white/5"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         {NAV_ITEMS.map(({ key, href, icon: Icon }) => {
