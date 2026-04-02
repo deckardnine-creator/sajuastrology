@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { calculateSajuChart } from "@/lib/saju-calculator";
+import { calculateSaju } from "@/lib/saju-calculator";
 import { calculateAdvancedSaju } from "@/lib/saju-advanced";
 
 // Simplified endpoint for mobile app — accepts raw birth data, does calculation server-side
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     const minute = birthMinute ?? 0;
 
     // Calculate saju chart using existing calculator
-    const basicChart = calculateSajuChart(
+    const basicChart = calculateSaju(
       birthDate, hour, gender,
       lat ?? 37.5665, lng ?? 126.978
     );
