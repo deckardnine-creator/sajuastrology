@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
+import { useNativeApp } from "@/lib/native-app"
 import type { Locale } from "@/lib/translations"
 
 const LOCALES: { code: Locale; label: string }[] = [
@@ -36,6 +37,7 @@ const bugBounty: Record<Locale, { badge: string; title: string; desc: string }> 
 
 export function Footer() {
   const { t, locale, setLocale } = useLanguage()
+  const isNative = useNativeApp()
 
   const mainLinks = [
     { label: t("nav.whatIsSaju"), href: "/what-is-saju" },
@@ -82,7 +84,8 @@ export function Footer() {
             </div>
           </nav>
 
-          {/* Bug Bounty Banner */}
+          {/* Bug Bounty Banner — hidden in native app */}
+          {!isNative && (
           <div className="w-full max-w-lg rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-4 sm:px-5 sm:py-5 text-center">
             <span className="inline-block px-2.5 py-0.5 text-[10px] sm:text-xs font-semibold uppercase tracking-wider bg-primary/15 text-primary rounded-full mb-2.5">
               {bb.badge}
@@ -97,6 +100,7 @@ export function Footer() {
               info@rimfactory.io
             </p>
           </div>
+          )}
 
           {/* Copyright + Language switcher */}
           <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap justify-center">
@@ -118,7 +122,8 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Business info */}
+          {/* Business info — hidden in native app */}
+          {!isNative && (
           <div className="border-t border-border w-full pt-6">
             <div className="flex flex-col items-center gap-1.5 text-center">
               <p className="text-xs font-medium text-muted-foreground/80">Rimfactory</p>
@@ -137,6 +142,7 @@ export function Footer() {
               </p>
             </div>
           </div>
+          )}
 
         </div>
       </div>

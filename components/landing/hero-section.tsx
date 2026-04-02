@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { ArrowRight, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/lib/language-context"
+import { useNativeApp } from "@/lib/native-app"
 import Link from "next/link"
 
 const pillars = [
@@ -29,6 +30,7 @@ export function HeroSection() {
     )
   }, [])
   const { t, locale } = useLanguage()
+  const isNativeApp = useNativeApp()
 
   const handleAppClick = (platform: "ios" | "android") => {
     setShowComingSoon(platform)
@@ -110,7 +112,8 @@ export function HeroSection() {
               </Link>
             </div>
 
-            {/* App Download Buttons */}
+            {/* App Download Buttons — hidden inside native app */}
+            {!isNativeApp && (
             <div className="flex flex-col gap-2 mt-1">
               <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3">
                 <button
@@ -154,6 +157,7 @@ export function HeroSection() {
                 )}
               </AnimatePresence>
             </div>
+            )}
           </motion.div>
 
           {/* Right: Four Pillars */}

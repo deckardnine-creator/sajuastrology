@@ -11,6 +11,7 @@ const config: CapacitorConfig = {
   android: {
     allowMixedContent: false,
     backgroundColor: '#0a0a1a',
+    appendUserAgent: 'SajuApp',
   },
 };
 
