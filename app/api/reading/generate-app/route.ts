@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { calculateSaju } from "@/lib/saju-calculator";
 import { calculateAdvancedSaju } from "@/lib/saju-advanced";
 
+export const maxDuration = 120;
+
 // Simplified endpoint for mobile app — accepts raw birth data, does calculation server-side
 export async function POST(req: NextRequest) {
   try {
@@ -16,11 +18,12 @@ export async function POST(req: NextRequest) {
     const birthDate = new Date(birthYear, birthMonth - 1, birthDay);
     const hour = birthHour ?? 12;
     const minute = birthMinute ?? 0;
+    const city = birthCity || "Seoul";
 
-    // Calculate saju chart using existing calculator
+    // Calculate saju chart — signature must match compatibility route:
+    // calculateSaju(name, gender, date, hour, city)
     const basicChart = calculateSaju(
-      birthDate, hour, gender,
-      lat ?? 37.5665, lng ?? 126.978
+      name, gender, birthDate, hour, city
     );
 
     const advancedChart = calculateAdvancedSaju(basicChart);
@@ -31,7 +34,7 @@ export async function POST(req: NextRequest) {
       ...advancedChart,
       name,
       gender,
-      birthCity: birthCity || "Unknown",
+      birthCity: city,
       birthDate: `${birthYear}-${String(birthMonth).padStart(2, "0")}-${String(birthDay).padStart(2, "0")}`,
       birthHour: hour,
       birthMinute: minute,
@@ -51,9 +54,15 @@ export async function POST(req: NextRequest) {
     });
 
     if (!generateRes.ok) {
-      const errData = await generateRes.json().catch(() => ({}));
+      const errText = await generateRes.text();
+      let errMsg = "Generation failed";
+      try {
+        const errData = JSON.parse(errText);
+        errMsg = errData.error || errMsg;
+      } catch {}
+      console.error("generate-app: internal generate failed:", generateRes.status, errText.substring(0, 300));
       return NextResponse.json(
-        { error: errData.error || "Generation failed" },
+        { error: errMsg },
         { status: generateRes.status }
       );
     }
