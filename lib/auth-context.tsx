@@ -201,8 +201,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     safeRemove("return-to-consultation");
     safeRemove("auth-return-url");
     safeRemove("dashboard-stale");
-    // Do NOT setUser(null) here — the page redirect will handle full reset
-    // This prevents the brief flash of logged-out UI before redirect
+    // Force full page reload to clear all React state
+    window.location.href = "/";
   };
 
   const saveSajuChart = (chart: SajuChart) => {
