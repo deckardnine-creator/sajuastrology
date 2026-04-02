@@ -18,7 +18,7 @@ export default function PrivacyPage() {
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Information We Collect</h2>
-              <p className="mb-2"><strong>Account:</strong> Name, email, and profile picture via Google sign-in. We never receive your Google password.</p>
+              <p className="mb-2"><strong>Account:</strong> Name, email, and profile picture via Google or Apple sign-in. We never receive your password. Apple users may choose to hide their email — we respect that choice and use the relay address provided.</p>
               <p className="mb-2"><strong>Birth Data:</strong> Name, gender, birth date/time/city you voluntarily provide for readings, compatibility checks, and consultations.</p>
               <p className="mb-2"><strong>Payments:</strong> Processed securely through our payment partners (PayPal for web, Apple App Store or Google Play for mobile app). We never store credit card numbers.</p>
               <p><strong>Analytics:</strong> Anonymous usage data via Vercel Analytics (cookie-free).</p>
@@ -29,11 +29,11 @@ export default function PrivacyPage() {
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Security</h2>
-              <p>Data stored on Supabase with Row Level Security. All connections encrypted via HTTPS. Authentication via Google OAuth 2.0.</p>
+              <p>Data stored on Supabase with Row Level Security. All connections encrypted via HTTPS. Authentication via Google OAuth 2.0 and Apple Sign-in.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Third Parties</h2>
-              <p>Google OAuth, Supabase, PayPal (web payments), Apple App Store and Google Play (in-app purchases), Vercel (hosting), Google Gemini API and Anthropic Claude API (AI readings). Each has their own privacy policies.</p>
+              <p>Google OAuth, Apple Sign-in, Supabase, PayPal (web payments), Apple App Store and Google Play (in-app purchases), Vercel (hosting), Google Gemini API and Anthropic Claude API (AI readings). Each has their own privacy policies.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Cookies</h2>
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Your Rights</h2>
-              <p>Access your data via dashboard. Request deletion by contacting us. Withdraw consent anytime.</p>
+              <p>Access your data via dashboard. Request account and data deletion by contacting <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> — we will process deletion within 30 days. Withdraw consent anytime.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Important Disclaimer</h2>

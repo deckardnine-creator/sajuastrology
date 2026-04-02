@@ -22,7 +22,7 @@ export interface UserSajuData {
 interface AuthContextType {
   user: User | null; sajuData: UserSajuData; isLoading: boolean;
   isSignInModalOpen: boolean; openSignInModal: () => void; closeSignInModal: () => void;
-  signIn: () => Promise<void>; signOut: () => Promise<void>; saveSajuChart: (chart: SajuChart) => void;
+  signIn: () => Promise<void>; signInWithApple: () => Promise<void>; signOut: () => Promise<void>; saveSajuChart: (chart: SajuChart) => void;
   isPremium: boolean;
   claimTrigger: number;
   isSigningOut: boolean;
@@ -188,6 +188,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) { safeRemove("auth-return-url"); setIsLoading(false); }
   };
 
+  const signInWithApple = async () => {
+    setIsLoading(true);
+    if (!safeGet("auth-return-url")) {
+      safeSet("auth-return-url", window.location.href);
+    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "apple",
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+    if (error) { safeRemove("auth-return-url"); setIsLoading(false); }
+  };
+
   const signOut = async () => {
     // Set signing out flag FIRST — prevents UI flash
     setIsSigningOut(true);
@@ -217,7 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isPremium = user?.subscription === "premium" || user?.subscription === "master";
 
   return (
-    <AuthContext.Provider value={{ user, sajuData, isLoading, isSignInModalOpen, openSignInModal, closeSignInModal, signIn, signOut, saveSajuChart, isPremium, claimTrigger, isSigningOut }}>
+    <AuthContext.Provider value={{ user, sajuData, isLoading, isSignInModalOpen, openSignInModal, closeSignInModal, signIn, signInWithApple, signOut, saveSajuChart, isPremium, claimTrigger, isSigningOut }}>
       {children}
     </AuthContext.Provider>
   );

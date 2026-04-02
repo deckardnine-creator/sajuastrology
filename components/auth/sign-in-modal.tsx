@@ -4,13 +4,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GoogleIcon } from "@/components/ui/google-icon";
+import { AppleIcon } from "@/components/ui/apple-icon";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
 import Link from "next/link";
 
 export function SignInModal() {
-  const { isSignInModalOpen, closeSignInModal, signIn, isLoading } = useAuth();
+  const { isSignInModalOpen, closeSignInModal, signIn, signInWithApple, isLoading } = useAuth();
   const { locale } = useLanguage();
 
   if (!isSignInModalOpen) return null;
@@ -84,21 +85,40 @@ export function SignInModal() {
                   {t("signIn.saveReading", locale)}
                 </p>
 
-                {/* Google Sign In Button */}
-                <Button
-                  onClick={signIn}
-                  disabled={isLoading}
-                  className="w-full h-12 bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 font-medium flex items-center justify-center gap-3"
-                >
-                  {isLoading ? (
-                    <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <GoogleIcon className="w-5 h-5" />
-                      {t("signIn.continueGoogle", locale)}
-                    </>
-                  )}
-                </Button>
+                {/* Sign In Buttons */}
+                <div className="space-y-3">
+                  {/* Google Sign In Button */}
+                  <Button
+                    onClick={signIn}
+                    disabled={isLoading}
+                    className="w-full h-12 bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 font-medium flex items-center justify-center gap-3"
+                  >
+                    {isLoading ? (
+                      <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <GoogleIcon className="w-5 h-5" />
+                        {t("signIn.continueGoogle", locale)}
+                      </>
+                    )}
+                  </Button>
+
+                  {/* Apple Sign In Button */}
+                  <Button
+                    onClick={signInWithApple}
+                    disabled={isLoading}
+                    className="w-full h-12 bg-black text-white hover:bg-gray-900 border border-gray-700 font-medium flex items-center justify-center gap-3"
+                  >
+                    {isLoading ? (
+                      <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <AppleIcon className="w-5 h-5" />
+                        {t("signIn.continueApple", locale)}
+                      </>
+                    )}
+                  </Button>
+                </div>
 
                 <p className="text-xs text-muted-foreground/70 mt-6 leading-relaxed">
                   {t("signIn.agreeTo", locale)}{" "}

@@ -28,7 +28,8 @@ export default function TermsPage() {
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">4. Accounts</h2>
-              <p>Google sign-in required to save readings and make purchases. Must be 13+ to create an account. Your account syncs across web and mobile app.</p>
+              <p className="mb-2">Sign in with Google or Apple to save readings and make purchases. Must be 13+ to create an account. Your account syncs across web and mobile app.</p>
+              <p>You may delete your account and all associated data at any time by contacting <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. Upon request, we will permanently delete your account and personal data within 30 days.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">5. Pricing</h2>
