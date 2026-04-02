@@ -151,10 +151,14 @@ export function Navbar() {
           >
             <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6">
 
+              <Link href="/" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.home")}</Link>
               <Link href="/what-is-saju" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.whatIsSaju")}</Link>
               <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>
               <Link href="/compatibility" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.compatibility")}</Link>
               <Link href="/consultation" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.consultation")}</Link>
+
+              {/* Divider */}
+              <div className="w-16 h-px bg-border/50" />
 
               {/* Show skeleton while loading or signing out — prevents flash */}
               {(isLoading || isSigningOut) ? (
@@ -163,13 +167,15 @@ export function Navbar() {
                 <>
                   <Link href="/dashboard" className="text-lg text-primary font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.dashboard")}</Link>
                   <button onClick={handleSignOut} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signOut")}</button>
-                  <Link href="/calculate" onClick={closeMenu} className="mt-4 w-full max-w-xs">
-                    <Button className="w-full h-12 gold-gradient text-primary-foreground font-semibold text-base">{t("nav.getReading")}</Button>
-                  </Link>
                 </>
               ) : (
                 <button onClick={() => { closeMenu(); openSignInModal() }} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signIn")}</button>
               )}
+
+              {/* CTA — always visible */}
+              <Link href="/calculate" onClick={closeMenu} className="mt-2 w-full max-w-xs">
+                <Button className="w-full h-12 gold-gradient text-primary-foreground font-semibold text-base">{t("nav.getReading")}</Button>
+              </Link>
             </div>
           </motion.div>
         )}
