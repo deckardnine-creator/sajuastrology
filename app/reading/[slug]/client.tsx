@@ -13,6 +13,7 @@ import { ELEMENTS, type Element } from "@/lib/saju-calculator";
 import { DAY_MASTER_DISPLAY } from "@/lib/constants";
 import { GoogleIcon } from "@/components/ui/google-icon";
 import { useAuth } from "@/lib/auth-context";
+import { useNativeApp } from "@/lib/native-app";
 import { safeGet, safeSet, safeRemove } from "@/lib/safe-storage";
 import { CitationBanner, CitationCards, CitationMethodology, type CitationMeta } from "@/components/reading/citation-display";
 import { useLanguage } from "@/lib/language-context";
@@ -97,6 +98,7 @@ export default function ReadingPageClient() {
   const router = useRouter();
   const slug = params.slug as string;
   const { user, openSignInModal } = useAuth();
+  const isNative = useNativeApp();
   const { locale } = useLanguage();
   const [reading, setReading] = useState<ReadingData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -698,7 +700,7 @@ export default function ReadingPageClient() {
 
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <button onClick={() => user ? router.push("/dashboard") : router.push("/")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+            <button onClick={() => isNative ? router.push("/app") : user ? router.push("/dashboard") : router.push("/")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="w-4 h-4" /> {user ? t("nav.dashboard", locale) : t("nav.home", locale)}
             </button>
           </motion.div>
@@ -706,7 +708,20 @@ export default function ReadingPageClient() {
           {/* Save & Share Banner */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
             className="mb-6 bg-card/80 border border-primary/20 rounded-xl p-4">
-            {user && (reading.user_id === user.id || claimed) ? (
+            {isNative ? (
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="w-5 h-5 text-primary shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">{t("reading.wantOwn", locale)}</p>
+                    <p className="text-xs text-muted-foreground">{t("reading.discover30s", locale)}</p>
+                  </div>
+                </div>
+                <Link href="/calculate">
+                  <Button size="sm" className="text-xs h-9 gold-gradient text-primary-foreground shrink-0">{t("reading.getMineFree", locale)}</Button>
+                </Link>
+              </div>
+            ) : user && (reading.user_id === user.id || claimed) ? (
               <div className="flex items-center justify-between gap-3">
                 <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                   <Bookmark className="w-5 h-5 text-primary shrink-0" />
@@ -996,8 +1011,8 @@ export default function ReadingPageClient() {
             </motion.section>
           )}
 
-          {/* Locked Premium Content (visible when NOT paid) */}
-          {!reading.is_paid && (
+          {/* Locked Premium Content (visible when NOT paid, hidden in app) */}
+          {!reading.is_paid && !isNative && (
             <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
               <div className="relative overflow-hidden rounded-2xl border border-border" style={{ minHeight: 280 }}>
                 <div className="p-6 blur-sm select-none pointer-events-none">
@@ -1188,7 +1203,14 @@ export default function ReadingPageClient() {
 
           {/* Bottom CTA */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="mb-10">
-            {user ? (
+            {isNative ? (
+              <div className="bg-card/80 border border-border rounded-2xl p-6 text-center">
+                <h3 className="font-serif text-lg font-semibold mb-3">{t("reading.wantOwn", locale)}</h3>
+                <Link href="/calculate">
+                  <Button className="gold-gradient text-primary-foreground font-semibold px-8">{t("reading.getMineFree", locale)}</Button>
+                </Link>
+              </div>
+            ) : user ? (
               <div className="bg-card/80 border border-border rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-4">
                 <div className="flex-1 text-center sm:text-left">
                   <h3 className="font-serif text-lg font-semibold mb-1">{t("reading.shareReading", locale)}</h3>

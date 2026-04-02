@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { UserMenu } from "@/components/auth/user-menu"
 import { useAuth } from "@/lib/auth-context"
 import { useLanguage } from "@/lib/language-context"
+import { useNativeApp } from "@/lib/native-app"
 import type { Locale } from "@/lib/translations"
 import Image from "next/image"
 
@@ -67,6 +68,9 @@ export function Navbar() {
   const { user, isLoading, isSigningOut, openSignInModal, signOut } = useAuth()
   const { t } = useLanguage()
   const router = useRouter()
+  const isNative = useNativeApp()
+
+  const homeHref = isNative ? "/app" : "/"
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden"
@@ -95,7 +99,7 @@ export function Navbar() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 md:h-20 items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center">
+            <Link href={homeHref} className="flex items-center">
               <Image src="/logo1.png" alt="SajuAstrology" width={150} height={44}
                 className="h-10 md:h-12 w-auto object-contain" priority />
             </Link>
@@ -103,25 +107,27 @@ export function Navbar() {
             {/* Desktop nav links */}
             <div className="hidden md:flex md:items-center md:gap-8">
               <Link href="/what-is-saju" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.whatIsSaju")}</Link>
-              <Link href="/pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.pricing")}</Link>
+              {!isNative && <Link href="/pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.pricing")}</Link>}
               <Link href="/compatibility" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.compatibility")}</Link>
-              <Link href="/consultation" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.consultation")}</Link>
+              {!isNative && <Link href="/consultation" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.consultation")}</Link>}
             </div>
 
             {/* Desktop right: lang + user */}
             <div className="hidden md:flex md:items-center md:gap-3">
               <DesktopLangSwitcher />
-              {(isLoading || isSigningOut) ? (
-                <div className="h-10 w-24 bg-muted/30 rounded-lg animate-pulse" />
-              ) : user ? (
-                <UserMenu />
-              ) : (
-                <button
-                  onClick={openSignInModal}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {t("nav.signIn")}
-                </button>
+              {!isNative && (
+                (isLoading || isSigningOut) ? (
+                  <div className="h-10 w-24 bg-muted/30 rounded-lg animate-pulse" />
+                ) : user ? (
+                  <UserMenu />
+                ) : (
+                  <button
+                    onClick={openSignInModal}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {t("nav.signIn")}
+                  </button>
+                )
               )}
             </div>
 
@@ -151,25 +157,27 @@ export function Navbar() {
           >
             <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6">
 
-              <Link href="/" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.home")}</Link>
+              <Link href={homeHref} className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.home")}</Link>
               <Link href="/what-is-saju" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.whatIsSaju")}</Link>
-              <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>
+              {!isNative && <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>}
               <Link href="/compatibility" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.compatibility")}</Link>
-              <Link href="/consultation" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.consultation")}</Link>
+              {!isNative && <Link href="/consultation" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.consultation")}</Link>}
 
               {/* Divider */}
               <div className="w-16 h-px bg-border/50" />
 
-              {/* Show skeleton while loading or signing out — prevents flash */}
-              {(isLoading || isSigningOut) ? (
-                <div className="h-[44px] w-24 bg-muted/30 rounded-lg animate-pulse" />
-              ) : user ? (
-                <>
-                  <Link href="/dashboard" className="text-lg text-primary font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.dashboard")}</Link>
-                  <button onClick={handleSignOut} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signOut")}</button>
-                </>
-              ) : (
-                <button onClick={() => { closeMenu(); openSignInModal() }} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signIn")}</button>
+              {/* Auth — hidden in native app */}
+              {!isNative && (
+                (isLoading || isSigningOut) ? (
+                  <div className="h-[44px] w-24 bg-muted/30 rounded-lg animate-pulse" />
+                ) : user ? (
+                  <>
+                    <Link href="/dashboard" className="text-lg text-primary font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.dashboard")}</Link>
+                    <button onClick={handleSignOut} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signOut")}</button>
+                  </>
+                ) : (
+                  <button onClick={() => { closeMenu(); openSignInModal() }} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signIn")}</button>
+                )
               )}
 
               {/* CTA — always visible */}

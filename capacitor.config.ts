@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'SajuAstrology',
   webDir: 'out',
   server: {
-    url: 'https://sajuastrology.com',
+    url: 'https://sajuastrology.com/app',
     cleartext: false,
   },
   android: {

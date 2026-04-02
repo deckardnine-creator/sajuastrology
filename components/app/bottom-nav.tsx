@@ -4,9 +4,10 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Home, Sparkles, Heart, MessageCircle, User } from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
+import { useNativeApp } from "@/lib/native-app";
 import { t } from "@/lib/translations";
 
-const NAV_ITEMS = [
+const WEB_ITEMS = [
   { key: "bnav.home" as const, href: "/", icon: Home },
   { key: "bnav.reading" as const, href: "/calculate", icon: Sparkles },
   { key: "bnav.compatibility" as const, href: "/compatibility", icon: Heart },
@@ -14,9 +15,18 @@ const NAV_ITEMS = [
   { key: "bnav.my" as const, href: "/dashboard", icon: User },
 ];
 
+const APP_ITEMS = [
+  { key: "bnav.home" as const, href: "/app", icon: Home },
+  { key: "bnav.reading" as const, href: "/calculate", icon: Sparkles },
+  { key: "bnav.compatibility" as const, href: "/compatibility", icon: Heart },
+];
+
 export function BottomNav() {
   const pathname = usePathname();
   const { locale } = useLanguage();
+  const isNative = useNativeApp();
+
+  const items = isNative ? APP_ITEMS : WEB_ITEMS;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
@@ -27,10 +37,10 @@ export function BottomNav() {
         className="flex items-center justify-around bg-[#0a0e1a] border-t border-white/5"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
-        {NAV_ITEMS.map(({ key, href, icon: Icon }) => {
+        {items.map(({ key, href, icon: Icon }) => {
           const isActive =
-            href === "/"
-              ? pathname === "/"
+            href === "/" || href === "/app"
+              ? pathname === "/" || pathname === "/app"
               : pathname.startsWith(href);
 
           return (
