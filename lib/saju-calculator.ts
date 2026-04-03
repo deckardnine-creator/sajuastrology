@@ -69,6 +69,7 @@ export interface SajuChart {
   gender: "male" | "female";
   birthDate: Date;
   birthCity: string;
+  birthHour?: number;
   pillars: {
     year: Pillar;
     month: Pillar;
