@@ -6,6 +6,7 @@ import { LanguageProvider } from '@/lib/language-context'
 import { SignInModal } from '@/components/auth/sign-in-modal'
 import { ScrollToTop } from '@/components/ui/scroll-to-top'
 import { BottomNav } from '@/components/app/bottom-nav'
+import Script from 'next/script'
 import './globals.css'
 
 const inter = Inter({ 
@@ -158,6 +159,18 @@ export default function RootLayout({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className={`${inter.variable} ${playfair.variable} ${notoSansKR.variable} ${notoSerifKR.variable} font-sans antialiased`}>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-CBGH7EYJWJ"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-CBGH7EYJWJ');
+          `}
+        </Script>
         <AuthProvider>
           <LanguageProvider>
             <div className="pb-14 md:pb-0">
