@@ -151,6 +151,10 @@ export default function ReadingPageClient() {
     const params = new URLSearchParams(window.location.search);
     return params.get("payment") === "success" && (!!params.get("session_id") || !!params.get("token"));
   });
+  const [isPaymentSuccess] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return new URLSearchParams(window.location.search).get("payment") === "success";
+  });
   const [paymentSessionId] = useState(() => {
     if (typeof window === "undefined") return "";
     const p = new URLSearchParams(window.location.search); return p.get("session_id") || p.get("token") || "";
@@ -381,7 +385,7 @@ export default function ReadingPageClient() {
     (async () => {
       const data = await doFetchReading();
       if (data) {
-        window.scrollTo({ top: 0 });
+        if (!isPaymentSuccess) window.scrollTo({ top: 0 });
         if (data.is_paid && !data.paid_reading_career) {
           setPaidContentLoading(true);
           generatePaidContent();
@@ -401,7 +405,7 @@ export default function ReadingPageClient() {
     const timer = setTimeout(async () => {
       const data = await doFetchReading();
       if (data) {
-        window.scrollTo({ top: 0 });
+        if (!isPaymentSuccess) window.scrollTo({ top: 0 });
         if (data.is_paid && !data.paid_reading_career) {
           setPaidContentLoading(true);
           generatePaidContent();
