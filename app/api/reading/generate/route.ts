@@ -281,7 +281,7 @@ export async function POST(request: NextRequest) {
       method: "POST", headers: { ...dbHeaders, Prefer: "return=minimal" },
       body: JSON.stringify({
         name: chart.name, gender: chart.gender, birth_date: birthDateStr,
-        birth_hour: 12, birth_city: chart.birthCity,
+        birth_hour: chart.birthHour || 12, birth_city: chart.birthCity,
         year_stem: ys, year_branch: yb, month_stem: ms, month_branch: mb,
         day_stem: ds, day_branch: db, hour_stem: hs, hour_branch: hb,
         day_master_element: chart.dayMaster.element, day_master_yinyang: chart.dayMaster.yinYang,
