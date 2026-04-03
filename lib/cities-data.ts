@@ -133,22 +133,22 @@ const CITY_ALIASES: Record<string, string[]> = {
   "Pohang":    ["포항", "浦項", "ポハン"],
   "Yongin":    ["용인", "龍仁", "ヨンイン"],
 
-  // Japanese cities (日本語)
-  "Tokyo":      ["도쿄", "東京"],
-  "Osaka":      ["오사카", "大阪"],
-  "Kyoto":      ["교토", "京都"],
-  "Yokohama":   ["요코하마", "横浜"],
-  "Nagoya":     ["나고야", "名古屋"],
-  "Sapporo":    ["삿포로", "札幌"],
-  "Fukuoka":    ["후쿠오카", "福岡"],
-  "Kobe":       ["고베", "神戸"],
-  "Hiroshima":  ["히로시마", "広島"],
-  "Sendai":     ["센다이", "仙台"],
-  "Nara":       ["나라", "奈良"],
-  "Okinawa":    ["오키나와", "沖縄"],
-  "Kawasaki":   ["가와사키", "川崎"],
-  "Kitakyushu": ["기타큐슈", "北九州"],
-  "Niigata":    ["니가타", "新潟"],
+  // Japanese cities (日本語) — includes hiragana for mobile keyboard input
+  "Tokyo":      ["도쿄", "東京", "とうきょう"],
+  "Osaka":      ["오사카", "大阪", "おおさか"],
+  "Kyoto":      ["교토", "京都", "きょうと"],
+  "Yokohama":   ["요코하마", "横浜", "よこはま"],
+  "Nagoya":     ["나고야", "名古屋", "なごや"],
+  "Sapporo":    ["삿포로", "札幌", "さっぽろ"],
+  "Fukuoka":    ["후쿠오카", "福岡", "ふくおか"],
+  "Kobe":       ["고베", "神戸", "こうべ"],
+  "Hiroshima":  ["히로시마", "広島", "ひろしま"],
+  "Sendai":     ["센다이", "仙台", "せんだい"],
+  "Nara":       ["나라", "奈良", "なら"],
+  "Okinawa":    ["오키나와", "沖縄", "おきなわ"],
+  "Kawasaki":   ["가와사키", "川崎", "かわさき"],
+  "Kitakyushu": ["기타큐슈", "北九州", "きたきゅうしゅう"],
+  "Niigata":    ["니가타", "新潟", "にいがた"],
 
   // Chinese cities
   "Beijing":    ["베이징", "北京", "ペキン"],
@@ -161,13 +161,21 @@ const CITY_ALIASES: Record<string, string[]> = {
   "New York":       ["뉴욕", "ニューヨーク"],
   "Los Angeles":    ["로스앤젤레스", "LA", "엘에이", "ロサンゼルス"],
   "Chicago":        ["시카고", "シカゴ"],
+  "Houston":        ["휴스턴", "ヒューストン"],
   "San Francisco":  ["샌프란시스코", "サンフランシスコ"],
   "Seattle":        ["시애틀", "シアトル"],
   "Boston":         ["보스턴", "ボストン"],
   "Miami":          ["마이애미", "マイアミ"],
   "Washington DC":  ["워싱턴", "ワシントン"],
+  "Atlanta":        ["애틀랜타", "アトランタ"],
+  "Dallas":         ["달라스", "ダラス"],
+  "Denver":         ["덴버", "デンバー"],
+  "San Diego":      ["샌디에이고", "サンディエゴ"],
+  "Portland":       ["포틀랜드", "ポートランド"],
   "Las Vegas":      ["라스베이거스", "ラスベガス"],
   "Honolulu":       ["호놀룰루", "ホノルル"],
+  "Philadelphia":   ["필라델피아", "フィラデルフィア"],
+  "Austin":         ["오스틴", "オースティン"],
   "London":         ["런던", "ロンドン"],
   "Paris":          ["파리", "パリ"],
   "Berlin":         ["베를린", "ベルリン"],
@@ -176,13 +184,24 @@ const CITY_ALIASES: Record<string, string[]> = {
   "Amsterdam":      ["암스테르담", "アムステルダム"],
   "Singapore":      ["싱가포르", "シンガポール"],
   "Bangkok":        ["방콕", "バンコク"],
+  "Hanoi":          ["하노이", "ハノイ"],
+  "Ho Chi Minh City": ["호치민", "ホーチミン"],
+  "Manila":         ["마닐라", "マニラ"],
+  "Jakarta":        ["자카르타", "ジャカルタ"],
   "Sydney":         ["시드니", "シドニー"],
   "Melbourne":      ["멜버른", "メルボルン"],
+  "Auckland":       ["오클랜드", "オークランド"],
   "Toronto":        ["토론토", "トロント"],
   "Vancouver":      ["밴쿠버", "バンクーバー"],
+  "Montreal":       ["몬트리올", "モントリオール"],
+  "Sao Paulo":      ["상파울루", "サンパウロ"],
+  "Buenos Aires":   ["부에노스아이레스", "ブエノスアイレス"],
+  "Mexico City":    ["멕시코시티", "メキシコシティ"],
   "Dubai":          ["두바이", "ドバイ"],
+  "Tel Aviv":       ["텔아비브", "テルアビブ"],
   "Mumbai":         ["뭄바이", "ムンバイ"],
   "Delhi":          ["델리", "デリー"],
+  "Bangalore":      ["방갈로르", "バンガロール"],
 };
 
 // Korean chosung (초성) extractor
@@ -206,26 +225,50 @@ export function searchCities(query: string): City[] {
   const lowerQuery = query.toLowerCase();
   const chosungQuery = isChosungOnly(query) ? query : null;
 
-  return CITIES.filter((city) => {
-    // English name / country match
-    if (city.name.toLowerCase().includes(lowerQuery)) return true;
-    if (city.country.toLowerCase().includes(lowerQuery)) return true;
+  // Score each city for relevance ranking
+  const scored: { city: City; score: number }[] = [];
 
-    // Localized alias match (Korean / Japanese)
+  for (const city of CITIES) {
+    let score = 0;
+    const nameLower = city.name.toLowerCase();
     const aliases = CITY_ALIASES[city.name];
-    if (aliases) {
-      for (const alias of aliases) {
-        // Exact substring match
-        if (alias.toLowerCase().includes(lowerQuery)) return true;
-        // Korean chosung match: ㅅ matches 서울, ㅅㅇ matches 서울
-        if (chosungQuery && getChosung(alias).startsWith(chosungQuery)) return true;
-        // Partial Korean syllable match: "서" matches "서울", "부" matches "부산"
-        if (alias.startsWith(query)) return true;
-      }
+
+    // Prefix match on English name (highest priority)
+    if (nameLower.startsWith(lowerQuery)) {
+      score = 100;
+    }
+    // Prefix match on alias
+    else if (aliases?.some(a => a.toLowerCase().startsWith(lowerQuery) || a.startsWith(query))) {
+      score = 90;
+    }
+    // Chosung match
+    else if (chosungQuery && aliases?.some(a => getChosung(a).startsWith(chosungQuery))) {
+      score = 85;
+    }
+    // Contains match on English name
+    else if (nameLower.includes(lowerQuery)) {
+      score = 50;
+    }
+    // Contains match on alias
+    else if (aliases?.some(a => a.toLowerCase().includes(lowerQuery) || a.includes(query))) {
+      score = 40;
+    }
+    // Country match
+    else if (city.country.toLowerCase().includes(lowerQuery)) {
+      score = 30;
     }
 
-    return false;
-  }).slice(0, 8);
+    if (score > 0) {
+      // Bonus: shorter names rank higher (exact match feel)
+      score += Math.max(0, 10 - nameLower.length);
+      scored.push({ city, score });
+    }
+  }
+
+  return scored
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8)
+    .map(s => s.city);
 }
 
 export function calculateSolarVariance(longitude: number): string {
