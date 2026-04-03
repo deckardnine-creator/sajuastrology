@@ -42,6 +42,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
+    // Admin bypass — credits already added by checkout-consultation
+    if (sessionId === "admin") {
+      return NextResponse.json({ success: true, credits_added: 5 });
+    }
+
     // PayPal flow: capture the order
     if (sessionId && sessionId !== "lemon") {
       // Idempotency check — don't add credits twice for same PayPal order

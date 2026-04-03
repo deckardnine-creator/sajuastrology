@@ -11,6 +11,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing userId" }, { status: 400 });
     }
 
+    // ═══ ADMIN BYPASS — skip payment for content creation ═══
+    const ADMIN_EMAILS = ["rimfacai@gmail.com"];
+    if (userEmail && ADMIN_EMAILS.includes(userEmail.toLowerCase())) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+      if (supabaseUrl && supabaseKey) {
+        const dbHeaders = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}`, "Content-Type": "application/json", Prefer: "return=minimal" };
+        await fetch(`${supabaseUrl}/rest/v1/consultation_credits`, {
+          method: "POST", headers: dbHeaders,
+          body: JSON.stringify({ user_id: userId, total_credits: 5, used_credits: 0, paypal_order_id: "admin_bypass" }),
+        });
+      }
+      return NextResponse.json({ url: `https://sajuastrology.com/consultation?payment=success&token=admin` });
+    }
+
     if (!process.env.PAYPAL_CLIENT_ID) {
       return NextResponse.json({ error: "Payment not configured" }, { status: 500 });
     }
