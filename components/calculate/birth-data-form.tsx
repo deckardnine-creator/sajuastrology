@@ -234,7 +234,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
       const chart = calculateSaju(name.trim(), gender as "male" | "female", birthDate, hour, selectedCity.name,
         unknownTime ? undefined : { longitude: selectedCity.longitude, birthMinute: minute, timezone: selectedCity.timezone }
       );
-      (chart as any).birthHour = hour;
+      chart.birthHour = hour;
       onCalculate(chart, selectedCity.name);
     } catch (err) {
       console.error("Form submit error:", err);
