@@ -5,21 +5,29 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Gauge, TrendingUp, Heart, Sparkles, ArrowRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useLanguage } from "@/lib/language-context"
+
+function tx(obj: Record<string, string>, locale: string): string {
+  return obj[locale] || obj.en
+}
 
 const features = [
   {
     id: "daily",
     icon: Gauge,
-    title: "Daily Destiny Score",
-    tagline: "Know your energy before the day begins.",
-    description:
-      "Every day carries a different cosmic energy based on the Five Elements. Your Daily Destiny Score shows how today's energy interacts with your unique birth blueprint — giving you an edge in timing.",
-    bullets: [
-      "Personalized score from 0–100 updated daily",
-      "Wealth, Love, and Career sub-scores",
-      "Lucky colors, directions, and power hours",
-    ],
-    cta: { label: "See My Daily Score", href: "/daily" },
+    title: { en: "Daily Destiny Score", ko: "오늘의 운세 점수", ja: "今日の運勢スコア" },
+    tagline: { en: "Know your energy before the day begins.", ko: "하루가 시작되기 전, 오늘의 에너지를 확인하세요.", ja: "一日が始まる前に、今日のエネルギーを確認。" },
+    description: {
+      en: "Every day carries a different cosmic energy based on the Five Elements. Your Daily Destiny Score shows how today's energy interacts with your unique birth blueprint — giving you an edge in timing.",
+      ko: "매일 오행에 따라 다른 우주적 에너지가 흐릅니다. 오늘의 운세 점수는 당신의 사주와 오늘의 에너지 상호작용을 보여줍니다 — 타이밍에 우위를 가지세요.",
+      ja: "毎日、五行に基づく異なる宇宙エネルギーが流れます。今日の運勢スコアはあなたの四柱と今日のエネルギーの相互作用を表示 — タイミングの優位性を。",
+    },
+    bullets: {
+      en: ["Personalized score from 0–100 updated daily", "Wealth, Love, and Career sub-scores", "Lucky colors, directions, and power hours"],
+      ko: ["매일 업데이트되는 0~100 맞춤 점수", "재물·연애·커리어 세부 점수", "행운의 색상, 방향, 파워 타임"],
+      ja: ["毎日更新される0〜100のパーソナルスコア", "財運・恋愛・キャリアのサブスコア", "ラッキーカラー、方角、パワータイム"],
+    },
+    cta: { label: { en: "See My Daily Score", ko: "오늘의 점수 보기", ja: "今日のスコアを見る" }, href: "/daily" },
     accentColor: "from-amber-500/20 to-yellow-500/10",
     glowColor: "bg-amber-400/30",
     mockup: <DailyMockup />,
@@ -27,16 +35,19 @@ const features = [
   {
     id: "wealth",
     icon: TrendingUp,
-    title: "Wealth & Career Blueprint",
-    tagline: "10 years of fortune cycles, mapped.",
-    description:
-      "Your financial destiny follows predictable elemental cycles. See which years are your peak wealth periods, when to take risks, and when to consolidate — all derived from your Four Pillars.",
-    bullets: [
-      "10-year luck pillar cycle analysis",
-      "Peak wealth years highlighted",
-      "Career move timing recommendations",
-    ],
-    cta: { label: "Unlock My Blueprint", href: "/pricing" },
+    title: { en: "Wealth & Career Blueprint", ko: "재물·직업 운세 블루프린트", ja: "財運・キャリア設計図" },
+    tagline: { en: "10 years of fortune cycles, mapped.", ko: "10년간의 운세 사이클, 한눈에.", ja: "10年間の運勢サイクルを一目で。" },
+    description: {
+      en: "Your financial destiny follows predictable elemental cycles. See which years are your peak wealth periods, when to take risks, and when to consolidate — all derived from your Four Pillars.",
+      ko: "당신의 재물운은 예측 가능한 오행 사이클을 따릅니다. 어떤 해가 재물 피크인지, 언제 도전하고 언제 안정을 취할지 — 모두 사주에서 도출합니다.",
+      ja: "あなたの財運は予測可能な五行サイクルに従います。ピーク年、挑戦時期、安定期 — すべて四柱から導き出します。",
+    },
+    bullets: {
+      en: ["10-year luck pillar cycle analysis", "Peak wealth years highlighted", "Career move timing recommendations"],
+      ko: ["10년 대운 사이클 분석", "재물 피크 연도 하이라이트", "이직·전환 타이밍 추천"],
+      ja: ["10年大運サイクル分析", "財運ピーク年をハイライト", "転職・転換タイミング推薦"],
+    },
+    cta: { label: { en: "Unlock My Blueprint", ko: "내 블루프린트 보기", ja: "設計図を解放" }, href: "/pricing" },
     accentColor: "from-green-500/20 to-teal-500/10",
     glowColor: "bg-green-400/30",
     mockup: <WealthMockup />,
@@ -44,16 +55,19 @@ const features = [
   {
     id: "love",
     icon: Heart,
-    title: "Love Synergy",
-    tagline: "Not just signs — full elemental harmony.",
-    description:
-      "True compatibility goes beyond surface-level zodiac matching. Saju maps the elemental interaction between two people's complete birth charts, revealing deep harmony and friction points.",
-    bullets: [
-      "Full compatibility score with any birth date",
-      "Element harmony & conflict mapping",
-      "Optimal relationship windows in your cycle",
-    ],
-    cta: { label: "Check Compatibility", href: "/love" },
+    title: { en: "Love Synergy", ko: "연애 시너지", ja: "恋愛シナジー" },
+    tagline: { en: "Not just signs — full elemental harmony.", ko: "별자리가 아닌 — 완전한 오행 궁합.", ja: "星座ではなく — 完全な五行の相性。" },
+    description: {
+      en: "True compatibility goes beyond surface-level zodiac matching. Saju maps the elemental interaction between two people's complete birth charts, revealing deep harmony and friction points.",
+      ko: "진정한 궁합은 표면적인 별자리 매칭을 넘어섭니다. 사주는 두 사람의 완전한 사주팔자 간 오행 상호작용을 분석하여 깊은 조화와 갈등 포인트를 드러냅니다.",
+      ja: "真の相性は表面的な星座マッチングを超えます。四柱推命は二人の完全な四柱八字間の五行相互作用を分析し、深い調和と摩擦ポイントを明らかに。",
+    },
+    bullets: {
+      en: ["Full compatibility score with any birth date", "Element harmony & conflict mapping", "Optimal relationship windows in your cycle"],
+      ko: ["모든 생년월일과의 궁합 점수", "오행 조화 & 갈등 매핑", "최적의 인연 시기 분석"],
+      ja: ["すべての生年月日との相性スコア", "五行の調和＆衝突マッピング", "最適な縁のタイミング分析"],
+    },
+    cta: { label: { en: "Check Compatibility", ko: "궁합 확인하기", ja: "相性を確認" }, href: "/compatibility" },
     accentColor: "from-pink-500/20 to-rose-500/10",
     glowColor: "bg-pink-400/30",
     mockup: <LoveMockup />,
@@ -61,16 +75,19 @@ const features = [
   {
     id: "oracle",
     icon: Sparkles,
-    title: "Oracle Chat",
-    tagline: "1,000 years of wisdom. Ask anything.",
-    description:
-      "Your personal AI oracle trained on classical Saju texts and your unique birth chart. Ask about career moves, relationship timing, or life decisions — and receive guidance rooted in your cosmic blueprint.",
-    bullets: [
-      "Answers grounded in your Four Pillars",
-      "Career, love, and life path questions",
-      "Available 24/7, unlimited questions",
-    ],
-    cta: { label: "Start Free Reading", href: "/calculate" },
+    title: { en: "Oracle Chat", ko: "오라클 채팅", ja: "オラクルチャット" },
+    tagline: { en: "1,000 years of wisdom. Ask anything.", ko: "1,000년의 지혜. 무엇이든 물어보세요.", ja: "1,000年の知恵。何でも聞いてください。" },
+    description: {
+      en: "Your personal AI oracle trained on classical Saju texts and your unique birth chart. Ask about career moves, relationship timing, or life decisions — and receive guidance rooted in your cosmic blueprint.",
+      ko: "고전 사주 원전과 당신의 사주팔자로 훈련된 AI 오라클. 직업, 연애 타이밍, 인생 결정에 대해 물어보세요 — 당신의 우주적 청사진에 근거한 답변을 받습니다.",
+      ja: "古典四柱原典とあなたの四柱八字で訓練されたAIオラクル。キャリア、恋愛タイミング、人生の決断について質問 — あなたの宇宙的設計図に基づく回答を。",
+    },
+    bullets: {
+      en: ["Answers grounded in your Four Pillars", "Career, love, and life path questions", "Available 24/7, unlimited questions"],
+      ko: ["사주팔자에 근거한 답변", "직업, 연애, 인생 경로 질문", "24시간 무제한 이용"],
+      ja: ["四柱八字に基づく回答", "キャリア、恋愛、人生の質問", "24時間無制限利用"],
+    },
+    cta: { label: { en: "Start Free Reading", ko: "무료 리딩 시작", ja: "無料鑑定を始める" }, href: "/calculate" },
     accentColor: "from-purple-500/20 to-indigo-500/10",
     glowColor: "bg-purple-400/30",
     mockup: <OracleMockup />,
@@ -79,7 +96,11 @@ const features = [
 
 export function FeaturesSection() {
   const [activeId, setActiveId] = useState("daily")
+  const { locale } = useLanguage()
   const active = features.find((f) => f.id === activeId)!
+
+  const headerTitle = { en: "Powerful Features", ko: "핵심 기능", ja: "主要機能" }
+  const headerDesc = { en: "Everything you need to navigate your cosmic journey", ko: "우주적 여정을 항해하는 데 필요한 모든 것", ja: "宇宙的な旅を導くすべての機能" }
 
   return (
     <section id="features" className="relative py-24 overflow-hidden">
@@ -122,10 +143,10 @@ export function FeaturesSection() {
           className="text-center mb-12"
         >
           <h2 className="font-serif text-3xl sm:text-4xl font-bold mb-4">
-            Powerful Features
+            {tx(headerTitle, locale)}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to navigate your cosmic journey
+            {tx(headerDesc, locale)}
           </p>
         </motion.div>
 
@@ -145,7 +166,7 @@ export function FeaturesSection() {
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                {f.title}
+                {tx(f.title, locale)}
               </button>
             )
           })}
@@ -164,17 +185,17 @@ export function FeaturesSection() {
             {/* Left: text */}
             <div className="flex flex-col gap-6">
               <div>
-                <p className="text-primary text-sm font-medium mb-2">{active.tagline}</p>
+                <p className="text-primary text-sm font-medium mb-2">{tx(active.tagline, locale)}</p>
                 <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-4">
-                  {active.title}
+                  {tx(active.title, locale)}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  {active.description}
+                  {tx(active.description, locale)}
                 </p>
               </div>
 
               <ul className="flex flex-col gap-3">
-                {active.bullets.map((b, i) => (
+                {(active.bullets[locale as keyof typeof active.bullets] || active.bullets.en).map((b: string, i: number) => (
                   <li key={i} className="flex items-start gap-3">
                     <div className="mt-0.5 w-5 h-5 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
                       <Check className="w-3 h-3 text-primary" />
@@ -186,7 +207,7 @@ export function FeaturesSection() {
 
               <Link href={active.cta.href}>
                 <Button className="gold-gradient text-primary-foreground font-semibold group w-fit">
-                  {active.cta.label}
+                  {tx(active.cta.label, locale)}
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
