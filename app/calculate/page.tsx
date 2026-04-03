@@ -333,7 +333,7 @@ export default function CalculatePage() {
           <div className="fixed top-0 left-0 right-0 z-40 px-4 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-7xl flex h-16 items-center">
               <button
-                onClick={() => router.back()}
+                onClick={() => window.history.length > 1 ? router.back() : router.push('/')}
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
