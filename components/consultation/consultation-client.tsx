@@ -245,9 +245,13 @@ export function ConsultationClient() {
   /* ─── Payment callback ─── */
   useEffect(() => {
     const payment = searchParams.get("payment");
-    const sessionId = searchParams.get("session_id");
+    const sessionId = searchParams.get("session_id") || searchParams.get("token");
     if (payment === "success" && sessionId && user) {
       verifyPayment(sessionId);
+    } else if (payment === "success" && user) {
+      // Admin bypass — credits already added, just check
+      router.replace("/consultation");
+      checkCredits();
     } else if (payment === "cancelled") {
       router.replace("/consultation");
     }
@@ -498,8 +502,10 @@ export function ConsultationClient() {
     setQuestion("");
     setConsultationId("");
     setReport(null);
+    setPartialReport(null);
     setError("");
-    setStep("form");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    checkCredits();
   };
 
   /* ─── Render ─── */
