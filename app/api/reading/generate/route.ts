@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
     const locale = body.locale || "en";
     const clientBirthDateStr = body.birthDateStr || null;
 
-    if (!chart || !chart.name || !chart.dayMaster) {
+    if (!chart || !chart.name || !chart.dayMaster || chart.name.length > 100) {
       return NextResponse.json({ error: "Invalid chart data" }, { status: 400 });
     }
     if (!chart.pillars?.year?.stem?.zh || !chart.pillars?.month?.stem?.zh ||

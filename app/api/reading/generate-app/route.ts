@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { name, gender, birthYear, birthMonth, birthDay, birthHour, birthMinute, birthCity, locale } = body;
 
-    if (!name || !gender || !birthYear || !birthMonth || !birthDay) {
+    if (!name || !gender || !birthYear || !birthMonth || !birthDay || name.length > 100) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
