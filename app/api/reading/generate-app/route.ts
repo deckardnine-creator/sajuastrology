@@ -4,6 +4,7 @@ import { calculateAdvancedSaju } from "@/lib/saju-advanced";
 import { buildFreeReadingPrompt, generateShareSlug } from "@/lib/reading-prompts";
 import { getSystemInstruction } from "@/lib/prompt-locale";
 import { injectRAGIntoPrompt } from "@/lib/rag/prompt-injector";
+import { CITIES } from "@/lib/cities-data";
 
 export const maxDuration = 120;
 
@@ -123,8 +124,12 @@ export async function POST(req: NextRequest) {
     const birthDateStr = `${birthYear}-${String(birthMonth).padStart(2, "0")}-${String(birthDay).padStart(2, "0")}`;
     const loc = locale || "en";
 
-    // Calculate chart
-    const basicChart = calculateSaju(name, gender, birthDate, hour, city);
+    // Calculate chart with true solar time correction
+    const cityData = CITIES.find(c => c.name.toLowerCase() === city.toLowerCase());
+    const solarOptions = cityData && birthMinute != null
+      ? { longitude: cityData.longitude, birthMinute: birthMinute ?? 0, timezone: cityData.timezone }
+      : undefined;
+    const basicChart = calculateSaju(name, gender, birthDate, hour, city, solarOptions);
     const advancedChart = calculateAdvancedSaju(basicChart);
     const chart = { ...basicChart, ...advancedChart, name, gender, birthCity: city, birthHour: hour };
 

@@ -265,23 +265,77 @@ function calculateHarmonyScore(elements: Record<Element, number>, dayMaster: Hea
   return Math.max(40, Math.min(98, score));
 }
 
+// ═══ TRUE SOLAR TIME (진태양시/真太陽時) CORRECTION ═══
+// Standard meridian for each timezone (UTC offset × 15°)
+const TIMEZONE_MERIDIANS: Record<string, number> = {
+  "Asia/Seoul": 135, "Asia/Tokyo": 135,
+  "Asia/Shanghai": 120, "Asia/Hong_Kong": 120, "Asia/Singapore": 120, "Asia/Manila": 120,
+  "Asia/Bangkok": 105, "Asia/Jakarta": 105, "Asia/Ho_Chi_Minh": 105,
+  "Asia/Kolkata": 82.5, "Asia/Dubai": 60, "Asia/Jerusalem": 30,
+  "Europe/London": 0, "Europe/Paris": 15, "Europe/Berlin": 15,
+  "Europe/Rome": 15, "Europe/Madrid": 15, "Europe/Amsterdam": 15,
+  "America/New_York": -75, "America/Toronto": -75, "America/Montreal": -75,
+  "America/Chicago": -90, "America/Mexico_City": -90, "America/Denver": -105,
+  "America/Los_Angeles": -120, "America/Vancouver": -120, "Pacific/Honolulu": -150,
+  "America/Sao_Paulo": -45, "America/Argentina/Buenos_Aires": -45,
+  "Australia/Sydney": 150, "Australia/Melbourne": 150, "Pacific/Auckland": 180,
+};
+
+export function applySolarCorrection(
+  hour: number, minute: number, longitude: number, timezone?: string
+): { hour: number; dayOffset: number; correctionMinutes: number } {
+  const standardMeridian = timezone && TIMEZONE_MERIDIANS[timezone] !== undefined
+    ? TIMEZONE_MERIDIANS[timezone]
+    : Math.round(longitude / 15) * 15;
+
+  const correctionMinutes = Math.round((longitude - standardMeridian) * 4);
+  let totalMinutes = hour * 60 + minute + correctionMinutes;
+  let dayOffset = 0;
+
+  if (totalMinutes < 0) {
+    totalMinutes += 24 * 60;
+    dayOffset = -1;
+  } else if (totalMinutes >= 24 * 60) {
+    totalMinutes -= 24 * 60;
+    dayOffset = 1;
+  }
+
+  return { hour: Math.floor(totalMinutes / 60), dayOffset, correctionMinutes };
+}
+
 // Main calculation function
 export function calculateSaju(
   name: string,
   gender: "male" | "female",
   birthDate: Date,
   birthHour: number,
-  birthCity: string
+  birthCity: string,
+  solarOptions?: { longitude: number; birthMinute: number; timezone?: string }
 ): SajuChart {
-  const year = birthDate.getFullYear();
-  const month = birthDate.getMonth() + 1; // 1-12
-  const day = birthDate.getDate();
+  let year = birthDate.getFullYear();
+  let month = birthDate.getMonth() + 1; // 1-12
+  let day = birthDate.getDate();
+  let hour = birthHour;
+
+  // Apply true solar time correction if city coordinates provided
+  if (solarOptions) {
+    const correction = applySolarCorrection(
+      birthHour, solarOptions.birthMinute, solarOptions.longitude, solarOptions.timezone
+    );
+    hour = correction.hour;
+    if (correction.dayOffset !== 0) {
+      const adjusted = new Date(year, month - 1, day + correction.dayOffset);
+      year = adjusted.getFullYear();
+      month = adjusted.getMonth() + 1;
+      day = adjusted.getDate();
+    }
+  }
   
   // Calculate pillars
   const yearPillar = getYearPillar(year);
   const monthPillar = getMonthPillar(year, month);
   const dayPillar = getDayPillar(year, month, day);
-  const hourPillar = getHourPillar(dayPillar.stem, birthHour);
+  const hourPillar = getHourPillar(dayPillar.stem, hour);
   
   const pillars = {
     year: yearPillar,
