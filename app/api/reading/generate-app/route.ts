@@ -149,7 +149,13 @@ export async function POST(req: NextRequest) {
       if (cacheRes.ok) {
         const cached = await cacheRes.json();
         if (cached?.[0]?.share_slug && cached[0].free_reading_personality && cached[0].free_reading_personality.length > 20) {
-          return NextResponse.json({ success: true, shareSlug: cached[0].share_slug, existing: true });
+          // Locale check: skip cache if language doesn't match request
+          const sample = cached[0].free_reading_personality.substring(0, 200);
+          const cachedLocale = /[\uAC00-\uD7AF]/.test(sample) ? "ko" : /[\u3040-\u309F\u30A0-\u30FF]/.test(sample) ? "ja" : "en";
+          if (cachedLocale === loc) {
+            return NextResponse.json({ success: true, shareSlug: cached[0].share_slug, existing: true });
+          }
+          // Language mismatch — fall through to regenerate
         }
         // Delete incomplete records so we can regenerate
         if (cached?.[0]?.share_slug && (!cached[0].free_reading_personality || cached[0].free_reading_personality.length <= 20)) {

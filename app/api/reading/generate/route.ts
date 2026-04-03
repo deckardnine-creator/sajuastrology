@@ -176,19 +176,26 @@ export async function POST(request: NextRequest) {
         name: `eq.${chart.name}`, gender: `eq.${chart.gender}`,
         birth_date: `eq.${birthDateStr}`, birth_city: `eq.${chart.birthCity}`,
         birth_hour: `eq.${chart.birthHour ?? 12}`,
-        select: "share_slug,citation_meta", limit: "1",
+        select: "share_slug,citation_meta,free_reading_personality", limit: "1",
       })}`, { headers: dbHeaders });
       if (exactRes.ok) {
         const exactData = await exactRes.json();
         if (exactData?.length > 0 && exactData[0].share_slug && exactData[0].citation_meta) {
-          if (userId) {
-            await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${exactData[0].share_slug}&user_id=is.null`, {
-              method: "PATCH",
-              headers: { ...dbHeaders, Prefer: "return=minimal" },
-              body: JSON.stringify({ user_id: userId }),
-            }).catch(() => {});
+          // Locale check: skip cache if language doesn't match request
+          const cachedText = exactData[0].free_reading_personality || "";
+          const sample = cachedText.substring(0, 200);
+          const cachedLocale = /[\uAC00-\uD7AF]/.test(sample) ? "ko" : /[\u3040-\u309F\u30A0-\u30FF]/.test(sample) ? "ja" : "en";
+          if (cachedLocale === locale) {
+            if (userId) {
+              await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${exactData[0].share_slug}&user_id=is.null`, {
+                method: "PATCH",
+                headers: { ...dbHeaders, Prefer: "return=minimal" },
+                body: JSON.stringify({ user_id: userId }),
+              }).catch(() => {});
+            }
+            return NextResponse.json({ success: true, shareSlug: exactData[0].share_slug, existing: true });
           }
-          return NextResponse.json({ success: true, shareSlug: exactData[0].share_slug, existing: true });
+          // Language mismatch — fall through to regenerate in correct locale
         }
       }
     } catch { /* exact check failed — generate new */ }

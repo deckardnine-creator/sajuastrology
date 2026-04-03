@@ -318,7 +318,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                 <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">{t("form.yourName", locale)}</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input type="text" placeholder={t("form.enterName", locale)} value={name} onChange={(e)=>setName(e.target.value)} className="pl-10 bg-background/50 border-border focus:border-primary" />
+                  <Input type="text" placeholder={t("form.enterName", locale)} maxLength={50} value={name} onChange={(e)=>setName(e.target.value)} className="pl-10 bg-background/50 border-border focus:border-primary" />
                 </div>
               </div>
 
