@@ -242,6 +242,28 @@ export function ConsultationClient() {
     };
   }, [step, user]);
 
+  /* ─── Safety timeout — prevent infinite generating state ─── */
+  useEffect(() => {
+    if (step !== "generating") return;
+    const safety = setTimeout(() => {
+      if (step === "generating" && !report) {
+        // If partial report exists, show it as final
+        if (partialReport) {
+          setReport(partialReport);
+          setPartialReport(null);
+          setCredits((c) => Math.max(0, c - 1));
+          setStep("report");
+        } else {
+          setError(locale === "ko" ? "생성 시간이 초과되었습니다. 다시 시도해주세요." : locale === "ja" ? "生成がタイムアウトしました。再試行してください。" : "Generation timed out. Please try again.");
+          setStep("form");
+        }
+        setIsSubmitting(false);
+        if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+      }
+    }, 90000);
+    return () => clearTimeout(safety);
+  }, [step]);
+
   /* ─── Payment callback ─── */
   useEffect(() => {
     const payment = searchParams.get("payment");
@@ -457,7 +479,7 @@ export function ConsultationClient() {
             ? (locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요. 크레딧은 사용되지 않았습니다." : locale === "ja" ? "AIが混雑しています。クレジットは使用されていません。" : "The AI is busy right now. Please try again. Your credit was not used.")
             : (locale === "ko" ? "생성 실패. 크레딧은 안전합니다. 다시 시도해주세요." : locale === "ja" ? "生成に失敗しました。クレジットは安全です。" : "Generation failed. Your credit is safe — please try again."));
         }
-        setStep("clarifying");
+        setStep("form");
         setIsSubmitting(false);
         return;
       }
@@ -468,7 +490,7 @@ export function ConsultationClient() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setError(locale === "ko" ? "네트워크 오류. 크레딧은 사용되지 않았습니다. 다시 시도해주세요." : locale === "ja" ? "ネットワークエラー。クレジットは使用されていません。再試行してください。" : "Network error. Please try again — your credit was not used.");
-      setStep("clarifying");
+      setStep("form");
     }
     setIsSubmitting(false);
   };
@@ -504,6 +526,7 @@ export function ConsultationClient() {
     setReport(null);
     setPartialReport(null);
     setError("");
+    setStep("loading");
     window.scrollTo({ top: 0, behavior: "smooth" });
     checkCredits();
   };
