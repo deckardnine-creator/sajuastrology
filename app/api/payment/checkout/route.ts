@@ -11,6 +11,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing shareSlug" }, { status: 400 });
     }
 
+    // ADMIN BYPASS - skip payment for content creation
+    const ADMIN_EMAILS = ["rimfacai@gmail.com"];
+    if (userEmail && ADMIN_EMAILS.includes(userEmail.toLowerCase())) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+      if (supabaseUrl && supabaseKey) {
+        await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${shareSlug}`, {
+          method: "PATCH",
+          headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+          body: JSON.stringify({ is_paid: true }),
+        });
+      }
+      return NextResponse.json({ url: `https://sajuastrology.com/reading/${shareSlug}?payment=success` });
+    }
+
     if (!process.env.PAYPAL_CLIENT_ID) {
       return NextResponse.json({ error: "Payment not configured" }, { status: 500 });
     }
