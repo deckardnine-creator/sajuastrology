@@ -235,7 +235,7 @@ function CompatibilityContent() {
           {/* Back button */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6">
             <button
-              onClick={() => { if (step === "personB") { setStep("personA"); window.scrollTo({ top: 0, behavior: "smooth" }); } else { router.back(); } }}
+              onClick={() => { if (step === "personB") { setStep("personA"); window.scrollTo({ top: 0, behavior: "smooth" }); } else { window.history.length > 1 ? router.back() : router.push('/'); } }}
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
             >
               <ArrowLeft className="w-4 h-4" />
