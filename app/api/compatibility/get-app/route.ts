@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
           friendship: row.friendship_score,
           conflict: row.conflict_score,
         },
-        freeSummary: row.free_summary,
+        freeSummary: (() => { try { const parsed = JSON.parse(row.free_summary || '{}'); return parsed.summary || parsed.free_summary || row.free_summary || ''; } catch { return row.free_summary || ''; } })(),
         shareSlug: row.share_slug,
       },
     });
