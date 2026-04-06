@@ -377,10 +377,10 @@ export async function POST(request: NextRequest) {
     const insertBody: Record<string, any> = {
       user_id: userId || null,
       person_a_name: personA.name, person_a_gender: personA.gender,
-      person_a_birth_date: bdStrA, person_a_birth_hour: hourA, person_a_birth_city: personA.birthCity,
+      person_a_birth_date: bdStrA, person_a_birth_hour: hourA, person_a_birth_hour_unknown: personA.birthHourUnknown || false, person_a_birth_city: personA.birthCity,
       person_a_day_master: `${chartA.dayMaster.zh} ${chartA.dayMaster.en}`, person_a_element: chartA.dayMaster.element,
       person_b_name: personB.name, person_b_gender: personB.gender,
-      person_b_birth_date: bdStrB, person_b_birth_hour: hourB, person_b_birth_city: personB.birthCity,
+      person_b_birth_date: bdStrB, person_b_birth_hour: hourB, person_b_birth_hour_unknown: personB.birthHourUnknown || false, person_b_birth_city: personB.birthCity,
       person_b_day_master: `${chartB.dayMaster.zh} ${chartB.dayMaster.en}`, person_b_element: chartB.dayMaster.element,
       overall_score: scores.overall, love_score: scores.love, work_score: scores.work,
       friendship_score: scores.friendship, conflict_score: scores.conflict,

@@ -43,6 +43,7 @@ interface BirthData {
   month: number;
   day: number;
   hour: number;
+  unknownTime: boolean;
   cityQuery: string;
   selectedCity: City | null;
 }
@@ -174,6 +175,7 @@ const emptyBirthData = (): BirthData => ({
   month: 1,
   day: 1,
   hour: 12,
+  unknownTime: false,
   cityQuery: "",
   selectedCity: null,
 });
@@ -983,11 +985,18 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
         </label>
         <div className="flex items-center justify-between bg-background/50 border border-border rounded-xl px-2 py-2">
           <button type="button" onClick={() => onChange({ ...data, hour: data.hour <= 0 ? 23 : data.hour - 1 })}
-            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 rounded-lg transition-colors text-lg">−</button>
-          <span className="text-xs font-medium text-primary">{HOUR_LABELS[data.hour]}</span>
+            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 rounded-lg transition-colors text-lg" style={{ visibility: data.unknownTime ? "hidden" : "visible" }}>−</button>
+          <span className={`text-xs font-medium ${data.unknownTime ? "text-muted-foreground/40" : "text-primary"}`}>{data.unknownTime ? "—" : HOUR_LABELS[data.hour]}</span>
           <button type="button" onClick={() => onChange({ ...data, hour: data.hour >= 23 ? 0 : data.hour + 1 })}
-            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 rounded-lg transition-colors text-lg">+</button>
+            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 rounded-lg transition-colors text-lg" style={{ visibility: data.unknownTime ? "hidden" : "visible" }}>+</button>
         </div>
+        <label className="flex items-center gap-2 mt-2 cursor-pointer group">
+          <div onClick={() => onChange({ ...data, unknownTime: !data.unknownTime, hour: !data.unknownTime ? 12 : data.hour })}
+            className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${data.unknownTime ? "bg-primary border-primary" : "border-muted-foreground/40 group-hover:border-primary/50"}`}>
+            {data.unknownTime && <span className="text-[10px] text-background font-bold">✓</span>}
+          </div>
+          <span className="text-xs text-muted-foreground">{locale === "ko" ? "출생 시간을 모릅니다" : locale === "ja" ? "出生時間がわかりません" : "I don't know the birth time"}</span>
+        </label>
       </div>
 
       {/* Birth City */}
