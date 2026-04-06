@@ -69,6 +69,9 @@ export function UpgradeCTA() {
             {tx(content.free, locale)}
           </Link>
         </div>
+        {locale === "ko" && (
+          <p className="text-[10px] text-muted-foreground/40 mt-3">해외 결제 수단 전용 · 국내 카드 미지원</p>
+        )}
       </div>
     </motion.section>
   )

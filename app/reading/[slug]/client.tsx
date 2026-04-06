@@ -1063,6 +1063,7 @@ export default function ReadingPageClient() {
                     </Button>
                     <p className="text-xs text-muted-foreground/50 mt-2">{t("reading.oneTime", locale)}</p>
                     <p className="text-xs text-primary/60 mt-1">{t("reading.compatFree", locale)}</p>
+                    {locale === "ko" && <p className="text-[10px] text-muted-foreground/40 mt-1.5">해외 결제 수단 전용 · 국내 카드 미지원</p>}
                   </div>
                 </div>
               </div>
