@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
     const locale = body.locale || "en";
     const clientBirthDateStr = body.birthDateStr || null;
 
-    if (!chart || !chart.name || !chart.dayMaster || chart.name.length > 100) {
+    if (!chart || !chart.name || !chart.dayMaster) {
       return NextResponse.json({ error: "Invalid chart data" }, { status: 400 });
     }
     if (!chart.pillars?.year?.stem?.zh || !chart.pillars?.month?.stem?.zh ||
@@ -176,26 +176,19 @@ export async function POST(request: NextRequest) {
         name: `eq.${chart.name}`, gender: `eq.${chart.gender}`,
         birth_date: `eq.${birthDateStr}`, birth_city: `eq.${chart.birthCity}`,
         birth_hour: `eq.${chart.birthHour ?? 12}`,
-        select: "share_slug,citation_meta,free_reading_personality", limit: "1",
+        select: "share_slug,citation_meta", limit: "1",
       })}`, { headers: dbHeaders });
       if (exactRes.ok) {
         const exactData = await exactRes.json();
         if (exactData?.length > 0 && exactData[0].share_slug && exactData[0].citation_meta) {
-          // Locale check: skip cache if language doesn't match request
-          const cachedText = exactData[0].free_reading_personality || "";
-          const sample = cachedText.substring(0, 200);
-          const cachedLocale = /[\uAC00-\uD7AF]/.test(sample) ? "ko" : /[\u3040-\u309F\u30A0-\u30FF]/.test(sample) ? "ja" : "en";
-          if (cachedLocale === locale) {
-            if (userId) {
-              await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${exactData[0].share_slug}&user_id=is.null`, {
-                method: "PATCH",
-                headers: { ...dbHeaders, Prefer: "return=minimal" },
-                body: JSON.stringify({ user_id: userId }),
-              }).catch(() => {});
-            }
-            return NextResponse.json({ success: true, shareSlug: exactData[0].share_slug, existing: true });
+          if (userId) {
+            await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${exactData[0].share_slug}&user_id=is.null`, {
+              method: "PATCH",
+              headers: { ...dbHeaders, Prefer: "return=minimal" },
+              body: JSON.stringify({ user_id: userId }),
+            }).catch(() => {});
           }
-          // Language mismatch — fall through to regenerate in correct locale
+          return NextResponse.json({ success: true, shareSlug: exactData[0].share_slug, existing: true });
         }
       }
     } catch { /* exact check failed — generate new */ }
@@ -242,6 +235,21 @@ export async function POST(request: NextRequest) {
 
     const rawText = await generateWithFallback(prompt, locale);
 
+    // ═══ LANGUAGE CORRECTION — if KO/JA requested but English returned, try Claude ═══
+    let finalText = rawText;
+    if (locale !== "en" && rawText) {
+      const sample = rawText.substring(0, 200);
+      const isCorrectLang = locale === "ko"
+        ? /[\uAC00-\uD7AF]/.test(sample)
+        : /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+      if (!isCorrectLang) {
+        try {
+          const corrected = await callClaude(prompt, "claude-haiku-4-5-20251001");
+          if (corrected) finalText = corrected;
+        } catch { /* Claude failed — keep English original */ }
+      }
+    }
+
     // ═══ Normalize keys: Gemini may localize JSON keys in KO/JA ═══
     function normalizeReadingKeys(obj: any): { personality: string; year_forecast: string; element_guidance: string } {
       const keyMap: Record<string, string> = {
@@ -261,20 +269,20 @@ export async function POST(request: NextRequest) {
 
     let aiReading: { personality: string; year_forecast: string; element_guidance: string };
     try {
-      const cleaned = rawText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+      const cleaned = finalText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
       aiReading = normalizeReadingKeys(JSON.parse(cleaned));
     } catch {
       try {
         // Try to extract any JSON object from the response
-        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+        const jsonMatch = finalText.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           aiReading = normalizeReadingKeys(JSON.parse(jsonMatch[0]));
         } else {
-          console.error("No JSON found in AI response. Raw (first 500):", rawText.substring(0, 500));
+          console.error("No JSON found in AI response. Raw (first 500):", finalText.substring(0, 500));
           return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
         }
       } catch (e2) {
-        console.error("JSON parse error:", e2, "Raw (first 500):", rawText.substring(0, 500));
+        console.error("JSON parse error:", e2, "Raw (first 500):", finalText.substring(0, 500));
         return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
       }
     }
@@ -297,7 +305,7 @@ export async function POST(request: NextRequest) {
         elements_wood: chart.elements.wood, elements_fire: chart.elements.fire,
         elements_earth: chart.elements.earth, elements_metal: chart.elements.metal, elements_water: chart.elements.water,
         free_reading_personality: aiReading.personality, free_reading_year: aiReading.year_forecast,
-        free_reading_element: aiReading.element_guidance, share_slug: shareSlug, is_paid: false,
+        free_reading_element: aiReading.element_guidance, share_slug: shareSlug, is_paid: false, locale,
         ...(userId ? { user_id: userId } : {}),
         ...(citationMeta ? { citation_meta: citationMeta } : {}),
       }),

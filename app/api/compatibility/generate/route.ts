@@ -307,6 +307,31 @@ export async function POST(request: NextRequest) {
         freeSummary = cleaned;
       }
     }
+    // Safety: strip JSON wrapper if still present after all parsing attempts
+    if (freeSummary && freeSummary.trimStart().startsWith("{")) {
+      const innerMatch = freeSummary.match(/"(?:summary|요약|サマリー|概要)"\s*:\s*"([\s\S]+?)"\s*\}?\s*$/);
+      if (innerMatch) {
+        freeSummary = innerMatch[1].replace(/\\n/g, "\n").replace(/\\"/g, '"');
+      }
+    }
+    // Language correction: if KO/JA requested but English returned, try Claude
+    if (locale !== "en" && freeSummary) {
+      const sample = freeSummary.substring(0, 200);
+      const isCorrectLang = locale === "ko"
+        ? /[\uAC00-\uD7AF]/.test(sample)
+        : /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+      if (!isCorrectLang) {
+        try {
+          const corrected = await callClaudeFallback(ragPrefix + buildFreeCompatibilityPrompt(scores, locale), "LangFix");
+          if (corrected) {
+            try {
+              const cp = parseJSON(corrected);
+              freeSummary = cp.summary || cp.free_summary || Object.values(cp).find((v: any) => typeof v === "string" && v.length > 50) as string || freeSummary;
+            } catch { freeSummary = corrected.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim(); }
+          }
+        } catch { /* Claude failed — keep original */ }
+      }
+    }
     if (!freeSummary || freeSummary.length < 20) {
       console.error("[compat-generate] Empty free summary. Raw:", freeRaw.substring(0, 300));
       return NextResponse.json({ error: "Empty AI response" }, { status: 500 });
@@ -360,6 +385,7 @@ export async function POST(request: NextRequest) {
       overall_score: scores.overall, love_score: scores.love, work_score: scores.work,
       friendship_score: scores.friendship, conflict_score: scores.conflict,
       free_summary: freeSummary, share_slug: shareSlug,
+      locale,
     };
 
     if (paidData.love) {

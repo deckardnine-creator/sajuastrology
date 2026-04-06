@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { name, gender, birthYear, birthMonth, birthDay, birthHour, birthMinute, birthCity, locale } = body;
 
-    if (!name || !gender || !birthYear || !birthMonth || !birthDay || name.length > 100) {
+    if (!name || !gender || !birthYear || !birthMonth || !birthDay) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -193,12 +193,27 @@ export async function POST(req: NextRequest) {
     // ═══ AI GENERATION ═══
     const rawText = await generateAI(ragPrefix, loc);
 
+    // ═══ LANGUAGE CORRECTION — if KO/JA requested but English returned, try Claude ═══
+    let finalText = rawText;
+    if (loc !== "en" && rawText) {
+      const sample = rawText.substring(0, 200);
+      const isCorrectLang = loc === "ko"
+        ? /[\uAC00-\uD7AF]/.test(sample)
+        : /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+      if (!isCorrectLang) {
+        try {
+          const corrected = await callClaude(ragPrefix);
+          if (corrected) finalText = corrected;
+        } catch { /* Claude failed — keep English original */ }
+      }
+    }
+
     let aiReading: any;
     try {
-      const cleaned = rawText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+      const cleaned = finalText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
       aiReading = normalizeKeys(JSON.parse(cleaned));
     } catch {
-      const m = rawText.match(/\{[\s\S]*\}/);
+      const m = finalText.match(/\{[\s\S]*\}/);
       if (m) aiReading = normalizeKeys(JSON.parse(m[0]));
       else return NextResponse.json({ error: "AI parse failed" }, { status: 500 });
     }
@@ -222,7 +237,7 @@ export async function POST(req: NextRequest) {
         elements_wood: chart.elements.wood, elements_fire: chart.elements.fire,
         elements_earth: chart.elements.earth, elements_metal: chart.elements.metal, elements_water: chart.elements.water,
         free_reading_personality: aiReading.personality, free_reading_year: aiReading.year_forecast,
-        free_reading_element: aiReading.element_guidance, share_slug: shareSlug, is_paid: false,
+        free_reading_element: aiReading.element_guidance, share_slug: shareSlug, is_paid: false, locale: loc,
         ...(citationMeta ? { citation_meta: citationMeta } : {}),
       }),
     });
