@@ -70,6 +70,7 @@ export interface SajuChart {
   birthDate: Date;
   birthCity: string;
   birthHour?: number;
+  birthHourUnknown?: boolean;
   pillars: {
     year: Pillar;
     month: Pillar;

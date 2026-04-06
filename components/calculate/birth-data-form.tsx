@@ -235,6 +235,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
         unknownTime ? undefined : { longitude: selectedCity.longitude, birthMinute: minute, timezone: selectedCity.timezone }
       );
       chart.birthHour = hour;
+      chart.birthHourUnknown = unknownTime;
       onCalculate(chart, selectedCity.name);
     } catch (err) {
       console.error("Form submit error:", err);

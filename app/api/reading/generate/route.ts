@@ -305,7 +305,7 @@ export async function POST(request: NextRequest) {
         elements_wood: chart.elements.wood, elements_fire: chart.elements.fire,
         elements_earth: chart.elements.earth, elements_metal: chart.elements.metal, elements_water: chart.elements.water,
         free_reading_personality: aiReading.personality, free_reading_year: aiReading.year_forecast,
-        free_reading_element: aiReading.element_guidance, share_slug: shareSlug, is_paid: false, locale,
+        free_reading_element: aiReading.element_guidance, share_slug: shareSlug, is_paid: false, locale, birth_hour_unknown: chart.birthHourUnknown || false,
         ...(userId ? { user_id: userId } : {}),
         ...(citationMeta ? { citation_meta: citationMeta } : {}),
       }),

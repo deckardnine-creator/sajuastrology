@@ -80,6 +80,7 @@ interface ReadingData {
   created_at: string;
   user_id: string | null;
   citation_meta: CitationMeta | null;
+  birth_hour_unknown?: boolean;
 }
 
 const ELEMENT_COLORS: Record<string, string> = {
@@ -671,10 +672,10 @@ export default function ReadingPageClient() {
   const dmColor = ELEMENT_COLORS[reading.day_master_element] || "#F2CA50";
 
   const pillars = [
-    { name: t("reading.pillarHour", locale), stem: reading.hour_stem, branch: reading.hour_branch, isDay: false },
-    { name: t("reading.pillarDay", locale), stem: reading.day_stem, branch: reading.day_branch, isDay: true },
-    { name: t("reading.pillarMonth", locale), stem: reading.month_stem, branch: reading.month_branch, isDay: false },
-    { name: t("reading.pillarYear", locale), stem: reading.year_stem, branch: reading.year_branch, isDay: false },
+    { name: t("reading.pillarHour", locale), stem: reading.hour_stem, branch: reading.hour_branch, isDay: false, isHourUnknown: reading.birth_hour_unknown },
+    { name: t("reading.pillarDay", locale), stem: reading.day_stem, branch: reading.day_branch, isDay: true, isHourUnknown: false },
+    { name: t("reading.pillarMonth", locale), stem: reading.month_stem, branch: reading.month_branch, isDay: false, isHourUnknown: false },
+    { name: t("reading.pillarYear", locale), stem: reading.year_stem, branch: reading.year_branch, isDay: false, isHourUnknown: false },
   ];
 
   const elements = {
@@ -797,11 +798,16 @@ export default function ReadingPageClient() {
             <div className="grid grid-cols-4 gap-3">
               {pillars.map((p) => (
                 <div key={p.name}
-                  className={`bg-card/60 backdrop-blur border rounded-xl p-4 text-center ${p.isDay ? "border-primary/50 ring-1 ring-primary/20" : "border-border"}`}>
+                  className={`bg-card/60 backdrop-blur border rounded-xl p-4 text-center ${
+                    p.isDay ? "border-primary/50 ring-1 ring-primary/20"
+                    : p.isHourUnknown ? "border-dashed border-border/60"
+                    : "border-border"
+                  }`}>
                   <p className="text-xs text-muted-foreground mb-2">{p.name}</p>
-                  <p className="text-2xl font-serif text-primary">{p.stem}</p>
-                  <p className="text-lg text-muted-foreground">{p.branch}</p>
+                  <p className={`text-2xl font-serif ${p.isHourUnknown ? "text-primary/40" : "text-primary"}`}>{p.stem}</p>
+                  <p className={`text-lg ${p.isHourUnknown ? "text-muted-foreground/40" : "text-muted-foreground"}`}>{p.branch}</p>
                   {p.isDay && <p className="text-[10px] text-primary/60 mt-1">{t("reading.dayMasterLabel", locale)}</p>}
+                  {p.isHourUnknown && <p className="text-[9px] text-muted-foreground/50 mt-1.5">{locale === "ko" ? "추정값" : locale === "ja" ? "推定値" : "estimated"}</p>}
                 </div>
               ))}
             </div>
