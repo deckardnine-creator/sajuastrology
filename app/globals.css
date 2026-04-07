@@ -109,9 +109,19 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
-    word-break: keep-all;
     overflow-wrap: break-word;
   }
+}
+
+/* Language-specific word-break rules (global, not just mobile) */
+:lang(ko) {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+:lang(ja) {
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 /* Smooth scrolling (respects reduced-motion preference) */
@@ -174,17 +184,8 @@ body, #__next, main {
     text-rendering: optimizeLegibility;
   }
 
-  /* Korean text: prevent awkward line breaks */
-  :lang(ko), [lang="ko"], .ko-text {
-    word-break: keep-all;
-    overflow-wrap: break-word;
-    line-height: 1.7;
-  }
-
-  /* Japanese text: allow natural wrapping */
-  :lang(ja), [lang="ja"], .ja-text {
-    word-break: normal;
-    overflow-wrap: break-word;
+  /* CJK line-height boost on mobile */
+  :lang(ko), :lang(ja) {
     line-height: 1.7;
   }
 

@@ -32,7 +32,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setLocaleState(detectLocale());
+    const detected = detectLocale();
+    setLocaleState(detected);
+    // Sync html lang attribute on initial load
+    document.documentElement.lang = detected;
     setMounted(true);
   }, []);
 
