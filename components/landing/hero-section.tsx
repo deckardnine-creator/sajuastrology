@@ -112,6 +112,16 @@ export function HeroSection() {
               </Link>
             </div>
 
+            {/* Celebrity Readings link */}
+            <a
+              href={locale === "ko" ? "https://blog.sajuastrology.com" : locale === "ja" ? "https://blog.sajuastrology.com" : "https://blog.sajuastrology.com"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[14px] sm:text-[15px] text-[#d4af37] hover:text-[#f5d76e] transition-colors text-center sm:text-left"
+            >
+              {locale === "ko" ? "✦ 셀럽 사주 분석 보기 →" : locale === "ja" ? "✦ セレブの四柱推命を見る →" : "✦ Read Celebrity Saju Readings →"}
+            </a>
+
             {/* App Download Buttons — hidden inside native app */}
             {!isNativeApp && (
             <div className="flex flex-col gap-2 mt-1">
