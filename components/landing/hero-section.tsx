@@ -70,7 +70,7 @@ export function HeroSection() {
         ))}
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="grid lg:grid-cols-2 lg:gap-8 items-center lg:min-h-[calc(100vh-8rem)]">
 
           {/* Left: Text */}
