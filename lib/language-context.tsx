@@ -13,6 +13,12 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 function detectLocale(): Locale {
+  // 0. URL lang parameter — Flutter WebView passes lang in URL, always wins
+  if (typeof window !== "undefined") {
+    const urlLang = new URLSearchParams(window.location.search).get("lang") as Locale | null;
+    if (urlLang && ["en", "ko", "ja"].includes(urlLang)) return urlLang;
+  }
+
   // 1. Saved preference
   const saved = safeGet("locale") as Locale | null;
   if (saved && ["en", "ko", "ja"].includes(saved)) return saved;
