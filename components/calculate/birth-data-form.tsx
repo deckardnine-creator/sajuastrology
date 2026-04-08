@@ -311,8 +311,8 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
         </div>
 
         <motion.div className="w-full max-w-lg relative z-10" initial={{ opacity:0,x:20 }} animate={{ opacity:1,x:0 }} transition={{ duration:0.6,delay:0.2 }}>
-          <div className="bg-card/50 backdrop-blur-xl border border-border rounded-2xl p-6 lg:p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="bg-card/50 backdrop-blur-xl border border-border rounded-2xl p-6 lg:p-8" style={{ overflow: 'visible' }}>
+            <form onSubmit={handleSubmit} className="space-y-6" style={{ overflow: 'visible' }}>
 
               {/* Name */}
               <div className="space-y-2">
@@ -373,9 +373,9 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
               {/* City */}
               <div className="space-y-2">
                 <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">{t("form.birthCity", locale)}</label>
-                <div className="relative">
+                <div className="relative" style={{ overflow: 'visible' }}>
                   {showCityDropdown && (
-                    <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="absolute z-50 w-full bottom-full mb-1 bg-card border border-border rounded-lg shadow-xl overflow-y-auto max-h-48">
+                    <div className="absolute z-[100] left-0 right-0 bottom-full mb-1 bg-card border border-border rounded-xl shadow-lg max-h-48 overflow-y-auto">
                       {cityResults.map((city)=>(
                         <button key={`${city.name}-${city.country}`} type="button"
                           onMouseDown={(e)=>e.preventDefault()}
@@ -388,7 +388,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                           </div>
                         </button>
                       ))}
-                    </motion.div>
+                    </div>
                   )}
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input type="text" placeholder={t("form.cityOfBirth", locale)} value={cityQuery}
