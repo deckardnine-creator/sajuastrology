@@ -505,7 +505,7 @@ function PersonForm({ label, data, onChange, locale }: {
       </div>
 
       {/* Birth City */}
-      <div className="relative">
+      <div className="relative" style={{ paddingBottom: showCityDropdown ? "12rem" : 0 }}>
         <label className="block text-sm text-muted-foreground mb-1.5">{t("form.birthCity", locale)}</label>
         <input
           type="text"
@@ -513,6 +513,11 @@ function PersonForm({ label, data, onChange, locale }: {
           onChange={(e) => {
             const val = e.target.value;
             onChange({ ...data, cityQuery: val, selectedCity: data.selectedCity && val !== data.selectedCity.name ? null : data.selectedCity });
+          }}
+          onFocus={(e) => {
+            setTimeout(() => {
+              e.target.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 350);
           }}
           onBlur={() => setTimeout(() => setShowCityDropdown(false), 200)}
           placeholder={t("form.cityPlaceholder", locale)}
