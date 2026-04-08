@@ -19,7 +19,6 @@ const LOCALES: { code: Locale; label: string; name: string }[] = [
   { code: "ko", label: "KO", name: "한국어" },
 ]
 
-// Desktop: compact pill switcher
 function DesktopLangSwitcher() {
   const { locale, setLocale } = useLanguage()
   return (
@@ -41,7 +40,6 @@ function DesktopLangSwitcher() {
   )
 }
 
-// Mobile header: inline compact switcher next to hamburger
 function MobileInlineSwitcher() {
   const { locale, setLocale } = useLanguage()
   return (
@@ -70,11 +68,9 @@ export function Navbar() {
   const router = useRouter()
   const isNative = useNativeApp()
 
-  // In app mode, Flutter provides its own TopBar — hide web navbar entirely
-  if (isNative) return null;
-
   const homeHref = "/"
 
+  // ALL hooks must be ABOVE any conditional return (React Rules of Hooks)
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden"
     else document.body.style.overflow = ""
@@ -91,6 +87,10 @@ export function Navbar() {
     window.location.href = "/"
   }
 
+  // In app mode, Flutter provides its own TopBar — hide web navbar entirely
+  // This MUST be after all hooks
+  if (isNative) return null;
+
   return (
     <>
       <motion.nav
@@ -101,13 +101,11 @@ export function Navbar() {
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 md:h-20 items-center justify-between">
-            {/* Logo */}
             <Link href={homeHref} className="flex items-center">
               <Image src="/logo1.png" alt="SajuAstrology" width={150} height={44}
                 className="h-10 md:h-12 w-auto object-contain" priority />
             </Link>
 
-            {/* Desktop nav links */}
             <div className="hidden md:flex md:items-center md:gap-8">
               <Link href="/what-is-saju" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.whatIsSaju")}</Link>
               <Link href="/pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.pricing")}</Link>
@@ -115,7 +113,6 @@ export function Navbar() {
               <Link href="/consultation" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.consultation")}</Link>
             </div>
 
-            {/* Desktop right: lang + user */}
             <div className="hidden md:flex md:items-center md:gap-3">
               <DesktopLangSwitcher />
               {(isLoading || isSigningOut) ? (
@@ -132,7 +129,6 @@ export function Navbar() {
               )}
             </div>
 
-            {/* Mobile right: inline lang switcher + hamburger */}
             <div className="flex md:hidden items-center gap-1">
               <MobileInlineSwitcher />
               <button
@@ -147,7 +143,6 @@ export function Navbar() {
         </div>
       </motion.nav>
 
-      {/* Mobile menu overlay */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -157,17 +152,14 @@ export function Navbar() {
             className="fixed inset-0 z-[45] bg-background/98 backdrop-blur-sm md:hidden"
           >
             <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6">
-
               <Link href={homeHref} className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.home")}</Link>
               <Link href="/what-is-saju" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.whatIsSaju")}</Link>
               <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>
               <Link href="/compatibility" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.compatibility")}</Link>
               <Link href="/consultation" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.consultation")}</Link>
 
-              {/* Divider */}
               <div className="w-16 h-px bg-border/50" />
 
-              {/* Auth */}
               {(isLoading || isSigningOut) ? (
                 <div className="h-[44px] w-24 bg-muted/30 rounded-lg animate-pulse" />
               ) : user ? (
@@ -179,7 +171,6 @@ export function Navbar() {
                 <button onClick={() => { closeMenu(); openSignInModal() }} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signIn")}</button>
               )}
 
-              {/* CTA — always visible */}
               <Link href="/calculate" onClick={closeMenu} className="mt-2 w-full max-w-xs">
                 <Button className="w-full h-12 gold-gradient text-primary-foreground font-semibold text-base">{t("nav.getReading")}</Button>
               </Link>

@@ -19,7 +19,6 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!isNative) return;
     const unsub = onFlutterMessage("auth:session:", async (payload) => {
-      // payload = "accessToken|refreshToken"
       const [accessToken, refreshToken] = payload.split("|");
       if (accessToken) {
         try {
@@ -32,7 +31,6 @@ export default function DashboardPage() {
             access_token: accessToken,
             refresh_token: refreshToken || "",
           });
-          // Reload to pick up the new session
           window.location.reload();
         } catch (e) {
           console.error("Failed to set session from Flutter:", e);
@@ -42,14 +40,12 @@ export default function DashboardPage() {
     return unsub;
   }, [isNative]);
 
+  // Web only: auto-open sign-in modal
+  // App mode: do NOT auto-trigger login — IndexedStack renders all tabs
+  // at once, so this would fire even when the user hasn't tapped "My" tab
   useEffect(() => {
-    if (!isLoading && !user) {
-      if (isNative) {
-        // In app mode, request auth from Flutter
-        requestAuth("google");
-      } else {
-        openSignInModal();
-      }
+    if (!isLoading && !user && !isNative) {
+      openSignInModal();
     }
   }, [isLoading, user, openSignInModal, isNative]);
 
@@ -79,7 +75,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Desktop Layout */}
       <div className="hidden md:flex min-h-screen">
         <DashboardSidebar />
         <main className="flex-1 ml-64 p-8 flex flex-col">
@@ -87,9 +82,7 @@ export default function DashboardPage() {
         </main>
       </div>
 
-      {/* Mobile Layout */}
       <div className="md:hidden">
-        {/* Navbar returns null in app mode automatically */}
         <Navbar />
         <main className={isNative ? "px-4 pt-4 pb-4" : "pb-20 px-4 pt-20"}>
           <DashboardContent />
