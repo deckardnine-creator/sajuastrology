@@ -335,3 +335,43 @@ body.app-mode .pt-navbar {
 body.app-mode .pt-20 {
   padding-top: 0 !important;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   App Mode — Flutter WebView hybrid
+   body.app-mode is set when User-Agent contains "SajuApp"
+   or URL has ?app=true. Web users never see these rules.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. Hide web chrome (Flutter provides its own) */
+body.app-mode .navbar-wrapper,
+body.app-mode .glass.fixed.top-0,
+body.app-mode nav.fixed.top-0,
+body.app-mode nav.fixed.bottom-0,
+body.app-mode footer.bg-card,
+body.app-mode .early-access-banner {
+  display: none !important;
+}
+
+/* 2. Remove navbar-reserved spacing only */
+body.app-mode .pt-navbar {
+  padding-top: 0 !important;
+}
+
+/* 3. Remove bottom-nav-reserved spacing */
+body.app-mode .pb-14 {
+  padding-bottom: 0 !important;
+}
+
+/* 4. Fullscreen overlay menus (web hamburger) — hide in app */
+body.app-mode .fixed.inset-0.z-\[45\] {
+  display: none !important;
+}
+
+/* 5. Safe areas — Flutter handles these */
+body.app-mode .safe-area-top {
+  padding-top: 0 !important;
+}
+body.app-mode .safe-area-bottom {
+  padding-bottom: 0 !important;
+}
