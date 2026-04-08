@@ -505,33 +505,15 @@ function PersonForm({ label, data, onChange, locale }: {
       </div>
 
       {/* Birth City */}
-      <div className="relative" style={{ paddingBottom: showCityDropdown ? "12rem" : 0 }}>
+      <div className="relative">
         <label className="block text-sm text-muted-foreground mb-1.5">{t("form.birthCity", locale)}</label>
-        <input
-          type="text"
-          value={data.cityQuery}
-          onChange={(e) => {
-            const val = e.target.value;
-            onChange({ ...data, cityQuery: val, selectedCity: data.selectedCity && val !== data.selectedCity.name ? null : data.selectedCity });
-          }}
-          onFocus={(e) => {
-            setTimeout(() => {
-              e.target.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 350);
-          }}
-          onBlur={() => setTimeout(() => setShowCityDropdown(false), 200)}
-          placeholder={t("form.cityPlaceholder", locale)}
-          className="w-full h-11 rounded-xl bg-background/50 border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
-        />
-        {data.selectedCity && (
-          <p className="text-xs text-primary mt-1">✓ {data.selectedCity.name}</p>
-        )}
         {showCityDropdown && (
-          <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg max-h-48 overflow-y-auto">
+          <div className="absolute z-50 bottom-full left-0 right-0 mb-1 bg-card border border-border rounded-xl shadow-lg max-h-48 overflow-y-auto">
             {cityResults.map((city) => (
               <button
                 key={`${city.name}-${city.lat}`}
                 type="button"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   onChange({ ...data, cityQuery: city.name, selectedCity: city });
                   setShowCityDropdown(false);
@@ -543,6 +525,21 @@ function PersonForm({ label, data, onChange, locale }: {
               </button>
             ))}
           </div>
+        )}
+        <input
+          type="text"
+          value={data.cityQuery}
+          onChange={(e) => {
+            const val = e.target.value;
+            onChange({ ...data, cityQuery: val, selectedCity: data.selectedCity && val !== data.selectedCity.name ? null : data.selectedCity });
+          }}
+          onBlur={() => setTimeout(() => setShowCityDropdown(false), 200)}
+          placeholder={t("form.cityPlaceholder", locale)}
+          className="w-full h-11 rounded-xl bg-background/50 border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
+        />
+        {data.selectedCity && (
+          <p className="text-xs text-primary mt-1">✓ {data.selectedCity.name}</p>
+        )}
         )}
       </div>
     </div>

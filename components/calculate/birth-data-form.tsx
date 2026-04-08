@@ -374,23 +374,12 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
               <div className="space-y-2">
                 <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">{t("form.birthCity", locale)}</label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input type="text" placeholder={t("form.cityOfBirth", locale)} value={cityQuery}
-                    onChange={(e)=>{
-                      const v=e.target.value;
-                      setCityQuery(v);
-                      if(selectedCity && v!==selectedCity.name) setSelectedCity(null);
-                    }}
-                    onBlur={()=>setTimeout(()=>setShowCityDropdown(false),200)}
-                    onFocus={(e)=>{
-                      if(cityResults.length>0) setShowCityDropdown(true);
-                      setTimeout(()=>e.target.scrollIntoView({behavior:"smooth",block:"center"}),300);
-                    }}
-                    className="pl-10 bg-background/50 border-border focus:border-primary" />
                   {showCityDropdown && (
-                    <motion.div initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}} className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-xl overflow-y-auto max-h-48">
+                    <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="absolute z-50 w-full bottom-full mb-1 bg-card border border-border rounded-lg shadow-xl overflow-y-auto max-h-48">
                       {cityResults.map((city)=>(
-                        <button key={`${city.name}-${city.country}`} type="button" onClick={()=>handleCitySelect(city)}
+                        <button key={`${city.name}-${city.country}`} type="button"
+                          onMouseDown={(e)=>e.preventDefault()}
+                          onClick={()=>handleCitySelect(city)}
                           className="w-full px-4 py-3 flex items-center gap-3 hover:bg-primary/10 transition-colors text-left">
                           <span className="text-lg">{getFlagEmoji(city.countryCode)}</span>
                           <div>
@@ -401,6 +390,18 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                       ))}
                     </motion.div>
                   )}
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input type="text" placeholder={t("form.cityOfBirth", locale)} value={cityQuery}
+                    onChange={(e)=>{
+                      const v=e.target.value;
+                      setCityQuery(v);
+                      if(selectedCity && v!==selectedCity.name) setSelectedCity(null);
+                    }}
+                    onBlur={()=>setTimeout(()=>setShowCityDropdown(false),200)}
+                    onFocus={(e)=>{
+                      if(cityResults.length>0) setShowCityDropdown(true);
+                    }}
+                    className="pl-10 bg-background/50 border-border focus:border-primary" />
                 </div>
               </div>
 
