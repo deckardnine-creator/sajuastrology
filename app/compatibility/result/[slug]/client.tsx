@@ -471,9 +471,12 @@ export default function CompatibilityResultClient() {
             )}
           </motion.section>
 
-          <p className="text-center text-[11px] text-muted-foreground/30 mt-8">
-            {t("cr.entertainment", locale)}
-          </p>
+          <div className="text-center text-[11px] text-muted-foreground/30 mt-8 space-y-1">
+            <p>{t("cr.entertainment", locale)}</p>
+            <p>
+              {locale === "ko" ? "생성일시" : locale === "ja" ? "作成日時" : "Generated"}: {new Date(result.created_at).toISOString().replace("T", " ").slice(0, 16)} UTC
+            </p>
+          </div>
         </div>
       </div>
       <Footer />
