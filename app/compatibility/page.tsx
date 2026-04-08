@@ -540,7 +540,6 @@ function PersonForm({ label, data, onChange, locale }: {
         {data.selectedCity && (
           <p className="text-xs text-primary mt-1">✓ {data.selectedCity.name}</p>
         )}
-        )}
       </div>
     </div>
   );
