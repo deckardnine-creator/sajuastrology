@@ -301,3 +301,37 @@ body.menu-open {
     padding-top: 5.5rem;
   }
 }
+
+/* ═══════════════════════════════════════════════
+   App Mode — Flutter WebView hybrid
+   Applied when body has class "app-mode"
+   (set by native-app detection)
+   Web users never see these rules.
+   ═══════════════════════════════════════════════ */
+
+/* Hide web navigation elements — Flutter provides its own */
+body.app-mode .navbar-wrapper,
+body.app-mode nav.fixed.bottom-0,
+body.app-mode footer,
+body.app-mode .early-access-banner {
+  display: none !important;
+}
+
+/* Remove body padding that accounts for hidden nav elements */
+body.app-mode .pb-14 {
+  padding-bottom: 0 !important;
+}
+
+body.app-mode main {
+  min-height: 100vh;
+  padding-bottom: 0;
+}
+
+/* Remove top padding from pages that expect navbar */
+body.app-mode .pt-navbar {
+  padding-top: 0;
+}
+
+body.app-mode .pt-20 {
+  padding-top: 0 !important;
+}

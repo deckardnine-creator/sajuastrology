@@ -15,18 +15,15 @@ const WEB_ITEMS = [
   { key: "bnav.my" as const, href: "/dashboard", icon: User },
 ];
 
-const APP_ITEMS = [
-  { key: "bnav.home" as const, href: "/app", icon: Home },
-  { key: "bnav.reading" as const, href: "/calculate", icon: Sparkles },
-  { key: "bnav.compatibility" as const, href: "/compatibility", icon: Heart },
-];
-
 export function BottomNav() {
   const pathname = usePathname();
   const { locale } = useLanguage();
   const isNative = useNativeApp();
 
-  const items = isNative ? APP_ITEMS : WEB_ITEMS;
+  // In app mode, Flutter provides its own bottom navigation bar
+  if (isNative) return null;
+
+  const items = WEB_ITEMS;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
@@ -39,8 +36,8 @@ export function BottomNav() {
       >
         {items.map(({ key, href, icon: Icon }) => {
           const isActive =
-            href === "/" || href === "/app"
-              ? pathname === "/" || pathname === "/app"
+            href === "/"
+              ? pathname === "/"
               : pathname.startsWith(href);
 
           return (

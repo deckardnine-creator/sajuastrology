@@ -1,10 +1,14 @@
 "use client"
 
+import { useEffect } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Sparkles } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useLanguage } from "@/lib/language-context"
+import { useNativeApp } from "@/lib/native-app"
+import { requestIAP, onFlutterMessage } from "@/lib/flutter-bridge"
 
 const content = {
   title: {
@@ -22,6 +26,11 @@ const content = {
     ko: "프리미엄 잠금 해제 — $9.99 일회 결제",
     ja: "プレミアム解放 — $9.99 一回払い",
   },
+  ctaApp: {
+    en: "Unlock Premium — $9.99",
+    ko: "프리미엄 잠금 해제 — $9.99",
+    ja: "プレミアム解放 — $9.99",
+  },
   free: {
     en: "Or continue with free daily readings",
     ko: "또는 무료 일일 리딩 계속하기",
@@ -35,6 +44,26 @@ function tx(obj: Record<string, string>, locale: string): string {
 
 export function UpgradeCTA() {
   const { locale } = useLanguage()
+  const isNative = useNativeApp()
+  const pathname = usePathname()
+
+  // Extract shareSlug from URL: /reading/[slug] → slug
+  const shareSlug = pathname.startsWith("/reading/")
+    ? pathname.split("/reading/")[1]?.split("?")[0] || ""
+    : ""
+
+  // Listen for IAP success from Flutter — reload page to show unlocked content
+  useEffect(() => {
+    if (!isNative) return
+    const unsub = onFlutterMessage("iap:success:", (_slug) => {
+      window.location.reload()
+    })
+    return unsub
+  }, [isNative])
+
+  const handleIAPPurchase = () => {
+    requestIAP("full_destiny_reading", shareSlug)
+  }
 
   return (
     <motion.section
@@ -54,14 +83,26 @@ export function UpgradeCTA() {
           {tx(content.desc, locale)}
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link href="/pricing">
+          {isNative ? (
+            /* App mode: trigger Flutter IAP */
             <Button
               size="lg"
               className="gold-gradient text-primary-foreground font-semibold"
+              onClick={handleIAPPurchase}
             >
-              {tx(content.cta, locale)}
+              {tx(content.ctaApp, locale)}
             </Button>
-          </Link>
+          ) : (
+            /* Web mode: link to pricing page (PayPal) */
+            <Link href="/pricing">
+              <Button
+                size="lg"
+                className="gold-gradient text-primary-foreground font-semibold"
+              >
+                {tx(content.cta, locale)}
+              </Button>
+            </Link>
+          )}
           <Link
             href="/daily"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -69,7 +110,7 @@ export function UpgradeCTA() {
             {tx(content.free, locale)}
           </Link>
         </div>
-        {locale === "ko" && (
+        {locale === "ko" && !isNative && (
           <p className="text-[10px] text-muted-foreground/40 mt-3">해외 결제 수단 전용 · 국내 카드 미지원</p>
         )}
       </div>

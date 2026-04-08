@@ -1,7 +1,8 @@
-﻿"use client"
+"use client"
 
 import Link from "next/link"
 import { Globe, Twitter, Instagram } from "lucide-react"
+import { useNativeApp } from "@/lib/native-app"
 
 // Facebook icon as inline SVG
 const FacebookIcon = () => (
@@ -25,6 +26,11 @@ const socialLinks = [
 ]
 
 export function Footer() {
+  const isNative = useNativeApp()
+
+  // In app mode, Flutter provides its own chrome — hide web footer
+  if (isNative) return null;
+
   return (
     <footer className="bg-card py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

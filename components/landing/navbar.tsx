@@ -70,7 +70,10 @@ export function Navbar() {
   const router = useRouter()
   const isNative = useNativeApp()
 
-  const homeHref = isNative ? "/app" : "/"
+  // In app mode, Flutter provides its own TopBar — hide web navbar entirely
+  if (isNative) return null;
+
+  const homeHref = "/"
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden"
@@ -94,7 +97,7 @@ export function Navbar() {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/30"
+        className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/30 navbar-wrapper"
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 md:h-20 items-center justify-between">
@@ -107,27 +110,25 @@ export function Navbar() {
             {/* Desktop nav links */}
             <div className="hidden md:flex md:items-center md:gap-8">
               <Link href="/what-is-saju" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.whatIsSaju")}</Link>
-              {!isNative && <Link href="/pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.pricing")}</Link>}
+              <Link href="/pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.pricing")}</Link>
               <Link href="/compatibility" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.compatibility")}</Link>
-              {!isNative && <Link href="/consultation" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.consultation")}</Link>}
+              <Link href="/consultation" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.consultation")}</Link>
             </div>
 
             {/* Desktop right: lang + user */}
             <div className="hidden md:flex md:items-center md:gap-3">
               <DesktopLangSwitcher />
-              {!isNative && (
-                (isLoading || isSigningOut) ? (
-                  <div className="h-10 w-24 bg-muted/30 rounded-lg animate-pulse" />
-                ) : user ? (
-                  <UserMenu />
-                ) : (
-                  <button
-                    onClick={openSignInModal}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {t("nav.signIn")}
-                  </button>
-                )
+              {(isLoading || isSigningOut) ? (
+                <div className="h-10 w-24 bg-muted/30 rounded-lg animate-pulse" />
+              ) : user ? (
+                <UserMenu />
+              ) : (
+                <button
+                  onClick={openSignInModal}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t("nav.signIn")}
+                </button>
               )}
             </div>
 
@@ -159,25 +160,23 @@ export function Navbar() {
 
               <Link href={homeHref} className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.home")}</Link>
               <Link href="/what-is-saju" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.whatIsSaju")}</Link>
-              {!isNative && <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>}
+              <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>
               <Link href="/compatibility" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.compatibility")}</Link>
-              {!isNative && <Link href="/consultation" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.consultation")}</Link>}
+              <Link href="/consultation" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.consultation")}</Link>
 
               {/* Divider */}
               <div className="w-16 h-px bg-border/50" />
 
-              {/* Auth — hidden in native app */}
-              {!isNative && (
-                (isLoading || isSigningOut) ? (
-                  <div className="h-[44px] w-24 bg-muted/30 rounded-lg animate-pulse" />
-                ) : user ? (
-                  <>
-                    <Link href="/dashboard" className="text-lg text-primary font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.dashboard")}</Link>
-                    <button onClick={handleSignOut} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signOut")}</button>
-                  </>
-                ) : (
-                  <button onClick={() => { closeMenu(); openSignInModal() }} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signIn")}</button>
-                )
+              {/* Auth */}
+              {(isLoading || isSigningOut) ? (
+                <div className="h-[44px] w-24 bg-muted/30 rounded-lg animate-pulse" />
+              ) : user ? (
+                <>
+                  <Link href="/dashboard" className="text-lg text-primary font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.dashboard")}</Link>
+                  <button onClick={handleSignOut} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signOut")}</button>
+                </>
+              ) : (
+                <button onClick={() => { closeMenu(); openSignInModal() }} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signIn")}</button>
               )}
 
               {/* CTA — always visible */}

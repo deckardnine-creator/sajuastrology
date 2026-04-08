@@ -26,6 +26,8 @@ import { Button } from "@/components/ui/button";
 import { searchCities, type City } from "@/lib/cities-data";
 import { safeGet } from "@/lib/safe-storage";
 import Link from "next/link";
+import { useNativeApp } from "@/lib/native-app";
+import { requestIAP, requestAuth, onFlutterMessage } from "@/lib/flutter-bridge";
 
 /* ─── Types ─── */
 
@@ -185,6 +187,16 @@ export function ConsultationClient() {
   const { locale } = useLanguage();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const isNative = useNativeApp();
+
+  // Listen for IAP success from Flutter (consultation credits)
+  useEffect(() => {
+    if (!isNative) return;
+    const unsub = onFlutterMessage("iap:success:", () => {
+      window.location.reload();
+    });
+    return unsub;
+  }, [isNative]);
 
   const [step, setStep] = useState<Step>("loading");
   const [credits, setCredits] = useState(0);
@@ -498,9 +510,17 @@ export function ConsultationClient() {
   /* ─── Purchase handler ─── */
   const handlePurchase = async () => {
     if (!user) {
-      openSignInModal();
+      if (isNative) { requestAuth("google"); } else { openSignInModal(); }
       return;
     }
+
+    // App mode: trigger Flutter IAP for consultation credits
+    if (isNative) {
+      requestIAP("master_consultation_5");
+      return;
+    }
+
+    // Web mode: PayPal checkout
     setIsSubmitting(true);
     try {
       const res = await fetch("/api/payment/checkout-consultation", {

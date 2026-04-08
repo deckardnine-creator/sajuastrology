@@ -1,4 +1,4 @@
-﻿import type { Metadata, Viewport } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter, Playfair_Display, Noto_Sans_KR, Noto_Serif_KR } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/lib/auth-context'
@@ -159,6 +159,13 @@ export default function RootLayout({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className={`${inter.variable} ${playfair.variable} ${notoSansKR.variable} ${notoSerifKR.variable} font-sans antialiased`}>
+        {/* App-mode detection: adds body.app-mode class for Flutter WebView.
+            Runs synchronously before React hydration to prevent FOUC. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{if(navigator.userAgent.indexOf("SajuApp")!==-1||new URLSearchParams(location.search).get("app")==="true"){document.body.classList.add("app-mode")}}catch(e){}})();`,
+          }}
+        />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-CBGH7EYJWJ"
           strategy="afterInteractive"
