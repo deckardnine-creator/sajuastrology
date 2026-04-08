@@ -336,7 +336,6 @@ body.app-mode .pt-20 {
   padding-top: 0 !important;
 }
 
-
 /* ═══════════════════════════════════════════════════════════════
    App Mode — Flutter WebView hybrid
    body.app-mode is set when User-Agent contains "SajuApp"
