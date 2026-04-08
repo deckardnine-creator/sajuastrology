@@ -328,13 +328,7 @@ body.app-mode main {
 }
 
 /* Remove top padding from pages that expect navbar */
-body.app-mode .pt-navbar {
-  padding-top: 0;
-}
-
-body.app-mode .pt-20 {
-  padding-top: 0 !important;
-}
+/* (covered in second app-mode block below) */
 
 /* ═══════════════════════════════════════════════════════════════
    App Mode — Flutter WebView hybrid
@@ -354,6 +348,15 @@ body.app-mode .early-access-banner {
 
 /* 2. Remove navbar-reserved spacing only */
 body.app-mode .pt-navbar {
+  padding-top: 0 !important;
+}
+body.app-mode .pt-14 {
+  padding-top: 0 !important;
+}
+body.app-mode .pt-16 {
+  padding-top: 0 !important;
+}
+body.app-mode .pt-20 {
   padding-top: 0 !important;
 }
 
