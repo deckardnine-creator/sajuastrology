@@ -8,10 +8,12 @@ import { MobileDashboardNav } from "@/components/dashboard/mobile-dashboard-nav"
 import { Navbar } from "@/components/landing/navbar";
 import { useNativeApp } from "@/lib/native-app";
 import { onFlutterMessage, requestAuth } from "@/lib/flutter-bridge";
+import { useLanguage } from "@/lib/language-context";
 
 export default function DashboardPage() {
   const { user, isLoading, openSignInModal } = useAuth();
   const isNative = useNativeApp();
+  const { locale } = useLanguage();
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -70,9 +72,15 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <h2 className="text-xl font-serif text-primary mb-2">Welcome</h2>
+          <h2 className="text-xl font-serif text-primary mb-2">
+            {locale === "ko" ? "환영합니다" : locale === "ja" ? "ようこそ" : "Welcome"}
+          </h2>
           <p className="text-muted-foreground text-sm mb-8">
-            Sign in to save readings, track your fortune, and access your cosmic dashboard.
+            {locale === "ko"
+              ? "로그인하여 사주 결과를 저장하고 운세를 확인하세요."
+              : locale === "ja"
+              ? "ログインして鑑定結果を保存し、運勢を確認しましょう。"
+              : "Sign in to save readings, track your fortune, and access your cosmic dashboard."}
           </p>
 
           {isNative ? (
@@ -88,7 +96,7 @@ export default function DashboardPage() {
                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                   <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                 </svg>
-                Continue with Google
+                {locale === "ko" ? "Google로 계속하기" : locale === "ja" ? "Googleで続ける" : "Continue with Google"}
               </button>
               <button
                 onClick={() => requestAuth("apple")}
@@ -97,7 +105,7 @@ export default function DashboardPage() {
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
                 </svg>
-                Continue with Apple
+                {locale === "ko" ? "Apple로 계속하기" : locale === "ja" ? "Appleで続ける" : "Continue with Apple"}
               </button>
             </div>
           ) : (
@@ -106,12 +114,16 @@ export default function DashboardPage() {
               onClick={() => openSignInModal()}
               className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-lg"
             >
-              Sign In
+              {locale === "ko" ? "로그인" : locale === "ja" ? "ログイン" : "Sign In"}
             </button>
           )}
 
           <p className="text-xs text-muted-foreground/60 mt-6">
-            By continuing, you agree to our Terms of Service and Privacy Policy.
+            {locale === "ko"
+              ? "계속 진행하면 이용약관 및 개인정보 처리방침에 동의하는 것입니다."
+              : locale === "ja"
+              ? "続行することで、利用規約とプライバシーポリシーに同意したものとみなされます。"
+              : "By continuing, you agree to our Terms of Service and Privacy Policy."}
           </p>
         </div>
       </div>

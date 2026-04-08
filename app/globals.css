@@ -359,6 +359,12 @@ body.app-mode .pt-16 {
 body.app-mode .pt-20 {
   padding-top: 0 !important;
 }
+body.app-mode .pt-24 {
+  padding-top: 0.25rem !important;
+}
+body.app-mode .pt-28 {
+  padding-top: 0.25rem !important;
+}
 
 /* 3. Remove bottom-nav-reserved spacing */
 body.app-mode .pb-14 {
@@ -376,4 +382,11 @@ body.app-mode .safe-area-top {
 }
 body.app-mode .safe-area-bottom {
   padding-bottom: 0 !important;
+}
+
+/* 6. Hero section — remove excess min-height in app mode */
+body.app-mode .hero-app-compact {
+  min-height: auto !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 1rem !important;
 }

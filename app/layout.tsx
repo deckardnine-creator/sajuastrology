@@ -163,7 +163,7 @@ export default function RootLayout({
             Runs synchronously before React hydration to prevent FOUC. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var a=navigator.userAgent.indexOf("SajuApp")!==-1||new URLSearchParams(location.search).get("app")==="true";if(a){document.body.classList.add("app-mode");var h=function(){document.querySelectorAll("svg.lucide-arrow-left,svg.lucide-chevron-left").forEach(function(s){var p=s.closest("button,a,[role=button]");if(p&&!p.closest("form"))p.style.display="none"})};new MutationObserver(h).observe(document.documentElement,{childList:true,subtree:true});setTimeout(h,300);setTimeout(h,1000)}}catch(e){}})();`,
+            __html: `(function(){try{var a=navigator.userAgent.indexOf("SajuApp")!==-1||new URLSearchParams(location.search).get("app")==="true";if(a){document.body.classList.add("app-mode")}}catch(e){}})();`,
           }}
         />
         <Script
