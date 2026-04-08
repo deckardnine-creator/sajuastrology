@@ -2,7 +2,6 @@
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { ConsultationClient } from "@/components/consultation/consultation-client";
-import { AppBackButton } from "@/components/app/app-back-button";
 
 export const metadata = {
   title: "Master Consultation",
@@ -19,7 +18,6 @@ export default function ConsultationPage() {
         <div className="absolute bottom-0 right-0 w-[450px] h-[450px] rounded-full bg-indigo-700/10 blur-[130px]" />
       </div>
       <Navbar />
-      <AppBackButton />
       <section className="pt-28 pb-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh]"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>

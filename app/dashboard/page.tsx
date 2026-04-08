@@ -84,10 +84,10 @@ export default function DashboardPage() {
           </p>
 
           {isNative ? (
-            /* App mode: native auth via Flutter bridge */
+            /* App mode: use web sign-in modal (OAuth flows inside WebView) */
             <div className="space-y-3">
               <button
-                onClick={() => requestAuth("google")}
+                onClick={() => openSignInModal()}
                 className="w-full h-12 bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 font-medium flex items-center justify-center gap-3 rounded-lg"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -99,7 +99,7 @@ export default function DashboardPage() {
                 {locale === "ko" ? "Google로 계속하기" : locale === "ja" ? "Googleで続ける" : "Continue with Google"}
               </button>
               <button
-                onClick={() => requestAuth("apple")}
+                onClick={() => openSignInModal()}
                 className="w-full h-12 bg-black text-white hover:bg-gray-900 border border-gray-700 font-medium flex items-center justify-center gap-3 rounded-lg"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
