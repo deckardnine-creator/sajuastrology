@@ -360,10 +360,10 @@ body.app-mode .pt-20 {
   padding-top: 0 !important;
 }
 body.app-mode .pt-24 {
-  padding-top: 0.25rem !important;
+  padding-top: 1rem !important;
 }
 body.app-mode .pt-28 {
-  padding-top: 0.25rem !important;
+  padding-top: 1rem !important;
 }
 
 /* 3. Remove bottom-nav-reserved spacing */
