@@ -325,3 +325,15 @@ body.menu-open {
 .pt-page-lg {
   padding-top: var(--pt-page-lg);
 }
+
+/* Stronger override via class chain — guarantees the native value wins
+   regardless of CSS variable cascade quirks or Tailwind layer ordering.
+   Without this, observed in production: pt-page rendered ~96px on native
+   instead of 1.25rem because the variable wasn't propagating reliably. */
+html.native-app .pt-page {
+  padding-top: 1.25rem !important;
+}
+
+html.native-app .pt-page-lg {
+  padding-top: 1.5rem !important;
+}

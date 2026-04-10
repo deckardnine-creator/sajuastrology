@@ -38,7 +38,7 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative overflow-hidden min-h-[80vh] lg:min-h-screen pt-page pb-8 sm:pb-12">
+    <section className="relative overflow-hidden min-h-[80vh] lg:min-h-screen pt-page pb-8 sm:pb-12 flex items-center">
 
       {/* Glow orbs */}
       <motion.div
@@ -70,7 +70,7 @@ export function HeroSection() {
         ))}
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 lg:gap-8 items-center lg:min-h-[calc(100vh-8rem)]">
 
           {/* Left: Text */}

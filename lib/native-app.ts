@@ -7,16 +7,16 @@ import { useState, useEffect } from "react";
  * 
  * Detection methods (any one triggers native mode):
  * 1. User-Agent contains "SajuApp" — set by Flutter WebView (primary, always reliable)
- * 2. URL param ?app=true — fallback for testing in browser
+ * 2. URL param ?app=true — set by Flutter when building tab URLs
+ * 3. sessionStorage flag — persists detection across same-origin client navigations
+ *    where the URL query param gets stripped (e.g. form submit → /reading/{slug}).
  * 
  * Side effect: when native is detected, adds `.native-app` class to <html>.
- * This drives CSS variables (--pt-page, --pt-page-lg) defined in globals.css,
- * allowing pages to use `.pt-page` / `.pt-page-lg` utilities that automatically
- * collapse top padding when the Flutter shell hides the web Navbar.
+ * This drives CSS that collapses padding-top reserved for the (hidden) Navbar.
  * 
- * The class is only ever added (never removed) because:
+ * The class and sessionStorage flag are only ever added (never removed) because:
  * - User-Agent never changes mid-session
- * - URL param ?app=true is set on initial load and persists across navigations
+ * - Once flagged native, the flag remains true for the duration of the WebView
  * - Multiple useNativeApp() callers across pages remain idempotent
  */
 export function useNativeApp(): boolean {
@@ -25,10 +25,19 @@ export function useNativeApp(): boolean {
   useEffect(() => {
     const uaMatch = navigator.userAgent.includes("SajuApp");
     const urlMatch = new URLSearchParams(window.location.search).get("app") === "true";
-    const native = uaMatch || urlMatch;
+    let storedMatch = false;
+    try {
+      storedMatch = sessionStorage.getItem("native-app") === "1";
+    } catch {}
+
+    const native = uaMatch || urlMatch || storedMatch;
     setIsNative(native);
+
     if (native) {
       document.documentElement.classList.add("native-app");
+      try {
+        sessionStorage.setItem("native-app", "1");
+      } catch {}
     }
   }, []);
 
@@ -40,8 +49,10 @@ export function useNativeApp(): boolean {
  */
 export function isNativeApp(): boolean {
   if (typeof window === "undefined") return false;
-  return (
-    navigator.userAgent.includes("SajuApp") ||
-    new URLSearchParams(window.location.search).get("app") === "true"
-  );
+  if (navigator.userAgent.includes("SajuApp")) return true;
+  if (new URLSearchParams(window.location.search).get("app") === "true") return true;
+  try {
+    if (sessionStorage.getItem("native-app") === "1") return true;
+  } catch {}
+  return false;
 }

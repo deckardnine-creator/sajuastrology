@@ -13,13 +13,20 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 function detectLocale(): Locale {
-  // 0. URL lang parameter — Flutter WebView passes lang in URL, always wins
+  // 0. URL lang parameter — Flutter WebView passes lang in URL on tab loads.
+  //    When found, ALSO sync to localStorage so subsequent client-side
+  //    navigations (form submit → /reading/{slug}) that strip the query
+  //    string still read the correct value from localStorage.
   if (typeof window !== "undefined") {
     const urlLang = new URLSearchParams(window.location.search).get("lang") as Locale | null;
-    if (urlLang && ["en", "ko", "ja"].includes(urlLang)) return urlLang;
+    if (urlLang && ["en", "ko", "ja"].includes(urlLang)) {
+      try { localStorage.setItem("locale", urlLang); } catch {}
+      return urlLang;
+    }
   }
 
-  // 1. Saved preference
+  // 1. Saved preference (set either by previous URL detection above
+  //    or by an explicit setLocale() call from a language switcher)
   const saved = safeGet("locale") as Locale | null;
   if (saved && ["en", "ko", "ja"].includes(saved)) return saved;
 
