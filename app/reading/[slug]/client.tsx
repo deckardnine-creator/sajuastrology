@@ -752,20 +752,7 @@ export default function ReadingPageClient() {
           {/* Save & Share Banner */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
             className="mb-6 bg-card/80 border border-primary/20 rounded-xl p-4">
-            {isNative ? (
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <Sparkles className="w-5 h-5 text-primary shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium">{t("reading.wantOwn", locale)}</p>
-                    <p className="text-xs text-muted-foreground">{t("reading.discover30s", locale)}</p>
-                  </div>
-                </div>
-                <Link href="/calculate">
-                  <Button size="sm" className="text-xs h-9 gold-gradient text-primary-foreground shrink-0">{t("reading.getMineFree", locale)}</Button>
-                </Link>
-              </div>
-            ) : user && (reading.user_id === user.id || claimed) ? (
+            {user && (reading.user_id === user.id || claimed) ? (
               <div className="flex items-center justify-between gap-3">
                 <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                   <Bookmark className="w-5 h-5 text-primary shrink-0" />
