@@ -38,7 +38,7 @@ export function HeroSection() {
   }
 
   return (
-    <section className={`relative overflow-hidden ${isNativeApp ? 'hero-app-compact' : 'min-h-[80vh] lg:min-h-screen pt-20 sm:pt-24 pb-8 sm:pb-12'}`}>
+    <section className="relative overflow-hidden min-h-[80vh] lg:min-h-screen pt-20 sm:pt-24 pb-8 sm:pb-12">
 
       {/* Glow orbs */}
       <motion.div

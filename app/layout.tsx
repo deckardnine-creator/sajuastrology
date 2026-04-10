@@ -5,7 +5,6 @@ import { AuthProvider } from '@/lib/auth-context'
 import { LanguageProvider } from '@/lib/language-context'
 import { SignInModal } from '@/components/auth/sign-in-modal'
 import { ScrollToTop } from '@/components/ui/scroll-to-top'
-import { BottomNav } from '@/components/app/bottom-nav'
 import Script from 'next/script'
 import './globals.css'
 
@@ -159,13 +158,6 @@ export default function RootLayout({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className={`${inter.variable} ${playfair.variable} ${notoSansKR.variable} ${notoSerifKR.variable} font-sans antialiased`}>
-        {/* App-mode detection: adds body.app-mode class for Flutter WebView.
-            Runs synchronously before React hydration to prevent FOUC. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var a=navigator.userAgent.indexOf("SajuApp")!==-1||new URLSearchParams(location.search).get("app")==="true";if(a){document.body.classList.add("app-mode")}}catch(e){}})();`,
-          }}
-        />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-CBGH7EYJWJ"
           strategy="afterInteractive"
@@ -180,12 +172,9 @@ export default function RootLayout({
         </Script>
         <AuthProvider>
           <LanguageProvider>
-            <div className="pb-14 md:pb-0">
-              {children}
-            </div>
+            {children}
             <SignInModal />
             <ScrollToTop />
-            <BottomNav />
           </LanguageProvider>
         </AuthProvider>
         <Analytics />

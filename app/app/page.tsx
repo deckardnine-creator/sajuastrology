@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { ArrowRight, Heart, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/lib/language-context";
-import { BottomNav } from "@/components/app/bottom-nav";
 import type { Locale } from "@/lib/translations";
 
 const LOCALES: { code: Locale; label: string }[] = [
@@ -150,8 +149,6 @@ export default function AppHome() {
           </p>
         </motion.div>
       </div>
-
-      <BottomNav />
     </main>
   );
 }

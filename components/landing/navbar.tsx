@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button"
 import { UserMenu } from "@/components/auth/user-menu"
 import { useAuth } from "@/lib/auth-context"
 import { useLanguage } from "@/lib/language-context"
-import { useNativeApp } from "@/lib/native-app"
 import type { Locale } from "@/lib/translations"
 import Image from "next/image"
 
@@ -66,11 +65,9 @@ export function Navbar() {
   const { user, isLoading, isSigningOut, openSignInModal, signOut } = useAuth()
   const { t } = useLanguage()
   const router = useRouter()
-  const isNative = useNativeApp()
 
   const homeHref = "/"
 
-  // ALL hooks must be ABOVE any conditional return (React Rules of Hooks)
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden"
     else document.body.style.overflow = ""
@@ -86,10 +83,6 @@ export function Navbar() {
     } catch {}
     window.location.href = "/"
   }
-
-  // In app mode, Flutter provides its own TopBar — hide web navbar entirely
-  // This MUST be after all hooks
-  if (isNative) return null;
 
   return (
     <>
