@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
+import { useNativeApp } from "@/lib/native-app"
 
 const footerLinks = [
   { label: { en: "What is Saju?", ko: "사주란?", ja: "四柱とは？" }, href: "/what-is-saju" },
@@ -14,6 +15,10 @@ const footerLinks = [
 
 export function Footer() {
   const { locale } = useLanguage()
+  const isNative = useNativeApp()
+
+  // ═══ Hide web footer inside native app — Flutter handles legal links in side menu ═══
+  if (isNative) return null
 
   return (
     <footer className="bg-card py-12">

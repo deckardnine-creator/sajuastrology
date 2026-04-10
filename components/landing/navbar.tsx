@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { UserMenu } from "@/components/auth/user-menu"
 import { useAuth } from "@/lib/auth-context"
 import { useLanguage } from "@/lib/language-context"
+import { useNativeApp } from "@/lib/native-app"
 import type { Locale } from "@/lib/translations"
 import Image from "next/image"
 
@@ -65,6 +66,7 @@ export function Navbar() {
   const { user, isLoading, isSigningOut, openSignInModal, signOut } = useAuth()
   const { t } = useLanguage()
   const router = useRouter()
+  const isNative = useNativeApp()
 
   const homeHref = "/"
 
@@ -73,6 +75,9 @@ export function Navbar() {
     else document.body.style.overflow = ""
     return () => { document.body.style.overflow = "" }
   }, [isOpen])
+
+  // ═══ Hide web navbar inside native app — Flutter renders its own TopBar ═══
+  if (isNative) return null
 
   const closeMenu = () => setIsOpen(false)
 
