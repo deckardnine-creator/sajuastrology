@@ -7,7 +7,7 @@ export default function TermsPage() {
   return (
     <main className="min-h-screen">
       <Navbar />
-      <div className="pt-24 md:pt-28 pb-16">
+      <div className="pt-page pb-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <h1 className="text-3xl md:text-4xl font-serif text-primary mb-2">Terms of Service</h1>
           <p className="text-sm text-muted-foreground mb-10">Last updated: April 2026</p>

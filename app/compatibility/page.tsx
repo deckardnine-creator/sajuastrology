@@ -233,7 +233,7 @@ function CompatibilityContent() {
   return (
     <main className="min-h-screen">
       <Navbar />
-      <div className="pt-24 pb-16">
+      <div className="pt-page pb-16">
         <div className="mx-auto max-w-lg px-4 sm:px-6">
 
           {/* Back to Step 1 — only shown during step 2 */}

@@ -8,7 +8,7 @@ export function SajuHero() {
   const { locale } = useLanguage()
 
   return (
-    <section className="relative min-h-[60vh] flex items-center justify-center pt-24 pb-16 overflow-hidden">
+    <section className="relative min-h-[60vh] flex items-center justify-center pt-page pb-16 overflow-hidden">
       {/* Animated background particles */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(30)].map((_, i) => (

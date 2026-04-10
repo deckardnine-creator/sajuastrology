@@ -9,8 +9,15 @@ import { useState, useEffect } from "react";
  * 1. User-Agent contains "SajuApp" — set by Flutter WebView (primary, always reliable)
  * 2. URL param ?app=true — fallback for testing in browser
  * 
- * Note: User-Agent persists across all navigations within WebView,
- * so no localStorage persistence is needed.
+ * Side effect: when native is detected, adds `.native-app` class to <html>.
+ * This drives CSS variables (--pt-page, --pt-page-lg) defined in globals.css,
+ * allowing pages to use `.pt-page` / `.pt-page-lg` utilities that automatically
+ * collapse top padding when the Flutter shell hides the web Navbar.
+ * 
+ * The class is only ever added (never removed) because:
+ * - User-Agent never changes mid-session
+ * - URL param ?app=true is set on initial load and persists across navigations
+ * - Multiple useNativeApp() callers across pages remain idempotent
  */
 export function useNativeApp(): boolean {
   const [isNative, setIsNative] = useState(false);
@@ -18,7 +25,11 @@ export function useNativeApp(): boolean {
   useEffect(() => {
     const uaMatch = navigator.userAgent.includes("SajuApp");
     const urlMatch = new URLSearchParams(window.location.search).get("app") === "true";
-    setIsNative(uaMatch || urlMatch);
+    const native = uaMatch || urlMatch;
+    setIsNative(native);
+    if (native) {
+      document.documentElement.classList.add("native-app");
+    }
   }, []);
 
   return isNative;

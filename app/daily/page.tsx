@@ -212,7 +212,7 @@ export default function DailyPage() {
         <div className="absolute bottom-0 right-0 w-[350px] h-[350px] rounded-full bg-indigo-600/15 blur-[120px]" />
       </div>
 
-      <div className="mx-auto max-w-2xl px-4 pt-24 sm:pt-28 pb-12">
+      <div className="mx-auto max-w-2xl px-4 pt-page pb-12">
 
         {/* Header */}
         <motion.div

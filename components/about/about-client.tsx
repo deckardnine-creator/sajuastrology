@@ -208,7 +208,7 @@ export default function AboutClient() {
       </div>
 
       {/* Hero */}
-      <section className="relative z-10 pt-28 sm:pt-36 pb-16 overflow-hidden">
+      <section className="relative z-10 pt-page-lg pb-16 overflow-hidden">
         <motion.div
           animate={{ y: [0, -30, 0] }}
           transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}

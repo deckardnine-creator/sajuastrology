@@ -22,7 +22,7 @@ export default function BlogPage() {
         <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] rounded-full bg-primary/10 blur-[130px]" />
       </div>
       <Navbar />
-      <section className="pt-24 sm:pt-32 pb-16">
+      <section className="pt-page-lg pb-16">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h1 className="font-serif text-3xl sm:text-4xl font-bold mb-3">

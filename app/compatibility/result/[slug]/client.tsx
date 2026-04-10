@@ -138,7 +138,7 @@ export default function CompatibilityResultClient() {
     return (
       <main className="min-h-screen">
         <Navbar />
-        <div className="pt-32 text-center">
+        <div className="pt-page-lg text-center">
           <h1 className="text-2xl font-serif text-primary mb-4">{t("cr.notFound", locale)}</h1>
           <p className="text-muted-foreground mb-8">{t("cr.removed", locale)}</p>
           <Link href="/compatibility"><Button className="gold-gradient text-primary-foreground">{t("compat.check", locale)}</Button></Link>
@@ -184,7 +184,7 @@ export default function CompatibilityResultClient() {
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-purple-600/10 blur-[120px]" />
       </div>
 
-      <div className="pt-24 pb-16">
+      <div className="pt-page pb-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
 
           {/* Back */}

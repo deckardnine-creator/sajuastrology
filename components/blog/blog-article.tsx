@@ -47,7 +47,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <article className="pt-24 sm:pt-32 pb-16">
+      <article className="pt-page-lg pb-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <Link href="/blog" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-6">
             <ArrowLeft className="w-4 h-4" /> {post.locale === "ko" ? "모든 글" : post.locale === "ja" ? "すべての記事" : "All Articles"}

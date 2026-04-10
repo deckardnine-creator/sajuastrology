@@ -83,7 +83,7 @@ export default function DashboardPage() {
 
       <div className="md:hidden">
         <Navbar />
-        <main className="pb-20 px-4 pt-20">
+        <main className="pb-20 px-4 pt-page">
           <DashboardContent />
         </main>
         <MobileDashboardNav />
