@@ -8,6 +8,7 @@ import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { SajuChart } from "./saju-calculator";
 import { reconstructChartFromReading } from "./constants";
 import { safeGet, safeSet, safeRemove } from "./safe-storage";
+import { isNativeApp } from "./native-app";
 
 export interface User {
   id: string; name: string; email: string; image?: string;
@@ -203,8 +204,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     // Set signing out flag FIRST — prevents UI flash
     setIsSigningOut(true);
-    try { await supabase.auth.signOut(); } catch {}
-    // Clear localStorage
+
+    // Use 'local' scope: clears local session only, no remote RPC.
+    // This avoids hangs in WebView environments where the network call
+    // to revoke the refresh token may stall indefinitely.
+    try {
+      await supabase.auth.signOut({ scope: "local" });
+    } catch {}
+
+    // Defensive: also wipe any sb-* / supabase localStorage keys directly,
+    // in case Supabase client failed or schema differs.
+    try {
+      const toRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith("sb-") || k.includes("supabase"))) {
+          toRemove.push(k);
+        }
+      }
+      toRemove.forEach((k) => localStorage.removeItem(k));
+    } catch {}
+
+    // Clear app-specific localStorage
     safeRemove("saju-data");
     safeRemove("primary-reading-id");
     safeRemove("primary-changed-date");
@@ -213,8 +234,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     safeRemove("return-to-consultation");
     safeRemove("auth-return-url");
     safeRemove("dashboard-stale");
-    // Force full page reload to clear all React state
-    window.location.href = "/";
+
+    // Force full page reload to clear all React state.
+    // Preserve ?app=true so Flutter shell stays in app mode and
+    // does not re-render web navbar/footer.
+    window.location.href = isNativeApp() ? "/?app=true" : "/";
   };
 
   const saveSajuChart = (chart: SajuChart) => {
