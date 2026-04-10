@@ -45,10 +45,13 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
   const genConfig: any = {
     maxOutputTokens: 5000,
     thinkingConfig: { thinkingBudget: 0 },
+    // Force JSON output for ALL locales. Previously KO/JA were omitted, which
+    // caused Gemini to return plain text and parseJSON to fail downstream,
+    // resulting in empty paidData and NULL paid_* columns in the DB. JSON
+    // mode does not affect output language — Gemini honors the locale-specific
+    // system instruction and returns localized strings inside the JSON object.
+    responseMimeType: "application/json",
   };
-  if (locale === "en") {
-    genConfig.responseMimeType = "application/json";
-  }
 
   const body: any = {
     contents: [{ parts: [{ text: prompt }] }],
@@ -388,13 +391,16 @@ export async function POST(request: NextRequest) {
       locale,
     };
 
-    if (paidData.love) {
-      insertBody.paid_love = paidData.love;
-      insertBody.paid_work = paidData.work;
-      insertBody.paid_friendship = paidData.friendship;
-      insertBody.paid_conflict = paidData.conflict;
-      insertBody.paid_yearly = paidData.yearly;
-    }
+    // Save each paid field independently. Previously the entire block was
+    // gated on `paidData.love` being truthy, which meant a single failed
+    // love-prompt parse would drop work/friendship/conflict/yearly even when
+    // those parsed successfully. Now we persist whatever the AI/parser
+    // produced for each field individually.
+    if (paidData.love)       insertBody.paid_love       = paidData.love;
+    if (paidData.work)       insertBody.paid_work       = paidData.work;
+    if (paidData.friendship) insertBody.paid_friendship = paidData.friendship;
+    if (paidData.conflict)   insertBody.paid_conflict   = paidData.conflict;
+    if (paidData.yearly)     insertBody.paid_yearly     = paidData.yearly;
 
     if (citationMeta) {
       insertBody.citation_meta = citationMeta;
