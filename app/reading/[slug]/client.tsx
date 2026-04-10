@@ -14,6 +14,7 @@ import { DAY_MASTER_DISPLAY } from "@/lib/constants";
 import { GoogleIcon } from "@/components/ui/google-icon";
 import { useAuth } from "@/lib/auth-context";
 import { useNativeApp } from "@/lib/native-app";
+import { requestIAP, requestAuth, onFlutterMessage } from "@/lib/flutter-bridge";
 import { safeGet, safeSet, safeRemove } from "@/lib/safe-storage";
 import { CitationBanner, CitationCards, CitationMethodology, type CitationMeta } from "@/components/reading/citation-display";
 import { useLanguage } from "@/lib/language-context";
@@ -104,6 +105,7 @@ export default function ReadingPageClient() {
   const [reading, setReading] = useState<ReadingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paidContentLoading, setPaidContentLoading] = useState(false);
   const [generationStep, setGenerationStep] = useState(0);
@@ -577,13 +579,42 @@ export default function ReadingPageClient() {
     }
   }, [slug]);
 
+  // Listen for IAP results from Flutter (app mode only)
+  useEffect(() => {
+    if (!isNative) return;
+    const unsubSuccess = onFlutterMessage("iap:success:", () => {
+      // Reload to fetch the now-paid reading state
+      window.location.reload();
+    });
+    const unsubError = onFlutterMessage("iap:error:", (payload) => {
+      setPaymentLoading(false);
+      setPaymentError(payload || "Payment failed");
+    });
+    return () => {
+      unsubSuccess();
+      unsubError();
+    };
+  }, [isNative]);
+
   const handleUnlock = async () => {
     if (!reading) return;
+    setPaymentError(null);
     if (!user) {
+      if (isNative) {
+        requestAuth("google");
+        return;
+      }
       safeSet("auth-return-url", window.location.href);
       openSignInModal();
       return;
     }
+    // App mode: trigger Flutter IAP — purchase result arrives via onFlutterMessage
+    if (isNative) {
+      setPaymentLoading(true);
+      requestIAP("full_destiny_reading", reading.share_slug);
+      return;
+    }
+    // Web mode: PayPal checkout
     setPaymentLoading(true);
     try {
       const res = await fetch("/api/payment/checkout", {
@@ -1021,8 +1052,8 @@ export default function ReadingPageClient() {
             </motion.section>
           )}
 
-          {/* Locked Premium Content (visible when NOT paid, hidden in app) */}
-          {!reading.is_paid && !isNative && (
+          {/* Locked Premium Content (visible when NOT paid, in both web and app modes) */}
+          {!reading.is_paid && (
             <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mb-10">
               <div className="relative overflow-hidden rounded-2xl border border-border" style={{ minHeight: 280 }}>
                 <div className="p-6 blur-sm select-none pointer-events-none">
@@ -1064,6 +1095,9 @@ export default function ReadingPageClient() {
                     <p className="text-xs text-muted-foreground/50 mt-2">{t("reading.oneTime", locale)}</p>
                     <p className="text-xs text-primary/60 mt-1">{t("reading.compatFree", locale)}</p>
                     {locale === "ko" && <p className="text-[10px] text-muted-foreground/40 mt-1.5">해외 결제 수단 전용 · 국내 카드 미지원</p>}
+                    {paymentError && (
+                      <p className="text-xs text-red-400 mt-2 max-w-xs mx-auto">{paymentError}</p>
+                    )}
                   </div>
                 </div>
               </div>

@@ -189,13 +189,20 @@ export function ConsultationClient() {
   const router = useRouter();
   const isNative = useNativeApp();
 
-  // Listen for IAP success from Flutter (consultation credits)
+  // Listen for IAP success/error from Flutter (consultation credits)
   useEffect(() => {
     if (!isNative) return;
-    const unsub = onFlutterMessage("iap:success:", () => {
+    const unsubSuccess = onFlutterMessage("iap:success:", () => {
       window.location.reload();
     });
-    return unsub;
+    const unsubError = onFlutterMessage("iap:error:", (payload) => {
+      setIsSubmitting(false);
+      setPaymentError(payload || "Payment failed");
+    });
+    return () => {
+      unsubSuccess();
+      unsubError();
+    };
   }, [isNative]);
 
   const [step, setStep] = useState<Step>("loading");
@@ -208,6 +215,7 @@ export function ConsultationClient() {
   const [report, setReport] = useState<Report | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const [autoFilled, setAutoFilled] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [partialReport, setPartialReport] = useState<Report | null>(null);
@@ -595,6 +603,7 @@ export function ConsultationClient() {
               onPurchase={handlePurchase}
               onSignIn={openSignInModal}
               isSubmitting={isSubmitting}
+              paymentError={paymentError}
               locale={locale}
             />
           </motion.div>
@@ -1292,12 +1301,14 @@ function NoCreditsCTA({
   onPurchase,
   onSignIn,
   isSubmitting,
+  paymentError,
   locale,
 }: {
   isLoggedIn: boolean;
   onPurchase: () => void;
   onSignIn: () => void;
   isSubmitting: boolean;
+  paymentError: string | null;
   locale: "en" | "ko" | "ja";
 }) {
   return (
@@ -1373,6 +1384,9 @@ function NoCreditsCTA({
             {t("consult.get5", locale)}
           </Button>
           {locale === "ko" && <p className="text-[10px] text-muted-foreground/40 mt-3">해외 결제 수단 전용 · 국내 카드 미지원</p>}
+          {paymentError && (
+            <p className="text-xs text-red-400 mt-3 max-w-sm mx-auto">{paymentError}</p>
+          )}
         </>
       )}
     </div>
