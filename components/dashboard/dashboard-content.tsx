@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { useNativeApp } from "@/lib/native-app";
 import { ELEMENTS, calculateDailyEnergy, type Element } from "@/lib/saju-calculator";
 import type { SajuChart } from "@/lib/saju-calculator";
 import { reconstructChartFromReading, getElementColor } from "@/lib/constants";
@@ -67,6 +68,7 @@ const READING_COLS = "id,name,gender,birth_date,birth_city,share_slug,archetype,
 export function DashboardContent() {
   const { user, sajuData, saveSajuChart, claimTrigger, signOut } = useAuth();
   const { t, locale } = useLanguage();
+  const isNative = useNativeApp();
   const [dailyScore, setDailyScore] = useState(72);
   const [mounted, setMounted] = useState(false);
   const [savedReadings, setSavedReadings] = useState<SavedReading[]>([]);
@@ -319,13 +321,15 @@ export function DashboardContent() {
           </h1>
           <p className="text-sm text-muted-foreground">{formattedDate}</p>
         </div>
-        <button
-          onClick={async () => { try { await signOut(); } catch {} }}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors"
-        >
-          <LogOut className="w-3.5 h-3.5" />
-          {t("nav.signOut")}
-        </button>
+        {!isNative && (
+          <button
+            onClick={async () => { try { await signOut(); } catch {} }}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            {t("nav.signOut")}
+          </button>
+        )}
       </motion.div>
 
       {/* Today's Energy + Day Master row */}
