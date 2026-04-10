@@ -184,7 +184,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        // Force Google account picker on every sign-in attempt. Without this,
+        // Google silently auto-selects the last-used account, which prevents
+        // users with multiple Google accounts from switching between them.
+        queryParams: { prompt: "select_account" },
+      },
     });
     if (error) { safeRemove("auth-return-url"); setIsLoading(false); }
   };
