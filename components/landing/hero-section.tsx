@@ -78,15 +78,15 @@ export function HeroSection() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="flex flex-col gap-3 sm:gap-4 py-4 sm:py-6 lg:py-0"
+            className="flex flex-col gap-5 sm:gap-4 py-6 sm:py-6 lg:py-0"
           >
-            <h1 className="font-serif text-2xl xs:text-[2rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.2] break-words">
+            <h1 className="font-serif text-[2rem] xs:text-[2.25rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.25] break-words">
               {t("hero.title1")}
               <br className="sm:hidden" />
               <span className="gold-gradient-text">{t("hero.title2")}</span>
             </h1>
 
-            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl">
+            <p className="text-base sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl">
               {t("hero.desc")}
             </p>
 
