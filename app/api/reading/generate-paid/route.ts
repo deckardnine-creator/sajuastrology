@@ -26,10 +26,13 @@ async function callGemini(prompt: string, label: string, model: string, locale: 
   const genConfig: any = {
     maxOutputTokens: 6000,
     thinkingConfig: { thinkingBudget: 0 },
+    // Force JSON output for ALL locales. Previously KO/JA were omitted, which
+    // caused Gemini to occasionally return plain text instead of JSON. Even when
+    // JSON-shaped, the model would sometimes default to English content because
+    // the structural constraint was loose. Forcing JSON mode + KO/JA system
+    // instruction yields valid JSON with localized string values.
+    responseMimeType: "application/json",
   };
-  if (locale === "en") {
-    genConfig.responseMimeType = "application/json";
-  }
 
   const body: any = {
     contents: [{ parts: [{ text: prompt }] }],
@@ -155,6 +158,22 @@ function parseJSON(raw: string): any {
   return normalized;
 }
 
+// ═══ LANGUAGE CHECK — verify content matches requested locale ═══
+// Some Gemini engines (especially Flash) occasionally return English text
+// even when given a KO/JA system instruction. This helper samples the longest
+// generated string and checks for the expected character range.
+function checkContentLanguage(parsed: Record<string, any>, locale: string): boolean {
+  if (locale === "en") return true;
+  const longest = Object.values(parsed)
+    .filter((v): v is string => typeof v === "string")
+    .sort((a, b) => b.length - a.length)[0] || "";
+  if (!longest) return true; // nothing to check; do not block
+  const sample = longest.substring(0, 300);
+  if (locale === "ko") return /[\uAC00-\uD7AF]/.test(sample);
+  if (locale === "ja") return /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+  return true;
+}
+
 // ═══ GENERATE ONE PART — call AI + parse, with parse-failure retry ═══
 async function generatePart(
   promptFn: () => string,
@@ -166,21 +185,36 @@ async function generatePart(
   try {
     const raw = await callAIRobust(promptFn(), label, locale);
     const parsed = parseJSON(raw);
-    // Verify expected keys exist
     const hasKeys = expectedKeys.every((k) => parsed[k] && typeof parsed[k] === "string" && parsed[k].length > 50);
-    if (hasKeys) return parsed;
-    console.warn(`[${label}] parsed but missing keys. Got: ${Object.keys(parsed).join(",")}`);
+    if (hasKeys) {
+      // Verify the content is in the requested language; if not, fall through
+      // to attempt 2 which will use Claude (more reliable for non-EN locales).
+      if (checkContentLanguage(parsed, locale)) {
+        return parsed;
+      }
+      console.warn(`[${label}] wrong language detected (locale=${locale}), retrying with Claude`);
+    } else {
+      console.warn(`[${label}] parsed but missing keys. Got: ${Object.keys(parsed).join(",")}`);
+    }
   } catch (err) {
     console.warn(`[${label}] attempt 1 failed:`, err instanceof Error ? err.message : err);
   }
 
-  // Attempt 2 — parse failed or keys missing, try once more
+  // Attempt 2 — parse failed, missing keys, or wrong language
+  // For KO/JA, go straight to Claude Sonnet which honors language instructions
+  // more reliably than Gemini Flash. For EN, retry the AIRobust chain normally.
   await new Promise((r) => setTimeout(r, 2000));
   try {
-    const raw = await callAIRobust(promptFn(), label + "-retry", locale);
+    const raw = locale !== "en"
+      ? await callClaude(promptFn(), label + "-retry-claude", "claude-sonnet-4-20250514")
+      : await callAIRobust(promptFn(), label + "-retry", locale);
     const parsed = parseJSON(raw);
     const hasKeys = expectedKeys.every((k) => parsed[k] && typeof parsed[k] === "string" && parsed[k].length > 50);
-    if (hasKeys) return parsed;
+    if (hasKeys) {
+      if (checkContentLanguage(parsed, locale)) return parsed;
+      console.warn(`[${label}] retry also produced wrong language; accepting anyway to avoid empty result`);
+      return parsed;
+    }
     // Accept even with short content
     const hasAnyKeys = expectedKeys.some((k) => parsed[k]);
     if (hasAnyKeys) return parsed;
