@@ -609,12 +609,18 @@ export default function ReadingPageClient() {
       return;
     }
     // App mode: trigger Flutter IAP — purchase result arrives via onFlutterMessage
-    if (isNative) {
+    // EXCEPT for admin accounts: admins skip IAP entirely and fall through to the
+    // /api/payment/checkout endpoint, which already detects admin emails and patches
+    // is_paid=true directly (bypassing PayPal too on web). After the server PATCH
+    // returns its success URL, navigation triggers the ?payment=success flow which
+    // auto-generates the paid content.
+    const isAdmin = user.email?.toLowerCase() === "rimfacai@gmail.com";
+    if (isNative && !isAdmin) {
       setPaymentLoading(true);
       requestIAP("full_destiny_reading", reading.share_slug);
       return;
     }
-    // Web mode: PayPal checkout
+    // Web mode OR admin in native mode: hit checkout endpoint
     setPaymentLoading(true);
     try {
       const res = await fetch("/api/payment/checkout", {
@@ -636,7 +642,7 @@ export default function ReadingPageClient() {
     return (
       <main className="min-h-screen">
         <Navbar />
-        <div className="pt-page pb-16">
+        <div className="pt-24 pb-16">
           <div className="mx-auto max-w-3xl px-4 sm:px-6">
             {paidContentLoading ? (
               <PaymentReturnProgress generationStep={generationStep} locale={locale} />
@@ -664,7 +670,7 @@ export default function ReadingPageClient() {
     return (
       <main className="min-h-screen">
         <Navbar />
-        <div className="pt-page pb-16">
+        <div className="pt-24 pb-16">
           <div className="mx-auto max-w-3xl px-4 sm:px-6">
             <div className="mb-8 h-6 w-24 bg-muted/30 rounded animate-pulse" />
             <div className="mb-6 bg-card/80 border border-primary/20 rounded-xl p-4 animate-pulse">
@@ -686,7 +692,7 @@ export default function ReadingPageClient() {
     return (
       <main className="min-h-screen">
         <Navbar />
-        <div className="pt-page-lg text-center">
+        <div className="pt-32 text-center">
           <h1 className="text-2xl font-serif text-primary mb-4">{t("reading.notFound", locale)}</h1>
           <p className="text-muted-foreground mb-8">{t("reading.notFoundDesc", locale)}</p>
           <Link href="/calculate">
@@ -731,7 +737,7 @@ export default function ReadingPageClient() {
   return (
     <main className="min-h-screen">
       <Navbar />
-      <div className="pt-page pb-16">
+      <div className="pt-24 pb-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
 
           {/* Header */}

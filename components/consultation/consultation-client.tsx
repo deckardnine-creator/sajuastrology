@@ -523,12 +523,18 @@ export function ConsultationClient() {
     }
 
     // App mode: trigger Flutter IAP for consultation credits
-    if (isNative) {
+    // EXCEPT for admin accounts: admins skip IAP entirely and fall through to the
+    // /api/payment/checkout-consultation endpoint, which already detects admin
+    // emails and inserts consultation credits directly (bypassing PayPal too on
+    // web). After the server returns its success URL, navigation triggers the
+    // ?payment=success flow which refreshes credits.
+    const isAdmin = user.email?.toLowerCase() === "rimfacai@gmail.com";
+    if (isNative && !isAdmin) {
       requestIAP("master_consultation_5");
       return;
     }
 
-    // Web mode: PayPal checkout
+    // Web mode OR admin in native mode: hit checkout endpoint
     setIsSubmitting(true);
     try {
       const res = await fetch("/api/payment/checkout-consultation", {
