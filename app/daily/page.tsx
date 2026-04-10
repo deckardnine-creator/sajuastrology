@@ -54,6 +54,13 @@ const txt = {
     ko: "10년 대운, 직업·연애·숨겨진 재능까지 심층 분석.",
     ja: "10年大運、職業・恋愛・隠れた才能の深層分析。",
   },
+  signInCta: {
+    en: "Sign in to see your personalized fortune, energy score, and weekly forecast.",
+    ko: "로그인하면 나만의 맞춤 운세, 에너지 점수, 주간 예측을 볼 수 있어요.",
+    ja: "ログインすると、パーソナライズされた運勢、エネルギースコア、週間予測が見られます。",
+  },
+  signIn: { en: "Sign In", ko: "로그인", ja: "ログイン" },
+  or: { en: "or", ko: "또는", ja: "または" },
 } as const;
 
 function tx(obj: Record<string, string>, locale: string): string {
@@ -103,7 +110,7 @@ const ELEMENT_EMOJI: Record<string, string> = {
 /* ─── Component ─── */
 
 export default function DailyPage() {
-  const { user, sajuData } = useAuth();
+  const { user, sajuData, openSignInModal } = useAuth();
   const { locale } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const [fortuneCopied, setFortuneCopied] = useState(false);
@@ -426,18 +433,45 @@ export default function DailyPage() {
               <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-4">
                 <Sparkles className="w-7 h-7 text-primary" />
               </div>
-              <h2 className="font-serif text-xl font-bold text-foreground mb-2">
-                {tx(txt.getReading, locale)}
-              </h2>
-              <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-                {tx(txt.personalCta, locale)}
-              </p>
-              <Link href="/calculate">
-                <Button className="gold-gradient text-primary-foreground font-semibold px-8 h-12 group">
-                  {tx(txt.getReading, locale)}
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </Link>
+
+              {!user ? (
+                <>
+                  {/* Non-logged-in: sign in + get reading */}
+                  <h2 className="font-serif text-xl font-bold text-foreground mb-2">
+                    {tx(txt.pageTitle, locale)}
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
+                    {tx(txt.signInCta, locale)}
+                  </p>
+                  <button
+                    onClick={() => openSignInModal()}
+                    className="w-full max-w-xs mx-auto h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-lg mb-3 transition-colors"
+                  >
+                    {tx(txt.signIn, locale)}
+                  </button>
+                  <p className="text-xs text-muted-foreground mb-3">{tx(txt.or, locale)}</p>
+                  <Link href="/calculate" className="text-sm text-primary hover:underline flex items-center justify-center gap-1">
+                    {tx(txt.getReading, locale)}
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  {/* Logged in but no chart yet */}
+                  <h2 className="font-serif text-xl font-bold text-foreground mb-2">
+                    {tx(txt.getReading, locale)}
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
+                    {tx(txt.personalCta, locale)}
+                  </p>
+                  <Link href="/calculate">
+                    <Button className="gold-gradient text-primary-foreground font-semibold px-8 h-12 group">
+                      {tx(txt.getReading, locale)}
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </motion.section>
         )}
