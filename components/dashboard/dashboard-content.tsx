@@ -320,7 +320,7 @@ export function DashboardContent() {
           <p className="text-sm text-muted-foreground">{formattedDate}</p>
         </div>
         <button
-          onClick={async () => { try { await signOut(); } catch {} window.location.href = "/"; }}
+          onClick={async () => { try { await signOut(); } catch {} }}
           className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors"
         >
           <LogOut className="w-3.5 h-3.5" />

@@ -5,10 +5,16 @@ import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Plus, Crown } from "lucide-react";
+import { useNativeApp } from "@/lib/native-app";
 
 export function MobileDashboardNav() {
   const pathname = usePathname();
   const { locale } = useLanguage();
+  const isNative = useNativeApp();
+
+  // ═══ Hide inside native app — Flutter renders its own BottomNav ═══
+  if (isNative) return null;
+
   const navItems = [
     { href: "/dashboard", label: t("dash.dashboard", locale), icon: LayoutDashboard },
     { href: "/calculate", label: t("dash.newReading", locale), icon: Plus },
