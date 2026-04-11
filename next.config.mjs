@@ -7,6 +7,15 @@ const nextConfig = {
     unoptimized: true,
   },
   transpilePackages: ['framer-motion', 'lucide-react'],
+  async redirects() {
+    return [
+      {
+        source: '/about',
+        destination: '/',
+        permanent: true,
+      },
+    ]
+  },
 }
 
 export default nextConfig

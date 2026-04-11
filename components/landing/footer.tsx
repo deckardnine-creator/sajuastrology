@@ -11,12 +11,6 @@ const LOCALES: { code: Locale; label: string }[] = [
   { code: "ko", label: "KO" },
 ]
 
-const aboutLabel: Record<Locale, string> = {
-  en: "About",
-  ko: "회사소개",
-  ja: "会社概要",
-}
-
 const letterLabel: Record<Locale, string> = {
   en: "Letter",
   ko: "편지",
@@ -52,7 +46,6 @@ export function Footer() {
     { label: t("nav.consultation"), href: "/consultation" },
   ]
   const legalLinks = [
-    { label: aboutLabel[locale], href: "/about" },
     { label: letterLabel[locale], href: "/letter" },
     { label: t("footer.privacy"), href: "/privacy" },
     { label: t("footer.terms"),   href: "/terms" },
