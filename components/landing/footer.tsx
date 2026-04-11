@@ -17,6 +17,12 @@ const aboutLabel: Record<Locale, string> = {
   ja: "会社概要",
 }
 
+const letterLabel: Record<Locale, string> = {
+  en: "Letter",
+  ko: "편지",
+  ja: "手紙",
+}
+
 const bugBounty: Record<Locale, { badge: string; title: string; desc: string }> = {
   en: {
     badge: "Early Access",
@@ -47,6 +53,7 @@ export function Footer() {
   ]
   const legalLinks = [
     { label: aboutLabel[locale], href: "/about" },
+    { label: letterLabel[locale], href: "/letter" },
     { label: t("footer.privacy"), href: "/privacy" },
     { label: t("footer.terms"),   href: "/terms" },
   ]

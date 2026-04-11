@@ -112,6 +112,20 @@ export function HeroSection() {
               </Link>
             </div>
 
+            {/* Letter (CEO message) link — sits between free reading CTA and celebrity link */}
+            <Link
+              href="/letter"
+              className="text-[13px] sm:text-[14px] text-muted-foreground/85 hover:text-primary transition-colors text-center sm:text-left inline-flex items-center gap-1.5"
+            >
+              <span>
+                {locale === "ko"
+                  ? "✒ 림팩토리의 편지 — 우리가 무엇을 만들고 있는지 →"
+                  : locale === "ja"
+                  ? "✒ Rimfactoryからの手紙 — 何を作っているのか →"
+                  : "✒ A Letter from Rimfactory — what we're building →"}
+              </span>
+            </Link>
+
             {/* Celebrity Readings link */}
             <a
               href={locale === "ko" ? "https://blog.sajuastrology.com" : locale === "ja" ? "https://blog.sajuastrology.com" : "https://blog.sajuastrology.com"}

@@ -64,11 +64,15 @@ function MobileInlineSwitcher() {
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const { user, isLoading, isSigningOut, openSignInModal, signOut } = useAuth()
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const router = useRouter()
   const isNative = useNativeApp()
 
   const homeHref = "/"
+
+  // Letter link label — inline locale map (same pattern as footer.tsx `aboutLabel`)
+  const letterLabel: Record<Locale, string> =
+    { en: "Letter", ko: "편지", ja: "手紙" }
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden"
@@ -109,6 +113,7 @@ export function Navbar() {
               <Link href="/pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.pricing")}</Link>
               <Link href="/compatibility" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.compatibility")}</Link>
               <Link href="/consultation" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.consultation")}</Link>
+              <Link href="/letter" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{letterLabel[locale]}</Link>
             </div>
 
             <div className="hidden md:flex md:items-center md:gap-3">
@@ -155,6 +160,7 @@ export function Navbar() {
               <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>
               <Link href="/compatibility" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.compatibility")}</Link>
               <Link href="/consultation" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.consultation")}</Link>
+              <Link href="/letter" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{letterLabel[locale]}</Link>
 
               <div className="w-16 h-px bg-border/50" />
 
