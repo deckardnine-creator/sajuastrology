@@ -1,8 +1,0 @@
-# SajuAstrology.com
-User-agent: *
-Allow: /
-Disallow: /api/
-Disallow: /dashboard
-Disallow: /reading/
-
-Sitemap: https://sajuastrology.com/sitemap.xml

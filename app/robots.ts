@@ -6,7 +6,12 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/dashboard", "/auth/"],
+        disallow: [
+          "/api/",
+          "/auth/",
+          "/dashboard",
+          "/reading/",   // Private — user birth data should not be indexed
+        ],
       },
     ],
     sitemap: "https://sajuastrology.com/sitemap.xml",
