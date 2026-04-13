@@ -33,6 +33,19 @@ async function callGemini(systemPrompt: string, userPrompt: string, model = "gem
   const apiKey = process.env.GOOGLE_AI_API_KEY || "";
   if (!apiKey) throw new Error("Gemini not configured");
 
+  // thinkingBudget: 0 disables thinking mode — valid ONLY for Flash models.
+  // Gemini 2.5 Pro enforces thinking mode and rejects 0 with 400
+  // ("Budget 0 is invalid. This model only works in thinking mode.").
+  // For Pro, omit thinkingConfig entirely so the model uses its default
+  // dynamic thinking budget.
+  const isFlash = model.includes("flash");
+  const generationConfig: Record<string, unknown> = {
+    maxOutputTokens: 8000,
+  };
+  if (isFlash) {
+    generationConfig.thinkingConfig = { thinkingBudget: 0 };
+  }
+
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
     {
@@ -41,10 +54,7 @@ async function callGemini(systemPrompt: string, userPrompt: string, model = "gem
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: [{ parts: [{ text: userPrompt }] }],
-        generationConfig: {
-          maxOutputTokens: 8000,
-          thinkingConfig: { thinkingBudget: 0 },
-        },
+        generationConfig,
       }),
     }
   );
