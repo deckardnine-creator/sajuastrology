@@ -43,8 +43,12 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
   if (!apiKey) throw new Error("Gemini not configured");
 
   const genConfig: any = {
-    maxOutputTokens: 5000,
-    thinkingConfig: { thinkingBudget: 0 },
+    // 8000: previous 5000 caused truncation on long compatibility readings
+    // (citations + detailed analysis), leaving the JSON response cut off
+    // mid-string with no closing quote. This triggered parseJSON to fail
+    // and the raw JSON wrapper to be stored as freeSummary, which showed
+    // up in the UI as literal {"summary": "..." text.
+    maxOutputTokens: 8000,
     // Force JSON output for ALL locales. Previously KO/JA were omitted, which
     // caused Gemini to return plain text and parseJSON to fail downstream,
     // resulting in empty paidData and NULL paid_* columns in the DB. JSON
@@ -52,6 +56,13 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
     // system instruction and returns localized strings inside the JSON object.
     responseMimeType: "application/json",
   };
+
+  // Only send thinkingBudget:0 to Flash. Gemini 2.5 Pro rejects this parameter
+  // (Pro requires dynamic thinking mode and returns 400 if thinkingBudget is
+  // hard-set to 0). Same bug/fix as consultation route.
+  if (model.includes("flash")) {
+    genConfig.thinkingConfig = { thinkingBudget: 0 };
+  }
 
   const body: any = {
     contents: [{ parts: [{ text: prompt }] }],
@@ -310,11 +321,29 @@ export async function POST(request: NextRequest) {
         freeSummary = cleaned;
       }
     }
-    // Safety: strip JSON wrapper if still present after all parsing attempts
+    // Safety: strip JSON wrapper if still present after all parsing attempts.
+    // Handles two cases:
+    //   1. Complete JSON: {"summary": "..."} with closing
+    //   2. Truncated JSON: {"summary": "..." — response was cut off by
+    //      maxOutputTokens before the model could close the string. In this
+    //      case we grab everything after "summary": " and treat it as the
+    //      content, stripping any trailing incomplete JSON artifacts.
     if (freeSummary && freeSummary.trimStart().startsWith("{")) {
-      const innerMatch = freeSummary.match(/"(?:summary|요약|サマリー|概要)"\s*:\s*"([\s\S]+?)"\s*\}?\s*$/);
-      if (innerMatch) {
-        freeSummary = innerMatch[1].replace(/\\n/g, "\n").replace(/\\"/g, '"');
+      // Try complete JSON wrapper first (with closing quote + brace)
+      const completeMatch = freeSummary.match(/"(?:summary|요약|サマリー|概要)"\s*:\s*"([\s\S]+?)"\s*\}?\s*$/);
+      if (completeMatch) {
+        freeSummary = completeMatch[1].replace(/\\n/g, "\n").replace(/\\"/g, '"');
+      } else {
+        // Fallback: truncated JSON — take everything after "summary": " to end
+        const truncatedMatch = freeSummary.match(/"(?:summary|요약|サマリー|概要)"\s*:\s*"([\s\S]+)/);
+        if (truncatedMatch) {
+          let extracted = truncatedMatch[1];
+          // Drop any trailing `", "otherKey": ...` or trailing `"}` if they exist
+          extracted = extracted.replace(/"\s*,\s*"[^"]*"\s*:[\s\S]*$/, "");
+          extracted = extracted.replace(/"\s*\}\s*$/, "");
+          // Convert JSON escape sequences to real characters
+          freeSummary = extracted.replace(/\\n/g, "\n").replace(/\\"/g, '"').replace(/\\t/g, "\t");
+        }
       }
     }
     // Language correction: if KO/JA requested but English returned, try Claude
