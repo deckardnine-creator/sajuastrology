@@ -31,6 +31,52 @@ declare global {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// Auto-install the global Flutter → Web message handler on module import.
+//
+// This MUST happen before Flutter injects any messages (e.g. auth:session:
+// after OAuth deep link return). Previously this was installed lazily on the
+// first onFlutterMessage() subscribe, which meant that if no code path had
+// subscribed yet by the time Flutter injected a session, the injection was
+// silently dropped — breaking Google sign-in return flow in the app.
+//
+// Safe for normal browsers: window.onFlutterMessage is only called by Flutter
+// WebView's runJavaScript injection, which doesn't happen in regular Chrome/
+// Safari. The handler is installed but never invoked.
+// ─────────────────────────────────────────────────────────────────────────
+if (typeof window !== "undefined" && !window.__flutterBridgeListeners) {
+  window.__flutterBridgeListeners = new Map();
+
+  window.onFlutterMessage = (message: string) => {
+    // Handle auth:session injection directly — set Supabase session in web client
+    // so onAuthStateChange fires → AuthContext updates → UI re-renders to logged-in
+    if (message.startsWith("auth:session:")) {
+      const payload = message.slice("auth:session:".length);
+      const sepIndex = payload.indexOf("|");
+      if (sepIndex > 0) {
+        const accessToken = payload.slice(0, sepIndex);
+        const refreshToken = payload.slice(sepIndex + 1);
+        if (accessToken && refreshToken) {
+          supabase.auth
+            .setSession({ access_token: accessToken, refresh_token: refreshToken })
+            .catch(() => {});
+        }
+      }
+    }
+
+    // Also dispatch to any registered listeners (for IAP, etc.)
+    const listeners = window.__flutterBridgeListeners;
+    if (!listeners) return;
+
+    for (const [prefix, callbacks] of listeners) {
+      if (message.startsWith(prefix)) {
+        const payload = message.slice(prefix.length);
+        callbacks.forEach((cb) => cb(payload));
+      }
+    }
+  };
+}
+
 /**
  * Send a message to Flutter native layer.
  * No-op if not running in Flutter WebView.
@@ -70,6 +116,9 @@ export function requestSignOut(): boolean {
 /**
  * Subscribe to messages from Flutter.
  * Returns unsubscribe function.
+ *
+ * Note: window.onFlutterMessage is already installed at module load (above).
+ * This function just registers additional listeners for specific prefixes.
  */
 export function onFlutterMessage(
   prefix: string,
@@ -77,41 +126,9 @@ export function onFlutterMessage(
 ): () => void {
   if (typeof window === "undefined") return () => {};
 
-  if (!window.__flutterBridgeListeners) {
-    window.__flutterBridgeListeners = new Map();
-
-    // Install the global handler once
-    window.onFlutterMessage = (message: string) => {
-      // Handle auth:session injection directly — set Supabase session in web client
-      if (message.startsWith("auth:session:")) {
-        const payload = message.slice("auth:session:".length);
-        const sepIndex = payload.indexOf("|");
-        if (sepIndex > 0) {
-          const accessToken = payload.slice(0, sepIndex);
-          const refreshToken = payload.slice(sepIndex + 1);
-          if (accessToken && refreshToken) {
-            // setSession refreshes the Supabase JS client session so
-            // onAuthStateChange fires → AuthContext updates → UI re-renders
-            supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
-              .catch(() => {});
-          }
-        }
-        // Also dispatch to any registered listeners
-      }
-
-      const listeners = window.__flutterBridgeListeners;
-      if (!listeners) return;
-
-      for (const [prefix, callbacks] of listeners) {
-        if (message.startsWith(prefix)) {
-          const payload = message.slice(prefix.length);
-          callbacks.forEach((cb) => cb(payload));
-        }
-      }
-    };
-  }
-
   const listeners = window.__flutterBridgeListeners;
+  if (!listeners) return () => {};
+
   if (!listeners.has(prefix)) {
     listeners.set(prefix, new Set());
   }
