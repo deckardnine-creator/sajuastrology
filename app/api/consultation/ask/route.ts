@@ -74,7 +74,11 @@ async function callGemini(systemPrompt: string, userPrompt: string, model = "gem
   return textParts.map((p: any) => p.text).join("");
 }
 
-async function callClaude(systemPrompt: string, userPrompt: string): Promise<string> {
+async function callClaude(
+  systemPrompt: string,
+  userPrompt: string,
+  model: string = "claude-sonnet-4-20250514",
+): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY || "";
   if (!apiKey) throw new Error("Claude not configured");
 
@@ -86,7 +90,7 @@ async function callClaude(systemPrompt: string, userPrompt: string): Promise<str
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
+      model,
       max_tokens: 6000,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
@@ -100,21 +104,80 @@ async function callClaude(systemPrompt: string, userPrompt: string): Promise<str
   return data.content?.[0]?.text || "";
 }
 
+// Wrapper that retries once on transient API errors (429, 5xx, 529).
+// Short exponential backoff: 800ms before first retry. Non-transient errors
+// (4xx other than 429) propagate immediately since retrying won't help.
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  label: string,
+  attempts = 2,
+): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      const msg = err instanceof Error ? err.message : String(err);
+      const isTransient = /\b(429|5\d\d|529)\b/.test(msg);
+      if (!isTransient || i === attempts - 1) throw err;
+      console.warn(
+        `${label}: transient error, retry ${i + 1}/${attempts - 1} —`,
+        msg.substring(0, 150),
+      );
+      await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+    }
+  }
+  throw lastErr;
+}
+
 async function callAI(systemPrompt: string, userPrompt: string, locale?: string): Promise<string> {
-  // KO/JA: Gemini Pro first (Flash often ignores language instructions)
-  // EN: Gemini Flash → Pro → Claude
+  // Fallback chain with retry on transient errors at each step:
+  //   1. Gemini Flash (EN first) or Gemini Pro (KO/JA first) — with 1 retry
+  //   2. The other Gemini model — with 1 retry
+  //   3. Claude Sonnet — with 1 retry
+  //   4. Claude Haiku — final last-resort (faster, higher availability)
+  //
+  // Each step catches transient errors (429/5xx/529) and retries once after
+  // 800ms. Non-transient errors (bad request etc.) fail through immediately.
+  // The 4th step exists because observed production errors show Gemini +
+  // Claude Sonnet can both be overloaded simultaneously, and Haiku usually
+  // has capacity when Sonnet doesn't.
   const useProFirst = locale && locale !== "en";
   const firstModel = useProFirst ? "gemini-2.5-pro" : "gemini-2.5-flash";
   const secondModel = useProFirst ? "gemini-2.5-flash" : "gemini-2.5-pro";
+
   try {
-    return await callGemini(systemPrompt, userPrompt, firstModel);
+    return await withRetry(
+      () => callGemini(systemPrompt, userPrompt, firstModel),
+      `Consultation/${firstModel}`,
+    );
   } catch (err) {
     console.warn(`Consultation: ${firstModel} failed —`, err instanceof Error ? err.message : err);
     try {
-      return await callGemini(systemPrompt, userPrompt, secondModel);
+      return await withRetry(
+        () => callGemini(systemPrompt, userPrompt, secondModel),
+        `Consultation/${secondModel}`,
+      );
     } catch (err2) {
-      console.warn(`Consultation: ${secondModel} failed, falling back to Claude —`, err2 instanceof Error ? err2.message : err2);
-      return await callClaude(systemPrompt, userPrompt);
+      console.warn(
+        `Consultation: ${secondModel} failed, falling back to Claude Sonnet —`,
+        err2 instanceof Error ? err2.message : err2,
+      );
+      try {
+        return await withRetry(
+          () => callClaude(systemPrompt, userPrompt, "claude-sonnet-4-20250514"),
+          `Consultation/claude-sonnet`,
+        );
+      } catch (err3) {
+        console.warn(
+          `Consultation: Claude Sonnet failed, final fallback to Claude Haiku —`,
+          err3 instanceof Error ? err3.message : err3,
+        );
+        // Final fallback. If Haiku also fails, the error propagates and
+        // the Promise.all catch in the main handler logs it as Part N failed.
+        return await callClaude(systemPrompt, userPrompt, "claude-haiku-4-5-20251001");
+      }
     }
   }
 }
