@@ -22,7 +22,15 @@ export function SignInModal() {
   // In a normal browser (no FlutterBridge), fall back to the original web flow.
   const handleGoogleSignIn = () => {
     if (typeof window !== "undefined" && window.FlutterBridge) {
-      requestAuth("google");
+      // [DEBUG v2 — remove after diagnosis] Only fires inside Flutter WebView.
+      // Normal browser users never see this because FlutterBridge is undefined.
+      alert("[DEBUG v2] FlutterBridge OK - calling native google auth");
+      try {
+        requestAuth("google");
+        alert("[DEBUG v2] requestAuth returned");
+      } catch (e) {
+        alert("[DEBUG v2] requestAuth threw: " + String(e));
+      }
       closeSignInModal();
       return;
     }
@@ -31,6 +39,7 @@ export function SignInModal() {
 
   const handleAppleSignIn = () => {
     if (typeof window !== "undefined" && window.FlutterBridge) {
+      alert("[DEBUG v2] FlutterBridge OK - calling native apple auth");
       requestAuth("apple");
       closeSignInModal();
       return;
