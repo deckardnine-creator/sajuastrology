@@ -8,6 +8,7 @@ import { AppleIcon } from "@/components/ui/apple-icon";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
+import { requestAuth } from "@/lib/flutter-bridge";
 import Link from "next/link";
 
 export function SignInModal() {
@@ -15,6 +16,27 @@ export function SignInModal() {
   const { locale } = useLanguage();
 
   if (!isSignInModalOpen) return null;
+
+  // When running inside Flutter WebView, Google blocks embedded OAuth.
+  // Route through Flutter native → Chrome Custom Tabs → deep link callback.
+  // In a normal browser (no FlutterBridge), fall back to the original web flow.
+  const handleGoogleSignIn = () => {
+    if (typeof window !== "undefined" && window.FlutterBridge) {
+      requestAuth("google");
+      closeSignInModal();
+      return;
+    }
+    signIn();
+  };
+
+  const handleAppleSignIn = () => {
+    if (typeof window !== "undefined" && window.FlutterBridge) {
+      requestAuth("apple");
+      closeSignInModal();
+      return;
+    }
+    signInWithApple();
+  };
 
   return (
     <AnimatePresence>
@@ -86,7 +108,7 @@ export function SignInModal() {
 
                 <div className="space-y-3">
                   <Button
-                    onClick={signIn}
+                    onClick={handleGoogleSignIn}
                     disabled={isLoading}
                     className="w-full h-12 bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 font-medium flex items-center justify-center gap-3"
                   >
@@ -101,7 +123,7 @@ export function SignInModal() {
                   </Button>
 
                   <Button
-                    onClick={signInWithApple}
+                    onClick={handleAppleSignIn}
                     disabled={isLoading}
                     className="w-full h-12 bg-black text-white hover:bg-gray-900 border border-gray-700 font-medium flex items-center justify-center gap-3"
                   >
