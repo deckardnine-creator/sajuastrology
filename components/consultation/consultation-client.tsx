@@ -211,6 +211,10 @@ export function ConsultationClient() {
   const [birthDataLocked, setBirthDataLocked] = useState(false);
   const [category, setCategory] = useState("");
   const [question, setQuestion] = useState("");
+
+  // Ref for auto-scrolling to the question input when a category is picked
+  // (otherwise the example questions that appear below are out of view).
+  const questionSectionRef = useRef<HTMLDivElement>(null);
   const [consultationId, setConsultationId] = useState("");
   const [report, setReport] = useState<Report | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -679,7 +683,18 @@ export function ConsultationClient() {
                   return (
                     <button
                       key={cat.id}
-                      onClick={() => setCategory(cat.id)}
+                      onClick={() => {
+                        setCategory(cat.id);
+                        // Scroll question textarea + example questions into
+                        // view after the category click. A brief timeout lets
+                        // the conditional example-questions block mount first.
+                        setTimeout(() => {
+                          questionSectionRef.current?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                          });
+                        }, 80);
+                      }}
                       className={`flex items-center gap-2.5 p-3.5 rounded-xl border transition-all text-left ${
                         isSelected
                           ? "border-primary bg-primary/10 ring-1 ring-primary/30"
@@ -700,7 +715,7 @@ export function ConsultationClient() {
             </div>
 
             {/* Question Input */}
-            <div className="mb-4">
+            <div ref={questionSectionRef} className="mb-4">
               <label className="block text-sm font-medium text-foreground mb-3">
                 {t("consult.questionLabelDetail", locale)}
               </label>
@@ -1036,6 +1051,17 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
               onChange({ ...data, cityQuery: v, selectedCity: data.selectedCity && v !== data.selectedCity.name ? null : data.selectedCity });
             }}
             onBlur={() => setTimeout(() => setShowCityDropdown(false), 200)}
+          onFocus={(e) => {
+            // Mobile: after the soft keyboard opens, pull the input up so it's
+            // not hidden behind the keyboard. Delay lets the keyboard finish
+            // its open animation before we compute scroll position.
+            const target = e.currentTarget;
+            setTimeout(() => {
+              try {
+                target.scrollIntoView({ behavior: "smooth", block: "center" });
+              } catch {}
+            }, 350);
+          }}
           placeholder={t("form.cityPlaceholder", locale)}
           className="w-full h-11 rounded-xl bg-background/50 border border-border px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
         />
