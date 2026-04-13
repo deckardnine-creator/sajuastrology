@@ -14,9 +14,11 @@
  * [Flutter → Web] via window.onFlutterMessage(string)
  *   - 'iap:success:{shareSlug}'               — purchase completed
  *   - 'iap:error:{message}'                   — purchase failed
- *   - 'auth:session:{accessToken}|{refreshToken}' — auth session
+ *   - 'auth:session:{accessToken}|{refreshToken}' — inject session into web Supabase client
  *   - 'auth:logout'                           — signed out
  */
+
+import { supabase } from "./supabase-client";
 
 // Extend Window for TypeScript
 declare global {
@@ -80,6 +82,23 @@ export function onFlutterMessage(
 
     // Install the global handler once
     window.onFlutterMessage = (message: string) => {
+      // Handle auth:session injection directly — set Supabase session in web client
+      if (message.startsWith("auth:session:")) {
+        const payload = message.slice("auth:session:".length);
+        const sepIndex = payload.indexOf("|");
+        if (sepIndex > 0) {
+          const accessToken = payload.slice(0, sepIndex);
+          const refreshToken = payload.slice(sepIndex + 1);
+          if (accessToken && refreshToken) {
+            // setSession refreshes the Supabase JS client session so
+            // onAuthStateChange fires → AuthContext updates → UI re-renders
+            supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+              .catch(() => {});
+          }
+        }
+        // Also dispatch to any registered listeners
+      }
+
       const listeners = window.__flutterBridgeListeners;
       if (!listeners) return;
 

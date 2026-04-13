@@ -8,6 +8,7 @@ import { AppleIcon } from "@/components/ui/apple-icon";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
+import { requestAuth } from "@/lib/flutter-bridge";
 import Link from "next/link";
 
 export function SignInModal() {
@@ -15,6 +16,24 @@ export function SignInModal() {
   const { locale } = useLanguage();
 
   if (!isSignInModalOpen) return null;
+
+  const handleGoogleSignIn = () => {
+    // In Flutter WebView: delegate to native OAuth (avoids Google's WebView block)
+    if (typeof window !== "undefined" && window.FlutterBridge) {
+      requestAuth("google");
+    } else {
+      signIn();
+    }
+  };
+
+  const handleAppleSignIn = () => {
+    // In Flutter WebView: delegate to native Apple Sign-In
+    if (typeof window !== "undefined" && window.FlutterBridge) {
+      requestAuth("apple");
+    } else {
+      signInWithApple();
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -89,7 +108,7 @@ export function SignInModal() {
                 <div className="space-y-3">
                   {/* Google Sign In Button */}
                   <Button
-                    onClick={signIn}
+                    onClick={handleGoogleSignIn}
                     disabled={isLoading}
                     className="w-full h-12 bg-white text-gray-800 hover:bg-gray-100 border border-gray-300 font-medium flex items-center justify-center gap-3"
                   >
@@ -105,7 +124,7 @@ export function SignInModal() {
 
                   {/* Apple Sign In Button */}
                   <Button
-                    onClick={signInWithApple}
+                    onClick={handleAppleSignIn}
                     disabled={isLoading}
                     className="w-full h-12 bg-black text-white hover:bg-gray-900 border border-gray-700 font-medium flex items-center justify-center gap-3"
                   >
