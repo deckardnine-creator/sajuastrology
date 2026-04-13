@@ -635,7 +635,7 @@ export function ConsultationClient() {
             </div>
 
             {/* Birth Data Section */}
-            <div className="bg-card/50 border border-border rounded-2xl p-5 sm:p-6 mb-6">
+            <div className="bg-card/50 border border-border rounded-2xl p-5 sm:p-6 mb-6" style={{ overflow: 'visible' }}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-medium text-foreground">{t("consult.birthInfo", locale)}</h3>
                 {birthDataLocked && (
@@ -1026,7 +1026,7 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
       </div>
 
       {/* Birth City */}
-      <div className="relative">
+      <div className="relative" style={{ overflow: 'visible' }}>
         <label className="block text-xs text-muted-foreground mb-1.5">{t("form.birthCity", locale)}</label>
         <input
           type="text"
@@ -1043,10 +1043,11 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
           <p className="text-xs text-primary mt-1">✓ {data.selectedCity.name}</p>
         )}
         {showCityDropdown && (
-          <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg max-h-48 overflow-y-auto">
+          <div className="absolute z-[100] bottom-full left-0 right-0 mb-1 bg-card border border-border rounded-xl shadow-lg max-h-48 overflow-y-auto">
             {cityResults.map((city) => (
               <button
                 key={`${city.name}-${city.lat}`}
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   onChange({ ...data, cityQuery: city.name, selectedCity: city });
                   setShowCityDropdown(false);
