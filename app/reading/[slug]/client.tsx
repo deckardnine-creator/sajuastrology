@@ -583,8 +583,15 @@ export default function ReadingPageClient() {
   useEffect(() => {
     if (!isNative) return;
     const unsubSuccess = onFlutterMessage("iap:success:", () => {
-      // Reload to fetch the now-paid reading state
-      window.location.reload();
+      // Redirect with payment-return query params so the same PayPal-return
+      // flow kicks in: isPaymentReturn becomes true → PaymentReturnProgress
+      // loading UI shows → /api/payment/verify is attempted (fails silently
+      // via .catch — fine, because Flutter already hit /api/iap/verify to
+      // mark is_paid=true) → paid content generation runs → auto-scroll to
+      // paid content on completion. Previously this was window.location.reload(),
+      // which left the user scrolled to the top of a plain reading with no
+      // loading UI.
+      window.location.href = `/reading/${slug}?payment=success&session_id=iap-native`;
     });
     const unsubError = onFlutterMessage("iap:error:", (payload) => {
       setPaymentLoading(false);
@@ -594,7 +601,7 @@ export default function ReadingPageClient() {
       unsubSuccess();
       unsubError();
     };
-  }, [isNative]);
+  }, [isNative, slug]);
 
   const handleUnlock = async () => {
     if (!reading) return;
