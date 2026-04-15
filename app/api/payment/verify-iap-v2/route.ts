@@ -29,8 +29,14 @@ const supabase = createClient(
 );
 
 const PRODUCT_FULL_READING = "full_destiny_reading";
+const PRODUCT_FULL_READING_V2 = "full_destiny_reading_v2"; // iOS Consumable replacement
 const PRODUCT_MASTER_CONSULT = "master_consultation_5";
 const ANDROID_PACKAGE_NAME = "com.rimfactory.sajuastrology";
+
+/** Returns true if the product ID is any variant of the full reading product */
+function isFullReadingProduct(pid: string): boolean {
+  return pid === PRODUCT_FULL_READING || pid === PRODUCT_FULL_READING_V2;
+}
 
 interface VerifyRequest {
   platform: "apple" | "google";
@@ -68,10 +74,10 @@ export async function POST(request: NextRequest) {
     if (!receipt || typeof receipt !== "string" || receipt.length < 10) {
       return jsonError("Missing or invalid receipt", 400);
     }
-    if (productId !== PRODUCT_FULL_READING && productId !== PRODUCT_MASTER_CONSULT) {
+    if (!isFullReadingProduct(productId) && productId !== PRODUCT_MASTER_CONSULT) {
       return jsonError("Unknown product", 400);
     }
-    if (productId === PRODUCT_FULL_READING && !shareSlug) {
+    if (isFullReadingProduct(productId) && !shareSlug) {
       return jsonError("Missing shareSlug for reading purchase", 400);
     }
 
@@ -189,7 +195,7 @@ export async function POST(request: NextRequest) {
 
     // ── 6. Deliver content ──
     const deliver =
-      productId === PRODUCT_FULL_READING
+      isFullReadingProduct(productId)
         ? await unlockReading(shareSlug!, platform, authenticatedUserId)
         : await addConsultationCredits(authenticatedUserId, transactionId);
 
