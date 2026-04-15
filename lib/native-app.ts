@@ -4,59 +4,59 @@ import { useState, useEffect } from "react";
 
 /**
  * Detects if the app is running inside a native wrapper.
- * 
+ *
  * Detection methods (any one triggers native mode):
- * 1. User-Agent contains "SajuApp" — set by Flutter WebView (primary, always reliable)
- * 2. URL param ?app=true — set by Flutter when building tab URLs
- * 3. sessionStorage flag — persists detection across same-origin client navigations
- *    where the URL query param gets stripped (e.g. form submit → /reading/{slug}).
- * 
- * Side effect: when native is detected, adds `.native-app` class to <html>.
- * This drives CSS that collapses padding-top reserved for the (hidden) Navbar.
- * 
- * The class and sessionStorage flag are only ever added (never removed) because:
- * - User-Agent never changes mid-session
- * - Once flagged native, the flag remains true for the duration of the WebView
- * - Multiple useNativeApp() callers across pages remain idempotent
+ * 1. window.FlutterBridge — injected by webview_flutter's addJavaScriptChannel.
+ *    The most reliable indicator; it exists ONLY inside the Flutter WebView.
+ * 2. User-Agent contains "SajuApp" — set by Flutter via setUserAgent().
+ * 3. URL param ?app=true — set by Flutter when building tab URLs.
+ * 4. sessionStorage flag — persists detection across same-origin client
+ *    navigations where the URL query param gets stripped (form submit, etc).
+ *
+ * KEY DIFFERENCE FROM PREVIOUS VERSION:
+ * Detection now runs SYNCHRONOUSLY inside useState's lazy initializer, BEFORE
+ * the first render. This eliminates the 0.2s flash where SSR-default web UI
+ * (header, footer banner, etc) briefly appears before useEffect updates state.
+ *
+ * SSR returns false (no `window`). The first client render then re-runs the
+ * lazy initializer and gets the correct value immediately. React's hydration
+ * mismatch warning for components using this hook is acceptable — the visible
+ * outcome is that native chrome stays hidden from frame 1.
  */
-export function useNativeApp(): boolean {
-  const [isNative, setIsNative] = useState(false);
-
-  useEffect(() => {
-    const uaMatch = navigator.userAgent.includes("SajuApp");
-    const urlMatch = new URLSearchParams(window.location.search).get("app") === "true";
-    let storedMatch = false;
-    try {
-      storedMatch = sessionStorage.getItem("native-app") === "1";
-    } catch {}
-    // FlutterBridge is injected by webview_flutter's addJavaScriptChannel.
-    // This is the most reliable indicator — it exists ONLY inside the Flutter WebView.
-    const bridgeMatch = typeof (window as any).FlutterBridge !== "undefined";
-
-    const native = uaMatch || urlMatch || storedMatch || bridgeMatch;
-    setIsNative(native);
-
-    if (native) {
-      document.documentElement.classList.add("native-app");
-      try {
-        sessionStorage.setItem("native-app", "1");
-      } catch {}
-    }
-  }, []);
-
-  return isNative;
-}
-
-/**
- * Non-hook version for use outside React components (e.g., in event handlers).
- */
-export function isNativeApp(): boolean {
+function detectNative(): boolean {
   if (typeof window === "undefined") return false;
-  if (typeof (window as any).FlutterBridge !== "undefined") return true;
+  // Order matters: cheapest checks first.
+  if (typeof (window as { FlutterBridge?: unknown }).FlutterBridge !== "undefined") return true;
   if (navigator.userAgent.includes("SajuApp")) return true;
   if (new URLSearchParams(window.location.search).get("app") === "true") return true;
   try {
     if (sessionStorage.getItem("native-app") === "1") return true;
   } catch {}
   return false;
+}
+
+export function useNativeApp(): boolean {
+  // Lazy initializer runs ONCE before first render — gives correct value on
+  // frame 1 instead of waiting for useEffect to flip the state.
+  const [isNative, setIsNative] = useState<boolean>(detectNative);
+
+  useEffect(() => {
+    // Re-check on mount in case FlutterBridge was injected after lazy init
+    // (rare, but possible with some plugin versions).
+    const native = detectNative();
+    if (native !== isNative) setIsNative(native);
+    if (native) {
+      document.documentElement.classList.add("native-app");
+      try { sessionStorage.setItem("native-app", "1"); } catch {}
+    }
+  }, [isNative]);
+
+  return isNative;
+}
+
+/**
+ * Non-hook version for use outside React components (event handlers, utils).
+ */
+export function isNativeApp(): boolean {
+  return detectNative();
 }

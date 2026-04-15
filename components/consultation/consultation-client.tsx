@@ -350,8 +350,6 @@ export function ConsultationClient() {
   /* ─── Check credits ─── */
   const checkCredits = useCallback(async () => {
     if (!user) return;
-    // iOS WKWebView fetch can hang silently — add 5s abort timeout so we
-    // never get stuck on the loading spinner forever.
     const ctrl = new AbortController();
     const timeoutId = setTimeout(() => ctrl.abort(), 5000);
     try {
@@ -367,9 +365,6 @@ export function ConsultationClient() {
       setStep(data.remaining > 0 ? "form" : "no-credits");
     } catch {
       clearTimeout(timeoutId);
-      // On failure (incl. abort/timeout) fall through to "form" rather than
-      // leaving the user on an infinite loader. Backend re-validates credits
-      // on submit, so this is safe.
       setStep("form");
     }
   }, [user]);
@@ -385,23 +380,18 @@ export function ConsultationClient() {
     }
   }, [authLoading, user, checkCredits, searchParams]);
 
-  // Failsafe: in iOS WKWebView, useAuth's `authLoading` has been observed to
-  // stay true forever in some sessions. After 3s we force-render the page
-  // unconditionally so the user can act instead of staring at a spinner.
-  // The page handles a null user gracefully (sign-in prompt).
+  // Hard failsafe: render the page within 2 seconds NO MATTER WHAT.
+  // iOS WKWebView has been observed to leave useAuth's `authLoading` stuck at
+  // true forever, which traps users on an infinite spinner. We bypass that
+  // entirely — even if auth never resolves, we render the no-credits / sign-in
+  // view so the user can act.
   const [forceShow, setForceShow] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => {
-      console.log("[consultation] forceShow timeout fired");
-      setForceShow(true);
-    }, 3000);
+    const t = setTimeout(() => setForceShow(true), 2000);
     return () => clearTimeout(t);
   }, []);
-  // When forceShow trips and we're still in "loading", advance the step so
-  // downstream effects don't re-fire the initial-load path.
   useEffect(() => {
     if (forceShow && step === "loading") {
-      console.log("[consultation] forceShow advancing step from loading");
       setStep(user ? "form" : "no-credits");
     }
   }, [forceShow, step, user]);
