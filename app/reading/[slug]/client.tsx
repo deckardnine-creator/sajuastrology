@@ -25,7 +25,7 @@ function renderPaidMarkdown(text: string | null): string {
   if (!text) return "";
   let result = text;
   result = result.replace(/^### (.+)$/gm, '<h3 class="font-serif text-base font-semibold text-primary/80 mt-5 mb-2">$1</h3>');
-  result = result.replace(/^## (.+)$/gm, '<h2 class="font-serif text-lg font-semibold text-primary border-b border-primary/20 pb-1 mt-7 mb-3">$1</h2>');
+  result = result.replace(/^## (.+)$/gm, '<h2 class="font-serif text-lg font-semibold text-primary border-b border-[rgba(242,202,80,0.20)] pb-1 mt-7 mb-3">$1</h2>');
   result = result.replace(/^# (.+)$/gm, '<h1 class="font-serif text-xl font-bold text-primary mt-0 mb-4">$1</h1>');
   result = result.replace(/\*\*(.+?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>');
   result = result.replace(/\*(.+?)\*/g, '<em class="text-foreground/80">$1</em>');
@@ -654,8 +654,8 @@ export default function ReadingPageClient() {
             {paidContentLoading ? (
               <PaymentReturnProgress generationStep={generationStep} locale={locale} />
             ) : (
-              <div className="bg-card/80 backdrop-blur border border-primary/30 rounded-2xl p-8 md:p-12 text-center">
-                <div className="w-16 h-16 mx-auto mb-6 rounded-full border-2 border-primary/30 flex items-center justify-center">
+              <div className="bg-card/80 backdrop-blur border border-[rgba(242,202,80,0.30)] rounded-2xl p-8 md:p-12 text-center">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full border-2 border-[rgba(242,202,80,0.30)] flex items-center justify-center">
                   <div className="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                 </div>
                 <h3 className="font-serif text-xl text-primary mb-2">
@@ -679,9 +679,9 @@ export default function ReadingPageClient() {
         <Navbar />
         <div className="pt-page pb-16">
           <div className="mx-auto max-w-3xl px-4 sm:px-6">
-            <div className="mb-8 h-6 w-24 bg-muted/30 rounded animate-pulse" />
-            <div className="mb-6 bg-card/80 border border-primary/20 rounded-xl p-4 animate-pulse">
-              <div className="h-4 bg-muted/30 rounded w-1/2 mb-2" />
+            <div className="mb-8 h-6 w-24 bg-[rgba(100,116,139,0.30)] rounded animate-pulse" />
+            <div className="mb-6 bg-card/80 border border-[rgba(242,202,80,0.20)] rounded-xl p-4 animate-pulse">
+              <div className="h-4 bg-[rgba(100,116,139,0.30)] rounded w-1/2 mb-2" />
               <div className="h-3 bg-muted/20 rounded w-1/3" />
             </div>
             <div className="text-center py-12">
@@ -758,7 +758,7 @@ export default function ReadingPageClient() {
 
           {/* Save & Share Banner */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-            className="mb-6 bg-card/80 border border-primary/20 rounded-xl p-4">
+            className="mb-6 bg-card/80 border border-[rgba(242,202,80,0.20)] rounded-xl p-4">
             {user && (reading.user_id === user.id || claimed) ? (
               <div className="flex items-center justify-between gap-3">
                 <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
@@ -796,7 +796,7 @@ export default function ReadingPageClient() {
                     <GoogleIcon />
                     {t("signIn.continueGoogle", locale)}
                   </Button>
-                  <p className="text-[10px] text-muted-foreground/50 mt-2">{t("reading.free3s", locale)}</p>
+                  <p className="text-[10px] text-[rgba(148,163,184,0.50)] mt-2">{t("reading.free3s", locale)}</p>
                 </div>
               </div>
             )}
@@ -838,9 +838,9 @@ export default function ReadingPageClient() {
                   }`}>
                   <p className="text-xs text-muted-foreground mb-2">{p.name}</p>
                   <p className={`text-2xl font-serif ${p.isHourUnknown ? "text-primary/40" : "text-primary"}`}>{p.stem}</p>
-                  <p className={`text-lg ${p.isHourUnknown ? "text-muted-foreground/40" : "text-muted-foreground"}`}>{p.branch}</p>
-                  {p.isDay && <p className="text-[10px] text-primary/60 mt-1">{t("reading.dayMasterLabel", locale)}</p>}
-                  {p.isHourUnknown && <p className="text-[9px] text-muted-foreground/50 mt-1.5">{locale === "ko" ? "추정값" : locale === "ja" ? "推定値" : "estimated"}</p>}
+                  <p className={`text-lg ${p.isHourUnknown ? "text-[rgba(148,163,184,0.40)]" : "text-muted-foreground"}`}>{p.branch}</p>
+                  {p.isDay && <p className="text-[10px] text-[rgba(242,202,80,0.60)] mt-1">{t("reading.dayMasterLabel", locale)}</p>}
+                  {p.isHourUnknown && <p className="text-[9px] text-[rgba(148,163,184,0.50)] mt-1.5">{locale === "ko" ? "추정값" : locale === "ja" ? "推定値" : "estimated"}</p>}
                 </div>
               ))}
             </div>
@@ -855,9 +855,9 @@ export default function ReadingPageClient() {
 
           {/* AI Personality Reading */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mb-10">
-            <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
+            <div className="bg-card/50 backdrop-blur border border-[rgba(242,202,80,0.20)] rounded-2xl p-6 md:p-8">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-[rgba(242,202,80,0.10)] flex items-center justify-center">
                   <span className="text-lg font-serif" style={{ color: dmColor }}>{dmDisplay.zh}</span>
                 </div>
                 <div>
@@ -886,7 +886,7 @@ export default function ReadingPageClient() {
                 {(["wood", "fire", "earth", "metal", "water"] as const).map((el) => (
                   <div key={el} className="flex items-center gap-3">
                     <span className="w-16 text-sm text-muted-foreground">{t(`element.${el}`, locale)}</span>
-                    <div className="flex-1 h-6 bg-muted/30 rounded-full overflow-hidden">
+                    <div className="flex-1 h-6 bg-[rgba(100,116,139,0.30)] rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${maxElement > 0 ? (elements[el] / maxElement) * 100 : 0}%` }}
@@ -920,7 +920,7 @@ export default function ReadingPageClient() {
 
           {/* Harmony Score */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="mb-10">
-            <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/30 rounded-xl p-6 text-center">
+            <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-[rgba(242,202,80,0.30)] rounded-xl p-6 text-center">
               <p className="text-sm text-muted-foreground mb-2">{t("reading.harmonyScore", locale)}</p>
               <div className="text-5xl font-serif text-primary mb-2">{reading.harmony_score}</div>
               <p className="text-sm text-muted-foreground">
@@ -958,7 +958,7 @@ export default function ReadingPageClient() {
               {reading.paid_reading_career && (
               <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-10">
                 <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.careerWealth", locale)}</h2>
-                <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
+                <div className="bg-card/50 backdrop-blur border border-[rgba(242,202,80,0.20)] rounded-2xl p-6 md:p-8">
                   <div className="prose prose-invert prose-sm max-w-none">
                     <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_career) }} />
                   </div>
@@ -991,7 +991,7 @@ export default function ReadingPageClient() {
               {reading.paid_reading_decade && (
                 <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }} className="mb-10">
                   <h2 className="font-serif text-xl font-semibold mb-4">{t("reading.decadeCycle", locale)}</h2>
-                  <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-2xl p-6 md:p-8">
+                  <div className="bg-card/50 backdrop-blur border border-[rgba(242,202,80,0.20)] rounded-2xl p-6 md:p-8">
                     <div className="prose prose-invert prose-sm max-w-none">
                     <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85]" dangerouslySetInnerHTML={{ __html: renderPaidMarkdown(reading.paid_reading_decade) }} />
                     </div>
@@ -1012,12 +1012,12 @@ export default function ReadingPageClient() {
 
               {reading.paid_reading_hidden_talent && (
                 <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.95 }} className="mb-10">
-                  <div className="bg-gradient-to-br from-primary/5 via-card/80 to-purple-500/5 backdrop-blur border border-primary/30 rounded-2xl p-6 md:p-8">
+                  <div className="bg-gradient-to-br from-primary/5 via-card/80 to-purple-500/5 backdrop-blur border border-[rgba(242,202,80,0.30)] rounded-2xl p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-4">
                       <Sparkles className="w-6 h-6 text-primary" />
                       <div>
                         <h2 className="font-serif text-xl font-semibold">{t("reading.hiddenTalent", locale)}</h2>
-                        <p className="text-xs text-primary/60">{t("reading.hiddenTalentSub", locale)}</p>
+                        <p className="text-xs text-[rgba(242,202,80,0.60)]">{t("reading.hiddenTalentSub", locale)}</p>
                       </div>
                     </div>
                     <div className="prose prose-invert prose-sm max-w-none">
@@ -1047,7 +1047,7 @@ export default function ReadingPageClient() {
                   <Sparkles className="w-4 h-4 mr-2" />
                   {t("reading.retryGen", locale)}
                 </Button>
-                <p className="text-xs text-muted-foreground/50 mt-3">
+                <p className="text-xs text-[rgba(148,163,184,0.50)] mt-3">
                   {t("reading.retryPersist", locale)}
                 </p>
               </div>
@@ -1070,7 +1070,7 @@ export default function ReadingPageClient() {
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/70 to-background flex items-end justify-center pb-6">
                   <div className="text-center px-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <div className="w-12 h-12 rounded-full bg-[rgba(242,202,80,0.10)] flex items-center justify-center mx-auto mb-3">
                       <Lock className="w-6 h-6 text-primary" />
                     </div>
                     <h3 className="font-serif text-lg font-semibold mb-1">{t("reading.unlockFull", locale)}</h3>
@@ -1094,9 +1094,9 @@ export default function ReadingPageClient() {
                         </>
                       )}
                     </Button>
-                    <p className="text-xs text-muted-foreground/50 mt-2">{t("reading.oneTime", locale)}</p>
-                    <p className="text-xs text-primary/60 mt-1">{t("reading.compatFree", locale)}</p>
-                    {locale === "ko" && <p className="text-[10px] text-muted-foreground/40 mt-1.5">해외 결제 수단 전용 · 국내 카드 미지원</p>}
+                    <p className="text-xs text-[rgba(148,163,184,0.50)] mt-2">{t("reading.oneTime", locale)}</p>
+                    <p className="text-xs text-[rgba(242,202,80,0.60)] mt-1">{t("reading.compatFree", locale)}</p>
+                    {locale === "ko" && <p className="text-[10px] text-[rgba(148,163,184,0.40)] mt-1.5">해외 결제 수단 전용 · 국내 카드 미지원</p>}
                     {paymentError && (
                       <p className="text-xs text-red-400 mt-2 max-w-xs mx-auto">{paymentError}</p>
                     )}
@@ -1109,15 +1109,15 @@ export default function ReadingPageClient() {
           {/* Payment processing — Step-by-step generation progress */}
           {paidContentLoading && (
             <motion.section id="generation-progress" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-10">
-              <div className="bg-card/80 backdrop-blur border border-primary/30 rounded-2xl p-6 md:p-10 overflow-hidden relative">
+              <div className="bg-card/80 backdrop-blur border border-[rgba(242,202,80,0.30)] rounded-2xl p-6 md:p-10 overflow-hidden relative">
                 <div className="absolute inset-0 pointer-events-none">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-primary/10 blur-[100px]" />
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-[rgba(242,202,80,0.10)] blur-[100px]" />
                 </div>
 
                 <div className="relative">
                   {/* Warning at TOP — most visible position */}
-                  <div className="mb-6 bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2.5">
-                    <p className="text-xs text-amber-400/80 text-center font-medium">
+                  <div className="mb-6 bg-[rgba(245,158,11,0.05)] border border-[rgba(245,158,11,0.20)] rounded-lg px-3 py-2.5">
+                    <p className="text-xs text-[rgba(251,191,36,0.80)] text-center font-medium">
                       ⚠️ {t("reading.doNotLeave", locale)}
                     </p>
                   </div>
@@ -1126,7 +1126,7 @@ export default function ReadingPageClient() {
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                      className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-primary/30 flex items-center justify-center"
+                      className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[rgba(242,202,80,0.30)] flex items-center justify-center"
                     >
                       <div className="w-12 h-12 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                     </motion.div>
@@ -1146,7 +1146,7 @@ export default function ReadingPageClient() {
                           animate={{ opacity: isDone || isActive ? 1 : 0.3, x: 0 }}
                           transition={{ delay: i * 0.1, duration: 0.3 }}
                           className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-500 ${
-                            isActive ? "bg-primary/10 border border-primary/30" : isDone ? "bg-primary/5" : ""
+                            isActive ? "bg-[rgba(242,202,80,0.10)] border border-[rgba(242,202,80,0.30)]" : isDone ? "bg-[rgba(242,202,80,0.05)]" : ""
                           }`}
                         >
                           <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0">
@@ -1169,14 +1169,14 @@ export default function ReadingPageClient() {
                             )}
                           </div>
                           {isDone && (
-                            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-primary/60">{t("reading.genDone", locale)}</motion.span>
+                            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-[rgba(242,202,80,0.60)]">{t("reading.genDone", locale)}</motion.span>
                           )}
                         </motion.div>
                       );
                     })}
                   </div>
 
-                  <div className="mt-6 h-1 bg-muted/30 rounded-full overflow-hidden">
+                  <div className="mt-6 h-1 bg-[rgba(100,116,139,0.30)] rounded-full overflow-hidden">
                     <motion.div
                       className="h-full bg-primary rounded-full"
                       initial={{ width: "0%" }}
@@ -1184,7 +1184,7 @@ export default function ReadingPageClient() {
                       transition={{ duration: 0.5 }}
                     />
                   </div>
-                  <p className="text-center text-xs text-muted-foreground/50 mt-3">
+                  <p className="text-center text-xs text-[rgba(148,163,184,0.50)] mt-3">
                     {t("reading.genTakes", locale)}
                   </p>
                 </div>
@@ -1197,8 +1197,8 @@ export default function ReadingPageClient() {
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-6"
                 >
-                  <div className="bg-card/50 border border-primary/20 rounded-2xl overflow-hidden">
-                    <div className="px-6 py-3 border-b border-border bg-primary/5 flex items-center gap-2">
+                  <div className="bg-card/50 border border-[rgba(242,202,80,0.20)] rounded-2xl overflow-hidden">
+                    <div className="px-6 py-3 border-b border-border bg-[rgba(242,202,80,0.05)] flex items-center gap-2">
                       <div className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                       <span className="text-xs text-primary font-medium">
                         {locale === "ko" ? "미리보기 — 생성 중..." : locale === "ja" ? "プレビュー — 生成中..." : "Preview — generating..."}
@@ -1310,14 +1310,14 @@ function PaymentReturnProgress({ generationStep, locale }: { generationStep: num
   ];
 
   return (
-    <div className="bg-card/80 backdrop-blur border border-primary/30 rounded-2xl p-6 md:p-10 overflow-hidden relative">
+    <div className="bg-card/80 backdrop-blur border border-[rgba(242,202,80,0.30)] rounded-2xl p-6 md:p-10 overflow-hidden relative">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-primary/10 blur-[100px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] rounded-full bg-[rgba(242,202,80,0.10)] blur-[100px]" />
       </div>
       <div className="relative">
         {/* Warning at TOP */}
-        <div className="mb-6 bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2.5">
-          <p className="text-xs text-amber-400/80 text-center font-medium">
+        <div className="mb-6 bg-[rgba(245,158,11,0.05)] border border-[rgba(245,158,11,0.20)] rounded-lg px-3 py-2.5">
+          <p className="text-xs text-[rgba(251,191,36,0.80)] text-center font-medium">
             ⚠️ {t("reading.doNotLeave", locale)}
           </p>
         </div>
@@ -1326,7 +1326,7 @@ function PaymentReturnProgress({ generationStep, locale }: { generationStep: num
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-            className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-primary/30 flex items-center justify-center"
+            className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[rgba(242,202,80,0.30)] flex items-center justify-center"
           >
             <div className="w-12 h-12 rounded-full border-2 border-primary border-t-transparent animate-spin" />
           </motion.div>
@@ -1345,7 +1345,7 @@ function PaymentReturnProgress({ generationStep, locale }: { generationStep: num
                 animate={{ opacity: isDone || isActive ? 1 : 0.3, x: 0 }}
                 transition={{ delay: i * 0.1, duration: 0.3 }}
                 className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-500 ${
-                  isActive ? "bg-primary/10 border border-primary/30" : isDone ? "bg-primary/5" : ""
+                  isActive ? "bg-[rgba(242,202,80,0.10)] border border-[rgba(242,202,80,0.30)]" : isDone ? "bg-[rgba(242,202,80,0.05)]" : ""
                 }`}
               >
                 <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0">
@@ -1371,7 +1371,7 @@ function PaymentReturnProgress({ generationStep, locale }: { generationStep: num
             );
           })}
         </div>
-        <div className="mt-6 h-1 bg-muted/30 rounded-full overflow-hidden">
+        <div className="mt-6 h-1 bg-[rgba(100,116,139,0.30)] rounded-full overflow-hidden">
           <motion.div
             className="h-full bg-primary rounded-full"
             initial={{ width: "0%" }}
@@ -1379,7 +1379,7 @@ function PaymentReturnProgress({ generationStep, locale }: { generationStep: num
             transition={{ duration: 0.5 }}
           />
         </div>
-        <p className="text-center text-xs text-muted-foreground/50 mt-3">
+        <p className="text-center text-xs text-[rgba(148,163,184,0.50)] mt-3">
           {t("reading.genTakes", locale)}
         </p>
       </div>

@@ -13,9 +13,9 @@ export default function ConsultationPage() {
   return (
     <main className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full bg-purple-500/12 blur-[140px]" />
-        <div className="absolute bottom-1/4 -left-20 w-[500px] h-[500px] rounded-full bg-amber-600/8 blur-[130px]" />
-        <div className="absolute bottom-0 right-0 w-[450px] h-[450px] rounded-full bg-indigo-700/10 blur-[130px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full bg-[rgba(168,85,247,0.12)] blur-[140px]" />
+        <div className="absolute bottom-1/4 -left-20 w-[500px] h-[500px] rounded-full bg-[rgba(217,119,6,0.08)] blur-[130px]" />
+        <div className="absolute bottom-0 right-0 w-[450px] h-[450px] rounded-full bg-[rgba(67,56,202,0.10)] blur-[130px]" />
       </div>
       <Navbar />
       <section className="pt-page pb-16">

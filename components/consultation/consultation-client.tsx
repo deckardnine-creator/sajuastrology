@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams as _unusedUseSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Briefcase,
@@ -185,7 +185,18 @@ const emptyBirthData = (): BirthData => ({
 export function ConsultationClient() {
   const { user, sajuData, isLoading: authLoading, openSignInModal } = useAuth();
   const { locale } = useLanguage();
-  const searchParams = useSearchParams();
+  // Read URL params via a stable helper instead of useSearchParams().
+  // useSearchParams() in Next.js App Router triggers a Suspense boundary; in
+  // iOS WKWebView this boundary has been observed to never resolve, leaving
+  // the entire ConsultationClient unmounted forever (so even our forceShow
+  // failsafe never runs because the component itself never renders).
+  // Reading window.location.search directly side-steps the Suspense trap.
+  const searchParams = useMemo(() => ({
+    get: (key: string): string | null => {
+      if (typeof window === "undefined") return null;
+      return new URLSearchParams(window.location.search).get(key);
+    },
+  }), []);
   const router = useRouter();
   const isNative = useNativeApp();
 
@@ -718,7 +729,7 @@ export function ConsultationClient() {
                       }}
                       className={`flex items-center gap-2.5 p-3.5 rounded-xl border transition-all text-left ${
                         isSelected
-                          ? "border-primary bg-primary/10 ring-1 ring-primary/30"
+                          ? "border-primary bg-[rgba(242,202,80,0.10)] ring-1 ring-primary/30"
                           : "border-border bg-card/50 hover:border-muted-foreground/30"
                       }`}
                     >
@@ -832,8 +843,8 @@ export function ConsultationClient() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mt-6"
               >
-                <div className="bg-card/50 border border-primary/20 rounded-2xl overflow-hidden">
-                  <div className="px-6 py-3 border-b border-border bg-primary/5 flex items-center gap-2">
+                <div className="bg-card/50 border border-[rgba(242,202,80,0.20)] rounded-2xl overflow-hidden">
+                  <div className="px-6 py-3 border-b border-border bg-[rgba(242,202,80,0.05)] flex items-center gap-2">
                     <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
                     <span className="text-xs text-primary font-medium">
                       {locale === "ko" ? "미리보기 — 생성 중..." : locale === "ja" ? "プレビュー — 生成中..." : "Preview — generating..."}
@@ -849,7 +860,7 @@ export function ConsultationClient() {
                       className="prose prose-invert prose-sm max-w-none
                         prose-headings:font-serif prose-headings:text-primary prose-headings:font-semibold
                         prose-h1:text-xl prose-h1:mt-0 prose-h1:mb-4
-                        prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3 prose-h2:pb-1 prose-h2:border-b prose-h2:border-primary/20
+                        prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3 prose-h2:pb-1 prose-h2:border-b prose-h2:border-[rgba(242,202,80,0.20)]
                         prose-h3:text-base prose-h3:mt-5 prose-h3:mb-2 prose-h3:text-primary/80
                         prose-p:text-foreground/85 prose-p:leading-[1.85] prose-p:mb-4
                         prose-strong:text-foreground prose-strong:font-semibold
@@ -874,7 +885,7 @@ export function ConsultationClient() {
             {/* Report Card */}
             <div className="bg-card/50 border border-border rounded-2xl overflow-hidden mb-6">
               {/* Report Header */}
-              <div className="px-6 py-5 border-b border-border bg-primary/5">
+              <div className="px-6 py-5 border-b border-border bg-[rgba(242,202,80,0.05)]">
                 <div className="flex items-center gap-2 text-xs text-primary mb-2">
                   <CheckCircle2 className="w-4 h-4" />
                   {t("consult.complete", locale)}
@@ -915,7 +926,7 @@ export function ConsultationClient() {
                   className="prose prose-invert prose-sm max-w-none
                     prose-headings:font-serif prose-headings:text-primary prose-headings:font-semibold
                     prose-h1:text-xl prose-h1:mt-0 prose-h1:mb-4
-                    prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3 prose-h2:pb-1 prose-h2:border-b prose-h2:border-primary/20
+                    prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3 prose-h2:pb-1 prose-h2:border-b prose-h2:border-[rgba(242,202,80,0.20)]
                     prose-h3:text-base prose-h3:mt-5 prose-h3:mb-2 prose-h3:text-primary/80
                     prose-p:text-foreground/85 prose-p:leading-[1.85] prose-p:mb-4
                     prose-strong:text-foreground prose-strong:font-semibold
@@ -996,7 +1007,7 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
                 onClick={() => onChange({ ...data, gender: g })}
                 className={`h-11 rounded-xl border text-sm font-medium transition-all ${
                   data.gender === g
-                    ? "border-primary bg-primary/10 text-primary"
+                    ? "border-primary bg-[rgba(242,202,80,0.10)] text-primary"
                     : "border-border bg-card/50 text-muted-foreground hover:border-muted-foreground/30"
                 }`}
               >
@@ -1016,10 +1027,10 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
             <span className="text-[10px] text-muted-foreground/60 uppercase">{t("form.year", locale)}</span>
             <div className="flex items-center w-full bg-background/50 border border-border rounded-xl overflow-hidden">
               <button type="button" onClick={() => onChange({ ...data, year: Math.max(1920, data.year - 1) })}
-                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base">−</button>
+                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-[rgba(242,202,80,0.10)] transition-colors text-base">−</button>
               <span className="flex-1 text-center text-xs font-semibold text-primary">{data.year}</span>
               <button type="button" onClick={() => onChange({ ...data, year: Math.min(CURRENT_YEAR, data.year + 1) })}
-                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base">+</button>
+                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-[rgba(242,202,80,0.10)] transition-colors text-base">+</button>
             </div>
           </div>
           {/* Month */}
@@ -1027,10 +1038,10 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
             <span className="text-[10px] text-muted-foreground/60 uppercase">{t("form.month", locale)}</span>
             <div className="flex items-center w-full bg-background/50 border border-border rounded-xl overflow-hidden">
               <button type="button" onClick={() => onChange({ ...data, month: data.month <= 1 ? 12 : data.month - 1 })}
-                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base">−</button>
+                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-[rgba(242,202,80,0.10)] transition-colors text-base">−</button>
               <span className="flex-1 text-center text-sm font-semibold text-primary">{String(data.month).padStart(2,"0")}</span>
               <button type="button" onClick={() => onChange({ ...data, month: data.month >= 12 ? 1 : data.month + 1 })}
-                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base">+</button>
+                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-[rgba(242,202,80,0.10)] transition-colors text-base">+</button>
             </div>
           </div>
           {/* Day */}
@@ -1038,10 +1049,10 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
             <span className="text-[10px] text-muted-foreground/60 uppercase">{t("form.day", locale)}</span>
             <div className="flex items-center w-full bg-background/50 border border-border rounded-xl overflow-hidden">
               <button type="button" onClick={() => onChange({ ...data, day: data.day <= 1 ? daysInMonth : data.day - 1 })}
-                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base">−</button>
+                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-[rgba(242,202,80,0.10)] transition-colors text-base">−</button>
               <span className="flex-1 text-center text-sm font-semibold text-primary">{String(data.day).padStart(2,"0")}</span>
               <button type="button" onClick={() => onChange({ ...data, day: data.day >= daysInMonth ? 1 : data.day + 1 })}
-                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors text-base">+</button>
+                className="w-8 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-[rgba(242,202,80,0.10)] transition-colors text-base">+</button>
             </div>
           </div>
         </div>
@@ -1054,10 +1065,10 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
         </label>
         <div className="flex items-center justify-between bg-background/50 border border-border rounded-xl px-2 py-2">
           <button type="button" onClick={() => onChange({ ...data, hour: data.hour <= 0 ? 23 : data.hour - 1 })}
-            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 rounded-lg transition-colors text-lg">−</button>
+            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-[rgba(242,202,80,0.10)] rounded-lg transition-colors text-lg">−</button>
           <span className="text-xs font-medium text-primary">{HOUR_LABELS[data.hour]}</span>
           <button type="button" onClick={() => onChange({ ...data, hour: data.hour >= 23 ? 0 : data.hour + 1 })}
-            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-primary/10 rounded-lg transition-colors text-lg">+</button>
+            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-[rgba(242,202,80,0.10)] rounded-lg transition-colors text-lg">+</button>
         </div>
       </div>
 
@@ -1099,7 +1110,7 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
                   onChange({ ...data, cityQuery: city.name, selectedCity: city });
                   setShowCityDropdown(false);
                 }}
-                className="w-full text-left px-4 py-2.5 text-sm hover:bg-primary/10 transition-colors"
+                className="w-full text-left px-4 py-2.5 text-sm hover:bg-[rgba(242,202,80,0.10)] transition-colors"
               >
                 <span className="text-foreground">{city.name}</span>
                 <span className="text-muted-foreground/60 ml-2">{city.country}</span>
