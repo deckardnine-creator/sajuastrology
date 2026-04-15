@@ -29,8 +29,11 @@ export function useNativeApp(): boolean {
     try {
       storedMatch = sessionStorage.getItem("native-app") === "1";
     } catch {}
+    // FlutterBridge is injected by webview_flutter's addJavaScriptChannel.
+    // This is the most reliable indicator — it exists ONLY inside the Flutter WebView.
+    const bridgeMatch = typeof (window as any).FlutterBridge !== "undefined";
 
-    const native = uaMatch || urlMatch || storedMatch;
+    const native = uaMatch || urlMatch || storedMatch || bridgeMatch;
     setIsNative(native);
 
     if (native) {
@@ -49,6 +52,7 @@ export function useNativeApp(): boolean {
  */
 export function isNativeApp(): boolean {
   if (typeof window === "undefined") return false;
+  if (typeof (window as any).FlutterBridge !== "undefined") return true;
   if (navigator.userAgent.includes("SajuApp")) return true;
   if (new URLSearchParams(window.location.search).get("app") === "true") return true;
   try {

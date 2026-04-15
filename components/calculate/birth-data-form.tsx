@@ -329,7 +329,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                 <div className="flex gap-3">
                   {(["male","female"] as const).map((g)=>(
                     <button key={g} type="button" onClick={()=>setGender(g)}
-                      className={`flex-1 py-3 px-4 rounded-lg border text-sm transition-all duration-200 ${gender===g ? "bg-primary/15 border-primary text-primary shadow-[0_0_16px_rgba(242,202,80,0.15)]" : "bg-background/50 border-border text-muted-foreground hover:border-primary/40"}`}>
+                      className={`flex-1 py-3 px-4 rounded-lg border text-sm transition-all duration-200 ${gender===g ? "bg-[rgba(242,202,80,0.18)] border-primary text-white font-semibold shadow-[0_0_16px_rgba(242,202,80,0.15)]" : "bg-background/50 border-border text-muted-foreground hover:border-primary/40"}`}>
                       {g==="male" ? t("form.maleShort", locale) : t("form.femaleShort", locale)}
                     </button>
                   ))}

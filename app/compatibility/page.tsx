@@ -266,13 +266,13 @@ function CompatibilityContent() {
           {/* Step indicator */}
           {step !== "loading" && (
             <div className="flex items-center justify-center gap-3 mb-8">
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${step === "personA" ? "bg-primary/20 text-primary" : "bg-primary/10 text-primary/60"}`}>
-                <span className="w-5 h-5 rounded-full bg-primary/30 flex items-center justify-center text-[10px]">1</span>
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${step === "personA" ? "bg-[rgba(242,202,80,0.22)] text-white" : "bg-[rgba(242,202,80,0.08)] text-primary/60"}`}>
+                <span className="w-5 h-5 rounded-full bg-[rgba(242,202,80,0.4)] flex items-center justify-center text-[10px] text-white">1</span>
                 {t("compat.you", locale)}
               </div>
               <div className="w-8 h-px bg-border" />
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${step === "personB" ? "bg-pink-500/20 text-pink-300" : "bg-muted/30 text-muted-foreground/50"}`}>
-                <span className="w-5 h-5 rounded-full bg-pink-500/20 flex items-center justify-center text-[10px]">2</span>
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${step === "personB" ? "bg-[rgba(236,72,153,0.22)] text-white" : "bg-muted/30 text-muted-foreground/50"}`}>
+                <span className="w-5 h-5 rounded-full bg-[rgba(236,72,153,0.3)] flex items-center justify-center text-[10px] text-white">2</span>
                 {t("compat.partner", locale)}
               </div>
             </div>
@@ -433,7 +433,7 @@ function PersonForm({ label, data, onChange, locale }: {
               onClick={() => onChange({ ...data, gender: g })}
               className={`h-11 rounded-xl border text-sm font-medium transition-all ${
                 data.gender === g
-                  ? "border-primary bg-primary/10 text-primary"
+                  ? "border-primary bg-[rgba(242,202,80,0.18)] text-white font-semibold"
                   : "border-border bg-card/50 text-muted-foreground hover:border-muted-foreground/30"
               }`}
             >
