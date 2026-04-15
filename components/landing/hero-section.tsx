@@ -8,6 +8,8 @@ import { useLanguage } from "@/lib/language-context"
 import { useNativeApp } from "@/lib/native-app"
 import Link from "next/link"
 
+const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.rimfactory.sajuastrology"
+
 const pillars = [
   { chinese: "甲", english: "Wood", element: "wood", color: "text-secondary" },
   { chinese: "丙", english: "Fire", element: "fire", color: "text-fire" },
@@ -32,10 +34,16 @@ export function HeroSection() {
   const { t, locale } = useLanguage()
   const isNativeApp = useNativeApp()
 
-  const handleAppClick = (platform: "ios" | "android") => {
-    setShowComingSoon(platform)
+  const handleIosClick = () => {
+    setShowComingSoon("ios")
     setTimeout(() => setShowComingSoon(null), 3000)
   }
+
+  // Localized badge text
+  const androidBadgeText =
+    locale === "ko" ? "4/14 출시" : locale === "ja" ? "4/14リリース" : "Released 4/14"
+  const iosBadgeText =
+    locale === "ko" ? "4월 중 예정" : locale === "ja" ? "4月中予定" : "Coming in April"
 
   return (
     <section className="relative overflow-hidden min-h-[80vh] lg:min-h-screen pt-page pb-8 sm:pb-12 flex items-center">
@@ -140,29 +148,42 @@ export function HeroSection() {
             {!isNativeApp && (
             <div className="flex flex-col gap-2 mt-1">
               <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3">
-                <button
-                  onClick={() => handleAppClick("ios")}
-                  className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all group w-full sm:w-auto"
-                >
-                  <svg className="w-5 h-5 text-white/80 group-hover:text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                  </svg>
-                  <div className="text-left">
-                    <span className="text-[9px] text-white/50 block leading-tight">{t("hero.downloadOn")}</span>
-                    <span className="text-sm text-white/90 font-medium leading-tight">{t("hero.appStore")}</span>
-                  </div>
-                </button>
 
-                <button
-                  onClick={() => handleAppClick("android")}
-                  className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all group w-full sm:w-auto"
+                {/* Google Play (FIRST — Released) */}
+                <a
+                  href={PLAY_STORE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-white/5 border border-emerald-500/30 hover:border-emerald-500/60 hover:bg-white/10 transition-all group w-full sm:w-auto"
                 >
+                  {/* Released badge */}
+                  <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-emerald-500 text-[9px] font-semibold text-white whitespace-nowrap shadow-lg shadow-emerald-500/30">
+                    {androidBadgeText}
+                  </span>
                   <svg className="w-5 h-5 text-white/80 group-hover:text-white" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M3.18 23.04L13.3 12.93 3.18.96 3.18 23.04zM14.42 11.83L5.3.46 19.03 8.3 14.42 11.83zM14.46 14.07L19.13 17.67 5.24 25.54 14.46 14.07zM20.17 9.48L22.03 10.56C22.72 10.95 22.72 11.95 22.03 12.35L20.05 13.48 15.58 12.92 20.17 9.48z"/>
                   </svg>
                   <div className="text-left">
                     <span className="text-[9px] text-white/50 block leading-tight">{t("hero.getItOn")}</span>
                     <span className="text-sm text-white/90 font-medium leading-tight">{t("hero.googlePlay")}</span>
+                  </div>
+                </a>
+
+                {/* App Store (SECOND — Coming Soon) */}
+                <button
+                  onClick={handleIosClick}
+                  className="relative flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all group w-full sm:w-auto"
+                >
+                  {/* Coming soon badge */}
+                  <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-white/15 border border-white/20 text-[9px] font-medium text-white/80 whitespace-nowrap backdrop-blur-sm">
+                    {iosBadgeText}
+                  </span>
+                  <svg className="w-5 h-5 text-white/80 group-hover:text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                  </svg>
+                  <div className="text-left">
+                    <span className="text-[9px] text-white/50 block leading-tight">{t("hero.downloadOn")}</span>
+                    <span className="text-sm text-white/90 font-medium leading-tight">{t("hero.appStore")}</span>
                   </div>
                 </button>
               </div>
@@ -173,7 +194,7 @@ export function HeroSection() {
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="text-xs text-muted-foreground/70"
+                    className="text-xs text-muted-foreground/70 mt-2"
                   >
                     <Smartphone className="w-3 h-3 inline mr-1" />
                     {showComingSoon === "ios" ? "iOS" : "Android"} {t("hero.appComingSoon")}
