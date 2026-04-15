@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
 import { useNativeApp } from "@/lib/native-app"
@@ -38,6 +39,23 @@ const bugBounty: Record<Locale, { badge: string; title: string; desc: string }> 
 export function Footer() {
   const { t, locale, setLocale } = useLanguage()
   const isNative = useNativeApp()
+
+  // Defense in depth: if useNativeApp() somehow returns false in the iOS app
+  // (hydration timing, deployment cache, etc), this direct check covers it.
+  // We hide the bug-bounty banner and business info if ANY native indicator
+  // is present.
+  const [directNative, setDirectNative] = useState(false)
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const ua = navigator.userAgent.includes("SajuApp")
+    const url = new URLSearchParams(window.location.search).get("app") === "true"
+    const bridge = typeof (window as { FlutterBridge?: unknown }).FlutterBridge !== "undefined"
+    let stored = false
+    try { stored = sessionStorage.getItem("native-app") === "1" } catch {}
+    if (ua || url || bridge || stored) setDirectNative(true)
+  }, [])
+
+  const hideWebOnly = isNative || directNative
 
   const mainLinks = [
     { label: t("nav.whatIsSaju"), href: "/what-is-saju" },
@@ -85,7 +103,7 @@ export function Footer() {
           </nav>
 
           {/* Bug Bounty Banner — hidden in native app */}
-          {!isNative && (
+          {!hideWebOnly && (
           <div className="w-full max-w-lg rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-4 sm:px-5 sm:py-5 text-center">
             <span className="inline-block px-2.5 py-0.5 text-[10px] sm:text-xs font-semibold uppercase tracking-wider bg-primary/15 text-primary rounded-full mb-2.5">
               {bb.badge}
@@ -123,7 +141,7 @@ export function Footer() {
           </div>
 
           {/* Business info — hidden in native app */}
-          {!isNative && (
+          {!hideWebOnly && (
           <div className="border-t border-border w-full pt-6">
             <div className="flex flex-col items-center gap-1.5 text-center">
               <p className="text-xs font-medium text-muted-foreground/80">Rimfactory</p>

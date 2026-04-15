@@ -350,10 +350,10 @@ export function ConsultationClient() {
   /* ─── Check credits ─── */
   const checkCredits = useCallback(async () => {
     if (!user) return;
-    // iOS WKWebView fetch can hang silently — add 6s abort timeout so we
+    // iOS WKWebView fetch can hang silently — add 5s abort timeout so we
     // never get stuck on the loading spinner forever.
     const ctrl = new AbortController();
-    const timeoutId = setTimeout(() => ctrl.abort(), 6000);
+    const timeoutId = setTimeout(() => ctrl.abort(), 5000);
     try {
       const res = await fetch("/api/consultation/ask", {
         method: "POST",
@@ -386,18 +386,22 @@ export function ConsultationClient() {
   }, [authLoading, user, checkCredits, searchParams]);
 
   // Failsafe: in iOS WKWebView, useAuth's `authLoading` has been observed to
-  // stay true forever in some sessions. After 8s we force-render the page so
-  // the user can act instead of staring at a spinner. The page handles a
-  // null user gracefully (sign-in prompt).
+  // stay true forever in some sessions. After 3s we force-render the page
+  // unconditionally so the user can act instead of staring at a spinner.
+  // The page handles a null user gracefully (sign-in prompt).
   const [forceShow, setForceShow] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setForceShow(true), 8000);
+    const t = setTimeout(() => {
+      console.log("[consultation] forceShow timeout fired");
+      setForceShow(true);
+    }, 3000);
     return () => clearTimeout(t);
   }, []);
   // When forceShow trips and we're still in "loading", advance the step so
   // downstream effects don't re-fire the initial-load path.
   useEffect(() => {
     if (forceShow && step === "loading") {
+      console.log("[consultation] forceShow advancing step from loading");
       setStep(user ? "form" : "no-credits");
     }
   }, [forceShow, step, user]);
