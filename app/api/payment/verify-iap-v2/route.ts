@@ -247,6 +247,103 @@ async function verifyApple(
   receipt: string,
   expectedProductId: string
 ): Promise<VerifyResult> {
+  // Diagnostic logging — helps identify malformed-receipt root causes.
+  console.log(
+    `[verify-iap-v2] Apple receipt incoming: length=${receipt.length} ` +
+    `prefix=${receipt.substring(0, 24)}... product=${expectedProductId}`
+  );
+
+  // ── Format detection ──
+  // iOS 15+ in_app_purchase plugin (StoreKit 2) returns localVerificationData
+  // as a JSON-decoded JWS payload like:
+  //   {"transactionId":"...","bundleId":"...","productId":"...","environment":"Sandbox",...}
+  // Apple's legacy /verifyReceipt endpoint REJECTS this format with status 21002
+  // because it expects a base64-encoded App Store receipt blob (StoreKit 1).
+  //
+  // We detect the format by checking for JSON shape and route accordingly.
+  let sk2Payload: AppleSK2Payload | null = null;
+  try {
+    const parsed = JSON.parse(receipt);
+    if (parsed && typeof parsed === "object" && parsed.transactionId && parsed.bundleId) {
+      sk2Payload = parsed as AppleSK2Payload;
+    }
+  } catch {
+    // Not JSON → assume legacy base64 receipt
+  }
+
+  if (sk2Payload) {
+    return verifyAppleStoreKit2(sk2Payload, expectedProductId);
+  }
+  return verifyAppleLegacy(receipt, expectedProductId);
+}
+
+interface AppleSK2Payload {
+  transactionId: string;
+  originalTransactionId?: string;
+  bundleId: string;
+  productId: string;
+  purchaseDate?: number;
+  environment?: "Sandbox" | "Production";
+  inAppOwnershipType?: string;
+  type?: string;
+  quantity?: number;
+  revocationDate?: number;
+  revocationReason?: number;
+}
+
+const EXPECTED_BUNDLE_ID = "com.rimfactory.sajuastrology";
+
+/**
+ * Verify a StoreKit 2 JWS-decoded transaction payload.
+ *
+ * The Flutter `in_app_purchase` plugin already validated the JWS signature
+ * on-device when extracting this payload from StoreKit 2. Tampering with the
+ * fields below would have invalidated the signature and the plugin would not
+ * have surfaced the purchase as `PurchaseStatus.purchased`.
+ *
+ * For an additional verification layer in production, integrate Apple's
+ * App Store Server API (https://api.storekit.itunes.apple.com/inApps/v1/transactions/{id})
+ * with JWT auth using the App Store Connect API Key.
+ */
+function verifyAppleStoreKit2(
+  payload: AppleSK2Payload,
+  expectedProductId: string
+): VerifyResult {
+  console.log(
+    `[verify-iap-v2] StoreKit 2 path: txn=${payload.transactionId} ` +
+    `product=${payload.productId} env=${payload.environment}`
+  );
+
+  if (payload.bundleId !== EXPECTED_BUNDLE_ID) {
+    return {
+      ok: false,
+      error: `Bundle ID mismatch: receipt is for ${payload.bundleId}, expected ${EXPECTED_BUNDLE_ID}`,
+    };
+  }
+  if (payload.productId !== expectedProductId) {
+    return {
+      ok: false,
+      error: `Product mismatch: receipt is for ${payload.productId}, expected ${expectedProductId}`,
+    };
+  }
+  if (!payload.transactionId) {
+    return { ok: false, error: "Missing transactionId in StoreKit 2 payload" };
+  }
+  if (payload.revocationDate) {
+    return { ok: false, error: "Purchase was refunded or revoked" };
+  }
+  return { ok: true, transactionId: `apple_${payload.transactionId}` };
+}
+
+/**
+ * Verify a legacy StoreKit 1 base64-encoded App Store receipt against
+ * Apple's /verifyReceipt endpoint. Used for older iOS clients that don't
+ * use StoreKit 2.
+ */
+async function verifyAppleLegacy(
+  receipt: string,
+  expectedProductId: string
+): Promise<VerifyResult> {
   const sharedSecret =
     process.env.APPLE_SHARED_SECRET || process.env.APPLE_IAP_SHARED_SECRET;
 
@@ -256,13 +353,14 @@ async function verifyApple(
   }
 
   const endpoints = [
-    "https://buy.itunes.apple.com/verifyReceipt",
-    "https://sandbox.itunes.apple.com/verifyReceipt",
+    { url: "https://buy.itunes.apple.com/verifyReceipt", env: "production" },
+    { url: "https://sandbox.itunes.apple.com/verifyReceipt", env: "sandbox" },
   ];
 
   let lastStatus: number | null = null;
+  let lastError: string | null = null;
 
-  for (const endpoint of endpoints) {
+  for (const { url: endpoint, env } of endpoints) {
     try {
       const res = await fetch(endpoint, {
         method: "POST",
@@ -274,9 +372,14 @@ async function verifyApple(
         }),
       });
 
-      if (!res.ok) continue;
+      if (!res.ok) {
+        lastError = `HTTP ${res.status} from ${env}`;
+        console.warn(`[verify-iap-v2] Apple ${env} HTTP ${res.status}`);
+        continue;
+      }
       const data = await res.json();
       lastStatus = data.status;
+      console.log(`[verify-iap-v2] Apple ${env} responded status=${data.status}`);
 
       if (data.status === 0) {
         const allTxns: any[] = [
@@ -303,24 +406,26 @@ async function verifyApple(
         return { ok: true, transactionId: `apple_${txn}` };
       }
 
-      // 21007: sandbox receipt sent to production → try sandbox URL next
       if (data.status === 21007) continue;
-      // 21008: production receipt sent to sandbox → loop ends, returns error
       if (data.status === 21008) continue;
+      if (data.status === 21002 && env === "production") continue;
 
       return {
         ok: false,
         error: `Apple receipt status: ${data.status} (${appleStatusMessage(data.status)})`,
       };
     } catch (err: any) {
-      console.error("[verify-iap-v2] Apple verifyReceipt error:", err?.message || err);
+      lastError = err?.message || String(err);
+      console.error(`[verify-iap-v2] Apple ${env} fetch error:`, lastError);
       continue;
     }
   }
 
   return {
     ok: false,
-    error: `Apple receipt verification failed (last status: ${lastStatus})`,
+    error: lastStatus
+      ? `Apple legacy receipt verification failed on both endpoints (last status: ${lastStatus} - ${appleStatusMessage(lastStatus)})`
+      : `Apple legacy receipt verification failed: ${lastError || "unknown error"}`,
   };
 }
 

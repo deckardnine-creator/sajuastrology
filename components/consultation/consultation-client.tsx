@@ -385,16 +385,22 @@ export function ConsultationClient() {
     }
   }, [authLoading, user, checkCredits, searchParams]);
 
-  // Safety net: if we are still in "loading" after 8 seconds for ANY reason
-  // (auth context never resolves, useEffect dep ordering issue, network limbo),
-  // force-exit to "no-credits" so the user can act instead of staring at a spinner.
+  // Failsafe: in iOS WKWebView, useAuth's `authLoading` has been observed to
+  // stay true forever in some sessions. After 8s we force-render the page so
+  // the user can act instead of staring at a spinner. The page handles a
+  // null user gracefully (sign-in prompt).
+  const [forceShow, setForceShow] = useState(false);
   useEffect(() => {
-    if (step !== "loading") return;
-    const failsafe = setTimeout(() => {
-      setStep((s) => (s === "loading" ? "no-credits" : s));
-    }, 8000);
-    return () => clearTimeout(failsafe);
-  }, [step]);
+    const t = setTimeout(() => setForceShow(true), 8000);
+    return () => clearTimeout(t);
+  }, []);
+  // When forceShow trips and we're still in "loading", advance the step so
+  // downstream effects don't re-fire the initial-load path.
+  useEffect(() => {
+    if (forceShow && step === "loading") {
+      setStep(user ? "form" : "no-credits");
+    }
+  }, [forceShow, step, user]);
 
   /* ─── Birth data validation ─── */
   const isBirthDataValid = birthData.name.trim().length >= 1 &&
@@ -592,7 +598,7 @@ export function ConsultationClient() {
 
   /* ─── Render ─── */
 
-  if (step === "loading" || authLoading) {
+  if ((step === "loading" || authLoading) && !forceShow) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
