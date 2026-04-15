@@ -102,7 +102,7 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
 
       <button
         type="button"
-        className="w-full flex justify-center py-1 text-primary/40 hover:text-primary/70 transition-colors active:text-primary active:scale-90"
+        className="w-full flex justify-center py-1 text-[rgba(242,202,80,0.40)] hover:text-[rgba(242,202,80,0.70)] transition-colors active:text-primary active:scale-90"
         style={{ width }}
         onClick={() => handleClick(-1)}
         onMouseDown={() => startLongPress(-1)}
@@ -116,7 +116,7 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
 
       <div
         style={{ height: containerH, width, overflow: "hidden", position: "relative", borderRadius: 12 }}
-        className="border border-primary/15 bg-black/30 backdrop-blur-sm"
+        className="border border-[rgba(242,202,80,0.15)] bg-[rgba(0,0,0,0.30)] backdrop-blur-sm"
       >
         <div className="absolute inset-x-0 top-0 z-20 pointer-events-none"
           style={{ height: ITEM_H * 2, background: "linear-gradient(to bottom, #060810 0%, #060810 10%, transparent 100%)" }} />
@@ -161,7 +161,7 @@ function DrumRoller({ values, selectedIndex, onChange, label, width = 72 }: Drum
 
       <button
         type="button"
-        className="w-full flex justify-center py-1 text-primary/40 hover:text-primary/70 transition-colors active:text-primary active:scale-90"
+        className="w-full flex justify-center py-1 text-[rgba(242,202,80,0.40)] hover:text-[rgba(242,202,80,0.70)] transition-colors active:text-primary active:scale-90"
         style={{ width }}
         onClick={() => handleClick(1)}
         onMouseDown={() => startLongPress(1)}
@@ -292,7 +292,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
             </div>
             {selectedCity && (
               <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} className="flex items-center gap-3 pt-2">
-                <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center"><Check className="w-3 h-3 text-accent" /></div>
+                <div className="w-5 h-5 rounded-full bg-[rgba(242,202,80,0.20)] flex items-center justify-center"><Check className="w-3 h-3 text-accent" /></div>
                 <p className="text-sm text-accent">{selectedCity.name} {t("form.coordinatesLocked", locale)}</p>
               </motion.div>
             )}
@@ -304,14 +304,14 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
       <div className="lg:w-[58%] p-6 lg:p-12 flex items-center justify-center relative">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {Array.from({length:20},(_,i)=>(
-            <motion.div key={i} className="absolute rounded-full bg-primary/8"
+            <motion.div key={i} className="absolute rounded-full bg-[rgba(242,202,80,0.08)]"
               style={{ width:1,height:1, left:`${((i*47.3)%100)}%`, top:`${((i*61.8)%100)}%` }}
               animate={{ opacity:[0.1,0.4,0.1] }} transition={{ duration:3+i%4, repeat:Infinity, delay:i*0.3 }} />
           ))}
         </div>
 
         <motion.div className="w-full max-w-lg relative z-10" initial={{ opacity:0,x:20 }} animate={{ opacity:1,x:0 }} transition={{ duration:0.6,delay:0.2 }}>
-          <div className="bg-card/50 backdrop-blur-xl border border-border rounded-2xl p-6 lg:p-8" style={{ overflow: 'visible' }}>
+          <div className="bg-[rgba(15,20,34,0.50)] backdrop-blur-xl border border-border rounded-2xl p-6 lg:p-8" style={{ overflow: 'visible' }}>
             <form onSubmit={handleSubmit} className="space-y-6" style={{ overflow: 'visible' }}>
 
               {/* Name */}
@@ -319,7 +319,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                 <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">{t("form.yourName", locale)}</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input type="text" placeholder={t("form.enterName", locale)} maxLength={50} value={name} onChange={(e)=>setName(e.target.value)} className="pl-10 bg-background/50 border-border focus:border-primary" />
+                  <Input type="text" placeholder={t("form.enterName", locale)} maxLength={50} value={name} onChange={(e)=>setName(e.target.value)} className="pl-10 bg-[rgba(6,8,16,0.50)] border-border focus:border-primary" />
                 </div>
               </div>
 
@@ -329,7 +329,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                 <div className="flex gap-3">
                   {(["male","female"] as const).map((g)=>(
                     <button key={g} type="button" onClick={()=>setGender(g)}
-                      className={`flex-1 py-3 px-4 rounded-lg border text-sm transition-all duration-200 ${gender===g ? "bg-[rgba(242,202,80,0.18)] border-primary text-white font-semibold shadow-[0_0_16px_rgba(242,202,80,0.15)]" : "bg-background/50 border-border text-muted-foreground hover:border-primary/40"}`}>
+                      className={`flex-1 py-3 px-4 rounded-lg border text-sm transition-all duration-200 ${gender===g ? "bg-[rgba(242,202,80,0.18)] border-primary text-white font-semibold shadow-[0_0_16px_rgba(242,202,80,0.15)]" : "bg-[rgba(6,8,16,0.50)] border-border text-muted-foreground hover:border-[rgba(242,202,80,0.40)]"}`}>
                       {g==="male" ? t("form.maleShort", locale) : t("form.femaleShort", locale)}
                     </button>
                   ))}
@@ -356,14 +356,14 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                     <motion.div initial={{opacity:0,height:0}} animate={{opacity:1,height:"auto"}} exit={{opacity:0,height:0}}
                       className="flex gap-2 justify-center items-center overflow-hidden">
                       <DrumRoller values={HOURS}   selectedIndex={hourIdx}   onChange={setHourIdx}   label={t("form.hour", locale)} width={64} />
-                      <span className="text-primary/40 text-2xl font-semibold select-none pb-1">:</span>
+                      <span className="text-[rgba(242,202,80,0.40)] text-2xl font-semibold select-none pb-1">:</span>
                       <DrumRoller values={MINUTES} selectedIndex={minuteIdx} onChange={setMinuteIdx} label={t("form.min", locale)}  width={64} />
                     </motion.div>
                   )}
                 </AnimatePresence>
                 <label className="flex items-center gap-2.5 cursor-pointer group mt-2">
                   <div onClick={()=>setUnknownTime(v=>!v)}
-                    className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${unknownTime?"bg-primary border-primary":"border-muted-foreground/40 group-hover:border-primary/50"}`}>
+                    className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${unknownTime?"bg-primary border-primary":"border-[rgba(148,163,184,0.40)] group-hover:border-[rgba(242,202,80,0.50)]"}`}>
                     {unknownTime && <Check className="w-2.5 h-2.5 text-background" />}
                   </div>
                   <span className="text-xs text-muted-foreground">{t("form.unknownTime", locale)}</span>
@@ -380,7 +380,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                         <button key={`${city.name}-${city.country}`} type="button"
                           onMouseDown={(e)=>e.preventDefault()}
                           onClick={()=>handleCitySelect(city)}
-                          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-primary/10 transition-colors text-left">
+                          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-[rgba(242,202,80,0.10)] transition-colors text-left">
                           <span className="text-lg">{getFlagEmoji(city.countryCode)}</span>
                           <div>
                             <p className="text-sm font-medium">{city.name}</p>
@@ -401,7 +401,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
                     onFocus={(e)=>{
                       if(cityResults.length>0) setShowCityDropdown(true);
                     }}
-                    className="pl-10 bg-background/50 border-border focus:border-primary" />
+                    className="pl-10 bg-[rgba(6,8,16,0.50)] border-border focus:border-primary" />
                 </div>
               </div>
 

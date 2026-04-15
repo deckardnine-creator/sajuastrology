@@ -116,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // infinite spinner. This timer is the safety net.
     const failsafeTimer = setTimeout(() => {
       setIsLoading((prev) => (prev ? false : prev));
-    }, 4000);
+    }, 1500);
 
     supabase.auth
       .getSession()

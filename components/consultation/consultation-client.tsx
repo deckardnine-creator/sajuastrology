@@ -398,7 +398,7 @@ export function ConsultationClient() {
   // view so the user can act.
   const [forceShow, setForceShow] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setForceShow(true), 2000);
+    const t = setTimeout(() => setForceShow(true), 500);
     return () => clearTimeout(t);
   }, []);
   useEffect(() => {
