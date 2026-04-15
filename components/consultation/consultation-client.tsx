@@ -350,17 +350,27 @@ export function ConsultationClient() {
   /* ─── Check credits ─── */
   const checkCredits = useCallback(async () => {
     if (!user) return;
+    // iOS WKWebView fetch can hang silently — add 6s abort timeout so we
+    // never get stuck on the loading spinner forever.
+    const ctrl = new AbortController();
+    const timeoutId = setTimeout(() => ctrl.abort(), 6000);
     try {
       const res = await fetch("/api/consultation/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "check-credits", userId: user.id }),
+        signal: ctrl.signal,
       });
+      clearTimeout(timeoutId);
       const data = await res.json();
       setCredits(data.remaining || 0);
       setStep(data.remaining > 0 ? "form" : "no-credits");
     } catch {
-      setStep("no-credits");
+      clearTimeout(timeoutId);
+      // On failure (incl. abort/timeout) fall through to "form" rather than
+      // leaving the user on an infinite loader. Backend re-validates credits
+      // on submit, so this is safe.
+      setStep("form");
     }
   }, [user]);
 
@@ -374,6 +384,17 @@ export function ConsultationClient() {
       setStep("no-credits");
     }
   }, [authLoading, user, checkCredits, searchParams]);
+
+  // Safety net: if we are still in "loading" after 8 seconds for ANY reason
+  // (auth context never resolves, useEffect dep ordering issue, network limbo),
+  // force-exit to "no-credits" so the user can act instead of staring at a spinner.
+  useEffect(() => {
+    if (step !== "loading") return;
+    const failsafe = setTimeout(() => {
+      setStep((s) => (s === "loading" ? "no-credits" : s));
+    }, 8000);
+    return () => clearTimeout(failsafe);
+  }, [step]);
 
   /* ─── Birth data validation ─── */
   const isBirthDataValid = birthData.name.trim().length >= 1 &&
