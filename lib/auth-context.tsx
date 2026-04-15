@@ -107,13 +107,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser(mapSupabaseUser(session.user));
-        safeSet("current-user-id", session.user.id);
-      }
-      setIsLoading(false);
-    });
+    // Hard guarantee: isLoading flips to false within 4 seconds, no matter what.
+    //
+    // Background: in iOS WKWebView, supabase.auth.getSession() has been observed
+    // to hang indefinitely — neither resolving nor rejecting. The original code
+    // only called setIsLoading(false) in the .then() callback, so a hang trapped
+    // every authenticated page (consultation, dashboard, my, reading, …) on an
+    // infinite spinner. This timer is the safety net.
+    const failsafeTimer = setTimeout(() => {
+      setIsLoading((prev) => (prev ? false : prev));
+    }, 4000);
+
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (session?.user) {
+          setUser(mapSupabaseUser(session.user));
+          safeSet("current-user-id", session.user.id);
+        }
+        setIsLoading(false);
+        clearTimeout(failsafeTimer);
+      })
+      .catch((err) => {
+        // Network failure, hung promise rejection, etc — never let UI stay stuck.
+        console.warn("[auth] getSession failed:", err);
+        setIsLoading(false);
+        clearTimeout(failsafeTimer);
+      });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
