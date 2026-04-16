@@ -338,10 +338,12 @@ export function DashboardContent() {
                 setDeleteConfirmStep(2);
                 try {
                   let token = "";
+                  // Method 1: getSession()
                   try {
                     const { data: { session } } = await supabase.auth.getSession();
                     if (session) token = session.access_token;
                   } catch {}
+                  // Method 2: localStorage sb-* keys (Supabase v2 format)
                   if (!token) {
                     for (let i = 0; i < localStorage.length; i++) {
                       const k = localStorage.key(i);
@@ -349,6 +351,30 @@ export function DashboardContent() {
                         try { const d = JSON.parse(localStorage.getItem(k) || ""); token = d.access_token || ""; } catch {}
                       }
                     }
+                  }
+                  // Method 3: scan all localStorage for any Supabase session shape
+                  if (!token) {
+                    for (let i = 0; i < localStorage.length; i++) {
+                      const k = localStorage.key(i);
+                      if (!k) continue;
+                      try {
+                        const raw = localStorage.getItem(k) || "";
+                        if (raw.includes("access_token") && raw.includes("refresh_token")) {
+                          const d = JSON.parse(raw);
+                          if (d.access_token && typeof d.access_token === "string" && d.access_token.length > 20) {
+                            token = d.access_token;
+                            break;
+                          }
+                        }
+                      } catch {}
+                    }
+                  }
+                  // Method 4: try refreshing session first, then get token
+                  if (!token) {
+                    try {
+                      const { data } = await supabase.auth.refreshSession();
+                      if (data.session) token = data.session.access_token;
+                    } catch {}
                   }
                   if (!token) { setDeleteConfirmStep(0); return; }
                   const res = await fetch("/api/account/delete", {
@@ -731,10 +757,12 @@ export function DashboardContent() {
               setDeleteConfirmStep(2);
               try {
                 let token = "";
+                // Method 1: getSession()
                 try {
                   const { data: { session } } = await supabase.auth.getSession();
                   if (session) token = session.access_token;
                 } catch {}
+                // Method 2: localStorage sb-* keys (Supabase v2 format)
                 if (!token) {
                   for (let i = 0; i < localStorage.length; i++) {
                     const k = localStorage.key(i);
@@ -742,6 +770,30 @@ export function DashboardContent() {
                       try { const d = JSON.parse(localStorage.getItem(k) || ""); token = d.access_token || ""; } catch {}
                     }
                   }
+                }
+                // Method 3: scan all localStorage for any Supabase session shape
+                if (!token) {
+                  for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (!k) continue;
+                    try {
+                      const raw = localStorage.getItem(k) || "";
+                      if (raw.includes("access_token") && raw.includes("refresh_token")) {
+                        const d = JSON.parse(raw);
+                        if (d.access_token && typeof d.access_token === "string" && d.access_token.length > 20) {
+                          token = d.access_token;
+                          break;
+                        }
+                      }
+                    } catch {}
+                  }
+                }
+                // Method 4: try refreshing session first, then get token
+                if (!token) {
+                  try {
+                    const { data } = await supabase.auth.refreshSession();
+                    if (data.session) token = data.session.access_token;
+                  } catch {}
                 }
                 if (!token) { setDeleteConfirmStep(0); return; }
                 const res = await fetch("/api/account/delete", {
