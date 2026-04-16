@@ -22,17 +22,17 @@ const bugBounty: Record<Locale, { badge: string; title: string; desc: string }> 
   en: {
     badge: "Early Access",
     title: "Found a bug? Get a free Master Consultation ($29.99)",
-    desc: "We're in early launch — your feedback makes us better. Report any bug with your Google account email to the address below and receive a free Master Consultation credit (5 sessions) when your report leads to a fix.",
+    desc: "We're in early launch — your feedback makes us better. Report any bug with your Google account email to the address below and receive a free Master Consultation credit (5 AI analysis rounds) when your report leads to a fix.",
   },
   ko: {
     badge: "얼리 액세스",
     title: "버그를 발견하셨나요? 마스터 상담($29.99)을 무료로 드립니다",
-    desc: "초기 서비스 기간입니다. 구글 계정 이메일과 함께 아래 주소로 버그를 알려주시면, 감사의 의미로 마스터 상담 이용권(5회)을 드립니다. (버그 수정 반영 시)",
+    desc: "초기 서비스 기간입니다. 구글 계정 이메일과 함께 아래 주소로 버그를 알려주시면, 감사의 의미로 마스터 상담 이용권(AI 분석 5회)을 드립니다. (버그 수정 반영 시)",
   },
   ja: {
     badge: "アーリーアクセス",
     title: "バグを発見しましたか？マスター鑑定（$29.99）を無料で差し上げます",
-    desc: "サービス初期段階です。Googleアカウントのメールアドレスと共に、下記アドレスへバグをご報告いただければ、マスター鑑定（5回分）を無料で提供いたします。（バグ修正反映時）",
+    desc: "サービス初期段階です。Googleアカウントのメールアドレスと共に、下記アドレスへバグをご報告いただければ、マスター鑑定（AI分析5回分）を無料で提供いたします。（バグ修正反映時）",
   },
 }
 

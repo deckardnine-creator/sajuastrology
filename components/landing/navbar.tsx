@@ -180,7 +180,7 @@ export function Navbar() {
               </Link>
 
               {/* Footer links — Privacy, Terms, Contact */}
-              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-4 text-[11px] text-muted-foreground/60">
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-auto pt-8 pb-6 text-[11px] text-muted-foreground/60">
                 <Link href="/privacy" onClick={closeMenu} className="hover:text-muted-foreground transition-colors">
                   {locale === "ko" ? "개인정보" : locale === "ja" ? "プライバシー" : "Privacy"}
                 </Link>

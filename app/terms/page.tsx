@@ -35,7 +35,7 @@ export default function TermsPage() {
               <h2 className="text-lg font-serif text-primary mb-3">5. Pricing</h2>
               <p className="mb-2"><strong>Free:</strong> Personal reading (personality, elements, year forecast), full compatibility analysis (love, work, friendship, conflict, yearly forecast), daily fortune, shareable profiles.</p>
               <p className="mb-2"><strong>Full Destiny Reading ($9.99):</strong> Career and wealth blueprint, love and relationship insights, health timing, 10-year fortune cycle, monthly energy calendar, hidden talent analysis. One-time payment per reading.</p>
-              <p className="mb-2"><strong>Master Consultation ($29.99):</strong> 5 sessions for specific life questions. Credits never expire.</p>
+              <p className="mb-2"><strong>Master Consultation ($29.99):</strong> 5 AI-generated follow-up analysis rounds for specific life questions. Powered by RimSaju Engine. Credits never expire.</p>
               <p className="text-muted-foreground">All prices USD. One-time payments only — no subscriptions or recurring charges.</p>
             </section>
             <section>

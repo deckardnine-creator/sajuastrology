@@ -369,6 +369,11 @@ export function DashboardContent() {
               : (locale === "ko" ? "계정삭제" : locale === "ja" ? "退会" : "Delete Account")}
           </button>
         </div>
+        {deleteConfirmStep === 1 && (
+          <p className="text-[11px] text-red-400/80 text-center mt-2 animate-in fade-in duration-200">
+            {locale === "ko" ? "정말 삭제하시겠습니까? 모든 데이터가 영구 삭제됩니다." : locale === "ja" ? "本当に削除しますか？すべてのデータが完全に削除されます。" : "Are you sure? All data will be permanently deleted."}
+          </p>
+        )}
       </div>
     );
   }
@@ -757,6 +762,11 @@ export function DashboardContent() {
             : (locale === "ko" ? "계정삭제" : locale === "ja" ? "退会" : "Delete Account")}
         </button>
       </div>
+      {deleteConfirmStep === 1 && (
+        <p className="text-[11px] text-red-400/80 text-center mt-2 animate-in fade-in duration-200">
+          {locale === "ko" ? "정말 삭제하시겠습니까? 모든 데이터가 영구 삭제됩니다." : locale === "ja" ? "本当に削除しますか？すべてのデータが完全に削除されます。" : "Are you sure? All data will be permanently deleted."}
+        </p>
+      )}
     </div>
   );
 }
