@@ -396,6 +396,30 @@ async function handleStart({
   });
   const [consultation] = await insertRes.json();
 
+  // ─── [PHASE 1 STEP 3] Auto-create user's own readings row ────────────
+  // If the user has no readings yet, bootstrap one from birthInput
+  // (which IS the user in consultation flows). Dynamic import keeps the
+  // top-level import list untouched. 3s timeout cap — never affects the
+  // consultation flow that the client is already waiting on.
+  try {
+    const { ensureUserReading } = await import("@/lib/auto-create-reading");
+    await Promise.race([
+      ensureUserReading({
+        userId,
+        name: birthInput.name,
+        gender: birthInput.gender,
+        birthDateStr: chartData.birthDate,
+        birthHour: birthInput.hour,
+        birthHourUnknown: false,
+        birthCity: birthInput.city,
+        locale: locale || "en",
+      }),
+      new Promise<void>((resolve) => setTimeout(resolve, 3000)),
+    ]);
+  } catch {
+    // Silent — protects the consultation flow
+  }
+
   // 5. Generate report in 3 PARALLEL parts — progressive save to DB
   try {
     const chartSummary = formatChartSummary(chartData);
