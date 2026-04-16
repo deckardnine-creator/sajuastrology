@@ -98,6 +98,49 @@ async function claimReadings(userId: string) {
   } catch {}
 }
 
+// ─── [PHASE 1 STEP 5] claim pending guest compatibility slugs ──────────────
+// Mirrors claimReadings' "single-shot, remove-before-fetch" pattern:
+// accept loss on network failure in exchange for zero risk of infinite
+// retry loops. The server endpoint itself is idempotent, so double-calls
+// from a retry would be safe too, but this client-side clearing is the
+// existing house style and preserves it.
+async function claimPendingCompat(userId: string) {
+  try {
+    const raw = safeGet("pending-compat-slugs");
+    if (!raw) return;
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      safeRemove("pending-compat-slugs");
+      return;
+    }
+
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      safeRemove("pending-compat-slugs");
+      return;
+    }
+
+    const cleanSlugs = parsed
+      .filter((s): s is string => typeof s === "string" && s.trim().length > 0)
+      .map((s) => s.trim());
+
+    if (cleanSlugs.length === 0) {
+      safeRemove("pending-compat-slugs");
+      return;
+    }
+
+    safeRemove("pending-compat-slugs");
+
+    await fetch("/api/compatibility/claim", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, slugs: cleanSlugs }),
+    }).catch(() => {});
+  } catch {}
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [sajuData, setSajuData] = useState<UserSajuData>(EMPTY_SAJU);
@@ -155,6 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
         setIsSigningOut(false);
         await claimReadings(session.user.id);
+        await claimPendingCompat(session.user.id);
         setClaimTrigger(prev => prev + 1);
       } else if (event === "SIGNED_OUT") {
         // Don't set user to null if signing out — the redirect will handle it
