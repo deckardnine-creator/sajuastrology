@@ -80,6 +80,7 @@ export function DashboardContent() {
   const [canChangeToday, setCanChangeToday] = useState(true);
   const [switchMessage, setSwitchMessage] = useState("");
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+  const [deleteConfirmStep, setDeleteConfirmStep] = useState(0); // 0=idle, 1=first tap, 2=deleting
   const [fortuneCopied, setFortuneCopied] = useState(false);
   const [compatResults, setCompatResults] = useState<CompatResult[]>([]);
 
@@ -328,27 +329,44 @@ export function DashboardContent() {
           <span>·</span>
           <button
             onClick={async () => {
-              const msg = locale === "ko"
-                ? "정말 계정을 삭제하시겠습니까?\n\n모든 데이터가 영구 삭제됩니다."
-                : locale === "ja"
-                ? "本当にアカウントを削除しますか？\n\nすべてのデータが永久に削除されます。"
-                : "Delete your account?\n\nAll data will be permanently deleted.";
-              if (!confirm(msg)) return;
-              if (!confirm(locale === "ko" ? "최종 확인: 삭제합니다." : locale === "ja" ? "最終確認：削除します。" : "Final confirmation: Delete.")) return;
-              try {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (!session) return;
-                const res = await fetch("/api/account/delete", {
-                  method: "POST",
-                  headers: { "Authorization": `Bearer ${session.access_token}` },
-                });
-                if (res.ok) { try { await signOut(); } catch {} window.location.href = "/"; }
-                else { alert("Failed to delete account"); }
-              } catch { alert("Failed to delete account"); }
+              if (deleteConfirmStep === 0) {
+                setDeleteConfirmStep(1);
+                setTimeout(() => setDeleteConfirmStep(0), 5000);
+                return;
+              }
+              if (deleteConfirmStep === 1) {
+                setDeleteConfirmStep(2);
+                try {
+                  let token = "";
+                  try {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (session) token = session.access_token;
+                  } catch {}
+                  if (!token) {
+                    for (let i = 0; i < localStorage.length; i++) {
+                      const k = localStorage.key(i);
+                      if (k && k.startsWith("sb-") && k.includes("auth-token")) {
+                        try { const d = JSON.parse(localStorage.getItem(k) || ""); token = d.access_token || ""; } catch {}
+                      }
+                    }
+                  }
+                  if (!token) { setDeleteConfirmStep(0); return; }
+                  const res = await fetch("/api/account/delete", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` },
+                  });
+                  if (res.ok) { try { await signOut(); } catch {} window.location.href = isNative ? "/?app=true" : "/"; }
+                  else { setDeleteConfirmStep(0); }
+                } catch { setDeleteConfirmStep(0); }
+              }
             }}
-            className="text-red-400/50 hover:text-red-400 transition-colors"
+            className={deleteConfirmStep === 1 ? "text-red-400 font-medium animate-pulse transition-colors" : deleteConfirmStep === 2 ? "text-red-400/30 pointer-events-none" : "text-red-400/50 hover:text-red-400 transition-colors"}
           >
-            {locale === "ko" ? "계정삭제" : locale === "ja" ? "退会" : "Delete Account"}
+            {deleteConfirmStep === 2
+              ? (locale === "ko" ? "삭제 중..." : locale === "ja" ? "削除中..." : "Deleting...")
+              : deleteConfirmStep === 1
+              ? (locale === "ko" ? "탭하여 삭제 확인" : locale === "ja" ? "タップして確認" : "Tap to confirm delete")
+              : (locale === "ko" ? "계정삭제" : locale === "ja" ? "退会" : "Delete Account")}
           </button>
         </div>
       </div>
@@ -699,27 +717,45 @@ export function DashboardContent() {
         <span>·</span>
         <button
           onClick={async () => {
-            const msg = locale === "ko"
-              ? "정말 계정을 삭제하시겠습니까?\n\n모든 데이터가 영구 삭제됩니다."
-              : locale === "ja"
-              ? "本当にアカウントを削除しますか？\n\nすべてのデータが永久に削除されます。"
-              : "Delete your account?\n\nAll data will be permanently deleted.";
-            if (!confirm(msg)) return;
-            if (!confirm(locale === "ko" ? "최종 확인: 삭제합니다." : locale === "ja" ? "最終確認：削除します。" : "Final confirmation: Delete.")) return;
-            try {
-              const { data: { session } } = await supabase.auth.getSession();
-              if (!session) return;
-              const res = await fetch("/api/account/delete", {
-                method: "POST",
-                headers: { "Authorization": `Bearer ${session.access_token}` },
-              });
-              if (res.ok) { try { await signOut(); } catch {} window.location.href = "/"; }
-              else { alert("Failed to delete account"); }
-            } catch { alert("Failed to delete account"); }
+            if (deleteConfirmStep === 0) {
+              setDeleteConfirmStep(1);
+              setTimeout(() => setDeleteConfirmStep(0), 5000);
+              return;
+            }
+            if (deleteConfirmStep === 1) {
+              setDeleteConfirmStep(2);
+              try {
+                let token = "";
+                try {
+                  const { data: { session } } = await supabase.auth.getSession();
+                  if (session) token = session.access_token;
+                } catch {}
+                if (!token) {
+                  for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith("sb-") && k.includes("auth-token")) {
+                      try { const d = JSON.parse(localStorage.getItem(k) || ""); token = d.access_token || ""; } catch {}
+                    }
+                  }
+                }
+                if (!token) { setDeleteConfirmStep(0); return; }
+                const res = await fetch("/api/account/delete", {
+                  method: "POST",
+                  headers: { "Authorization": `Bearer ${token}` },
+                });
+                if (res.ok) { try { await signOut(); } catch {} window.location.href = isNative ? "/?app=true" : "/"; }
+                else { setDeleteConfirmStep(0); }
+              } catch { setDeleteConfirmStep(0); }
+            }
           }}
-          className="text-red-400/50 hover:text-red-400 transition-colors"
+          className={deleteConfirmStep === 1 ? "text-red-400 font-medium animate-pulse transition-colors" : deleteConfirmStep === 2 ? "text-red-400/30 pointer-events-none" : "text-red-400/50 hover:text-red-400 transition-colors"}
         >
-          {locale === "ko" ? "계정삭제" : locale === "ja" ? "退会" : "Delete Account"}
+          {deleteConfirmStep === 2
+            ? (locale === "ko" ? "삭제 중..." : locale === "ja" ? "削除中..." : "Deleting...")
+            : deleteConfirmStep === 1
+            ? (locale === "ko" ? "탭하여 삭제 확인" : locale === "ja" ? "タップして確認" : "Tap to confirm delete")
+            : (locale === "ko" ? "계정삭제" : locale === "ja" ? "退会" : "Delete Account")}
+        </button>
         </button>
       </div>
     </div>
