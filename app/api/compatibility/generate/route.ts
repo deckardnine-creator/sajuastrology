@@ -138,15 +138,71 @@ async function callAI(prompt: string, label: string, locale = "en"): Promise<str
   const useProFirst = locale !== "en";
   const firstModel = useProFirst ? "gemini-2.5-pro" : "gemini-2.5-flash";
   const secondModel = useProFirst ? "gemini-2.5-flash" : "gemini-2.5-pro";
+
+  // Per-call timeouts — prevents any single model call from hanging the
+  // whole request. Gemini Pro commonly takes 20–40s for long compat
+  // responses, so 30s is a reasonable ceiling. Claude is slower (~15–30s)
+  // but when it runs it's the last line of defense, so give it 45s.
+  const GEMINI_TIMEOUT_MS = 30000;
+  const CLAUDE_TIMEOUT_MS = 45000;
+
+  const withTimeout = <T>(p: Promise<T>, ms: number, what: string): Promise<T> =>
+    Promise.race([
+      p,
+      new Promise<T>((_, reject) =>
+        setTimeout(() => reject(new Error(`${what} timed out after ${ms}ms`)), ms)
+      ),
+    ]);
+
   try {
-    return await callGemini(prompt, label, firstModel, locale);
+    return await withTimeout(
+      callGemini(prompt, label, firstModel, locale),
+      GEMINI_TIMEOUT_MS,
+      `${label} ${firstModel}`
+    );
   } catch (err) {
-    console.warn(`${label}: ${firstModel} failed —`, err instanceof Error ? err.message : err);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.warn(`${label}: ${firstModel} failed —`, errMsg);
+
+    // If Google returned 503 (model overloaded), skip the second Gemini
+    // attempt — the whole Gemini fleet is likely strained and a second
+    // call will usually hit the same wall. Go straight to Claude for a
+    // faster response to the user.
+    const is503 = errMsg.includes("503");
+
+    if (is503) {
+      try {
+        console.warn(`${label}: 503 detected, skipping ${secondModel}, using Claude directly`);
+        return await withTimeout(
+          callClaudeFallback(prompt, label),
+          CLAUDE_TIMEOUT_MS,
+          `${label} Claude`
+        );
+      } catch (claudeErr) {
+        // Claude also failed. Last resort: try the other Gemini model anyway.
+        console.warn(`${label}: Claude failed after 503 path —`, claudeErr instanceof Error ? claudeErr.message : claudeErr);
+        return await withTimeout(
+          callGemini(prompt, label, secondModel, locale),
+          GEMINI_TIMEOUT_MS,
+          `${label} ${secondModel} (last resort)`
+        );
+      }
+    }
+
+    // Non-503 error (timeout, parse, auth, etc): try second Gemini then Claude
     try {
-      return await callGemini(prompt, label, secondModel, locale);
+      return await withTimeout(
+        callGemini(prompt, label, secondModel, locale),
+        GEMINI_TIMEOUT_MS,
+        `${label} ${secondModel}`
+      );
     } catch (err2) {
       console.warn(`${label}: ${secondModel} failed, falling back to Claude —`, err2 instanceof Error ? err2.message : err2);
-      return await callClaudeFallback(prompt, label);
+      return await withTimeout(
+        callClaudeFallback(prompt, label),
+        CLAUDE_TIMEOUT_MS,
+        `${label} Claude`
+      );
     }
   }
 }

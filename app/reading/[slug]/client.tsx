@@ -120,6 +120,11 @@ export default function ReadingPageClient() {
   // AI sections or a broken $9.99 unlock button.
   const [isGeneratingFree, setIsGeneratingFree] = useState(false);
   const [freeGenerationFailed, setFreeGenerationFailed] = useState(false);
+  // Simulated progress (0–95) and current stage (0–3). Ticks while
+  // isGeneratingFree is true so the user sees a moving bar + checklist
+  // instead of just a spinner. On actual completion we snap to 100.
+  const [genProgress, setGenProgress] = useState(0);
+  const [genStage, setGenStage] = useState(0);
   const freeGenerationAttemptedRef = useRef(false);
   const isPaidGeneratingRef = useRef(false);
   const fetchAttemptedRef = useRef(false);
@@ -467,6 +472,37 @@ export default function ReadingPageClient() {
     })();
   }, [reading?.share_slug, reading?.free_reading_personality]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ─── [PHASE 1 STEP 6b] Progress ticker for the generation overlay ───
+  // Starts when isGeneratingFree flips true; drives a fake-but-plausible
+  // progress bar that climbs 0→95 over ~26s and steps through 4 stages
+  // in the checklist UI. On actual completion isGeneratingFree flips back
+  // to false and the overlay component unmounts, so we don't need to snap
+  // to 100 here — the user just sees the full reading appear.
+  useEffect(() => {
+    if (!isGeneratingFree) {
+      setGenProgress(0);
+      setGenStage(0);
+      return;
+    }
+    const stageDurationsMs = [5000, 7000, 6000, 8000]; // ~26s total
+    const totalMs = stageDurationsMs.reduce((a, b) => a + b, 0);
+    const startedAt = Date.now();
+    const id = setInterval(() => {
+      const elapsed = Date.now() - startedAt;
+      // Progress cap at 95 so we never look "done" before the API returns.
+      setGenProgress(Math.min(95, Math.round((elapsed / totalMs) * 95)));
+      // Find current stage by cumulative time.
+      let cum = 0;
+      let stage = stageDurationsMs.length - 1;
+      for (let i = 0; i < stageDurationsMs.length; i++) {
+        cum += stageDurationsMs[i];
+        if (elapsed < cum) { stage = i; break; }
+      }
+      setGenStage(stage);
+    }, 150);
+    return () => clearInterval(id);
+  }, [isGeneratingFree]);
+
   // ═══ AUTH RETURN FIX — re-fetch if login just completed while we're stuck loading ═══
   // After OAuth callback redirect, supabase session may not be ready on first fetch.
   // When user state appears (auth complete), retry if reading is still null.
@@ -792,27 +828,173 @@ export default function ReadingPageClient() {
   const needsFreeGeneration =
     !reading.is_paid && !reading.free_reading_personality && !freeGenerationFailed;
   if (isGeneratingFree || needsFreeGeneration) {
+    const genStages: Array<{ ko: string; ja: string; en: string; desc: { ko: string; ja: string; en: string } }> = [
+      {
+        ko: "사주팔자 기둥 계산",
+        ja: "四柱を計算中",
+        en: "Computing your Four Pillars",
+        desc: {
+          ko: "생년월일시를 천간지지로 변환하는 중",
+          ja: "生年月日時を天干地支に変換中",
+          en: "Converting birth data into stems and branches",
+        },
+      },
+      {
+        ko: "일주 원형 해독",
+        ja: "日主の元型を解読",
+        en: "Decoding your Day Master archetype",
+        desc: {
+          ko: "일간 오행·십신 구조 분석",
+          ja: "日干の五行と十神を分析",
+          en: "Analyzing your Day Master element and Ten Gods",
+        },
+      },
+      {
+        ko: "고전 문헌 560편 탐색",
+        ja: "古典文献560編と照合",
+        en: "Reading through classical texts",
+        desc: {
+          ko: "명리·연해자평·적천수 구절과 매칭",
+          ja: "命理・滴天髄の記述と一致する節を検索",
+          en: "Matching your chart against 562 classical passages",
+        },
+      },
+      {
+        ko: "2026년 운세 해석",
+        ja: "2026年の運勢を解釈",
+        en: "Interpreting your destiny",
+        desc: {
+          ko: "성격·올해 운세·오행 균형 최종 구성",
+          ja: "性格・今年の運勢・五行バランスを総合",
+          en: "Composing your personality, year forecast, and balance",
+        },
+      },
+    ];
+    const tl = (o: { ko: string; ja: string; en: string }) => (locale === "ko" ? o.ko : locale === "ja" ? o.ja : o.en);
+    const stageLabel = (locale === "ko" ? "사주 생성 중" : locale === "ja" ? "四柱を生成中" : "Generating your reading");
+    const stayMsg = (locale === "ko"
+      ? "이 페이지를 떠나지 마세요 — 해석이 중단될 수 있습니다."
+      : locale === "ja"
+      ? "このページを離れないでください — 解釈が中断される可能性があります。"
+      : "Please stay on this page — leaving may interrupt the reading.");
+    // Localized header "Cosmic Blueprint" style (parallel with compat's "Cosmic Compatibility")
+    const titleTop = (locale === "ko" ? "우주적" : locale === "ja" ? "宇宙の" : "Cosmic");
+    const titleBottom = (locale === "ko" ? "청사진" : locale === "ja" ? "設計図" : "Blueprint");
+    // Chart-only data is already populated, so we can show the Day Master during generation.
+    const dmKeyLoad = `${reading.day_master_element}-${reading.day_master_yinyang}`;
+    const dmDisplayLoad = DAY_MASTER_DISPLAY[dmKeyLoad] || { zh: "?", en: "Unknown" };
+    const dmColorLoad = ELEMENT_COLORS[reading.day_master_element] || "#F2CA50";
     return (
       <main className="min-h-screen">
         <Navbar />
         <div className="pt-page pb-16">
-          <div className="mx-auto max-w-xl px-4 sm:px-6">
-            <div className="text-center py-20">
-              <div className="w-12 h-12 border-[3px] border-primary border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-              <h2 className="font-serif text-xl text-primary mb-2">
-                {locale === "ko"
-                  ? "무료 사주 생성 중..."
-                  : locale === "ja"
-                  ? "無料四柱を生成中..."
-                  : "Generating your free reading..."}
-              </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {locale === "ko"
-                  ? "처음 한 번만 생성됩니다. 약 15~30초 정도 걸립니다."
-                  : locale === "ja"
-                  ? "初回のみ生成されます。約15~30秒かかります。"
-                  : "Generated once, then yours forever. This takes about 15–30 seconds."}
-              </p>
+          <div className="mx-auto max-w-2xl px-4 sm:px-6">
+            {/* Header pill */}
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                <span className="text-xs uppercase tracking-wider text-primary font-medium">{stageLabel}</span>
+              </div>
+            </div>
+
+            {/* Title */}
+            <h1 className="font-serif text-3xl sm:text-4xl text-center mb-2">
+              <span className="text-foreground">{titleTop} </span>
+              <span className="text-primary">{titleBottom}</span>
+            </h1>
+            <p className="text-center text-sm text-muted-foreground mb-8">
+              {reading.name}
+              {reading.birth_date && (
+                <> · {String(reading.birth_date).split("T")[0]}</>
+              )}
+            </p>
+
+            {/* Animated visual: Day Master character inside orbiting ring */}
+            <div className="relative w-32 h-32 mx-auto mb-10">
+              <motion.div
+                className="absolute inset-0 rounded-full border-2 border-primary/30"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              />
+              <motion.div
+                className="absolute inset-2 rounded-full border border-primary/15"
+                animate={{ rotate: -360 }}
+                transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-5xl font-serif" style={{ color: dmColorLoad }}>
+                  {dmDisplayLoad.zh}
+                </span>
+              </div>
+              {/* Orbiting dot */}
+              <motion.div
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-primary shadow-[0_0_12px_rgba(242,202,80,0.8)]"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                style={{ transformOrigin: "50% 64px" }}
+              />
+            </div>
+
+            {/* Progress bar — gradient matches compat loading */}
+            <div className="mb-6">
+              <div className="h-1.5 bg-[rgba(100,116,139,0.25)] rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{
+                    background: "linear-gradient(90deg, #F2CA50 0%, #EC4899 50%, #A855F7 100%)",
+                  }}
+                  initial={{ width: "0%" }}
+                  animate={{ width: `${genProgress}%` }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                />
+              </div>
+            </div>
+
+            {/* Stay-on-page warning */}
+            <div className="mb-8 px-4 py-3 rounded-xl border border-primary/20 bg-primary/5 flex items-center gap-3">
+              <svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              </svg>
+              <span className="text-xs sm:text-sm text-muted-foreground">{stayMsg}</span>
+            </div>
+
+            {/* Stage checklist */}
+            <div className="space-y-4">
+              {genStages.map((stage, i) => {
+                const isDone = i < genStage;
+                const isActive = i === genStage;
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex items-start gap-3"
+                  >
+                    <div className="flex-shrink-0 mt-0.5">
+                      {isDone ? (
+                        <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
+                          <svg className="w-3 h-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      ) : isActive ? (
+                        <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                      ) : (
+                        <div className="w-5 h-5 rounded-full border border-muted-foreground/30" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium ${isDone || isActive ? "text-foreground" : "text-muted-foreground"}`}>
+                        {tl(stage)}
+                      </p>
+                      {isActive && (
+                        <p className="text-xs text-muted-foreground mt-0.5">{tl(stage.desc)}</p>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </div>

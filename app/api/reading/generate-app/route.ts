@@ -85,11 +85,43 @@ async function generateAI(prompt: string, locale = "en"): Promise<string> {
   const useProFirst = locale !== "en";
   const first = useProFirst ? "gemini-2.5-pro" : "gemini-2.5-flash";
   const second = useProFirst ? "gemini-2.5-flash" : "gemini-2.5-pro";
-  try { return await callGemini(prompt, first, locale); } catch (e1) {
-    console.warn(`generate-app: ${first} failed:`, e1 instanceof Error ? e1.message : e1);
-    try { return await callGemini(prompt, second, locale); } catch (e2) {
+
+  // Per-call timeouts — matches compat/generate. Prevents any single model
+  // call from hanging the whole lazy-generation request. Mobile WebView
+  // clients time out around 60s, so keeping total < 60s is the goal.
+  const GEMINI_TIMEOUT_MS = 30000;
+  const CLAUDE_TIMEOUT_MS = 45000;
+  const withTimeout = <T>(p: Promise<T>, ms: number, what: string): Promise<T> =>
+    Promise.race([
+      p,
+      new Promise<T>((_, reject) =>
+        setTimeout(() => reject(new Error(`${what} timed out after ${ms}ms`)), ms)
+      ),
+    ]);
+
+  try {
+    return await withTimeout(callGemini(prompt, first, locale), GEMINI_TIMEOUT_MS, `generate-app ${first}`);
+  } catch (e1) {
+    const msg1 = e1 instanceof Error ? e1.message : String(e1);
+    console.warn(`generate-app: ${first} failed:`, msg1);
+
+    // 503 = Google infrastructure overloaded. Skip the second Gemini
+    // attempt and try Claude immediately — the user's phone is waiting.
+    if (msg1.includes("503")) {
+      try {
+        console.warn(`generate-app: 503 detected, using Claude directly`);
+        return await withTimeout(callClaude(prompt), CLAUDE_TIMEOUT_MS, "generate-app Claude");
+      } catch (cErr) {
+        console.warn(`generate-app: Claude failed after 503 path —`, cErr instanceof Error ? cErr.message : cErr);
+        return await withTimeout(callGemini(prompt, second, locale), GEMINI_TIMEOUT_MS, `generate-app ${second} (last resort)`);
+      }
+    }
+
+    try {
+      return await withTimeout(callGemini(prompt, second, locale), GEMINI_TIMEOUT_MS, `generate-app ${second}`);
+    } catch (e2) {
       console.warn(`generate-app: ${second} failed, trying Claude:`, e2 instanceof Error ? e2.message : e2);
-      return await callClaude(prompt);
+      return await withTimeout(callClaude(prompt), CLAUDE_TIMEOUT_MS, "generate-app Claude");
     }
   }
 }
