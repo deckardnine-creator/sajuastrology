@@ -713,10 +713,11 @@ export default function ReadingPageClient() {
     if (!reading) return;
     setPaymentError(null);
     if (!user) {
-      if (isNative) {
-        requestAuth("google");
-        return;
-      }
+      // Show sign-in modal in both web and native — user picks Google or Apple.
+      // sign-in-modal.tsx handles the native branch (routes to Flutter bridge).
+      // Previously this bypassed the modal in native and went straight to Google,
+      // which denied users the Apple option and broke the OAuth deep-link return
+      // on iOS.
       safeSet("auth-return-url", window.location.href);
       openSignInModal();
       return;
