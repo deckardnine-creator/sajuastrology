@@ -18,7 +18,7 @@ export default function PrivacyPage() {
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Information We Collect</h2>
-              <p className="mb-2"><strong>Account:</strong> Name, email, and profile picture via Google or Apple sign-in. We never receive your password. Apple users may choose to hide their email — we respect that choice and use the relay address provided.</p>
+              <p className="mb-2"><strong>Account:</strong> Name, email, and profile picture via Google or Apple sign-in (availability varies by platform). We never receive your password. Apple users may choose to hide their email — we respect that choice and use the relay address provided.</p>
               <p className="mb-2"><strong>Birth Data:</strong> Name, gender, birth date/time/city you voluntarily provide for readings, compatibility checks, and consultations.</p>
               <p className="mb-2"><strong>Payments:</strong> Processed securely through our payment partners (PayPal for web, Apple App Store or Google Play for mobile app). We never store credit card numbers.</p>
               <p><strong>Analytics:</strong> Anonymous usage data via Vercel Analytics (cookie-free).</p>
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Your Rights</h2>
-              <p>Access your data via dashboard. Request account and data deletion by contacting <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> — we will process deletion within 30 days. Withdraw consent anytime.</p>
+              <p>Access your data via dashboard. Delete your account directly from your dashboard, or request deletion by contacting <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> — we will process deletion within 30 days. Withdraw consent anytime.</p>
             </section>
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Important Disclaimer</h2>
