@@ -139,6 +139,14 @@ export async function POST(req: NextRequest) {
     const hs = chart.pillars.hour.stem.zh, hb = chart.pillars.hour.branch.zh;
 
     // ═══ CACHE: only return if AI text exists ═══
+    // When an incomplete row already exists (e.g. chart-only shell produced
+    // by the auto-create helper used after compat / consultation, or a
+    // previous generate-app attempt that died mid-way) we capture its
+    // share_slug and UPDATE that row in place at the save step. This
+    // preserves user_id, share_slug and citation_meta — the key invariant
+    // is that any reading linked to a user via user_id must NOT be deleted,
+    // because the dashboard and share links depend on that row's identity.
+    let existingShareSlug: string | null = null;
     try {
       const cacheRes = await fetch(`${supabaseUrl}/rest/v1/readings?${new URLSearchParams({
         name: `eq.${name}`, gender: `eq.${gender}`,
@@ -155,13 +163,14 @@ export async function POST(req: NextRequest) {
           if (cachedLocale === loc) {
             return NextResponse.json({ success: true, shareSlug: cached[0].share_slug, existing: true });
           }
-          // Language mismatch — fall through to regenerate
+          // Language mismatch — fall through to regenerate (update in place)
+          existingShareSlug = cached[0].share_slug;
         }
-        // Delete incomplete records so we can regenerate
+        // Incomplete record — capture slug so we can UPDATE it in place
+        // (previously this path DELETEd the row, which orphaned any user_id
+        // that ensureUserReading had set on the chart-only shell).
         if (cached?.[0]?.share_slug && (!cached[0].free_reading_personality || cached[0].free_reading_personality.length <= 20)) {
-          await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${cached[0].share_slug}`, {
-            method: "DELETE", headers: { ...dbHeaders, Prefer: "return=minimal" },
-          }).catch(() => {});
+          existingShareSlug = cached[0].share_slug;
         }
       }
     } catch {}
@@ -224,27 +233,63 @@ export async function POST(req: NextRequest) {
     }
 
     // ═══ SAVE ═══
-    const shareSlug = generateShareSlug();
-    const insertRes = await fetch(`${supabaseUrl}/rest/v1/readings`, {
-      method: "POST", headers: { ...dbHeaders, Prefer: "return=minimal" },
-      body: JSON.stringify({
-        name, gender, birth_date: birthDateStr, birth_hour: hour, birth_city: city,
-        year_stem: ys, year_branch: yb, month_stem: ms, month_branch: mb,
-        day_stem: ds, day_branch: db, hour_stem: hs, hour_branch: hb,
-        day_master_element: chart.dayMaster.element, day_master_yinyang: chart.dayMaster.yinYang,
-        archetype: chart.archetype, ten_god: chart.tenGod, harmony_score: chart.harmonyScore,
-        dominant_element: chart.dominantElement, weakest_element: chart.weakestElement,
-        elements_wood: chart.elements.wood, elements_fire: chart.elements.fire,
-        elements_earth: chart.elements.earth, elements_metal: chart.elements.metal, elements_water: chart.elements.water,
-        free_reading_personality: aiReading.personality, free_reading_year: aiReading.year_forecast,
-        free_reading_element: aiReading.element_guidance, share_slug: shareSlug, is_paid: false, locale: loc,
-        ...(citationMeta ? { citation_meta: citationMeta } : {}),
-      }),
-    });
+    // Two paths:
+    //  (A) existingShareSlug captured from cache block → PATCH in place.
+    //      This preserves user_id (key for dashboard ownership), the
+    //      stable share_slug (bookmarks / share links do not break), any
+    //      prior citation_meta, and the birth_hour_unknown flag set by
+    //      ensureUserReading. We only overwrite chart + AI fields.
+    //  (B) No existing slug → INSERT new row (original behaviour, intact).
+    let saveRes: Response;
+    let shareSlug: string;
 
-    if (!insertRes.ok) {
-      const err = await insertRes.text().catch(() => "unknown");
-      console.error("generate-app DB insert failed:", insertRes.status, err);
+    if (existingShareSlug) {
+      shareSlug = existingShareSlug;
+      saveRes = await fetch(`${supabaseUrl}/rest/v1/readings?share_slug=eq.${encodeURIComponent(existingShareSlug)}`, {
+        method: "PATCH", headers: { ...dbHeaders, Prefer: "return=minimal" },
+        body: JSON.stringify({
+          // Chart fields — refresh in case any were stale on an old shell
+          year_stem: ys, year_branch: yb, month_stem: ms, month_branch: mb,
+          day_stem: ds, day_branch: db, hour_stem: hs, hour_branch: hb,
+          day_master_element: chart.dayMaster.element, day_master_yinyang: chart.dayMaster.yinYang,
+          archetype: chart.archetype, ten_god: chart.tenGod, harmony_score: chart.harmonyScore,
+          dominant_element: chart.dominantElement, weakest_element: chart.weakestElement,
+          elements_wood: chart.elements.wood, elements_fire: chart.elements.fire,
+          elements_earth: chart.elements.earth, elements_metal: chart.elements.metal, elements_water: chart.elements.water,
+          // AI fields — the whole point of this request
+          free_reading_personality: aiReading.personality,
+          free_reading_year: aiReading.year_forecast,
+          free_reading_element: aiReading.element_guidance,
+          locale: loc,
+          ...(citationMeta ? { citation_meta: citationMeta } : {}),
+          // Intentionally NOT touched: user_id, share_slug, birth_hour_unknown,
+          // is_paid, payment_method, paid_at, paid_reading_*, customer_email,
+          // paypal_order_id, created_at. PATCH semantics leave these intact.
+        }),
+      });
+    } else {
+      shareSlug = generateShareSlug();
+      saveRes = await fetch(`${supabaseUrl}/rest/v1/readings`, {
+        method: "POST", headers: { ...dbHeaders, Prefer: "return=minimal" },
+        body: JSON.stringify({
+          name, gender, birth_date: birthDateStr, birth_hour: hour, birth_city: city,
+          year_stem: ys, year_branch: yb, month_stem: ms, month_branch: mb,
+          day_stem: ds, day_branch: db, hour_stem: hs, hour_branch: hb,
+          day_master_element: chart.dayMaster.element, day_master_yinyang: chart.dayMaster.yinYang,
+          archetype: chart.archetype, ten_god: chart.tenGod, harmony_score: chart.harmonyScore,
+          dominant_element: chart.dominantElement, weakest_element: chart.weakestElement,
+          elements_wood: chart.elements.wood, elements_fire: chart.elements.fire,
+          elements_earth: chart.elements.earth, elements_metal: chart.elements.metal, elements_water: chart.elements.water,
+          free_reading_personality: aiReading.personality, free_reading_year: aiReading.year_forecast,
+          free_reading_element: aiReading.element_guidance, share_slug: shareSlug, is_paid: false, locale: loc,
+          ...(citationMeta ? { citation_meta: citationMeta } : {}),
+        }),
+      });
+    }
+
+    if (!saveRes.ok) {
+      const err = await saveRes.text().catch(() => "unknown");
+      console.error(`generate-app DB save failed (${existingShareSlug ? "PATCH" : "INSERT"}):`, saveRes.status, err);
       return NextResponse.json({ error: "DB save failed" }, { status: 500 });
     }
 
