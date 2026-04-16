@@ -293,19 +293,64 @@ export function DashboardContent() {
       );
     }
     return (
-      <div className="max-w-4xl mx-auto text-center min-h-[calc(100vh-8rem)] flex items-center justify-center">
+      <div className="max-w-4xl mx-auto text-center min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <Sparkles className="w-16 h-16 text-primary mx-auto mb-6" />
           <h1 className="text-2xl sm:text-3xl font-serif text-primary mb-4">{t("dash.welcome")} {user?.name?.split(" ")[0]}</h1>
           <p className="text-muted-foreground mb-8 max-w-md mx-auto text-sm sm:text-base">
             {t("dash.emptyDesc")}
           </p>
-          <Link href="/calculate">
-            <Button className="gold-gradient text-primary-foreground h-12 px-6">
-              <Sparkles className="w-4 h-4 mr-2" /> {t("dash.generateReading")}
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
+            <Link href="/calculate">
+              <Button className="gold-gradient text-primary-foreground h-12 px-6">
+                <Sparkles className="w-4 h-4 mr-2" /> {t("dash.generateReading")}
+              </Button>
+            </Link>
+            <Link href="/compatibility">
+              <Button variant="outline" className="h-12 px-6">
+                <Heart className="w-4 h-4 mr-2" /> {locale === "ko" ? "궁합 보기" : locale === "ja" ? "相性を見る" : "Check Compatibility"}
+              </Button>
+            </Link>
+          </div>
         </motion.div>
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-auto pt-8 pb-4 text-[11px] text-muted-foreground/50">
+          <Link href="/privacy" className="hover:text-muted-foreground transition-colors">
+            {locale === "ko" ? "개인정보" : locale === "ja" ? "プライバシー" : "Privacy"}
+          </Link>
+          <span>·</span>
+          <Link href="/terms" className="hover:text-muted-foreground transition-colors">
+            {locale === "ko" ? "이용약관" : locale === "ja" ? "利用規約" : "Terms"}
+          </Link>
+          <span>·</span>
+          <a href="mailto:info@rimfactory.io" className="hover:text-muted-foreground transition-colors">
+            {locale === "ko" ? "문의" : locale === "ja" ? "お問い合わせ" : "Contact"}
+          </a>
+          <span>·</span>
+          <button
+            onClick={async () => {
+              const msg = locale === "ko"
+                ? "정말 계정을 삭제하시겠습니까?\n\n모든 데이터가 영구 삭제됩니다."
+                : locale === "ja"
+                ? "本当にアカウントを削除しますか？\n\nすべてのデータが永久に削除されます。"
+                : "Delete your account?\n\nAll data will be permanently deleted.";
+              if (!confirm(msg)) return;
+              if (!confirm(locale === "ko" ? "최종 확인: 삭제합니다." : locale === "ja" ? "最終確認：削除します。" : "Final confirmation: Delete.")) return;
+              try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) return;
+                const res = await fetch("/api/account/delete", {
+                  method: "POST",
+                  headers: { "Authorization": `Bearer ${session.access_token}` },
+                });
+                if (res.ok) { try { await signOut(); } catch {} window.location.href = "/"; }
+                else { alert("Failed to delete account"); }
+              } catch { alert("Failed to delete account"); }
+            }}
+            className="text-red-400/50 hover:text-red-400 transition-colors"
+          >
+            {locale === "ko" ? "계정삭제" : locale === "ja" ? "退会" : "Delete Account"}
+          </button>
+        </div>
       </div>
     );
   }

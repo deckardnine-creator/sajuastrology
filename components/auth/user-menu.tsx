@@ -11,12 +11,10 @@ import {
   LogOut,
   Crown,
   Heart,
-  Trash2,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
-import { supabase } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 
 export function UserMenu() {
@@ -75,7 +73,7 @@ export function UserMenu() {
     try {
       await signOut();
     } catch {}
-    window.location.href = "/";
+    // signOut() already handles window.location.href redirect
   };
 
   return (
@@ -171,41 +169,6 @@ export function UserMenu() {
                 >
                   <LogOut className="w-4 h-4" />
                   {signingOut ? t("um.signingOut", locale) : t("um.signOut", locale)}
-                </button>
-                <button
-                  onClick={async () => {
-                    const msg = locale === "ko"
-                      ? "정말 계정을 삭제하시겠습니까?\n\n모든 리딩, 상담 기록, 결제 이력이 영구 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
-                      : locale === "ja"
-                      ? "本当にアカウントを削除しますか？\n\nすべてのリーディング、相談履歴、決済履歴が永久に削除されます。この操作は元に戻せません。"
-                      : "Are you sure you want to delete your account?\n\nAll readings, consultations, and payment history will be permanently deleted. This cannot be undone.";
-                    if (!confirm(msg)) return;
-                    const confirmMsg = locale === "ko"
-                      ? "최종 확인: 계정을 삭제합니다."
-                      : locale === "ja"
-                      ? "最終確認：アカウントを削除します。"
-                      : "Final confirmation: Delete your account.";
-                    if (!confirm(confirmMsg)) return;
-                    try {
-                      const { data: { session } } = await supabase.auth.getSession();
-                      if (!session) return;
-                      const res = await fetch("/api/account/delete", {
-                        method: "POST",
-                        headers: { "Authorization": `Bearer ${session.access_token}` },
-                      });
-                      if (res.ok) {
-                        await signOut();
-                        window.location.href = "/";
-                      } else {
-                        alert("Failed to delete account");
-                      }
-                    } catch { alert("Failed to delete account"); }
-                  }}
-                  className="w-full flex items-center gap-3 px-3 py-2 text-xs text-red-400/70 hover:text-red-400 hover:bg-red-900/10 rounded-lg transition-colors min-h-[36px]"
-                  role="menuitem"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  {locale === "ko" ? "계정 삭제" : locale === "ja" ? "アカウント削除" : "Delete Account"}
                 </button>
               </div>
             </motion.div>

@@ -274,6 +274,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     // Set signing out flag FIRST — prevents UI flash
     setIsSigningOut(true);
+    // Immediately clear user so UI reflects logged-out state without delay
+    setUser(null);
 
     // Use 'local' scope: clears local session only, no remote RPC.
     // This avoids hangs in WebView environments where the network call
@@ -294,6 +296,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       toRemove.forEach((k) => localStorage.removeItem(k));
     } catch {}
+
+    // Clear sessionStorage (native-app flag, etc.)
+    try { sessionStorage.clear(); } catch {}
 
     // Clear app-specific localStorage
     safeRemove("saju-data");
