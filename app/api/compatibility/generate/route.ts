@@ -439,6 +439,32 @@ export async function POST(request: NextRequest) {
       method: "POST", headers: { ...dbHeaders, Prefer: "return=minimal" }, body: JSON.stringify(insertBody),
     });
 
+    // ─── [PHASE 1 STEP 2] Auto-create user's own readings row ────────────
+    // If the user is signed in and has no readings yet, bootstrap one from
+    // Person A (who is semantically "the user" in compatibility flows).
+    // Dynamic import keeps the top-level import list untouched. Wrapped in
+    // try/catch with a 3s timeout cap — never affects the compat response.
+    if (userId) {
+      try {
+        const { ensureUserReading } = await import("@/lib/auto-create-reading");
+        await Promise.race([
+          ensureUserReading({
+            userId,
+            name: personA.name,
+            gender: personA.gender,
+            birthDateStr: bdStrA,
+            birthHour: hourA,
+            birthHourUnknown: personA.birthHourUnknown === true,
+            birthCity: personA.birthCity,
+            locale,
+          }),
+          new Promise<void>((resolve) => setTimeout(resolve, 3000)),
+        ]);
+      } catch {
+        // Silent — helper never throws, but extra protection anyway
+      }
+    }
+
     return NextResponse.json({ success: true, shareSlug });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Server error";
