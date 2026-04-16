@@ -68,6 +68,21 @@ interface CompatResult {
 const READING_COLS = "id,name,gender,birth_date,birth_city,share_slug,archetype,ten_god,harmony_score,day_master_element,day_master_yinyang,dominant_element,weakest_element,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,is_paid,created_at";
 
 export function DashboardContent() {
+  const { user, sajuData, saveSajuChart, claimTrigger, signOut, isLoading } = useAuth();
+  const { t, locale } = useLanguage();
+  const isNative = useNativeApp();
+
+  // Prevent 1-frame flash of empty dashboard before sign-in modal appears.
+  // When auth is still loading OR user is confirmed null, render nothing —
+  // the sign-in modal (rendered by the parent page) will cover the screen.
+  if (isLoading || !user) {
+    return null;
+  }
+
+  return <DashboardInner />;
+}
+
+function DashboardInner() {
   const { user, sajuData, saveSajuChart, claimTrigger, signOut } = useAuth();
   const { t, locale } = useLanguage();
   const isNative = useNativeApp();
