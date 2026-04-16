@@ -155,7 +155,7 @@ export function Navbar() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[45] bg-background/98 backdrop-blur-sm md:hidden"
           >
-            <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6">
+            <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6 overflow-y-auto py-20">
               <Link href={homeHref} className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.home")}</Link>
               <Link href="/what-is-saju" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.whatIsSaju")}</Link>
               <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>
