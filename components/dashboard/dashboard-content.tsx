@@ -756,7 +756,6 @@ export function DashboardContent() {
             ? (locale === "ko" ? "탭하여 삭제 확인" : locale === "ja" ? "タップして確認" : "Tap to confirm delete")
             : (locale === "ko" ? "계정삭제" : locale === "ja" ? "退会" : "Delete Account")}
         </button>
-        </button>
       </div>
     </div>
   );
