@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/auth-context"
 import { useLanguage } from "@/lib/language-context"
 import { useNativeApp } from "@/lib/native-app"
 import type { Locale } from "@/lib/translations"
+import { supabase } from "@/lib/supabase-client"
 import Image from "next/image"
 
 const LOCALES: { code: Locale; label: string; name: string }[] = [
@@ -178,6 +179,50 @@ export function Navbar() {
               <Link href="/calculate" onClick={closeMenu} className="mt-2 w-full max-w-xs">
                 <Button className="w-full h-12 gold-gradient text-primary-foreground font-semibold text-base">{t("nav.getReading")}</Button>
               </Link>
+
+              {/* Footer links — Privacy, Terms, Contact, Delete Account */}
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-4 text-[11px] text-muted-foreground/60">
+                <Link href="/privacy" onClick={closeMenu} className="hover:text-muted-foreground transition-colors">
+                  {locale === "ko" ? "개인정보" : locale === "ja" ? "プライバシー" : "Privacy"}
+                </Link>
+                <span>·</span>
+                <Link href="/terms" onClick={closeMenu} className="hover:text-muted-foreground transition-colors">
+                  {locale === "ko" ? "이용약관" : locale === "ja" ? "利用規約" : "Terms"}
+                </Link>
+                <span>·</span>
+                <a href="mailto:info@rimfactory.io" onClick={closeMenu} className="hover:text-muted-foreground transition-colors">
+                  {locale === "ko" ? "문의" : locale === "ja" ? "お問い合わせ" : "Contact"}
+                </a>
+                {user && (
+                  <>
+                    <span>·</span>
+                    <button
+                      onClick={async () => {
+                        const msg = locale === "ko"
+                          ? "정말 계정을 삭제하시겠습니까?\n\n모든 데이터가 영구 삭제됩니다."
+                          : locale === "ja"
+                          ? "本当にアカウントを削除しますか？\n\nすべてのデータが永久に削除されます。"
+                          : "Delete your account?\n\nAll data will be permanently deleted.";
+                        if (!confirm(msg)) return;
+                        if (!confirm(locale === "ko" ? "최종 확인: 삭제합니다." : locale === "ja" ? "最終確認：削除します。" : "Final confirmation: Delete.")) return;
+                        try {
+                          const { data: { session } } = await supabase.auth.getSession();
+                          if (!session) return;
+                          const res = await fetch("/api/account/delete", {
+                            method: "POST",
+                            headers: { "Authorization": `Bearer ${session.access_token}` },
+                          });
+                          if (res.ok) { closeMenu(); await signOut(); window.location.href = "/"; }
+                          else { alert("Failed"); }
+                        } catch { alert("Failed"); }
+                      }}
+                      className="text-red-400/60 hover:text-red-400 transition-colors"
+                    >
+                      {locale === "ko" ? "계정삭제" : locale === "ja" ? "退会" : "Delete Account"}
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
