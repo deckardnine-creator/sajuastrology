@@ -320,8 +320,13 @@ export default function ReadingPageClient() {
     setPaidGenerationFailed(false);
     setGenerationStep(0);
 
+    // Scroll to the generation progress panel so the user sees it immediately.
+    // block: "start" aligns the top of the panel with the top of the viewport
+    // (previously "center" pushed it to vertical middle, forcing users to
+    // wonder whether something was happening while the top of the page was
+    // still visible above the panel).
     setTimeout(() => {
-      document.getElementById("generation-progress")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      document.getElementById("generation-progress")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 300);
 
     // Start polling DB for progressive rendering
@@ -577,10 +582,22 @@ export default function ReadingPageClient() {
         setReading(readingData);
         setLoading(false);
 
-        // Scroll to generation progress after page renders
+        // Payment-return flow UX: the user just finished paying and is now
+        // watching the page render. We want the generation-progress panel
+        // (which shows the 6-step loading animation) to sit at the TOP of
+        // the viewport so it's the first thing they see.
+        //
+        // Previously this used block: "center", which pushed the panel to
+        // the middle of the screen — leaving the navbar + blurred locked
+        // content visible above it and making it unclear that processing
+        // had started. Now we snap to top immediately, then let the natural
+        // scroll settle after one frame.
         setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: "auto" });
           const el = document.getElementById("generation-progress");
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
         }, 400);
 
         // Step 3: Generate paid content if needed (uses progressive polling)
@@ -709,17 +726,37 @@ export default function ReadingPageClient() {
     };
   }, [isNative, slug]);
 
+  // Opens the sign-in modal and preserves the state needed to restore the
+  // user's guest-mode work after a successful login. Two pieces of state:
+  //
+  //   1. auth-return-url  — where to send the user after /auth/callback runs.
+  //      Without this the callback falls back to /dashboard and the user
+  //      loses their place on the current reading.
+  //
+  //   2. pending-claim-slug — the share_slug of the free reading they just
+  //      generated. auth-context.claimReadings() reads this immediately
+  //      after SIGNED_IN, calls /api/reading/claim, and attaches the guest
+  //      reading to the newly authenticated user_id. Without this step the
+  //      reading remains orphaned (user_id=null) and never shows up on the
+  //      user's dashboard — even though it was generated seconds earlier.
+  //
+  // Previously neither was set on the in-reading sign-in buttons, so first-
+  // time users who signed in from this page silently lost their free reading.
+  const requestSignInWithClaimHandoff = () => {
+    safeSet("auth-return-url", window.location.href);
+    if (reading?.share_slug) {
+      safeSet("pending-claim-slug", reading.share_slug);
+    }
+    openSignInModal();
+  };
+
   const handleUnlock = async () => {
     if (!reading) return;
     setPaymentError(null);
     if (!user) {
       // Show sign-in modal in both web and native — user picks Google or Apple.
       // sign-in-modal.tsx handles the native branch (routes to Flutter bridge).
-      // Previously this bypassed the modal in native and went straight to Google,
-      // which denied users the Apple option and broke the OAuth deep-link return
-      // on iOS.
-      safeSet("auth-return-url", window.location.href);
-      openSignInModal();
+      requestSignInWithClaimHandoff();
       return;
     }
     // App mode: trigger Flutter IAP — purchase result arrives via onFlutterMessage
@@ -1085,7 +1122,7 @@ export default function ReadingPageClient() {
                 <div className="flex-1">
                   <p className="text-sm font-medium mb-1">{t("reading.saveShare", locale)}</p>
                   <p className="text-xs text-muted-foreground mb-3">{t("reading.saveShareDesc", locale)}</p>
-                  <Button variant="outline" size="sm" className="text-xs h-9 gap-2" onClick={openSignInModal}>
+                  <Button variant="outline" size="sm" className="text-xs h-9 gap-2" onClick={requestSignInWithClaimHandoff}>
                     <GoogleIcon />
                     {t("signIn.continueGoogle", locale)}
                   </Button>
@@ -1579,7 +1616,7 @@ export default function ReadingPageClient() {
               <div className="gold-gradient rounded-2xl p-8 text-center">
                 <h3 className="font-serif text-2xl font-bold text-primary-foreground mb-2">{t("reading.shareCosmicId", locale)}</h3>
                 <p className="text-primary-foreground/80 mb-4">{t("reading.shareCosmicIdSub", locale)}</p>
-                <Button variant="secondary" className="bg-background text-foreground hover:bg-background/90 gap-2" onClick={openSignInModal}>
+                <Button variant="secondary" className="bg-background text-foreground hover:bg-background/90 gap-2" onClick={requestSignInWithClaimHandoff}>
                   <GoogleIcon />
                   {t("signIn.continueGoogle", locale)}
                 </Button>
