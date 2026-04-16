@@ -16,10 +16,12 @@ import {
   Zap,
   Heart,
   LogOut,
+  Trash2,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { useNativeApp } from "@/lib/native-app";
+import { supabase } from "@/lib/supabase-client";
 import { ELEMENTS, calculateDailyEnergy, type Element } from "@/lib/saju-calculator";
 import type { SajuChart } from "@/lib/saju-calculator";
 import { reconstructChartFromReading, getElementColor } from "@/lib/constants";
@@ -331,6 +333,46 @@ export function DashboardContent() {
             {t("nav.signOut")}
           </button>
         )}
+        <button
+          onClick={async () => {
+            const msg = locale === "ko"
+              ? "정말 계정을 삭제하시겠습니까?\n\n모든 리딩, 상담 기록, 결제 이력이 영구 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
+              : locale === "ja"
+              ? "本当にアカウントを削除しますか？\n\nすべてのリーディング、相談履歴、決済履歴が永久に削除されます。この操作は元に戻せません。"
+              : "Are you sure you want to delete your account?\n\nAll readings, consultations, and payment history will be permanently deleted. This cannot be undone.";
+            if (!confirm(msg)) return;
+            const confirmMsg = locale === "ko"
+              ? "최종 확인: 계정을 삭제합니다. 계속하시겠습니까?"
+              : locale === "ja"
+              ? "最終確認：アカウントを削除します。続行しますか？"
+              : "Final confirmation: Delete your account. Continue?";
+            if (!confirm(confirmMsg)) return;
+            try {
+              const { data: { session } } = await supabase.auth.getSession();
+              if (!session) return;
+              const res = await fetch("/api/account/delete", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${session.access_token}`,
+                },
+              });
+              if (res.ok) {
+                await signOut();
+                window.location.href = "/";
+              } else {
+                const data = await res.json();
+                alert(data.error || "Failed to delete account");
+              }
+            } catch {
+              alert("Failed to delete account. Please try again.");
+            }
+          }}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-400 hover:text-red-300 border border-red-900/30 rounded-lg hover:bg-red-900/20 transition-colors"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          {locale === "ko" ? "계정 삭제" : locale === "ja" ? "アカウント削除" : "Delete Account"}
+        </button>
       </motion.div>
 
       {/* Today's Energy + Day Master row */}
