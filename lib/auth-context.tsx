@@ -300,6 +300,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     safeRemove("primary-reading-id");
     safeRemove("primary-changed-date");
     safeRemove("pending-claim-slug");
+    safeRemove("pending-compat-slugs");
     safeRemove("current-user-id");
     safeRemove("return-to-consultation");
     safeRemove("auth-return-url");

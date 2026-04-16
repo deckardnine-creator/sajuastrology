@@ -198,6 +198,14 @@ export async function POST(request: NextRequest) {
     const bdStrB = toBirthDateStr(dateB);
 
     // ═══ CACHE CHECK ═══
+    // Cache is only consulted for signed-in users. For guests we always run
+    // full generation so they always get their OWN orphan row — this makes
+    // the "guest compat → sign-in → claim on dashboard" flow work correctly.
+    // If guests could hit cache, they would receive a shareSlug owned by
+    // another signed-in user, and the subsequent claim-on-sign-in would
+    // no-op (user_id=is.null filter miss), leaving the new account with an
+    // empty dashboard.
+    if (userId) {
     try {
       const cacheRes = await fetch(`${supabaseUrl}/rest/v1/compatibility_results?${new URLSearchParams({
         person_a_birth_date: `eq.${bdStrA}`, person_a_birth_hour: `eq.${hourA}`,
@@ -229,6 +237,7 @@ export async function POST(request: NextRequest) {
         }
       }
     } catch {}
+    }
 
     // ═══ RATE LIMIT ═══
     const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
