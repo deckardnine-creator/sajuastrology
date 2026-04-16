@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "586ZYRA28J.com.rimfactory.sajuastrology",
+        "paths": [
+          "/auth/callback",
+          "/auth/callback/*"
+        ]
+      }
+    ]
+  }
+}

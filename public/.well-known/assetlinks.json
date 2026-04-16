@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.rimfactory.sajuastrology",
+      "sha256_cert_fingerprints": [
+        "66:2F:95:88:45:ED:30:96:BF:D6:84:70:AF:10:FD:CB:8F:C5:61:42:D4:9B:4C:B4:9D:CA:62:DB:10:CE:E5:7D",
+        "BC:ED:04:09:F5:16:B8:ED:68:0D:A8:9A:3F:21:81:32:A2:9B:E4:44:FF:EC:2A:A3:C3:49:6F:1C:E7:51:3C:D1"
+      ]
+    }
+  }
+]
