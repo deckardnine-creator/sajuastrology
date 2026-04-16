@@ -112,6 +112,15 @@ export default function ReadingPageClient() {
   const [paidGenerationFailed, setPaidGenerationFailed] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [claimed, setClaimed] = useState(false);
+  // ─── [PHASE 1 STEP 6b] State for free-reading lazy generation ───────
+  // These drive a full-screen "AI 분석 생성 중..." overlay that shows when
+  // the reading row is a chart-only shell produced by ensureUserReading
+  // (after compat / consultation). While generation runs, the usual
+  // reading UI is replaced by the overlay so the user never sees empty
+  // AI sections or a broken $9.99 unlock button.
+  const [isGeneratingFree, setIsGeneratingFree] = useState(false);
+  const [freeGenerationFailed, setFreeGenerationFailed] = useState(false);
+  const freeGenerationAttemptedRef = useRef(false);
   const isPaidGeneratingRef = useRef(false);
   const fetchAttemptedRef = useRef(false);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -396,6 +405,67 @@ export default function ReadingPageClient() {
       }
     })();
   }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ═══ [PHASE 1 STEP 6b] LAZY FREE GENERATION ═══════════════════════════
+  // When a chart-only shell (produced by ensureUserReading during compat or
+  // consultation) is opened for the first time, trigger the full free
+  // reading generation here so the user never sees a half-empty page.
+  //
+  // The /api/reading/generate-app endpoint, after step 6a, updates the
+  // existing row in place (preserving user_id and share_slug), so the
+  // slug in the URL stays valid throughout the flow.
+  //
+  // The overlay is rendered lower in this file, conditional on
+  // `isGeneratingFree` OR (`reading` exists but has null personality AND
+  // we have not yet attempted generation) — that second condition closes
+  // the one-frame window where React has committed the fetched reading
+  // but the effect has not yet run.
+  useEffect(() => {
+    if (!reading) return;
+    if (reading.free_reading_personality) return;      // Already complete
+    if (freeGenerationAttemptedRef.current) return;    // One attempt per mount
+    if (reading.is_paid) return;                       // Paid flow owns it
+    freeGenerationAttemptedRef.current = true;
+    setIsGeneratingFree(true);
+
+    (async () => {
+      try {
+        // Birth date may be delivered as "YYYY-MM-DD" OR as an ISO string
+        const bd = String(reading.birth_date || "").split("T")[0];
+        const [y, m, d] = bd.split("-");
+        const yNum = parseInt(y, 10);
+        const mNum = parseInt(m, 10);
+        const dNum = parseInt(d, 10);
+        if (!Number.isFinite(yNum) || !Number.isFinite(mNum) || !Number.isFinite(dNum)) {
+          throw new Error("Invalid birth_date on reading row");
+        }
+        const res = await fetch("/api/reading/generate-app", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: reading.name,
+            gender: reading.gender,
+            birthYear: yNum,
+            birthMonth: mNum,
+            birthDay: dNum,
+            birthHour: reading.birth_hour ?? 12,
+            birthCity: reading.birth_city,
+            locale: reading.locale || locale,
+          }),
+        });
+        if (!res.ok) {
+          throw new Error(`generate-app returned ${res.status}`);
+        }
+        // Re-fetch so the populated row replaces the chart-only shell.
+        await doFetchReading();
+      } catch (err) {
+        console.warn("[reading-client] lazy free generation failed:", err);
+        setFreeGenerationFailed(true);
+      } finally {
+        setIsGeneratingFree(false);
+      }
+    })();
+  }, [reading?.share_slug, reading?.free_reading_personality]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ═══ AUTH RETURN FIX — re-fetch if login just completed while we're stuck loading ═══
   // After OAuth callback redirect, supabase session may not be ready on first fetch.
@@ -711,6 +781,46 @@ export default function ReadingPageClient() {
     );
   }
 
+  // ═══ [PHASE 1 STEP 6b] Full-screen overlay for lazy free generation ═══
+  // Show whenever:
+  //   (a) isGeneratingFree is true (useEffect has started the request), OR
+  //   (b) reading has loaded but free_reading_personality is still null
+  //       AND generation has not failed — covers the single frame between
+  //       reading being set and the useEffect firing.
+  // We also only show this if the reading is NOT paid — paid flows own
+  // their own progressive loading UI and must not be hijacked.
+  const needsFreeGeneration =
+    !reading.is_paid && !reading.free_reading_personality && !freeGenerationFailed;
+  if (isGeneratingFree || needsFreeGeneration) {
+    return (
+      <main className="min-h-screen">
+        <Navbar />
+        <div className="pt-page pb-16">
+          <div className="mx-auto max-w-xl px-4 sm:px-6">
+            <div className="text-center py-20">
+              <div className="w-12 h-12 border-[3px] border-primary border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+              <h2 className="font-serif text-xl text-primary mb-2">
+                {locale === "ko"
+                  ? "무료 사주 생성 중..."
+                  : locale === "ja"
+                  ? "無料四柱を生成中..."
+                  : "Generating your free reading..."}
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {locale === "ko"
+                  ? "처음 한 번만 생성됩니다. 약 15~30초 정도 걸립니다."
+                  : locale === "ja"
+                  ? "初回のみ生成されます。約15~30秒かかります。"
+                  : "Generated once, then yours forever. This takes about 15–30 seconds."}
+              </p>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
+
   const dmKey = `${reading.day_master_element}-${reading.day_master_yinyang}`;
   const dmDisplay = DAY_MASTER_DISPLAY[dmKey] || { zh: "?", en: "Unknown" };
   const dmColor = ELEMENT_COLORS[reading.day_master_element] || "#F2CA50";
@@ -854,6 +964,7 @@ export default function ReadingPageClient() {
           )}
 
           {/* AI Personality Reading */}
+          {reading.free_reading_personality && (
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mb-10">
             <div className="bg-card/50 backdrop-blur border border-[rgba(242,202,80,0.20)] rounded-2xl p-6 md:p-8">
               <div className="flex items-center gap-3 mb-4">
@@ -870,6 +981,7 @@ export default function ReadingPageClient() {
               </div>
             </div>
           </motion.section>
+          )}
 
           {/* Classical Citation Cards */}
           {reading.citation_meta && (
@@ -900,15 +1012,18 @@ export default function ReadingPageClient() {
                   </div>
                 ))}
               </div>
+              {reading.free_reading_element && (
               <div className="border-t border-border pt-4">
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {reading.free_reading_element}
                 </p>
               </div>
+              )}
             </div>
           </motion.section>
 
           {/* This Year's Fortune */}
+          {reading.free_reading_year && (
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mb-10">
             <h2 className="font-serif text-xl font-semibold mb-4">{new Date().getFullYear()} {t("reading.fortuneForecast", locale)}</h2>
             <div className="bg-card/50 backdrop-blur border border-border rounded-2xl p-6 md:p-8">
@@ -917,6 +1032,7 @@ export default function ReadingPageClient() {
               </div>
             </div>
           </motion.section>
+          )}
 
           {/* Harmony Score */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="mb-10">
