@@ -26,6 +26,7 @@ import { reconstructChartFromReading, getElementColor } from "@/lib/constants";
 import type { DailyFortune } from "@/lib/daily-fortune";
 import { Button } from "@/components/ui/button";
 import { ConsultationHistory } from "@/components/consultation/consultation-history";
+import { RestorePurchasesButton } from "@/components/dashboard/restore-purchases-button";
 import { safeGet, safeSet, safeRemove } from "@/lib/safe-storage";
 
 interface SavedReading {
@@ -632,6 +633,9 @@ export function DashboardContent() {
       </motion.section>
 
       <ConsultationHistory />
+
+      {/* Restore Purchases — rendered only inside the native app (Apple 4.10). */}
+      <RestorePurchasesButton />
     </div>
   );
 }
