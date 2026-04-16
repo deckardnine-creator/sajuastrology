@@ -718,7 +718,7 @@ CRITICAL FORMATTING RULES — YOU MUST FOLLOW THESE EXACTLY:
 - Use bullet lists with - for lists of recommendations
 - Separate sections with blank lines
 - Example of correct format:
-  # Your Career Crossroads: Navigating Change in 2026
+  # Your Career Crossroads: Navigating Change in ${currentYear}
   
   ## Opening
   Your question about...

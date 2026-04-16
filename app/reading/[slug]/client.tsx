@@ -860,8 +860,8 @@ export default function ReadingPageClient() {
         },
       },
       {
-        ko: "2026년 운세 해석",
-        ja: "2026年の運勢を解釈",
+        ko: `${new Date().getFullYear()}년 운세 해석`,
+        ja: `${new Date().getFullYear()}年の運勢を解釈`,
         en: "Interpreting your destiny",
         desc: {
           ko: "성격·올해 운세·오행 균형 최종 구성",
