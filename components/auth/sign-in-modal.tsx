@@ -9,13 +9,33 @@ import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
 import { requestAuth } from "@/lib/flutter-bridge";
+import { isNativeApp } from "@/lib/native-app";
 import Link from "next/link";
+
+// Detect which native platform is hosting the WebView.
+// Returns "ios" | "android" | null (null = regular web browser).
+function detectNativePlatform(): "ios" | "android" | null {
+  if (typeof window === "undefined") return null;
+  if (!isNativeApp()) return null;
+  const ua = navigator.userAgent;
+  if (/iPhone|iPad|iPod/.test(ua)) return "ios";
+  if (/Android/.test(ua)) return "android";
+  return null;
+}
 
 export function SignInModal() {
   const { isSignInModalOpen, closeSignInModal, signIn, signInWithApple, isLoading } = useAuth();
   const { locale } = useLanguage();
 
   if (!isSignInModalOpen) return null;
+
+  // Platform-specific login buttons:
+  //   iOS app    → Apple only   (native Sign in with Apple, no OAuth browser bounce)
+  //   Android app → Google only  (native Chrome Custom Tabs, seamless return)
+  //   Web browser → both Google + Apple
+  const platform = detectNativePlatform();
+  const showGoogle = platform !== "ios";     // hide Google on iOS app
+  const showApple  = platform !== "android"; // hide Apple on Android app
 
   // When running inside Flutter WebView, Google blocks embedded OAuth.
   // Route through Flutter native → Chrome Custom Tabs → deep link callback.
@@ -107,6 +127,7 @@ export function SignInModal() {
                 </p>
 
                 <div className="space-y-3">
+                  {showGoogle && (
                   <Button
                     onClick={handleGoogleSignIn}
                     disabled={isLoading}
@@ -121,7 +142,9 @@ export function SignInModal() {
                       </>
                     )}
                   </Button>
+                  )}
 
+                  {showApple && (
                   <Button
                     onClick={handleAppleSignIn}
                     disabled={isLoading}
@@ -136,6 +159,7 @@ export function SignInModal() {
                       </>
                     )}
                   </Button>
+                  )}
                 </div>
 
                 <p className="text-xs text-muted-foreground/70 mt-6 leading-relaxed">
