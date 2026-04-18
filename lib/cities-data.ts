@@ -110,6 +110,125 @@ export const CITIES: City[] = [
   { name: "Mumbai", country: "India", countryCode: "IN", longitude: 72.8777, latitude: 19.076, timezone: "Asia/Kolkata" },
   { name: "Delhi", country: "India", countryCode: "IN", longitude: 77.1025, latitude: 28.7041, timezone: "Asia/Kolkata" },
   { name: "Bangalore", country: "India", countryCode: "IN", longitude: 77.5946, latitude: 12.9716, timezone: "Asia/Kolkata" },
+
+  // ═══════════════════════════════════════════════════════════════
+  // Expanded coverage — Latin America, Europe, Africa, additional Asia
+  // Added to support 10-language service (ES/FR/PT/RU/HI/ID primary)
+  // ═══════════════════════════════════════════════════════════════
+  { name: "Barcelona", country: "Spain", countryCode: "ES", longitude: 2.1734, latitude: 41.3851, timezone: "Europe/Madrid" },
+  { name: "Valencia", country: "Spain", countryCode: "ES", longitude: -0.3763, latitude: 39.4699, timezone: "Europe/Madrid" },
+  { name: "Seville", country: "Spain", countryCode: "ES", longitude: -5.9845, latitude: 37.3891, timezone: "Europe/Madrid" },
+  { name: "Zaragoza", country: "Spain", countryCode: "ES", longitude: -0.8891, latitude: 41.6488, timezone: "Europe/Madrid" },
+  { name: "Malaga", country: "Spain", countryCode: "ES", longitude: -4.4214, latitude: 36.7213, timezone: "Europe/Madrid" },
+  { name: "Bilbao", country: "Spain", countryCode: "ES", longitude: -2.935, latitude: 43.263, timezone: "Europe/Madrid" },
+  { name: "Lyon", country: "France", countryCode: "FR", longitude: 4.8357, latitude: 45.764, timezone: "Europe/Paris" },
+  { name: "Marseille", country: "France", countryCode: "FR", longitude: 5.3698, latitude: 43.2965, timezone: "Europe/Paris" },
+  { name: "Toulouse", country: "France", countryCode: "FR", longitude: 1.4442, latitude: 43.6047, timezone: "Europe/Paris" },
+  { name: "Bordeaux", country: "France", countryCode: "FR", longitude: -0.5792, latitude: 44.8378, timezone: "Europe/Paris" },
+  { name: "Nice", country: "France", countryCode: "FR", longitude: 7.262, latitude: 43.7102, timezone: "Europe/Paris" },
+  { name: "Strasbourg", country: "France", countryCode: "FR", longitude: 7.7521, latitude: 48.5734, timezone: "Europe/Paris" },
+  { name: "Nantes", country: "France", countryCode: "FR", longitude: -1.5534, latitude: 47.2184, timezone: "Europe/Paris" },
+  { name: "Lille", country: "France", countryCode: "FR", longitude: 3.0573, latitude: 50.6292, timezone: "Europe/Paris" },
+  { name: "Lisbon", country: "Portugal", countryCode: "PT", longitude: -9.1393, latitude: 38.7223, timezone: "Europe/Lisbon" },
+  { name: "Porto", country: "Portugal", countryCode: "PT", longitude: -8.6291, latitude: 41.1579, timezone: "Europe/Lisbon" },
+  { name: "Braga", country: "Portugal", countryCode: "PT", longitude: -8.4265, latitude: 41.5454, timezone: "Europe/Lisbon" },
+  { name: "Rio de Janeiro", country: "Brazil", countryCode: "BR", longitude: -43.1729, latitude: -22.9068, timezone: "America/Sao_Paulo" },
+  { name: "Brasilia", country: "Brazil", countryCode: "BR", longitude: -47.8825, latitude: -15.7942, timezone: "America/Sao_Paulo" },
+  { name: "Salvador", country: "Brazil", countryCode: "BR", longitude: -38.5014, latitude: -12.9777, timezone: "America/Bahia" },
+  { name: "Fortaleza", country: "Brazil", countryCode: "BR", longitude: -38.5267, latitude: -3.7172, timezone: "America/Fortaleza" },
+  { name: "Belo Horizonte", country: "Brazil", countryCode: "BR", longitude: -43.9386, latitude: -19.9167, timezone: "America/Sao_Paulo" },
+  { name: "Manaus", country: "Brazil", countryCode: "BR", longitude: -60.0217, latitude: -3.119, timezone: "America/Manaus" },
+  { name: "Curitiba", country: "Brazil", countryCode: "BR", longitude: -49.2731, latitude: -25.4284, timezone: "America/Sao_Paulo" },
+  { name: "Recife", country: "Brazil", countryCode: "BR", longitude: -34.877, latitude: -8.0476, timezone: "America/Recife" },
+  { name: "Porto Alegre", country: "Brazil", countryCode: "BR", longitude: -51.2177, latitude: -30.0346, timezone: "America/Sao_Paulo" },
+  { name: "Taipei", country: "Taiwan", countryCode: "TW", longitude: 121.5654, latitude: 25.033, timezone: "Asia/Taipei" },
+  { name: "Kaohsiung", country: "Taiwan", countryCode: "TW", longitude: 120.3014, latitude: 22.6273, timezone: "Asia/Taipei" },
+  { name: "Taichung", country: "Taiwan", countryCode: "TW", longitude: 120.6736, latitude: 24.1477, timezone: "Asia/Taipei" },
+  { name: "Tainan", country: "Taiwan", countryCode: "TW", longitude: 120.1966, latitude: 22.9908, timezone: "Asia/Taipei" },
+  { name: "New Taipei", country: "Taiwan", countryCode: "TW", longitude: 121.4657, latitude: 25.012, timezone: "Asia/Taipei" },
+  { name: "Chengdu", country: "China", countryCode: "CN", longitude: 104.0668, latitude: 30.5728, timezone: "Asia/Shanghai" },
+  { name: "Xi'an", country: "China", countryCode: "CN", longitude: 108.9398, latitude: 34.3416, timezone: "Asia/Shanghai" },
+  { name: "Nanjing", country: "China", countryCode: "CN", longitude: 118.7969, latitude: 32.0603, timezone: "Asia/Shanghai" },
+  { name: "Hangzhou", country: "China", countryCode: "CN", longitude: 120.1551, latitude: 30.2741, timezone: "Asia/Shanghai" },
+  { name: "Wuhan", country: "China", countryCode: "CN", longitude: 114.3055, latitude: 30.5928, timezone: "Asia/Shanghai" },
+  { name: "Chongqing", country: "China", countryCode: "CN", longitude: 106.5516, latitude: 29.563, timezone: "Asia/Shanghai" },
+  { name: "Macau", country: "China", countryCode: "MO", longitude: 113.5491, latitude: 22.1987, timezone: "Asia/Macau" },
+  { name: "Moscow", country: "Russia", countryCode: "RU", longitude: 37.6173, latitude: 55.7558, timezone: "Europe/Moscow" },
+  { name: "Saint Petersburg", country: "Russia", countryCode: "RU", longitude: 30.3351, latitude: 59.9343, timezone: "Europe/Moscow" },
+  { name: "Novosibirsk", country: "Russia", countryCode: "RU", longitude: 82.9357, latitude: 55.0084, timezone: "Asia/Novosibirsk" },
+  { name: "Yekaterinburg", country: "Russia", countryCode: "RU", longitude: 60.6057, latitude: 56.8389, timezone: "Asia/Yekaterinburg" },
+  { name: "Kazan", country: "Russia", countryCode: "RU", longitude: 49.1221, latitude: 55.7887, timezone: "Europe/Moscow" },
+  { name: "Sochi", country: "Russia", countryCode: "RU", longitude: 39.7303, latitude: 43.5855, timezone: "Europe/Moscow" },
+  { name: "Vladivostok", country: "Russia", countryCode: "RU", longitude: 131.8855, latitude: 43.1198, timezone: "Asia/Vladivostok" },
+  { name: "Chennai", country: "India", countryCode: "IN", longitude: 80.2707, latitude: 13.0827, timezone: "Asia/Kolkata" },
+  { name: "Kolkata", country: "India", countryCode: "IN", longitude: 88.3639, latitude: 22.5726, timezone: "Asia/Kolkata" },
+  { name: "Hyderabad", country: "India", countryCode: "IN", longitude: 78.4867, latitude: 17.385, timezone: "Asia/Kolkata" },
+  { name: "Pune", country: "India", countryCode: "IN", longitude: 73.8567, latitude: 18.5204, timezone: "Asia/Kolkata" },
+  { name: "Ahmedabad", country: "India", countryCode: "IN", longitude: 72.5714, latitude: 23.0225, timezone: "Asia/Kolkata" },
+  { name: "Jaipur", country: "India", countryCode: "IN", longitude: 75.7873, latitude: 26.9124, timezone: "Asia/Kolkata" },
+  { name: "Lucknow", country: "India", countryCode: "IN", longitude: 80.9462, latitude: 26.8467, timezone: "Asia/Kolkata" },
+  { name: "Surabaya", country: "Indonesia", countryCode: "ID", longitude: 112.7521, latitude: -7.2504, timezone: "Asia/Jakarta" },
+  { name: "Bandung", country: "Indonesia", countryCode: "ID", longitude: 107.6098, latitude: -6.9175, timezone: "Asia/Jakarta" },
+  { name: "Medan", country: "Indonesia", countryCode: "ID", longitude: 98.6722, latitude: 3.5952, timezone: "Asia/Jakarta" },
+  { name: "Semarang", country: "Indonesia", countryCode: "ID", longitude: 110.4203, latitude: -6.9667, timezone: "Asia/Jakarta" },
+  { name: "Yogyakarta", country: "Indonesia", countryCode: "ID", longitude: 110.3695, latitude: -7.7956, timezone: "Asia/Jakarta" },
+  { name: "Denpasar", country: "Indonesia", countryCode: "ID", longitude: 115.2191, latitude: -8.65, timezone: "Asia/Makassar" },
+  { name: "Guadalajara", country: "Mexico", countryCode: "MX", longitude: -103.3496, latitude: 20.6597, timezone: "America/Mexico_City" },
+  { name: "Monterrey", country: "Mexico", countryCode: "MX", longitude: -100.3161, latitude: 25.6866, timezone: "America/Monterrey" },
+  { name: "Cancun", country: "Mexico", countryCode: "MX", longitude: -86.8515, latitude: 21.1619, timezone: "America/Cancun" },
+  { name: "Tijuana", country: "Mexico", countryCode: "MX", longitude: -117.0382, latitude: 32.5149, timezone: "America/Tijuana" },
+  { name: "Puebla", country: "Mexico", countryCode: "MX", longitude: -98.2063, latitude: 19.0414, timezone: "America/Mexico_City" },
+  { name: "Cordoba", country: "Argentina", countryCode: "AR", longitude: -64.1888, latitude: -31.4201, timezone: "America/Argentina/Cordoba" },
+  { name: "Rosario", country: "Argentina", countryCode: "AR", longitude: -60.6393, latitude: -32.9442, timezone: "America/Argentina/Buenos_Aires" },
+  { name: "Mendoza", country: "Argentina", countryCode: "AR", longitude: -68.8272, latitude: -32.8895, timezone: "America/Argentina/Mendoza" },
+  { name: "Santiago", country: "Chile", countryCode: "CL", longitude: -70.6693, latitude: -33.4489, timezone: "America/Santiago" },
+  { name: "Valparaiso", country: "Chile", countryCode: "CL", longitude: -71.6197, latitude: -33.0472, timezone: "America/Santiago" },
+  { name: "Bogota", country: "Colombia", countryCode: "CO", longitude: -74.0721, latitude: 4.711, timezone: "America/Bogota" },
+  { name: "Medellin", country: "Colombia", countryCode: "CO", longitude: -75.5812, latitude: 6.2442, timezone: "America/Bogota" },
+  { name: "Cali", country: "Colombia", countryCode: "CO", longitude: -76.532, latitude: 3.4516, timezone: "America/Bogota" },
+  { name: "Lima", country: "Peru", countryCode: "PE", longitude: -77.0428, latitude: -12.0464, timezone: "America/Lima" },
+  { name: "Cusco", country: "Peru", countryCode: "PE", longitude: -71.9675, latitude: -13.532, timezone: "America/Lima" },
+  { name: "Manchester", country: "United Kingdom", countryCode: "GB", longitude: -2.2426, latitude: 53.4808, timezone: "Europe/London" },
+  { name: "Edinburgh", country: "United Kingdom", countryCode: "GB", longitude: -3.1883, latitude: 55.9533, timezone: "Europe/London" },
+  { name: "Birmingham", country: "United Kingdom", countryCode: "GB", longitude: -1.8904, latitude: 52.4862, timezone: "Europe/London" },
+  { name: "Munich", country: "Germany", countryCode: "DE", longitude: 11.582, latitude: 48.1351, timezone: "Europe/Berlin" },
+  { name: "Hamburg", country: "Germany", countryCode: "DE", longitude: 9.9937, latitude: 53.5511, timezone: "Europe/Berlin" },
+  { name: "Frankfurt", country: "Germany", countryCode: "DE", longitude: 8.6821, latitude: 50.1109, timezone: "Europe/Berlin" },
+  { name: "Milan", country: "Italy", countryCode: "IT", longitude: 9.19, latitude: 45.4642, timezone: "Europe/Rome" },
+  { name: "Naples", country: "Italy", countryCode: "IT", longitude: 14.2681, latitude: 40.8518, timezone: "Europe/Rome" },
+  { name: "Florence", country: "Italy", countryCode: "IT", longitude: 11.2558, latitude: 43.7696, timezone: "Europe/Rome" },
+  { name: "Venice", country: "Italy", countryCode: "IT", longitude: 12.3155, latitude: 45.4408, timezone: "Europe/Rome" },
+  { name: "Calgary", country: "Canada", countryCode: "CA", longitude: -114.0719, latitude: 51.0447, timezone: "America/Edmonton" },
+  { name: "Ottawa", country: "Canada", countryCode: "CA", longitude: -75.6972, latitude: 45.4215, timezone: "America/Toronto" },
+  { name: "Quebec City", country: "Canada", countryCode: "CA", longitude: -71.208, latitude: 46.8139, timezone: "America/Toronto" },
+  { name: "Brisbane", country: "Australia", countryCode: "AU", longitude: 153.026, latitude: -27.4698, timezone: "Australia/Brisbane" },
+  { name: "Perth", country: "Australia", countryCode: "AU", longitude: 115.8605, latitude: -31.9505, timezone: "Australia/Perth" },
+  { name: "Adelaide", country: "Australia", countryCode: "AU", longitude: 138.6007, latitude: -34.9285, timezone: "Australia/Adelaide" },
+  { name: "Cairo", country: "Egypt", countryCode: "EG", longitude: 31.2357, latitude: 30.0444, timezone: "Africa/Cairo" },
+  { name: "Lagos", country: "Nigeria", countryCode: "NG", longitude: 3.3792, latitude: 6.5244, timezone: "Africa/Lagos" },
+  { name: "Johannesburg", country: "South Africa", countryCode: "ZA", longitude: 28.0473, latitude: -26.2041, timezone: "Africa/Johannesburg" },
+  { name: "Cape Town", country: "South Africa", countryCode: "ZA", longitude: 18.4241, latitude: -33.9249, timezone: "Africa/Johannesburg" },
+  { name: "Nairobi", country: "Kenya", countryCode: "KE", longitude: 36.8219, latitude: -1.2921, timezone: "Africa/Nairobi" },
+  { name: "Casablanca", country: "Morocco", countryCode: "MA", longitude: -7.5898, latitude: 33.5731, timezone: "Africa/Casablanca" },
+  { name: "Dakar", country: "Senegal", countryCode: "SN", longitude: -17.4467, latitude: 14.7167, timezone: "Africa/Dakar" },
+  { name: "Da Nang", country: "Vietnam", countryCode: "VN", longitude: 108.2022, latitude: 16.0544, timezone: "Asia/Ho_Chi_Minh" },
+  { name: "Chiang Mai", country: "Thailand", countryCode: "TH", longitude: 98.9853, latitude: 18.7883, timezone: "Asia/Bangkok" },
+  { name: "Istanbul", country: "Turkey", countryCode: "TR", longitude: 28.9784, latitude: 41.0082, timezone: "Europe/Istanbul" },
+  { name: "Tehran", country: "Iran", countryCode: "IR", longitude: 51.389, latitude: 35.6892, timezone: "Asia/Tehran" },
+  { name: "Riyadh", country: "Saudi Arabia", countryCode: "SA", longitude: 46.6753, latitude: 24.7136, timezone: "Asia/Riyadh" },
+  { name: "Warsaw", country: "Poland", countryCode: "PL", longitude: 21.0122, latitude: 52.2297, timezone: "Europe/Warsaw" },
+  { name: "Prague", country: "Czech Republic", countryCode: "CZ", longitude: 14.4378, latitude: 50.0755, timezone: "Europe/Prague" },
+  { name: "Budapest", country: "Hungary", countryCode: "HU", longitude: 19.0402, latitude: 47.4979, timezone: "Europe/Budapest" },
+  { name: "Kyiv", country: "Ukraine", countryCode: "UA", longitude: 30.5234, latitude: 50.4501, timezone: "Europe/Kyiv" },
+  { name: "Stockholm", country: "Sweden", countryCode: "SE", longitude: 18.0686, latitude: 59.3293, timezone: "Europe/Stockholm" },
+  { name: "Copenhagen", country: "Denmark", countryCode: "DK", longitude: 12.5683, latitude: 55.6761, timezone: "Europe/Copenhagen" },
+  { name: "Oslo", country: "Norway", countryCode: "NO", longitude: 10.7522, latitude: 59.9139, timezone: "Europe/Oslo" },
+  { name: "Helsinki", country: "Finland", countryCode: "FI", longitude: 24.9384, latitude: 60.1699, timezone: "Europe/Helsinki" },
+  { name: "Zurich", country: "Switzerland", countryCode: "CH", longitude: 8.5417, latitude: 47.3769, timezone: "Europe/Zurich" },
+  { name: "Geneva", country: "Switzerland", countryCode: "CH", longitude: 6.1432, latitude: 46.2044, timezone: "Europe/Zurich" },
+  { name: "Vienna", country: "Austria", countryCode: "AT", longitude: 16.3738, latitude: 48.2082, timezone: "Europe/Vienna" },
+  { name: "Brussels", country: "Belgium", countryCode: "BE", longitude: 4.3517, latitude: 50.8503, timezone: "Europe/Brussels" },
+  { name: "Dublin", country: "Ireland", countryCode: "IE", longitude: -6.2603, latitude: 53.3498, timezone: "Europe/Dublin" },
 ];
 
 // ─── Localized aliases for Korean/Japanese search ───
@@ -202,6 +321,124 @@ const CITY_ALIASES: Record<string, string[]> = {
   "Mumbai":         ["뭄바이", "ムンバイ"],
   "Delhi":          ["델리", "デリー"],
   "Bangalore":      ["방갈로르", "バンガロール"],
+
+  // ═══ Expanded multilingual aliases ═══
+  // Aliases per city include: [Korean, Chinese/Hanja, Japanese katakana,
+  //                           + native-script variant when non-Latin (Cyrillic/Devanagari)]
+  "Barcelona": ["바르셀로나", "巴塞罗那", "バルセロナ"],
+  "Valencia": ["발렌시아", "瓦倫西亞", "バレンシア"],
+  "Seville": ["세비야", "塞維亞", "セビリア", "Sevilla"],
+  "Zaragoza": ["사라고사", "薩拉戈薩", "サラゴサ"],
+  "Malaga": ["말라가", "馬拉加", "マラガ", "Málaga"],
+  "Bilbao": ["빌바오", "畢爾包", "ビルバオ"],
+  "Lyon": ["리옹", "里昂", "リヨン"],
+  "Marseille": ["마르세유", "馬賽", "マルセイユ"],
+  "Toulouse": ["툴루즈", "土魯斯", "トゥールーズ"],
+  "Bordeaux": ["보르도", "波爾多", "ボルドー"],
+  "Nice": ["니스", "尼斯", "ニース"],
+  "Strasbourg": ["스트라스부르", "斯特拉斯堡", "ストラスブール"],
+  "Nantes": ["낭트", "南特", "ナント"],
+  "Lille": ["릴", "里爾", "リール"],
+  "Lisbon": ["리스본", "里斯本", "リスボン", "Lisboa"],
+  "Porto": ["포르투", "波爾圖", "ポルト"],
+  "Braga": ["브라가", "布拉加", "ブラガ"],
+  "Rio de Janeiro": ["리우데자네이루", "里約熱內盧", "リオデジャネイロ"],
+  "Brasilia": ["브라질리아", "巴西利亞", "ブラジリア", "Brasília"],
+  "Salvador": ["살바도르", "薩爾瓦多", "サルヴァドール"],
+  "Fortaleza": ["포르탈레자", "福塔萊薩", "フォルタレザ"],
+  "Belo Horizonte": ["벨루오리존치", "美景市", "ベロオリゾンテ"],
+  "Manaus": ["마나우스", "馬瑙斯", "マナウス"],
+  "Curitiba": ["쿠리치바", "庫里奇巴", "クリチバ"],
+  "Recife": ["헤시피", "累西腓", "レシフェ"],
+  "Porto Alegre": ["포르투알레그리", "愉港", "ポルトアレグレ"],
+  "Taipei": ["타이베이", "台北", "タイペイ"],
+  "Kaohsiung": ["가오슝", "高雄", "カオシュン"],
+  "Taichung": ["타이중", "台中", "タイチュン"],
+  "Tainan": ["타이난", "台南", "タイナン"],
+  "New Taipei": ["신베이", "新北", "しんぺい"],
+  "Chengdu": ["청두", "成都", "チェンドゥ"],
+  "Xi'an": ["시안", "西安", "シーアン"],
+  "Nanjing": ["난징", "南京", "ナンキン"],
+  "Hangzhou": ["항저우", "杭州", "ハンジョウ"],
+  "Wuhan": ["우한", "武漢", "ウーハン"],
+  "Chongqing": ["충칭", "重慶", "チョンチン"],
+  "Macau": ["마카오", "澳門", "マカオ"],
+  "Moscow": ["모스크바", "莫斯科", "モスクワ", "Москва"],
+  "Saint Petersburg": ["상트페테르부르크", "聖彼得堡", "サンクトペテルブルク", "Санкт-Петербург"],
+  "Novosibirsk": ["노보시비르스크", "新西伯利亞", "ノヴォシビルスク", "Новосибирск"],
+  "Yekaterinburg": ["예카테린부르크", "葉卡捷琳堡", "エカテリンブルク", "Екатеринбург"],
+  "Kazan": ["카잔", "喀山", "カザン", "Казань"],
+  "Sochi": ["소치", "索契", "ソチ", "Сочи"],
+  "Vladivostok": ["블라디보스토크", "海參崴", "ウラジオストク", "Владивосток"],
+  "Chennai": ["첸나이", "金奈", "チェンナイ", "चेन्नई"],
+  "Kolkata": ["콜카타", "加爾各答", "コルカタ", "कोलकाता"],
+  "Hyderabad": ["하이데라바드", "海德拉巴", "ハイデラバード", "हैदराबाद"],
+  "Pune": ["푸네", "浦那", "プネ", "पुणे"],
+  "Ahmedabad": ["아메다바드", "艾哈邁達巴德", "アフマダーバード", "अहमदाबाद"],
+  "Jaipur": ["자이푸르", "齋浦爾", "ジャイプル", "जयपुर"],
+  "Lucknow": ["러크나우", "勒克瑙", "ラクナウ", "लखनऊ"],
+  "Surabaya": ["수라바야", "泗水", "スラバヤ"],
+  "Bandung": ["반둥", "萬隆", "バンドン"],
+  "Medan": ["메단", "棉蘭", "メダン"],
+  "Semarang": ["스마랑", "三寶壟", "スマラン"],
+  "Yogyakarta": ["족자카르타", "日惹", "ジョグジャカルタ"],
+  "Denpasar": ["덴파사르", "丹帕沙", "デンパサール", "Bali"],
+  "Guadalajara": ["과달라하라", "瓜達拉哈拉", "グアダラハラ"],
+  "Monterrey": ["몬테레이", "蒙特雷", "モンテレイ"],
+  "Cancun": ["칸쿤", "坎昆", "カンクン", "Cancún"],
+  "Tijuana": ["티후아나", "蒂華納", "ティフアナ"],
+  "Puebla": ["푸에블라", "普埃布拉", "プエブラ"],
+  "Cordoba": ["코르도바", "科爾多瓦", "コルドバ", "Córdoba"],
+  "Rosario": ["로사리오", "羅薩里奧", "ロサリオ"],
+  "Mendoza": ["멘도사", "門多薩", "メンドーサ"],
+  "Santiago": ["산티아고", "聖地牙哥", "サンティアゴ"],
+  "Valparaiso": ["발파라이소", "瓦爾帕萊索", "バルパライソ", "Valparaíso"],
+  "Bogota": ["보고타", "波哥大", "ボゴタ", "Bogotá"],
+  "Medellin": ["메데인", "麥德林", "メデジン", "Medellín"],
+  "Cali": ["칼리", "卡利", "カリ"],
+  "Lima": ["리마", "利馬", "リマ"],
+  "Cusco": ["쿠스코", "庫斯科", "クスコ"],
+  "Manchester": ["맨체스터", "曼徹斯特", "マンチェスター"],
+  "Edinburgh": ["에든버러", "愛丁堡", "エディンバラ"],
+  "Birmingham": ["버밍엄", "伯明翰", "バーミンガム"],
+  "Munich": ["뮌헨", "慕尼黑", "ミュンヘン", "München"],
+  "Hamburg": ["함부르크", "漢堡", "ハンブルク"],
+  "Frankfurt": ["프랑크푸르트", "法蘭克福", "フランクフルト"],
+  "Milan": ["밀라노", "米蘭", "ミラノ", "Milano"],
+  "Naples": ["나폴리", "拿坡里", "ナポリ", "Napoli"],
+  "Florence": ["피렌체", "佛羅倫斯", "フィレンツェ", "Firenze"],
+  "Venice": ["베네치아", "威尼斯", "ベネチア", "Venezia"],
+  "Calgary": ["캘거리", "卡加利", "カルガリー"],
+  "Ottawa": ["오타와", "渥太華", "オタワ"],
+  "Quebec City": ["퀘벡", "魁北克", "ケベック", "Québec"],
+  "Brisbane": ["브리즈번", "布里斯本", "ブリスベン"],
+  "Perth": ["퍼스", "珀斯", "パース"],
+  "Adelaide": ["애들레이드", "阿德萊德", "アデレード"],
+  "Cairo": ["카이로", "開羅", "カイロ"],
+  "Lagos": ["라고스", "拉各斯", "ラゴス"],
+  "Johannesburg": ["요하네스버그", "約翰尼斯堡", "ヨハネスブルク"],
+  "Cape Town": ["케이프타운", "開普敦", "ケープタウン"],
+  "Nairobi": ["나이로비", "奈洛比", "ナイロビ"],
+  "Casablanca": ["카사블랑카", "卡薩布蘭卡", "カサブランカ"],
+  "Dakar": ["다카르", "達喀爾", "ダカール"],
+  "Da Nang": ["다낭", "峴港", "ダナン", "Đà Nẵng"],
+  "Chiang Mai": ["치앙마이", "清邁", "チェンマイ", "เชียงใหม่"],
+  "Istanbul": ["이스탄불", "伊斯坦堡", "イスタンブール"],
+  "Tehran": ["테헤란", "德黑蘭", "テヘラン"],
+  "Riyadh": ["리야드", "利雅德", "リヤド"],
+  "Warsaw": ["바르샤바", "華沙", "ワルシャワ", "Warszawa"],
+  "Prague": ["프라하", "布拉格", "プラハ", "Praha"],
+  "Budapest": ["부다페스트", "布達佩斯", "ブダペスト"],
+  "Kyiv": ["키이우", "基輔", "キーウ", "Київ", "Kiev"],
+  "Stockholm": ["스톡홀름", "斯德哥爾摩", "ストックホルム"],
+  "Copenhagen": ["코펜하겐", "哥本哈根", "コペンハーゲン", "København"],
+  "Oslo": ["오슬로", "奧斯陸", "オスロ"],
+  "Helsinki": ["헬싱키", "赫爾辛基", "ヘルシンキ"],
+  "Zurich": ["취리히", "蘇黎世", "チューリッヒ"],
+  "Geneva": ["제네바", "日內瓦", "ジュネーヴ", "Genève"],
+  "Vienna": ["빈", "維也納", "ウィーン", "Wien"],
+  "Brussels": ["브뤼셀", "布魯塞爾", "ブリュッセル", "Bruxelles"],
+  "Dublin": ["더블린", "都柏林", "ダブリン"],
 };
 
 // Korean chosung (초성) extractor
@@ -225,6 +462,10 @@ export function searchCities(query: string): City[] {
   const lowerQuery = query.toLowerCase();
   const chosungQuery = isChosungOnly(query) ? query : null;
 
+  // For 1-char queries, show more results so users can see country variety
+  // (e.g. "b" should surface Barcelona, Berlin, Boston, Bogotá, Bangkok etc.)
+  const resultLimit = query.length === 1 ? 15 : 8;
+
   // Score each city for relevance ranking
   const scored: { city: City; score: number }[] = [];
 
@@ -237,11 +478,12 @@ export function searchCities(query: string): City[] {
     if (nameLower.startsWith(lowerQuery)) {
       score = 100;
     }
-    // Prefix match on alias
+    // Prefix match on alias (covers Korean, Japanese, Chinese, Cyrillic,
+    // Devanagari, and Latin-script variants like "Sevilla", "München")
     else if (aliases?.some(a => a.toLowerCase().startsWith(lowerQuery) || a.startsWith(query))) {
       score = 90;
     }
-    // Chosung match
+    // Chosung match (Korean-only — ㅅㅇ → 서울)
     else if (chosungQuery && aliases?.some(a => getChosung(a).startsWith(chosungQuery))) {
       score = 85;
     }
@@ -253,9 +495,11 @@ export function searchCities(query: string): City[] {
     else if (aliases?.some(a => a.toLowerCase().includes(lowerQuery) || a.includes(query))) {
       score = 40;
     }
-    // Country match
+    // Country match — raised from 30 → 60 so typing a country name
+    // (e.g. "spain", "brazil") surfaces all of that country's cities
+    // above unrelated prefix matches.
     else if (city.country.toLowerCase().includes(lowerQuery)) {
-      score = 30;
+      score = 60;
     }
 
     if (score > 0) {
@@ -267,7 +511,7 @@ export function searchCities(query: string): City[] {
 
   return scored
     .sort((a, b) => b.score - a.score)
-    .slice(0, 8)
+    .slice(0, resultLimit)
     .map(s => s.city);
 }
 

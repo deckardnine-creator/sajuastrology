@@ -10,7 +10,6 @@ export type Locale =
   | "zh-TW"
   | "hi"
   | "es"
-  | "ar"
   | "fr"
   | "pt"
   | "ru"
@@ -23,7 +22,6 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   "zh-TW": "中文繁體",
   hi: "हिन्दी",
   es: "Español",
-  ar: "العربية",
   fr: "Français",
   pt: "Português",
   ru: "Русский",
@@ -38,7 +36,6 @@ export const LOCALE_SHORT_LABELS: Record<Locale, string> = {
   "zh-TW": "繁",
   hi: "HI",
   es: "ES",
-  ar: "AR",
   fr: "FR",
   pt: "PT",
   ru: "RU",
@@ -46,7 +43,9 @@ export const LOCALE_SHORT_LABELS: Record<Locale, string> = {
 };
 
 // RTL languages — text direction only, layout stays LTR
-export const RTL_LOCALES: readonly Locale[] = ["ar"] as const;
+// Currently no RTL languages are supported. Kept as typed empty array so
+// callers of isRTL() still compile without branching on null/undefined.
+export const RTL_LOCALES: readonly Locale[] = [] as const;
 export const isRTL = (locale: Locale): boolean =>
   RTL_LOCALES.includes(locale);
 
@@ -59,7 +58,6 @@ export const SUPPORTED_LOCALES: readonly Locale[] = [
   "zh-TW",
   "hi",
   "es",
-  "ar",
   "fr",
   "pt",
   "ru",
@@ -729,7 +727,7 @@ export type TranslationKey = keyof typeof translations;
 //
 // Note: as-const gives each entry a narrowed type like
 // { readonly en: string; readonly ko: string; readonly ja: string }.
-// We cast to a broader record so TS accepts locales like "es", "ar"
+// We cast to a broader record so TS accepts locales like "es", "fr"
 // that aren't present on every entry yet — they'll miss at runtime
 // and fall through to the English fallback, which is exactly what
 // we want during the staged multilingual rollout.
@@ -771,7 +769,6 @@ const BCP47_MAP: Record<Locale, string> = {
   "zh-TW": "zh-TW",
   hi: "hi-IN",
   es: "es-ES",
-  ar: "ar-SA",
   fr: "fr-FR",
   pt: "pt-BR",
   ru: "ru-RU",
