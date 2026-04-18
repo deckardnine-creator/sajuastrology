@@ -803,10 +803,10 @@ export default function ReadingPageClient() {
                   <div className="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                 </div>
                 <h3 className="font-serif text-xl text-primary mb-2">
-                  {locale === "ko" ? "결제 확인 중..." : locale === "ja" ? "決済確認中..." : "Verifying payment..."}
+                  {t("reading.verifyingPayment", locale)}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {locale === "ko" ? "잠시만 기다려주세요. 곧 리딩이 시작됩니다." : locale === "ja" ? "少々お待ちください。まもなく鑑定が始まります。" : "Please wait — your reading will begin shortly."}
+                  {t("reading.verifyingDesc", locale)}
                 </p>
               </div>
             )}
@@ -909,15 +909,11 @@ export default function ReadingPageClient() {
       },
     ];
     const tl = (o: { ko: string; ja: string; en: string }) => (locale === "ko" ? o.ko : locale === "ja" ? o.ja : o.en);
-    const stageLabel = (locale === "ko" ? "사주 생성 중" : locale === "ja" ? "四柱を生成中" : "Generating your reading");
-    const stayMsg = (locale === "ko"
-      ? "이 페이지를 떠나지 마세요 — 해석이 중단될 수 있습니다."
-      : locale === "ja"
-      ? "このページを離れないでください — 解釈が中断される可能性があります。"
-      : "Please stay on this page — leaving may interrupt the reading.");
+    const stageLabel = t("reading.generating", locale);
+    const stayMsg = t("reading.stayMsg", locale);
     // Localized header "Cosmic Blueprint" style (parallel with compat's "Cosmic Compatibility")
-    const titleTop = (locale === "ko" ? "우주적" : locale === "ja" ? "宇宙の" : "Cosmic");
-    const titleBottom = (locale === "ko" ? "청사진" : locale === "ja" ? "設計図" : "Blueprint");
+    const titleTop = t("reading.titleTop", locale);
+    const titleBottom = t("reading.titleBottom", locale);
     // Chart-only data is already populated, so we can show the Day Master during generation.
     const dmKeyLoad = `${reading.day_master_element}-${reading.day_master_yinyang}`;
     const dmDisplayLoad = DAY_MASTER_DISPLAY[dmKeyLoad] || { zh: "?", en: "Unknown" };
@@ -1170,7 +1166,7 @@ export default function ReadingPageClient() {
                   <p className={`text-2xl font-serif ${p.isHourUnknown ? "text-primary/40" : "text-primary"}`}>{p.stem}</p>
                   <p className={`text-lg ${p.isHourUnknown ? "text-[rgba(148,163,184,0.40)]" : "text-muted-foreground"}`}>{p.branch}</p>
                   {p.isDay && <p className="text-[10px] text-[rgba(242,202,80,0.60)] mt-1">{t("reading.dayMasterLabel", locale)}</p>}
-                  {p.isHourUnknown && <p className="text-[9px] text-[rgba(148,163,184,0.50)] mt-1.5">{locale === "ko" ? "추정값" : locale === "ja" ? "推定値" : "estimated"}</p>}
+                  {p.isHourUnknown && <p className="text-[9px] text-[rgba(148,163,184,0.50)] mt-1.5">{t("reading.estimated", locale)}</p>}
                 </div>
               ))}
             </div>
@@ -1432,7 +1428,7 @@ export default function ReadingPageClient() {
                     </Button>
                     <p className="text-xs text-[rgba(148,163,184,0.50)] mt-2">{t("reading.oneTime", locale)}</p>
                     <p className="text-xs text-[rgba(242,202,80,0.60)] mt-1">{t("reading.compatFree", locale)}</p>
-                    {locale === "ko" && <p className="text-[10px] text-[rgba(148,163,184,0.40)] mt-1.5">해외 결제 수단 전용 · 국내 카드 미지원</p>}
+                    {locale === "ko" && <p className="text-[10px] text-[rgba(148,163,184,0.40)] mt-1.5">{t("upgrade.koNotice", locale)}</p>}
                     {paymentError && (
                       <p className="text-xs text-red-400 mt-2 max-w-xs mx-auto">{paymentError}</p>
                     )}
@@ -1537,7 +1533,7 @@ export default function ReadingPageClient() {
                     <div className="px-6 py-3 border-b border-border bg-[rgba(242,202,80,0.05)] flex items-center gap-2">
                       <div className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                       <span className="text-xs text-primary font-medium">
-                        {locale === "ko" ? "미리보기 — 생성 중..." : locale === "ja" ? "プレビュー — 生成中..." : "Preview — generating..."}
+                        {t("common.previewGenerating", locale)}
                       </span>
                     </div>
                     <div className="p-6 space-y-6">
