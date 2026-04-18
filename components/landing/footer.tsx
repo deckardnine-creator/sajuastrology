@@ -4,21 +4,30 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
 import { useNativeApp } from "@/lib/native-app"
-import type { Locale } from "@/lib/translations"
+import {
+  type Locale,
+  LOCALE_LABELS,
+  LOCALE_SHORT_LABELS,
+  SUPPORTED_LOCALES,
+} from "@/lib/translations"
+import { Globe, Check, ChevronDown } from "lucide-react"
+import { useRef } from "react"
 
-const LOCALES: { code: Locale; label: string }[] = [
-  { code: "en", label: "EN" },
-  { code: "ja", label: "JA" },
-  { code: "ko", label: "KO" },
-]
+// ═══════════════════════════════════════════════════════════════════
+// Inline label maps. `en` is required (fallback); other locales are
+// optional. At render time we resolve with `?? en` so unexpanded
+// locales (es/ar/fr/...) fall through to English copy without crashing.
+// ═══════════════════════════════════════════════════════════════════
 
-const letterLabel: Record<Locale, string> = {
+const letterLabel: Partial<Record<Locale, string>> & { en: string } = {
   en: "Letter",
   ko: "편지",
   ja: "手紙",
 }
 
-const bugBounty: Record<Locale, { badge: string; title: string; desc: string }> = {
+type BugBountyCopy = { badge: string; title: string; desc: string }
+
+const bugBounty: Partial<Record<Locale, BugBountyCopy>> & { en: BugBountyCopy } = {
   en: {
     badge: "Early Access",
     title: "Found a bug? Get a free Master Consultation ($29.99)",
@@ -36,8 +45,96 @@ const bugBounty: Record<Locale, { badge: string; title: string; desc: string }> 
   },
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// Footer language dropdown — mirror of navbar's LangDropdown but
+// styled for the footer's muted palette and sized compactly. Lives
+// here so footer stays a single self-contained file.
+// ═══════════════════════════════════════════════════════════════════
+function FooterLangDropdown() {
+  const { locale, setLocale } = useLanguage()
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false)
+    }
+    document.addEventListener("mousedown", onDown)
+    document.addEventListener("touchstart", onDown, { passive: true })
+    document.addEventListener("keydown", onKey)
+    return () => {
+      document.removeEventListener("mousedown", onDown)
+      document.removeEventListener("touchstart", onDown)
+      document.removeEventListener("keydown", onKey)
+    }
+  }, [open])
+
+  return (
+    <div ref={wrapRef} className="relative" dir="ltr">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`Language: ${LOCALE_LABELS[locale]}`}
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold tracking-wider text-muted-foreground hover:text-foreground bg-muted/30 hover:bg-muted/40 transition-colors min-h-[32px]"
+      >
+        <Globe className="h-3 w-3" aria-hidden="true" />
+        <span>{LOCALE_SHORT_LABELS[locale]}</span>
+        <ChevronDown
+          className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
+      </button>
+
+      {open && (
+        <ul
+          role="listbox"
+          aria-label="Select language"
+          className="absolute right-0 bottom-full mb-2 w-44 max-h-[70vh] overflow-y-auto bg-card border border-border rounded-lg shadow-xl py-1 z-[60]"
+        >
+          {SUPPORTED_LOCALES.map((code) => {
+            const active = code === locale
+            return (
+              <li key={code}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={active}
+                  onClick={() => { setLocale(code); setOpen(false) }}
+                  className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-sm transition-colors ${
+                    active
+                      ? "bg-primary/10 text-foreground"
+                      : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="w-7 text-[10px] font-bold tracking-wider text-muted-foreground/70">
+                      {LOCALE_SHORT_LABELS[code]}
+                    </span>
+                    <span>{LOCALE_LABELS[code]}</span>
+                  </span>
+                  {active && (
+                    <Check className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                  )}
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 export function Footer() {
-  const { t, locale, setLocale } = useLanguage()
+  const { t, locale } = useLanguage()
   const isNative = useNativeApp()
 
   // Defense in depth: if useNativeApp() somehow returns false in the iOS app
@@ -57,6 +154,10 @@ export function Footer() {
 
   const hideWebOnly = isNative || directNative
 
+  // Safe locale lookups with English fallback for locales not yet translated.
+  const letter = letterLabel[locale] ?? letterLabel.en
+  const bb = bugBounty[locale] ?? bugBounty.en
+
   const mainLinks = [
     { label: t("nav.whatIsSaju"), href: "/what-is-saju" },
     { label: t("nav.pricing"),    href: "/pricing" },
@@ -64,12 +165,10 @@ export function Footer() {
     { label: t("nav.consultation"), href: "/consultation" },
   ]
   const legalLinks = [
-    { label: letterLabel[locale], href: "/letter" },
+    { label: letter, href: "/letter" },
     { label: t("footer.privacy"), href: "/privacy" },
     { label: t("footer.terms"),   href: "/terms" },
   ]
-
-  const bb = bugBounty[locale]
 
   return (
     <footer className="bg-card py-10 sm:py-12">
@@ -123,21 +222,7 @@ export function Footer() {
           {/* Copyright + Language switcher */}
           <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap justify-center">
             <span>&copy; 2026 SajuAstrology.com</span>
-            <div className="flex items-center bg-muted/30 rounded-lg p-0.5 gap-0.5">
-              {LOCALES.map(({ code, label }) => (
-                <button
-                  key={code}
-                  onClick={() => setLocale(code)}
-                  className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-                    locale === code
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <FooterLangDropdown />
           </div>
 
           {/* Business info — hidden in native app */}
