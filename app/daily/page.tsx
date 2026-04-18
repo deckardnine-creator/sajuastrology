@@ -16,6 +16,7 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/footer";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { t, toBCP47 } from "@/lib/translations";
 import {
   getDailyPillar,
   calculateDailyEnergy,
@@ -128,7 +129,7 @@ export default function DailyPage() {
   const todayBranchZh = todayPillar.branch.zh;
 
   // Date formatting — deferred to client to avoid SSR/CSR timezone mismatch
-  const dateLocale = locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US";
+  const dateLocale = toBCP47(locale);
   const formattedDate = mounted
     ? new Date().toLocaleDateString(dateLocale, {
         weekday: "long", year: "numeric", month: "long", day: "numeric",
@@ -148,7 +149,7 @@ export default function DailyPage() {
       const d = new Date();
       d.setDate(d.getDate() + i);
       const score = Math.round(calculateDailyEnergy(sajuData.chart!, d));
-      const wLocale = locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US";
+      const wLocale = toBCP47(locale);
       return {
         day: d.toLocaleDateString(wLocale, { weekday: "short" }),
         dateNum: d.getDate(),
@@ -186,10 +187,7 @@ export default function DailyPage() {
 
   const handleShare = () => {
     if (!fortune) return;
-    const siteTag =
-      locale === "ko" ? "나의 오늘의 사주 운세 — sajuastrology.com"
-      : locale === "ja" ? "今日の四柱推命運勢 — sajuastrology.com"
-      : "My Saju Daily Fortune — sajuastrology.com";
+    const siteTag = t("dash.siteTag", locale);
     const text = `${fortune.shareText}\n\n${siteTag}`;
     if (navigator.share) {
       navigator.share({ text }).catch(() => {});
@@ -493,7 +491,7 @@ export default function DailyPage() {
                   {tx(txt.upgradeDesc, locale)}
                 </p>
                 <span className="text-sm text-primary font-medium flex items-center justify-center gap-1">
-                  {locale === "ko" ? "자세히 보기" : locale === "ja" ? "詳細を見る" : "Learn more"}
+                  {t("common.learnMore", locale)}
                   <ArrowRight className="w-3 h-3" />
                 </span>
               </div>

@@ -275,19 +275,19 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
           <motion.div className="space-y-6" initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.3, duration:0.7 }}>
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {locale === "ko" ? "서양 별자리는 " : locale === "ja" ? "西洋占星術は" : "Western astrology gives you "}
-                <span className="text-foreground font-medium">{locale === "ko" ? "12가지 중 1가지" : locale === "ja" ? "12タイプの1つ" : "1 of 12"}</span>
-                {locale === "ko" ? " 유형." : locale === "ja" ? "。" : " types."}
+                {t("calc.westernGivesYou", locale)}
+                <span className="text-foreground font-medium">{t("calc.oneOfTwelve", locale)}</span>
+                {t("calc.types", locale)}
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {locale === "ko" ? "사주는 " : locale === "ja" ? "四柱推命は" : "Saju maps "}
+                {t("calc.sajuMaps", locale)}
                 <span className="text-primary font-semibold">518,400</span>
-                {locale === "ko" ? "가지 고유한 우주적 프로필을 제공합니다." : locale === "ja" ? "通りの固有プロフィールを提供。" : " unique cosmic profiles from the exact moment and place you were born."}
+                {t("calc.uniqueProfiles", locale)}
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {locale === "ko" ? "리딩이 " : locale === "ja" ? "鑑定は" : "Your reading will be ready in "}
-                <span className="text-foreground font-medium">{locale === "ko" ? "30초 후" : locale === "ja" ? "30秒で" : "30 seconds"}</span>
-                {locale === "ko" ? "에 준비됩니다." : locale === "ja" ? "準備完了。" : "."}
+                {t("calc.readyIn", locale)}
+                <span className="text-foreground font-medium">{t("calc.seconds30", locale)}</span>
+                {t("calc.readyInSuffix", locale)}
               </p>
             </div>
             {selectedCity && (
@@ -338,7 +338,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
 
               {/* Date drums */}
               <div className="space-y-2">
-                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">{t("form.birthDate", locale)} <span className="normal-case tracking-normal text-muted-foreground/50">{t("form.birthDateNote", locale)} · {locale === "ko" ? "양력" : locale === "ja" ? "新暦" : "Solar Calendar"}</span></label>
+                <label className="text-[10px] tracking-[0.18em] text-muted-foreground uppercase">{t("form.birthDate", locale)} <span className="normal-case tracking-normal text-muted-foreground/50">{t("form.birthDateNote", locale)} · {t("common.solarCalendar", locale)}</span></label>
                 <div className="flex gap-2 justify-center items-center">
                   <DrumRoller values={YEARS}  selectedIndex={yearIdx}  onChange={setYearIdx}  label={t("form.year", locale)}  width={88} />
                   <span className="text-primary/25 text-2xl font-light select-none pb-1">·</span>

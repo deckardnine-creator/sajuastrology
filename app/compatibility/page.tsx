@@ -196,11 +196,11 @@ function CompatibilityContent() {
         const isOverloaded = data.error?.includes("529") || data.error?.includes("overloaded");
         const isTimeout = data.error?.includes("abort") || data.error?.includes("AbortError");
         if (isOverloaded) {
-          setError(locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요." : locale === "ja" ? "AIが少し混雑しています。しばらくしてからもう一度お試しください。" : "The AI is a bit busy right now. Please try again in a moment.");
+          setError(t("common.aiBusyShort", locale));
         } else if (isTimeout) {
-          setError(locale === "ko" ? "요청 시간이 초과됐습니다. 다시 시도해주세요." : locale === "ja" ? "リクエストがタイムアウトしました。もう一度お試しください。" : "Request timed out. Please try again.");
+          setError(t("common.requestTimedOut", locale));
         } else {
-          setError(locale === "ko" ? "오류가 발생했습니다. 다시 시도해주세요." : locale === "ja" ? "エラーが発生しました。もう一度お試しください。" : "Something went wrong. Please try again.");
+          setError(t("common.somethingWentWrong", locale));
         }
         setStep("personB");
         return;
@@ -219,9 +219,9 @@ function CompatibilityContent() {
       clearInterval(progressTimer);
       const isOverloaded = err?.message?.includes("529") || err?.message?.includes("overloaded");
       if (isOverloaded) {
-        setError(locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요." : locale === "ja" ? "AIが少し混雑しています。しばらくしてからもう一度お試しください。" : "The AI is a bit busy right now. Please try again in a moment.");
+        setError(t("common.aiBusyShort", locale));
       } else {
-        setError(locale === "ko" ? "오류가 발생했습니다. 다시 시도해주세요." : locale === "ja" ? "エラーが発生しました。もう一度お試しください。" : "Something went wrong. Please try again.");
+        setError(t("common.somethingWentWrong", locale));
       }
       setStep("personB");
     }
@@ -445,7 +445,7 @@ function PersonForm({ label, data, onChange, locale }: {
 
       {/* Birth Date — 3 equal columns, no overlap */}
       <div className="mb-4">
-        <label className="block text-sm text-muted-foreground mb-2">{t("form.birthDate", locale)} <span className="text-xs opacity-60">({locale === "ko" ? "양력" : locale === "ja" ? "新暦" : "Solar Calendar"})</span></label>
+        <label className="block text-sm text-muted-foreground mb-2">{t("form.birthDate", locale)} <span className="text-xs opacity-60">({t("common.solarCalendar", locale)})</span></label>
         <div className="grid grid-cols-3 gap-2">
           {/* Year */}
           <div className="flex flex-col items-center gap-1">
@@ -500,7 +500,7 @@ function PersonForm({ label, data, onChange, locale }: {
             className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${data.unknownTime ? "bg-primary border-primary" : "border-muted-foreground/40 group-hover:border-primary/50"}`}>
             {data.unknownTime && <span className="text-[10px] text-background font-bold">✓</span>}
           </div>
-          <span className="text-xs text-muted-foreground">{locale === "ko" ? "출생 시간을 모릅니다" : locale === "ja" ? "出生時間がわかりません" : "I don't know the birth time"}</span>
+          <span className="text-xs text-muted-foreground">{t("compat.birthTimeUnknown", locale)}</span>
         </label>
       </div>
 
