@@ -10,7 +10,30 @@ import type { SajuChart } from "./saju-calculator";
 function langPrefix(locale?: string): string {
   if (locale === "ko") return "반드시 한국어로 작성하세요. ";
   if (locale === "ja") return "必ず日本語で書いてください。";
+  if (locale === "es") return "Escribe completamente en español. ";
   return "";
+}
+
+// Spanish-specific glossary & term-handling rule. For technical Saju terms,
+// keep the Korean/Chinese original alongside a Spanish explanation in
+// parentheses (academic-footnote style). Where space is tight or a concept
+// is widely recognized in English, preserve the English term. This matches
+// Rimfactory's "world's first multilingual Saju" positioning and manages
+// user expectations — perfect translation is not the goal; natural,
+// authoritative bilingual prose is.
+function spanishTermingRule(locale?: string): string {
+  if (locale !== "es") return "";
+  return `
+- SPANISH TERMINOLOGY RULE: When referring to technical Saju concepts, use natural Spanish but preserve original terms for authenticity, in academic-footnote style:
+  · "Maestro del Día (日主 / Day Master)"
+  · "Gran Fortuna (大運 / 10-year luck cycle)"
+  · "los Cuatro Pilares (四柱)"
+  · "los Cinco Elementos (五行)"
+  · "Madera 木, Fuego 火, Tierra 土, Metal 金, Agua 水"
+  · "Estrella de Riqueza (財星)", "Dios Oculto (藏干)"
+- When a concept has no elegant Spanish rendering or the Spanish term would be awkward in tight UI-like spaces, keep the English term (e.g., "Day Master", "Yang Wood"). Do not invent or literally translate technical compound terms.
+- For classical text citations, cite the Korean or Chinese name with Chinese characters, e.g., "el Adivinación del Cielo Goteante (滴天髓)".
+- Use friendly, direct tone (tú form). Neutral Spanish, not region-specific.`;
 }
 
 export function buildPaidPromptPart1(chartSummary: string, locale?: string): string {
@@ -30,7 +53,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - Be SPECIFIC: name industries, career types, partner qualities, timing windows.
 - Use the person's element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : "English"}. JSON keys must remain in English.
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}
 
 GENERATE as JSON:
 {
@@ -59,7 +82,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - Be SPECIFIC about timing, seasons, health practices, and yearly predictions.
 - Use element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : "English"}. JSON keys must remain in English.
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}
 
 GENERATE as JSON:
 {
@@ -88,7 +111,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - The hidden_talent section should be the most MEMORABLE part of the entire reading.
 - Use element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : "English"}. JSON keys must remain in English.
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}
 
 GENERATE as JSON:
 {

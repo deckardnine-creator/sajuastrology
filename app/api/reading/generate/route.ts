@@ -211,7 +211,7 @@ export async function POST(request: NextRequest) {
       weakElement: chart.weakestElement,
     };
     const { prompt, citations: ragCitations } = await injectRAGIntoPrompt(
-      basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja'
+      basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja' | 'es'
     );
 
     // Build citation metadata for frontend UI
@@ -235,13 +235,28 @@ export async function POST(request: NextRequest) {
 
     const rawText = await generateWithFallback(prompt, locale);
 
-    // ═══ LANGUAGE CORRECTION — if KO/JA requested but English returned, try Claude ═══
+    // ═══ LANGUAGE CORRECTION — if KO/JA/ES requested but English returned, try Claude ═══
     let finalText = rawText;
     if (locale !== "en" && rawText) {
       const sample = rawText.substring(0, 200);
-      const isCorrectLang = locale === "ko"
-        ? /[\uAC00-\uD7AF]/.test(sample)
-        : /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+      let isCorrectLang: boolean;
+      if (locale === "ko") {
+        isCorrectLang = /[\uAC00-\uD7AF]/.test(sample);
+      } else if (locale === "ja") {
+        isCorrectLang = /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+      } else if (locale === "es") {
+        // Spanish uses Latin script (same as English), so we detect by:
+        // (1) presence of Spanish-specific characters (ñ, ¿, ¡, accents),
+        // (2) presence of common Spanish stopwords, and
+        // (3) absence of overwhelming English stopwords.
+        const hasSpanishChars = /[ñÑ¿¡áéíóúÁÉÍÓÚ]/.test(sample);
+        const hasSpanishStopwords = /\b(el|la|los|las|de|que|en|un|una|es|eres|son|y|o|pero|tu|tú|tus|con|para|por|como|del|al|se|su|sus|este|esta|estos|estas|más|pero|porque|cuando)\b/i.test(sample);
+        const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
+        // Spanish if we see Spanish markers AND Spanish isn't overwhelmed by English
+        isCorrectLang = (hasSpanishChars || hasSpanishStopwords) && !(hasEnglishStopwords && !hasSpanishStopwords);
+      } else {
+        isCorrectLang = true; // unknown locale — accept
+      }
       if (!isCorrectLang) {
         try {
           const corrected = await callClaude(prompt, "claude-haiku-4-5-20251001");

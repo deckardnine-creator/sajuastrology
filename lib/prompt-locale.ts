@@ -9,6 +9,8 @@ export function getLanguageInstruction(locale?: string): string {
       return "Write your ENTIRE response in Korean (한국어). Use natural, literary Korean — not stiff translated Korean. Use honorific speech (존댓말). Keep Saju terms in their original form (사주, 천간, 지지, 일주, etc.).";
     case "ja":
       return "Write your ENTIRE response in Japanese (日本語). Use natural, literary Japanese with appropriate 敬語. Keep Four Pillars terms in their original Kanji form (四柱推命, 天干, 地支, 日柱, etc.).";
+    case "es":
+      return "Write your ENTIRE response in Spanish (español). Use natural, literary Spanish with friendly direct tone (tú form, not usted). Neutral dialect (not region-specific). For Saju technical terms, use academic-footnote style bilingual form: 'Maestro del Día (日主 / Day Master)', 'Gran Fortuna (大運)', 'los Cuatro Pilares (四柱)', 'los Cinco Elementos (五行)', 'Madera 木', 'Fuego 火', 'Tierra 土', 'Metal 金', 'Agua 水'. When a term has no elegant Spanish rendering, keep the English term (e.g., 'Day Master'). Preserve all Chinese characters (漢字) for authenticity.";
     default:
       return "Write in English.";
   }
@@ -18,6 +20,7 @@ export function getLocaleLabel(locale?: string): string {
   switch (locale) {
     case "ko": return "Korean";
     case "ja": return "Japanese";
+    case "es": return "Spanish";
     default: return "English";
   }
 }
@@ -46,6 +49,25 @@ export function getSystemInstruction(locale?: string): string | null {
 - 自然で文学的な日本語を使用してください。翻訳調は禁止。
 - 適切な敬語を使用してください。
 - 四柱推命の用語は漢字の原形を維持してください（四柱推命、天干、地支、日柱、大運など）。`;
+    case "es":
+      return `Eres un maestro del Saju (四柱 / Cuatro Pilares del Destino) con 40 años de experiencia.
+
+REGLAS ABSOLUTAS DE IDIOMA:
+- Todos los valores de texto (value) en la respuesta DEBEN escribirse en español.
+- Las claves JSON (key) deben permanecer en inglés (career, love, health, decade_forecast, monthly_energy, hidden_talent).
+- Escribir en inglés está ESTRICTAMENTE PROHIBIDO. Los valores deben ser 100% español.
+- Usa español natural y literario — no español traducido ni artificial.
+- Usa el tratamiento directo (tú), no usted. Español neutral (no específico de región).
+- Para términos técnicos del Saju, usa formato bilingüe estilo nota académica:
+  · "Maestro del Día (日主 / Day Master)"
+  · "Gran Fortuna (大運 / ciclo de 10 años)"
+  · "los Cuatro Pilares (四柱)"
+  · "los Cinco Elementos (五行)"
+  · "Madera 木, Fuego 火, Tierra 土, Metal 金, Agua 水"
+  · "Estrella de Riqueza (財星)", "Dios Oculto (藏干)"
+- Cuando un concepto no tenga traducción elegante al español o el término español sea incómodo, mantén el término en inglés (ej. "Day Master", "Yang Wood") o en coreano/chino con traducción entre paréntesis.
+- Preserva todos los caracteres chinos (漢字) para autenticidad.
+- Al citar textos clásicos, usa el nombre original: "el Adivinación del Cielo Goteante (滴天髓)", "el Espejo del Tesoro (穷通宝鉴)".`;
     default:
       return null; // EN uses responseMimeType, no system instruction needed
   }
@@ -62,6 +84,11 @@ All JSON string values MUST be written in Korean (한국어). Writing in English
       return `[OUTPUT LANGUAGE: JAPANESE]
 すべてのJSON valueは必ず日本語で書いてください。英語で書くことは禁止です。
 All JSON string values MUST be written in Japanese (日本語). Writing in English is STRICTLY FORBIDDEN.\n\n`;
+    case "es":
+      return `[OUTPUT LANGUAGE: SPANISH]
+Todos los valores JSON DEBEN escribirse en español. Escribir en inglés está PROHIBIDO.
+All JSON string values MUST be written in Spanish (español). Writing in English is STRICTLY FORBIDDEN.
+Use academic-footnote style for Saju terms: "Maestro del Día (日主)", "Gran Fortuna (大運)", "Madera 木", etc.\n\n`;
     default:
       return "";
   }
@@ -74,6 +101,8 @@ export function getLanguageFooter(locale?: string): string {
       return `\n⚠️ LANGUAGE REMINDER: 모든 JSON value는 반드시 한국어로 작성하세요. 영어 한 문장이라도 포함되면 실패입니다.`;
     case "ja":
       return `\n⚠️ LANGUAGE REMINDER: すべてのJSON valueは必ず日本語で書いてください。英語が1文でも含まれると失敗です。`;
+    case "es":
+      return `\n⚠️ LANGUAGE REMINDER: Todos los valores JSON deben escribirse en español. Si una sola oración está en inglés, es un fallo. Preserva 漢字 para términos técnicos.`;
     default:
       return "";
   }

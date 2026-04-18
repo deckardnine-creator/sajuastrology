@@ -331,7 +331,7 @@ export async function POST(request: NextRequest) {
         weakElement: chartA.weakestElement,
       };
       const ragContext = await buildRAGContext(
-        sajuDataForRAG, 'compatibility', (locale as 'ko' | 'en' | 'ja')
+        sajuDataForRAG, 'compatibility', (locale as 'ko' | 'en' | 'ja' | 'es')
       );
       ragPrefix = ragContext.contextText || "";
       if (ragContext.citations && ragContext.citations.length > 0) {
@@ -411,12 +411,22 @@ export async function POST(request: NextRequest) {
         }
       }
     }
-    // Language correction: if KO/JA requested but English returned, try Claude
+    // Language correction: if KO/JA/ES requested but English returned, try Claude
     if (locale !== "en" && freeSummary) {
       const sample = freeSummary.substring(0, 200);
-      const isCorrectLang = locale === "ko"
-        ? /[\uAC00-\uD7AF]/.test(sample)
-        : /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+      let isCorrectLang: boolean;
+      if (locale === "ko") {
+        isCorrectLang = /[\uAC00-\uD7AF]/.test(sample);
+      } else if (locale === "ja") {
+        isCorrectLang = /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+      } else if (locale === "es") {
+        const hasSpanishChars = /[ñÑ¿¡áéíóúÁÉÍÓÚ]/.test(sample);
+        const hasSpanishStopwords = /\b(el|la|los|las|que|en|un|una|es|eres|son|pero|tu|tú|con|para|por|como|del|al|se|su|este|esta|más|porque|cuando)\b/i.test(sample);
+        const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
+        isCorrectLang = (hasSpanishChars || hasSpanishStopwords) && !(hasEnglishStopwords && !hasSpanishStopwords);
+      } else {
+        isCorrectLang = true;
+      }
       if (!isCorrectLang) {
         try {
           const corrected = await callClaudeFallback(ragPrefix + buildFreeCompatibilityPrompt(scores, locale), "LangFix");

@@ -12,6 +12,13 @@ function detectLocaleFromContent(text: string | null): string | null {
   const sample = text.substring(0, 300);
   if (/[\uAC00-\uD7AF]/.test(sample)) return "ko";
   if (/[\u3040-\u309F\u30A0-\u30FF]/.test(sample)) return "ja";
+  // Spanish detection (Latin script): look for Spanish-specific markers first,
+  // then fall back to common Spanish stopwords. Avoid false positives on English
+  // that happens to contain a stray accent or common short words by requiring
+  // at least one strong Spanish signal.
+  const hasSpanishChars = /[ñÑ¿¡áéíóúÁÉÍÓÚ]/.test(sample);
+  const hasSpanishStopwords = /\b(el|la|los|las|que|en|un|una|es|eres|son|pero|tu|tú|con|para|por|como|del|al|se|su|este|esta|más|porque|cuando)\b/i.test(sample);
+  if (hasSpanishChars || hasSpanishStopwords) return "es";
   return "en";
 }
 
@@ -160,7 +167,7 @@ function parseJSON(raw: string): any {
 
 // ═══ LANGUAGE CHECK — verify content matches requested locale ═══
 // Some Gemini engines (especially Flash) occasionally return English text
-// even when given a KO/JA system instruction. This helper samples the longest
+// even when given a KO/JA/ES system instruction. This helper samples the longest
 // generated string and checks for the expected character range.
 function checkContentLanguage(parsed: Record<string, any>, locale: string): boolean {
   if (locale === "en") return true;
@@ -171,6 +178,13 @@ function checkContentLanguage(parsed: Record<string, any>, locale: string): bool
   const sample = longest.substring(0, 300);
   if (locale === "ko") return /[\uAC00-\uD7AF]/.test(sample);
   if (locale === "ja") return /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+  if (locale === "es") {
+    // Spanish is Latin script — use character + stopword heuristics.
+    // Accept if Spanish markers are present OR Spanish stopwords dominate.
+    const hasSpanishChars = /[ñÑ¿¡áéíóúÁÉÍÓÚ]/.test(sample);
+    const hasSpanishStopwords = /\b(el|la|los|las|que|en|un|una|es|eres|son|pero|tu|tú|con|para|por|como|del|al|se|su|este|esta|más|porque|cuando)\b/i.test(sample);
+    return hasSpanishChars || hasSpanishStopwords;
+  }
   return true;
 }
 
@@ -322,7 +336,7 @@ export async function POST(request: NextRequest) {
         weakElement: reading.weakest_element,
       };
       const ragContext = await buildRAGContext(
-        sajuDataForRAG, 'paid', (locale as 'ko' | 'en' | 'ja')
+        sajuDataForRAG, 'paid', (locale as 'ko' | 'en' | 'ja' | 'es')
       );
       ragPrefix = ragContext.contextText || "";
 

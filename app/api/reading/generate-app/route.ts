@@ -234,13 +234,23 @@ export async function POST(req: NextRequest) {
     // ═══ AI GENERATION ═══
     const rawText = await generateAI(ragPrefix, loc);
 
-    // ═══ LANGUAGE CORRECTION — if KO/JA requested but English returned, try Claude ═══
+    // ═══ LANGUAGE CORRECTION — if KO/JA/ES requested but English returned, try Claude ═══
     let finalText = rawText;
     if (loc !== "en" && rawText) {
       const sample = rawText.substring(0, 200);
-      const isCorrectLang = loc === "ko"
-        ? /[\uAC00-\uD7AF]/.test(sample)
-        : /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+      let isCorrectLang: boolean;
+      if (loc === "ko") {
+        isCorrectLang = /[\uAC00-\uD7AF]/.test(sample);
+      } else if (loc === "ja") {
+        isCorrectLang = /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+      } else if (loc === "es") {
+        const hasSpanishChars = /[ñÑ¿¡áéíóúÁÉÍÓÚ]/.test(sample);
+        const hasSpanishStopwords = /\b(el|la|los|las|que|en|un|una|es|eres|son|pero|tu|tú|con|para|por|como|del|al|se|su|este|esta|más|porque|cuando)\b/i.test(sample);
+        const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
+        isCorrectLang = (hasSpanishChars || hasSpanishStopwords) && !(hasEnglishStopwords && !hasSpanishStopwords);
+      } else {
+        isCorrectLang = true;
+      }
       if (!isCorrectLang) {
         try {
           const corrected = await callClaude(ragPrefix);

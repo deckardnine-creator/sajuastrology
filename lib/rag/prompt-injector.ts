@@ -51,7 +51,7 @@ interface Citation {
 export async function buildRAGContext(
   sajuData: SajuData,
   serviceType: 'free' | 'paid' | 'compatibility' | 'consultation' = 'paid',
-  locale: 'ko' | 'en' | 'ja' = 'ko'
+  locale: 'ko' | 'en' | 'ja' | 'es' = 'ko'
 ): Promise<RAGContext> {
   const emptyContext: RAGContext = {
     contextText: '',
@@ -159,7 +159,7 @@ export async function buildRAGContext(
  */
 function formatContextForPrompt(
   chunks: any[],
-  locale: 'ko' | 'en' | 'ja'
+  locale: 'ko' | 'en' | 'ja' | 'es'
 ): string {
   if (chunks.length === 0) return '';
 
@@ -167,12 +167,16 @@ function formatContextForPrompt(
     ? `[고전 사주 이론 참고자료 - 아래 고전 원전의 내용을 리딩에 자연스럽게 반영하세요]`
     : locale === 'en'
     ? `[Classical Four Pillars Theory Reference - Naturally incorporate these classical texts into your reading]`
+    : locale === 'es'
+    ? `[Referencia de Teoría Clásica de los Cuatro Pilares — Incorpora de forma natural estos textos clásicos en tu lectura]`
     : `[古典四柱理論参考資料 - 以下の古典原典の内容をリーディングに自然に反映してください]`;
 
   const instruction = locale === 'ko'
     ? `각 고전 구절을 리딩 안에서 자연스럽게 인용하세요. 예시: "적천수(滴天髓)에 이르기를..." 또는 "궁통보감(穷通宝鉴)에서는..." 형식으로 원전명을 밝혀주세요. 원문 한자를 일부 포함하면 신뢰도가 높아집니다.`
     : locale === 'en'
     ? `Naturally cite each classical passage in your reading. Example: "According to the Dripping Heaven Marrow (滴天髓)..." or "The Treasure Mirror (穷通宝鉴) states..." Include the original Chinese name for authenticity.`
+    : locale === 'es'
+    ? `Cita naturalmente cada pasaje clásico en tu lectura. Ejemplo: "Según el Adivinación del Cielo Goteante (滴天髓)..." o "El Espejo del Tesoro (穷通宝鉴) dice...". Incluye el nombre original en chino (漢字) para mayor autenticidad. Cuando el término sea técnico o específico del Saju, mantén el término coreano o chino original con una breve explicación en español entre paréntesis.`
     : `各古典の一節をリーディングの中で自然に引用してください。例：「滴天髓によれば…」「穷通宝鉴では…」のように原典名を明記してください。`;
 
   const chunkTexts = chunks.map((c, i) => {
@@ -192,7 +196,7 @@ export async function injectRAGIntoPrompt(
   basePrompt: string,
   sajuData: SajuData,
   serviceType: 'free' | 'paid' | 'compatibility' | 'consultation' = 'paid',
-  locale: 'ko' | 'en' | 'ja' = 'ko'
+  locale: 'ko' | 'en' | 'ja' | 'es' = 'ko'
 ): Promise<{ prompt: string; citations: Citation[] }> {
   const ragContext = await buildRAGContext(sajuData, serviceType, locale);
 
