@@ -51,7 +51,7 @@ interface Citation {
 export async function buildRAGContext(
   sajuData: SajuData,
   serviceType: 'free' | 'paid' | 'compatibility' | 'consultation' = 'paid',
-  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi' = 'ko'
+  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi' | 'id' = 'ko'
 ): Promise<RAGContext> {
   const emptyContext: RAGContext = {
     contextText: '',
@@ -159,7 +159,7 @@ export async function buildRAGContext(
  */
 function formatContextForPrompt(
   chunks: any[],
-  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi'
+  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi' | 'id'
 ): string {
   if (chunks.length === 0) return '';
 
@@ -179,6 +179,8 @@ function formatContextForPrompt(
     ? `[Справочник классической теории Четырёх Столпов — естественно интегрируй эти классические тексты в своё чтение]`
     : locale === 'hi'
     ? `[शास्त्रीय चार स्तंभ सिद्धांत संदर्भ — इन शास्त्रीय ग्रंथों को अपनी रीडिंग में स्वाभाविक रूप से शामिल करो]`
+    : locale === 'id'
+    ? `[Referensi Teori Klasik Empat Pilar — Padukan teks klasik ini secara alami ke dalam bacaanmu]`
     : `[古典四柱理論参考資料 - 以下の古典原典の内容をリーディングに自然に反映してください]`;
 
   const instruction = locale === 'ko'
@@ -197,6 +199,8 @@ function formatContextForPrompt(
     ? `Естественно цитируй каждый классический отрывок в своём чтении. Пример: "Согласно Капле Небесного Костного Мозга (滴天髓)..." или "Зеркало Сокровищ (穷通宝鉴) гласит...". Включай оригинальное китайское название (漢字) для аутентичности. Когда термин технический или специфичный для Саджу, сохраняй корейский или китайский оригинальный термин с кратким объяснением на русском в скобках.`
     : locale === 'hi'
     ? `अपनी रीडिंग में हर शास्त्रीय अंश को स्वाभाविक रूप से उद्धृत करो। उदाहरण: "स्वर्गीय अस्थि-मज्जा बिन्दु (滴天髓) के अनुसार..." या "खजाने का दर्पण (穷通宝鉴) कहता है...". प्रामाणिकता के लिए मूल चीनी नाम (漢字) शामिल करो। जब शब्द तकनीकी या सजू-विशिष्ट हो, मूल कोरियाई या चीनी शब्द को कोष्ठक में संक्षिप्त हिन्दी व्याख्या के साथ रखो।`
+    : locale === 'id'
+    ? `Kutip secara alami setiap kutipan klasik dalam bacaanmu. Contoh: "Menurut Tetesan Sumsum Surgawi (滴天髓)..." atau "Cermin Harta Karun (穷通宝鉴) menyatakan...". Sertakan nama Tionghoa asli (漢字) untuk keotentikan. Ketika istilah bersifat teknis atau spesifik Saju, pertahankan istilah Korea atau Tionghoa asli dengan penjelasan singkat Bahasa Indonesia dalam tanda kurung.`
     : `各古典の一節をリーディングの中で自然に引用してください。例：「滴天髓によれば…」「穷通宝鉴では…」のように原典名を明記してください。`;
 
   const chunkTexts = chunks.map((c, i) => {
@@ -216,7 +220,7 @@ export async function injectRAGIntoPrompt(
   basePrompt: string,
   sajuData: SajuData,
   serviceType: 'free' | 'paid' | 'compatibility' | 'consultation' = 'paid',
-  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi' = 'ko'
+  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi' | 'id' = 'ko'
 ): Promise<{ prompt: string; citations: Citation[] }> {
   const ragContext = await buildRAGContext(sajuData, serviceType, locale);
 

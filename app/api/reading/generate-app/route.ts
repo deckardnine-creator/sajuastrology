@@ -213,7 +213,7 @@ export async function POST(req: NextRequest) {
     try {
       const sajuData = { dayStem: ds, dayBranch: db, monthStem: ms, monthBranch: mb, yearStem: ys, yearBranch: yb, hourStem: hs, hourBranch: hb, dominantElement: chart.dominantElement, weakElement: chart.weakestElement };
       const { prompt: ragPrompt, citations } = await injectRAGIntoPrompt(
-        buildFreeReadingPrompt(chart, loc), sajuData, 'free', loc as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi'
+        buildFreeReadingPrompt(chart, loc), sajuData, 'free', loc as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi' | 'id'
       );
       ragPrefix = ragPrompt;
       if (citations?.length > 0) {
@@ -268,6 +268,10 @@ export async function POST(req: NextRequest) {
         isCorrectLang = /[\u0400-\u04FF]/.test(sample);
       } else if (loc === "hi") {
         isCorrectLang = /[\u0900-\u097F]/.test(sample);
+      } else if (loc === "id") {
+        const hasIndonesianStopwords = /\b(yang|dan|dari|untuk|kamu|kami|dengan|adalah|akan|dalam|atau|tidak|sudah|juga|bisa|harus|bukan|oleh|kepada|agar|sangat|telah|sedang|lebih|seperti|jika|saat|tetapi|hanya|masih|setiap|orang|hari|saya|mereka|kalian)\b/i.test(sample);
+        const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
+        isCorrectLang = hasIndonesianStopwords && !(hasEnglishStopwords && !hasIndonesianStopwords);
       } else {
         isCorrectLang = true;
       }

@@ -211,7 +211,7 @@ export async function POST(request: NextRequest) {
       weakElement: chart.weakestElement,
     };
     const { prompt, citations: ragCitations } = await injectRAGIntoPrompt(
-      basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi'
+      basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi' | 'id'
     );
 
     // Build citation metadata for frontend UI
@@ -292,6 +292,15 @@ export async function POST(request: NextRequest) {
       } else if (locale === "hi") {
         // Hindi: Devanagari script (U+0900–U+097F). Unambiguous detection.
         isCorrectLang = /[\u0900-\u097F]/.test(sample);
+      } else if (locale === "id") {
+        // Indonesian uses Latin script (no diacritics typically), so we rely
+        // on common Indonesian stopwords. ID-specific words: yang, dan, dari,
+        // untuk, kamu, kami, dengan, adalah, ini, itu, akan, dalam, atau,
+        // tidak, sudah, juga, bisa, harus, bukan, oleh, kepada, agar, sangat.
+        // These rarely appear together in English text.
+        const hasIndonesianStopwords = /\b(yang|dan|dari|untuk|kamu|kami|dengan|adalah|akan|dalam|atau|tidak|sudah|juga|bisa|harus|bukan|oleh|kepada|agar|sangat|telah|sedang|lebih|seperti|jika|saat|tetapi|hanya|masih|setiap|orang|hari|saya|mereka|kalian)\b/i.test(sample);
+        const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
+        isCorrectLang = hasIndonesianStopwords && !(hasEnglishStopwords && !hasIndonesianStopwords);
       } else {
         isCorrectLang = true;
       }

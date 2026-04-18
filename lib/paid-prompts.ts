@@ -16,6 +16,7 @@ function langPrefix(locale?: string): string {
   if (locale === "zh-TW") return "必須以繁體中文書寫。";
   if (locale === "ru") return "Пиши полностью на русском. ";
   if (locale === "hi") return "पूरी तरह हिन्दी में लिखो। ";
+  if (locale === "id") return "Tulis sepenuhnya dalam Bahasa Indonesia. ";
   return "";
 }
 
@@ -141,6 +142,26 @@ function hindiTermingRule(locale?: string): string {
 - Use Devanagari script (देवनागरी), not Roman/Latin script.`;
 }
 
+// Indonesian-specific glossary & term-handling rule. Mirrors Spanish/French/PT/RU/HI
+// pattern: natural Bahasa Indonesia prose with bilingual academic-footnote style for
+// technical Saju terms, preserving 漢字 for authenticity. Use kamu form
+// (friendly direct, standard for Indonesian digital products). Where Indonesian
+// rendering would be awkward, fall back to English or Korean/Chinese.
+function indonesianTermingRule(locale?: string): string {
+  if (locale !== "id") return "";
+  return `
+- INDONESIAN TERMINOLOGY RULE: When referring to technical Saju concepts, use natural Indonesian but preserve original terms for authenticity, in academic-footnote style:
+  · "Penguasa Hari (日主 / Day Master)"
+  · "Keberuntungan Besar (大運 / siklus keberuntungan 10 tahun)"
+  · "Empat Pilar (四柱)"
+  · "Lima Elemen (五行)"
+  · "Kayu 木, Api 火, Tanah 土, Logam 金, Air 水"
+  · "Bintang Kekayaan (財星)", "Dewa Tersembunyi (藏干)"
+- When a concept has no elegant Indonesian rendering or the Indonesian term would be awkward in tight UI-like spaces, keep the English term (e.g., "Day Master", "Yang Wood"). Do not invent or literally translate technical compound terms.
+- For classical text citations, cite the Korean or Chinese name with Chinese characters, e.g., "Tetesan Sumsum Surgawi (滴天髓)".
+- Use friendly, direct tone with kamu form, not Anda. Modern, natural Bahasa Indonesia suitable for digital product UX.`;
+}
+
 export function buildPaidPromptPart1(chartSummary: string, locale?: string): string {
   const lp = langPrefix(locale);
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long" });
@@ -158,7 +179,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - Be SPECIFIC: name industries, career types, partner qualities, timing windows.
 - Use the person's element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : locale === "ru" ? "Russian (русский)" : locale === "hi" ? "Hindi (हिन्दी)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}${hindiTermingRule(locale)}
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : locale === "ru" ? "Russian (русский)" : locale === "hi" ? "Hindi (हिन्दी)" : locale === "id" ? "Indonesian (Bahasa Indonesia)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}${hindiTermingRule(locale)}${indonesianTermingRule(locale)}
 
 GENERATE as JSON:
 {
@@ -187,7 +208,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - Be SPECIFIC about timing, seasons, health practices, and yearly predictions.
 - Use element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : locale === "ru" ? "Russian (русский)" : locale === "hi" ? "Hindi (हिन्दी)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}${hindiTermingRule(locale)}
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : locale === "ru" ? "Russian (русский)" : locale === "hi" ? "Hindi (हिन्दी)" : locale === "id" ? "Indonesian (Bahasa Indonesia)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}${hindiTermingRule(locale)}${indonesianTermingRule(locale)}
 
 GENERATE as JSON:
 {
@@ -216,7 +237,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - The hidden_talent section should be the most MEMORABLE part of the entire reading.
 - Use element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : locale === "ru" ? "Russian (русский)" : locale === "hi" ? "Hindi (हिन्दी)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}${hindiTermingRule(locale)}
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : locale === "ru" ? "Russian (русский)" : locale === "hi" ? "Hindi (हिन्दी)" : locale === "id" ? "Indonesian (Bahasa Indonesia)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}${hindiTermingRule(locale)}${indonesianTermingRule(locale)}
 
 GENERATE as JSON:
 {

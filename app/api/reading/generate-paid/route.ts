@@ -20,6 +20,11 @@ function detectLocaleFromContent(text: string | null): string | null {
   // Traditional Chinese: CJK ideographs without Hangul or Kana.
   // Must be checked AFTER ko/ja since both can also contain CJK characters.
   if (/[\u4E00-\u9FFF]/.test(sample)) return "zh-TW";
+  // Indonesian: Latin script with distinctive stopwords (yang, dan, untuk,
+  // kamu, dengan, adalah, dll). Check before ES/FR/PT since ID stopwords
+  // are highly distinctive and rarely appear in those languages.
+  const hasIndonesianStopwords = /\b(yang|dan|dari|untuk|kamu|kami|dengan|adalah|akan|dalam|atau|tidak|sudah|juga|bisa|harus|bukan|oleh|kepada|agar|sangat|telah|sedang|lebih|seperti|jika|saat|tetapi|hanya|masih|setiap|orang|hari|saya|mereka|kalian)\b/i.test(sample);
+  if (hasIndonesianStopwords) return "id";
   // Spanish detection (Latin script): look for Spanish-specific markers first,
   // then fall back to common Spanish stopwords. Avoid false positives on English
   // that happens to contain a stray accent or common short words by requiring
@@ -233,6 +238,10 @@ function checkContentLanguage(parsed: Record<string, any>, locale: string): bool
   if (locale === "hi") {
     // Devanagari script — unambiguous detection.
     return /[\u0900-\u097F]/.test(sample);
+  }
+  if (locale === "id") {
+    // Indonesian: Latin script. Use distinctive ID stopwords for detection.
+    return /\b(yang|dan|dari|untuk|kamu|kami|dengan|adalah|akan|dalam|atau|tidak|sudah|juga|bisa|harus|bukan|oleh|kepada|agar|sangat|telah|sedang|lebih|seperti|jika|saat|tetapi|hanya|masih|setiap|orang|hari|saya|mereka|kalian)\b/i.test(sample);
   }
   return true;
 }
