@@ -70,105 +70,6 @@ const getCategoryItems = (locale: "en" | "ko" | "ja") => [
   { id: "general", label: t("cat.general", locale), icon: HelpCircle, color: "#6B7280" },
 ];
 
-const EXAMPLE_QUESTIONS: Record<string, Record<string, string[]>> = {
-  en: {
-    career: [
-      "Should I change jobs this year? I've been at my company for 3 years and feel stuck.",
-      "I'm considering starting a business in tech. Is 2026 a favorable year for entrepreneurship?",
-      "I got two job offers — one stable, one risky but exciting. Which aligns better with my chart?",
-    ],
-    love: [
-      "I'm single and wondering if this year brings romantic opportunities. What should I look for?",
-      "My partner and I are considering marriage in late 2026. Is the timing favorable?",
-      "I keep attracting the wrong type. What does my chart say about my relationship patterns?",
-    ],
-    timing: [
-      "When is the best time to make a major investment this year?",
-      "I'm planning to relocate. Which months in 2026 are most favorable for a big move?",
-      "Should I start my project now or wait until next quarter?",
-    ],
-    wealth: [
-      "What does my chart say about my wealth potential over the next 5 years?",
-      "I'm torn between saving aggressively or investing in real estate. What suits my chart?",
-      "Are there specific months this year where financial opportunities are strongest?",
-    ],
-    health: [
-      "I've been feeling low energy. What does my chart suggest about my health this year?",
-      "Which elements should I focus on to improve my overall vitality?",
-      "Are there any periods this year where I should be extra careful about health?",
-    ],
-    general: [
-      "Give me an overview of what 2026 holds for me across all life areas.",
-      "I feel like I'm at a crossroads. What does my current cycle suggest about my path?",
-      "What are my greatest strengths and blind spots according to my chart?",
-    ],
-  },
-  ko: {
-    career: [
-      "올해 이직을 해야 할까요? 3년째 같은 회사에 다니고 있는데 성장이 멈춘 느낌입니다.",
-      "IT 분야 창업을 고민 중입니다. 2026년이 창업하기 좋은 해인지 사주로 봐주세요.",
-      "두 개의 취업 제안이 있어요. 하나는 안정적이고 하나는 리스크가 있지만 흥미롭습니다. 제 사주와 어울리는 선택은 무엇인가요?",
-    ],
-    love: [
-      "현재 솔로인데 올해 연애운이 어떤지, 어떤 점에 집중해야 하는지 알고 싶습니다.",
-      "파트너와 2026년 하반기 결혼을 생각 중인데, 시기가 적합한지 봐주세요.",
-      "계속 맞지 않는 사람을 만나게 됩니다. 제 사주에서 연애 패턴이 보이나요?",
-    ],
-    timing: [
-      "올해 큰 투자를 하기에 가장 좋은 시기는 언제인가요?",
-      "이사를 계획 중입니다. 2026년 중 큰 이동에 유리한 달은 언제인가요?",
-      "지금 프로젝트를 시작해야 할까요, 아니면 다음 분기까지 기다려야 할까요?",
-    ],
-    wealth: [
-      "향후 5년간 제 재물운은 어떻게 되나요?",
-      "공격적 저축과 부동산 투자 사이에서 고민 중입니다. 제 사주에는 어떤 방향이 맞나요?",
-      "올해 재물 기회가 가장 강한 달이 있나요?",
-    ],
-    health: [
-      "최근 에너지가 많이 떨어졌습니다. 제 사주로 올해 건강운을 봐주세요.",
-      "전반적인 건강을 위해 어떤 오행을 보완해야 하나요?",
-      "올해 건강에 특히 주의해야 하는 시기가 있나요?",
-    ],
-    general: [
-      "2026년 전체적인 운세 흐름을 전반적으로 봐주세요.",
-      "지금 인생의 갈림길에 선 느낌입니다. 현재 대운이 제 방향에 대해 무엇을 말해주나요?",
-      "제 사주에서 가장 큰 강점과 주의해야 할 점은 무엇인가요?",
-    ],
-  },
-  ja: {
-    career: [
-      "今年転職すべきでしょうか？同じ会社に3年いて成長が止まった気がします。",
-      "IT分野での起業を考えています。2026年は起業に適した年ですか？",
-      "2つの内定があります。一つは安定、もう一つはリスクがあるが面白い。どちらが私の命式に合いますか？",
-    ],
-    love: [
-      "現在独身ですが、今年恋愛の機会はありますか？どんな点に注目すべきでしょうか。",
-      "パートナーと2026年後半の結婚を考えています。時期は適切ですか？",
-      "なぜか合わない人ばかり引き寄せてしまいます。私の命式に恋愛パターンは見えますか？",
-    ],
-    timing: [
-      "今年大きな投資をするのに最適な時期はいつですか？",
-      "引越しを計画しています。2026年で大きな移動に有利な月はいつですか？",
-      "今すぐプロジェクトを始めるべきか、来四半期まで待つべきか？",
-    ],
-    wealth: [
-      "今後5年間の財運はどうなりますか？",
-      "積極的な貯蓄と不動産投資の間で迷っています。私の命式にはどちらが合いますか？",
-      "今年財運が特に強い月はありますか？",
-    ],
-    health: [
-      "最近エネルギーが落ちています。今年の健康運を四柱で見てください。",
-      "全体的な健康のために、どの五行を補うべきですか？",
-      "今年特に健康に注意が必要な時期はありますか？",
-    ],
-    general: [
-      "2026年の全体的な運気の流れを教えてください。",
-      "人生の岐路に立っている気がします。現在の大運は私の方向性について何を示していますか？",
-      "私の命式で最大の強みと注意すべき点は何ですか？",
-    ],
-  },
-};
-
 const emptyBirthData = (): BirthData => ({
   name: "",
   gender: "",
@@ -771,29 +672,6 @@ export function ConsultationClient() {
               </div>
             </div>
 
-            {/* Example Questions */}
-            {category && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="mb-6"
-              >
-                <p className="text-xs text-muted-foreground/60 mb-2">
-                  {t("consult.exampleQuestions", locale)}
-                </p>
-                <div className="space-y-2">
-                  {EXAMPLE_QUESTIONS[locale]?.[category]?.map((ex, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setQuestion(ex)}
-                      className="block w-full text-left text-xs text-muted-foreground hover:text-foreground p-2.5 rounded-lg bg-card/30 border border-border/50 hover:border-border transition-colors"
-                    >
-                      &ldquo;{ex}&rdquo;
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
 
             {error && (
               <p className="text-red-400 text-sm mb-4">{error}</p>

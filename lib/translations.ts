@@ -227,7 +227,6 @@ const translations = {
   "consult.questionLabelDetail": { en: "Describe your question in detail (100+ characters recommended)", ko: "질문을 자세히 입력하세요 (100자 이상 권장)", ja: "質問を詳しく入力してください（100文字以上推奨）", es: "Describe tu pregunta en detalle (100+ caracteres recomendado)" },
   "consult.questionLabel": { en: "Describe your question or situation", ko: "질문이나 상황을 설명해주세요", ja: "質問や状況を説明してください", es: "Describe tu pregunta o situación" },
   "consult.questionPlaceholder": { en: "Be as specific as possible — the more context you provide, the more precise your reading will be...", ko: "가능한 구체적으로 작성하세요 — 더 많은 맥락을 제공할수록 더 정확한 분석을 받을 수 있습니다...", ja: "できるだけ具体的に — 詳しい情報を提供するほど、より正確な分析が得られます...", es: "Sé lo más específico posible — cuanto más contexto, más precisa será tu lectura..." },
-  "consult.exampleQuestions": { en: "Example questions:", ko: "질문 예시:", ja: "質問の例：", es: "Preguntas de ejemplo:" },
   "consult.submit": { en: "Submit Consultation", ko: "상담 제출", ja: "相談を送信", es: "Enviar consulta" },
   "consult.analyzing": { en: "Analyzing your question...", ko: "질문 분석 중...", ja: "質問を分析中...", es: "Analizando tu pregunta..." },
   "consult.signIn": { en: "Sign In to Get Started", ko: "로그인하여 시작하기", ja: "ログインして始める", es: "Inicia sesión para comenzar" },
