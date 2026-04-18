@@ -3,62 +3,159 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X } from "lucide-react"
-import { useState, useEffect } from "react"
+import { Menu, X, Globe, Check, ChevronDown } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { UserMenu } from "@/components/auth/user-menu"
 import { useAuth } from "@/lib/auth-context"
 import { useLanguage } from "@/lib/language-context"
 import { useNativeApp } from "@/lib/native-app"
-import type { Locale } from "@/lib/translations"
+import {
+  type Locale,
+  LOCALE_LABELS,
+  LOCALE_SHORT_LABELS,
+  SUPPORTED_LOCALES,
+} from "@/lib/translations"
 import Image from "next/image"
 
-const LOCALES: { code: Locale; label: string; name: string }[] = [
-  { code: "en", label: "EN", name: "English" },
-  { code: "ja", label: "JA", name: "日本語" },
-  { code: "ko", label: "KO", name: "한국어" },
-]
-
-function DesktopLangSwitcher() {
+// ═══════════════════════════════════════════════════════════════════
+// Shared dropdown — used by both desktop and mobile switchers.
+// Closes on: outside click, ESC key, and language selection.
+// Keeps the existing useLanguage() contract: read locale, call setLocale.
+// ═══════════════════════════════════════════════════════════════════
+function LangDropdown({ compact = false }: { compact?: boolean }) {
   const { locale, setLocale } = useLanguage()
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false)
+    }
+    document.addEventListener("mousedown", onDown)
+    document.addEventListener("touchstart", onDown, { passive: true })
+    document.addEventListener("keydown", onKey)
+    return () => {
+      document.removeEventListener("mousedown", onDown)
+      document.removeEventListener("touchstart", onDown)
+      document.removeEventListener("keydown", onKey)
+    }
+  }, [open])
+
+  const handleSelect = (code: Locale) => {
+    setLocale(code)
+    setOpen(false)
+  }
+
+  const triggerPad = compact
+    ? "px-2 py-1 text-[10px] min-h-[28px] gap-1"
+    : "px-2.5 py-1.5 text-xs min-h-[32px] gap-1.5"
+
+  const iconSize = compact ? "h-3 w-3" : "h-3.5 w-3.5"
+
   return (
-    <div className="flex items-center bg-card/50 border border-border rounded-lg p-0.5 gap-0.5">
-      {LOCALES.map(({ code, label }) => (
-        <button
-          key={code}
-          onClick={() => setLocale(code)}
-          className={`px-2.5 py-1.5 rounded-md text-xs font-semibold transition-all min-h-[32px] tracking-wider ${
-            locale === code
-              ? "bg-primary text-primary-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground hover:bg-card"
-          }`}
-        >
-          {label}
-        </button>
-      ))}
+    <div
+      ref={wrapRef}
+      className="relative"
+      // Ensure menu text is LTR even if wrapping context is RTL (ar)
+      dir="ltr"
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`Language: ${LOCALE_LABELS[locale]}`}
+        className={`flex items-center bg-card/50 border border-border rounded-lg font-semibold tracking-wider text-foreground hover:border-primary/40 transition-colors ${triggerPad}`}
+      >
+        <Globe className={`${iconSize} text-muted-foreground`} aria-hidden="true" />
+        <span>{LOCALE_SHORT_LABELS[locale]}</span>
+        <ChevronDown
+          className={`${iconSize} text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.ul
+            role="listbox"
+            aria-label="Select language"
+            initial={{ opacity: 0, y: -4, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.12 }}
+            className="absolute right-0 mt-2 w-44 max-h-[70vh] overflow-y-auto bg-card border border-border rounded-lg shadow-xl py-1 z-[60]"
+          >
+            {SUPPORTED_LOCALES.map((code) => {
+              const active = code === locale
+              return (
+                <li key={code}>
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={active}
+                    onClick={() => handleSelect(code)}
+                    className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-sm transition-colors ${
+                      active
+                        ? "bg-primary/10 text-foreground"
+                        : "text-muted-foreground hover:bg-card/80 hover:text-foreground"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="w-7 text-[10px] font-bold tracking-wider text-muted-foreground/70">
+                        {LOCALE_SHORT_LABELS[code]}
+                      </span>
+                      <span>{LOCALE_LABELS[code]}</span>
+                    </span>
+                    {active && (
+                      <Check className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                    )}
+                  </button>
+                </li>
+              )
+            })}
+          </motion.ul>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
 
-function MobileInlineSwitcher() {
-  const { locale, setLocale } = useLanguage()
-  return (
-    <div className="flex items-center bg-card/50 border border-border rounded-lg p-0.5 gap-0.5 mr-1">
-      {LOCALES.map(({ code, label }) => (
-        <button
-          key={code}
-          onClick={() => setLocale(code)}
-          className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all min-h-[28px] tracking-wider ${
-            locale === code
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
-  )
+// Footer link labels — inline 11-locale map so the mobile menu stays
+// readable without reaching into translations.ts for three short strings.
+const FOOTER_LABELS: Record<Locale, { privacy: string; terms: string; contact: string }> = {
+  en: { privacy: "Privacy", terms: "Terms", contact: "Contact" },
+  ko: { privacy: "개인정보", terms: "이용약관", contact: "문의" },
+  ja: { privacy: "プライバシー", terms: "利用規約", contact: "お問い合わせ" },
+  "zh-TW": { privacy: "隱私", terms: "條款", contact: "聯絡" },
+  hi: { privacy: "गोपनीयता", terms: "शर्तें", contact: "संपर्क" },
+  es: { privacy: "Privacidad", terms: "Términos", contact: "Contacto" },
+  ar: { privacy: "الخصوصية", terms: "الشروط", contact: "اتصال" },
+  fr: { privacy: "Confidentialité", terms: "Conditions", contact: "Contact" },
+  pt: { privacy: "Privacidade", terms: "Termos", contact: "Contato" },
+  ru: { privacy: "Конфиденциальность", terms: "Условия", contact: "Контакт" },
+  id: { privacy: "Privasi", terms: "Ketentuan", contact: "Kontak" },
+}
+
+const LETTER_LABELS: Record<Locale, string> = {
+  en: "Letter",
+  ko: "편지",
+  ja: "手紙",
+  "zh-TW": "信",
+  hi: "पत्र",
+  es: "Carta",
+  ar: "رسالة",
+  fr: "Lettre",
+  pt: "Carta",
+  ru: "Письмо",
+  id: "Surat",
 }
 
 export function Navbar() {
@@ -69,10 +166,8 @@ export function Navbar() {
   const isNative = useNativeApp()
 
   const homeHref = "/"
-
-  // Letter link label — inline locale map (same pattern as footer.tsx `aboutLabel`)
-  const letterLabel: Record<Locale, string> =
-    { en: "Letter", ko: "편지", ja: "手紙" }
+  const footerLabel = FOOTER_LABELS[locale] ?? FOOTER_LABELS.en
+  const letterLabel = LETTER_LABELS[locale] ?? LETTER_LABELS.en
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden"
@@ -113,11 +208,11 @@ export function Navbar() {
               <Link href="/pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.pricing")}</Link>
               <Link href="/compatibility" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.compatibility")}</Link>
               <Link href="/consultation" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav.consultation")}</Link>
-              <Link href="/letter" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{letterLabel[locale]}</Link>
+              <Link href="/letter" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{letterLabel}</Link>
             </div>
 
             <div className="hidden md:flex md:items-center md:gap-3">
-              <DesktopLangSwitcher />
+              <LangDropdown />
               {(isLoading || isSigningOut) ? (
                 <div className="h-10 w-24 bg-muted/30 rounded-lg animate-pulse" />
               ) : user ? (
@@ -133,7 +228,7 @@ export function Navbar() {
             </div>
 
             <div className="flex md:hidden items-center gap-1">
-              <MobileInlineSwitcher />
+              <LangDropdown compact />
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-foreground z-50"
@@ -160,7 +255,7 @@ export function Navbar() {
               <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>
               <Link href="/compatibility" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.compatibility")}</Link>
               <Link href="/consultation" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.consultation")}</Link>
-              <Link href="/letter" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{letterLabel[locale]}</Link>
+              <Link href="/letter" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{letterLabel}</Link>
 
               <div className="w-16 h-px bg-border/50" />
 
@@ -182,15 +277,15 @@ export function Navbar() {
               {/* Footer links — Privacy, Terms, Contact */}
               <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-auto pt-8 pb-6 text-[11px] text-muted-foreground/60">
                 <Link href="/privacy" onClick={closeMenu} className="hover:text-muted-foreground transition-colors">
-                  {locale === "ko" ? "개인정보" : locale === "ja" ? "プライバシー" : "Privacy"}
+                  {footerLabel.privacy}
                 </Link>
                 <span>·</span>
                 <Link href="/terms" onClick={closeMenu} className="hover:text-muted-foreground transition-colors">
-                  {locale === "ko" ? "이용약관" : locale === "ja" ? "利用規約" : "Terms"}
+                  {footerLabel.terms}
                 </Link>
                 <span>·</span>
                 <a href="mailto:info@rimfactory.io" onClick={closeMenu} className="hover:text-muted-foreground transition-colors">
-                  {locale === "ko" ? "문의" : locale === "ja" ? "お問い合わせ" : "Contact"}
+                  {footerLabel.contact}
                 </a>
               </div>
             </div>

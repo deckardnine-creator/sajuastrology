@@ -1,7 +1,14 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
-import { type Locale, type TranslationKey, DEFAULT_LOCALE, t as translate } from "./translations";
+import {
+  type Locale,
+  type TranslationKey,
+  DEFAULT_LOCALE,
+  SUPPORTED_LOCALES,
+  isRTL,
+  t as translate,
+} from "./translations";
 import { safeGet, safeSet } from "./safe-storage";
 
 interface LanguageContextType {
@@ -12,14 +19,47 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+// Type guard: checks whether an arbitrary string is a supported locale
+function isSupportedLocale(value: string | null | undefined): value is Locale {
+  if (!value) return false;
+  return (SUPPORTED_LOCALES as readonly string[]).includes(value);
+}
+
+// Map a raw navigator.language value (e.g. "zh-TW", "pt-BR", "es-419")
+// to one of our 11 supported locales. Returns null if nothing matches.
+function mapBrowserLang(raw: string): Locale | null {
+  const lang = raw.toLowerCase();
+
+  // Traditional Chinese — Taiwan, Hong Kong, Macau
+  if (lang.startsWith("zh-tw") || lang.startsWith("zh-hk") || lang.startsWith("zh-mo") || lang === "zh-hant") {
+    return "zh-TW";
+  }
+
+  // Simplified Chinese falls back to Traditional for now (closest cultural match for saju)
+  if (lang.startsWith("zh")) return "zh-TW";
+
+  // Exact or prefix matches for other locales
+  if (lang.startsWith("ko")) return "ko";
+  if (lang.startsWith("ja")) return "ja";
+  if (lang.startsWith("hi")) return "hi";
+  if (lang.startsWith("es")) return "es";
+  if (lang.startsWith("ar")) return "ar";
+  if (lang.startsWith("fr")) return "fr";
+  if (lang.startsWith("pt")) return "pt";
+  if (lang.startsWith("ru")) return "ru";
+  if (lang.startsWith("id") || lang.startsWith("ms")) return "id"; // Malay users get Indonesian
+
+  return null;
+}
+
 function detectLocale(): Locale {
   // 0. URL lang parameter — Flutter WebView passes lang in URL on tab loads.
   //    When found, ALSO sync to localStorage so subsequent client-side
   //    navigations (form submit → /reading/{slug}) that strip the query
   //    string still read the correct value from localStorage.
   if (typeof window !== "undefined") {
-    const urlLang = new URLSearchParams(window.location.search).get("lang") as Locale | null;
-    if (urlLang && ["en", "ko", "ja"].includes(urlLang)) {
+    const urlLang = new URLSearchParams(window.location.search).get("lang");
+    if (isSupportedLocale(urlLang)) {
       try { localStorage.setItem("locale", urlLang); } catch {}
       return urlLang;
     }
@@ -27,14 +67,13 @@ function detectLocale(): Locale {
 
   // 1. Saved preference (set either by previous URL detection above
   //    or by an explicit setLocale() call from a language switcher)
-  const saved = safeGet("locale") as Locale | null;
-  if (saved && ["en", "ko", "ja"].includes(saved)) return saved;
+  const saved = safeGet("locale");
+  if (isSupportedLocale(saved)) return saved;
 
   // 2. Browser language
   if (typeof navigator !== "undefined") {
-    const lang = navigator.language.toLowerCase();
-    if (lang.startsWith("ko")) return "ko";
-    if (lang.startsWith("ja")) return "ja";
+    const mapped = mapBrowserLang(navigator.language);
+    if (mapped) return mapped;
   }
 
   return DEFAULT_LOCALE;
@@ -47,17 +86,19 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const detected = detectLocale();
     setLocaleState(detected);
-    // Sync html lang attribute on initial load
+    // Sync html lang + dir attributes on initial load
     document.documentElement.lang = detected;
+    document.documentElement.dir = isRTL(detected) ? "rtl" : "ltr";
     setMounted(true);
   }, []);
 
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale);
     safeSet("locale", newLocale);
-    // Update html lang attribute
+    // Update html lang + dir attributes
     if (typeof document !== "undefined") {
       document.documentElement.lang = newLocale;
+      document.documentElement.dir = isRTL(newLocale) ? "rtl" : "ltr";
     }
   }, []);
 

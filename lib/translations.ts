@@ -1,13 +1,74 @@
-export type Locale = "en" | "ko" | "ja";
+// ═══════════════════════════════════════════════════════════════════
+// Locale: 11 languages supported (EN/KO/JA fully translated;
+// others fall back to English until translation data is injected
+// in Phase 1a-2. Type uses Partial so missing keys compile cleanly.)
+// ═══════════════════════════════════════════════════════════════════
+export type Locale =
+  | "en"
+  | "ko"
+  | "ja"
+  | "zh-TW"
+  | "hi"
+  | "es"
+  | "ar"
+  | "fr"
+  | "pt"
+  | "ru"
+  | "id";
 
 export const LOCALE_LABELS: Record<Locale, string> = {
   en: "English",
   ko: "한국어",
   ja: "日本語",
+  "zh-TW": "中文繁體",
+  hi: "हिन्दी",
+  es: "Español",
+  ar: "العربية",
+  fr: "Français",
+  pt: "Português",
+  ru: "Русский",
+  id: "Indonesia",
 };
+
+// Short code shown in the language switcher button
+export const LOCALE_SHORT_LABELS: Record<Locale, string> = {
+  en: "EN",
+  ko: "KO",
+  ja: "JA",
+  "zh-TW": "繁",
+  hi: "HI",
+  es: "ES",
+  ar: "AR",
+  fr: "FR",
+  pt: "PT",
+  ru: "RU",
+  id: "ID",
+};
+
+// RTL languages — text direction only, layout stays LTR
+export const RTL_LOCALES: readonly Locale[] = ["ar"] as const;
+export const isRTL = (locale: Locale): boolean =>
+  RTL_LOCALES.includes(locale);
 
 export const DEFAULT_LOCALE: Locale = "en";
 
+export const SUPPORTED_LOCALES: readonly Locale[] = [
+  "en",
+  "ko",
+  "ja",
+  "zh-TW",
+  "hi",
+  "es",
+  "ar",
+  "fr",
+  "pt",
+  "ru",
+  "id",
+] as const;
+
+// Translation data. Each entry must have en (fallback); other
+// locales are optional. Missing locales resolve to en at runtime
+// via the t() function below.
 const translations = {
   // ─── Navbar ───
   "nav.whatIsSaju": { en: "What is Saju?", ko: "사주란?", ja: "四柱とは？" },
@@ -23,7 +84,6 @@ const translations = {
   // ─── Footer ───
   "footer.privacy": { en: "Privacy", ko: "개인정보처리방침", ja: "プライバシー" },
   "footer.terms": { en: "Terms", ko: "이용약관", ja: "利用規約" },
-
   // ─── Hero ───
   "hero.title1": { en: "Your Birth Date Holds a", ko: "당신의 생년월일에는", ja: "あなたの生年月日には" },
   "hero.title2": { en: "5,000-Year-Old Code.", ko: "5,000년의 비밀이 있습니다.", ja: "5,000年の秘密が隠されています。" },
@@ -574,10 +634,21 @@ const translations = {
 
 export type TranslationKey = keyof typeof translations;
 
+// ─── Fallback logic ───────────────────────────────────────────────
+// 1. Try requested locale
+// 2. Fall back to English (always present on every key)
+// 3. Fall back to the key itself if the key is missing entirely
+//
+// Note: as-const gives each entry a narrowed type like
+// { readonly en: string; readonly ko: string; readonly ja: string }.
+// We cast to a broader record so TS accepts locales like "es", "ar"
+// that aren't present on every entry yet — they'll miss at runtime
+// and fall through to the English fallback, which is exactly what
+// we want during the staged multilingual rollout.
 export function t(key: TranslationKey, locale: Locale): string {
-  const entry = translations[key];
+  const entry = translations[key] as Record<string, string> | undefined;
   if (!entry) return key;
-  return entry[locale] ?? entry.en;
+  return entry[locale] ?? entry.en ?? key;
 }
 
 export default translations;
