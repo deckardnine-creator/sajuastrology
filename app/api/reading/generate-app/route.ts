@@ -213,7 +213,7 @@ export async function POST(req: NextRequest) {
     try {
       const sajuData = { dayStem: ds, dayBranch: db, monthStem: ms, monthBranch: mb, yearStem: ys, yearBranch: yb, hourStem: hs, hourBranch: hb, dominantElement: chart.dominantElement, weakElement: chart.weakestElement };
       const { prompt: ragPrompt, citations } = await injectRAGIntoPrompt(
-        buildFreeReadingPrompt(chart, loc), sajuData, 'free', loc as 'ko' | 'en' | 'ja'
+        buildFreeReadingPrompt(chart, loc), sajuData, 'free', loc as 'ko' | 'en' | 'ja' | 'es' | 'fr'
       );
       ragPrefix = ragPrompt;
       if (citations?.length > 0) {
@@ -248,6 +248,12 @@ export async function POST(req: NextRequest) {
         const hasSpanishStopwords = /\b(el|la|los|las|que|en|un|una|es|eres|son|pero|tu|tú|con|para|por|como|del|al|se|su|este|esta|más|porque|cuando)\b/i.test(sample);
         const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
         isCorrectLang = (hasSpanishChars || hasSpanishStopwords) && !(hasEnglishStopwords && !hasSpanishStopwords);
+      } else if (loc === "fr") {
+        const hasFrenchChars = /[àâçéèêëîïôùûüÿœÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ]/.test(sample);
+        const hasFrenchStopwords = /\b(le|la|les|du|des|que|en|un|une|est|sont|et|ou|mais|tu|tes|ton|ta|avec|pour|par|comme|au|aux|se|son|ses|ce|cette|ces|plus|parce|quand|qui|qu)\b/i.test(sample);
+        const hasFrenchApostrophe = /\b[lndsjmtcLNDSJMTC]'[a-zA-ZàâçéèêëîïôùûüÿœÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ]/.test(sample);
+        const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
+        isCorrectLang = (hasFrenchChars || hasFrenchStopwords || hasFrenchApostrophe) && !(hasEnglishStopwords && !hasFrenchStopwords && !hasFrenchChars);
       } else {
         isCorrectLang = true;
       }

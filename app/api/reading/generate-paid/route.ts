@@ -19,6 +19,13 @@ function detectLocaleFromContent(text: string | null): string | null {
   const hasSpanishChars = /[ñÑ¿¡áéíóúÁÉÍÓÚ]/.test(sample);
   const hasSpanishStopwords = /\b(el|la|los|las|que|en|un|una|es|eres|son|pero|tu|tú|con|para|por|como|del|al|se|su|este|esta|más|porque|cuando)\b/i.test(sample);
   if (hasSpanishChars || hasSpanishStopwords) return "es";
+  // French detection (Latin script): French-specific characters, common French
+  // stopwords, or apostrophe contractions (l', d', n', s', etc.). Same defensive
+  // approach as Spanish — require at least one strong French signal.
+  const hasFrenchChars = /[àâçéèêëîïôùûüÿœÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ]/.test(sample);
+  const hasFrenchStopwords = /\b(le|la|les|du|des|que|en|un|une|est|sont|et|ou|mais|tu|tes|ton|ta|avec|pour|par|comme|au|aux|se|son|ses|ce|cette|ces|plus|parce|quand|qui|qu)\b/i.test(sample);
+  const hasFrenchApostrophe = /\b[lndsjmtcLNDSJMTC]'[a-zA-ZàâçéèêëîïôùûüÿœÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ]/.test(sample);
+  if (hasFrenchChars || hasFrenchStopwords || hasFrenchApostrophe) return "fr";
   return "en";
 }
 
@@ -184,6 +191,13 @@ function checkContentLanguage(parsed: Record<string, any>, locale: string): bool
     const hasSpanishChars = /[ñÑ¿¡áéíóúÁÉÍÓÚ]/.test(sample);
     const hasSpanishStopwords = /\b(el|la|los|las|que|en|un|una|es|eres|son|pero|tu|tú|con|para|por|como|del|al|se|su|este|esta|más|porque|cuando)\b/i.test(sample);
     return hasSpanishChars || hasSpanishStopwords;
+  }
+  if (locale === "fr") {
+    // French is Latin script — use character + stopword + apostrophe heuristics.
+    const hasFrenchChars = /[àâçéèêëîïôùûüÿœÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ]/.test(sample);
+    const hasFrenchStopwords = /\b(le|la|les|du|des|que|en|un|une|est|sont|et|ou|mais|tu|tes|ton|ta|avec|pour|par|comme|au|aux|se|son|ses|ce|cette|ces|plus|parce|quand|qui|qu)\b/i.test(sample);
+    const hasFrenchApostrophe = /\b[lndsjmtcLNDSJMTC]'[a-zA-ZàâçéèêëîïôùûüÿœÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ]/.test(sample);
+    return hasFrenchChars || hasFrenchStopwords || hasFrenchApostrophe;
   }
   return true;
 }

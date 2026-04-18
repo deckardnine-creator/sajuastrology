@@ -11,6 +11,7 @@ function langPrefix(locale?: string): string {
   if (locale === "ko") return "반드시 한국어로 작성하세요. ";
   if (locale === "ja") return "必ず日本語で書いてください。";
   if (locale === "es") return "Escribe completamente en español. ";
+  if (locale === "fr") return "Écris entièrement en français. ";
   return "";
 }
 
@@ -36,6 +37,26 @@ function spanishTermingRule(locale?: string): string {
 - Use friendly, direct tone (tú form). Neutral Spanish, not region-specific.`;
 }
 
+// French-specific glossary & term-handling rule. Mirrors Spanish pattern:
+// natural French prose with bilingual academic-footnote style for technical
+// Saju terms, preserving 漢字 for authenticity. Use tu form (friendly direct
+// tone) with standard Parisian French. Where French rendering would be
+// awkward, fall back to English or Korean/Chinese with French gloss.
+function frenchTermingRule(locale?: string): string {
+  if (locale !== "fr") return "";
+  return `
+- FRENCH TERMINOLOGY RULE: When referring to technical Saju concepts, use natural French but preserve original terms for authenticity, in academic-footnote style:
+  · "Maître du Jour (日主 / Day Master)"
+  · "Grande Fortune (大運 / cycle de chance de 10 ans)"
+  · "les Quatre Piliers (四柱)"
+  · "les Cinq Éléments (五行)"
+  · "Bois 木, Feu 火, Terre 土, Métal 金, Eau 水"
+  · "Étoile de Richesse (財星)", "Dieu Caché (藏干)"
+- When a concept has no elegant French rendering or the French term would be awkward in tight UI-like spaces, keep the English term (e.g., "Day Master", "Yang Wood"). Do not invent or literally translate technical compound terms.
+- For classical text citations, cite the Korean or Chinese name with Chinese characters, e.g., "le Adivination du Ciel Gouttant (滴天髓)".
+- Use friendly, direct tone (tu form, not vous). Standard Parisian French.`;
+}
+
 export function buildPaidPromptPart1(chartSummary: string, locale?: string): string {
   const lp = langPrefix(locale);
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long" });
@@ -53,7 +74,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - Be SPECIFIC: name industries, career types, partner qualities, timing windows.
 - Use the person's element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}
 
 GENERATE as JSON:
 {
@@ -82,7 +103,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - Be SPECIFIC about timing, seasons, health practices, and yearly predictions.
 - Use element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}
 
 GENERATE as JSON:
 {
@@ -111,7 +132,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - The hidden_talent section should be the most MEMORABLE part of the entire reading.
 - Use element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}
 
 GENERATE as JSON:
 {

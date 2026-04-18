@@ -211,7 +211,7 @@ export async function POST(request: NextRequest) {
       weakElement: chart.weakestElement,
     };
     const { prompt, citations: ragCitations } = await injectRAGIntoPrompt(
-      basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja' | 'es'
+      basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja' | 'es' | 'fr'
     );
 
     // Build citation metadata for frontend UI
@@ -254,6 +254,18 @@ export async function POST(request: NextRequest) {
         const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
         // Spanish if we see Spanish markers AND Spanish isn't overwhelmed by English
         isCorrectLang = (hasSpanishChars || hasSpanishStopwords) && !(hasEnglishStopwords && !hasSpanishStopwords);
+      } else if (locale === "fr") {
+        // French uses Latin script (same as English), detected by:
+        // (1) French-specific characters (à, â, ç, é, è, ê, ë, î, ï, ô, ù, û, ü, ÿ, œ),
+        // (2) common French stopwords (le, la, les, tu, etc.),
+        // (3) French-specific apostrophe contractions (l', d', n', s', etc.),
+        // (4) absence of overwhelming English stopwords.
+        const hasFrenchChars = /[àâçéèêëîïôùûüÿœÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ]/.test(sample);
+        const hasFrenchStopwords = /\b(le|la|les|de|du|des|que|en|un|une|est|es|sont|et|ou|mais|tu|tes|ton|ta|avec|pour|par|comme|au|aux|se|son|ses|ce|cette|ces|plus|parce|quand|qui|qu)\b/i.test(sample);
+        const hasFrenchApostrophe = /\b[lndsjmtcLNDSJMTC]'[a-zA-ZàâçéèêëîïôùûüÿœÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ]/.test(sample);
+        const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
+        // French if we see French markers AND French isn't overwhelmed by English
+        isCorrectLang = (hasFrenchChars || hasFrenchStopwords || hasFrenchApostrophe) && !(hasEnglishStopwords && !hasFrenchStopwords && !hasFrenchChars);
       } else {
         isCorrectLang = true; // unknown locale — accept
       }
