@@ -15,6 +15,8 @@ function detectLocaleFromContent(text: string | null): string | null {
   // Russian: Cyrillic script. Check before Latin-script langs since
   // Cyrillic is unambiguous and very fast to detect.
   if (/[\u0400-\u04FF]/.test(sample)) return "ru";
+  // Hindi: Devanagari script. Unambiguous, fast detection.
+  if (/[\u0900-\u097F]/.test(sample)) return "hi";
   // Traditional Chinese: CJK ideographs without Hangul or Kana.
   // Must be checked AFTER ko/ja since both can also contain CJK characters.
   if (/[\u4E00-\u9FFF]/.test(sample)) return "zh-TW";
@@ -227,6 +229,10 @@ function checkContentLanguage(parsed: Record<string, any>, locale: string): bool
   if (locale === "ru") {
     // Cyrillic script — unambiguous detection.
     return /[\u0400-\u04FF]/.test(sample);
+  }
+  if (locale === "hi") {
+    // Devanagari script — unambiguous detection.
+    return /[\u0900-\u097F]/.test(sample);
   }
   return true;
 }

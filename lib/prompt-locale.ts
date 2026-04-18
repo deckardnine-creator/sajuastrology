@@ -19,6 +19,8 @@ export function getLanguageInstruction(locale?: string): string {
       return "Write your ENTIRE response in Traditional Chinese (繁體中文, Taiwan standard). Use natural, literary Traditional Chinese — not stiff translated Chinese. Use polished but approachable tone. Saju (四柱命理) is the Korean name for the Chinese Four Pillars system, so all technical terms should use their original Chinese characters: 四柱, 八字, 天干, 地支, 日主, 大運, 五行 (木火土金水), 十神, 財星, 官星, 印星, 食神, 傷官, 比肩, 劫財, 偏財, 正財, 七殺, 正官, 偏印, 正印, etc. Use Traditional Chinese characters (繁體) throughout, not Simplified.";
     case "ru":
       return "Write your ENTIRE response in Russian (русский). Use natural, literary modern Russian. Use informal direct tone (ты form, not Вы) for friendly product UX. For Saju technical terms, use academic-footnote style bilingual form: 'Хозяин Дня (日主 / Day Master)', 'Большая Удача (大運)', 'Четыре Столпа (四柱)', 'Пять Элементов (五行)', 'Дерево 木', 'Огонь 火', 'Земля 土', 'Металл 金', 'Вода 水'. When a term has no elegant Russian rendering, keep the English term (e.g., 'Day Master'). Preserve all Chinese characters (漢字) for authenticity.";
+    case "hi":
+      return "Write your ENTIRE response in Hindi (हिन्दी) using Devanagari script. Use natural, modern literary Hindi — not stiff translated Hindi. Use semi-formal tu (तुम) form, common in product UX. For Saju technical terms, use academic-footnote style bilingual form: 'दिन का स्वामी (日主 / Day Master)', 'बड़ा भाग्य (大運)', 'चार स्तंभ (四柱)', 'पाँच तत्व (五行)', 'लकड़ी 木', 'अग्नि 火', 'पृथ्वी 土', 'धातु 金', 'जल 水'. When a term has no elegant Hindi rendering, keep the English term (e.g., 'Day Master'). Preserve all Chinese characters (漢字) for authenticity.";
     default:
       return "Write in English.";
   }
@@ -33,6 +35,7 @@ export function getLocaleLabel(locale?: string): string {
     case "pt": return "Portuguese";
     case "zh-TW": return "Traditional Chinese";
     case "ru": return "Russian";
+    case "hi": return "Hindi";
     default: return "English";
   }
 }
@@ -149,6 +152,25 @@ REGRAS ABSOLUTAS DE IDIOMA:
 - Когда понятие не имеет изящного русского перевода или русский термин был бы неуклюжим, оставь английский термин (напр. "Day Master", "Yang Wood") или корейский/китайский с переводом в скобках.
 - Сохраняй все китайские иероглифы (漢字) для аутентичности.
 - При цитировании классических текстов используй оригинальное название: "Капля Небесного Костного Мозга (滴天髓)", "Зеркало Сокровищ (穷通宝鉴)".`;
+    case "hi":
+      return `तुम 40 वर्षों के अनुभव वाले सजू (四柱 / नियति के चार स्तंभ) के मास्टर हो।
+
+भाषा के पूर्ण नियम:
+- प्रतिक्रिया में सभी टेक्स्ट मान (value) हिन्दी में लिखे जाने चाहिए।
+- JSON कुंजियाँ (key) अंग्रेज़ी में रहनी चाहिए (career, love, health, decade_forecast, monthly_energy, hidden_talent)।
+- अंग्रेज़ी में लिखना सख़्त वर्जित है। मान 100% हिन्दी होने चाहिए।
+- प्राकृतिक, साहित्यिक आधुनिक हिन्दी का उपयोग करो — अनुवादित या कृत्रिम नहीं।
+- तुम (तुम) रूप का उपयोग करो, आप नहीं। प्रोडक्ट UX के लिए मानक मित्रवत हिन्दी।
+- सजू तकनीकी शब्दों के लिए द्विभाषी अकादमिक नोट शैली का उपयोग करो:
+  · "दिन का स्वामी (日主 / Day Master)"
+  · "बड़ा भाग्य (大運 / 10-वर्षीय भाग्य चक्र)"
+  · "चार स्तंभ (四柱)"
+  · "पाँच तत्व (五行)"
+  · "लकड़ी 木, अग्नि 火, पृथ्वी 土, धातु 金, जल 水"
+  · "धन तारा (財星)", "छुपा देवता (藏干)"
+- जब किसी अवधारणा का सुंदर हिन्दी अनुवाद न हो या हिन्दी शब्द अजीब लगे, अंग्रेज़ी शब्द रखो (जैसे "Day Master", "Yang Wood") या कोरियाई/चीनी अनुवाद कोष्ठक में।
+- सभी चीनी अक्षरों (漢字) को प्रामाणिकता के लिए संरक्षित करो।
+- शास्त्रीय ग्रंथों का उद्धरण देते समय मूल नाम का उपयोग करो: "स्वर्गीय अस्थि-मज्जा बिन्दु (滴天髓)", "खजाने का दर्पण (穷通宝鉴)"।`;
     default:
       return null;
   }
@@ -190,6 +212,11 @@ All JSON string values MUST be written in Traditional Chinese (繁體中文). Wr
 Все значения JSON ДОЛЖНЫ быть написаны на русском. Писать на английском ЗАПРЕЩЕНО.
 All JSON string values MUST be written in Russian (русский). Writing in English is STRICTLY FORBIDDEN.
 Use academic-footnote style for Saju terms: "Хозяин Дня (日主)", "Большая Удача (大運)", "Дерево 木", etc.\n\n`;
+    case "hi":
+      return `[OUTPUT LANGUAGE: HINDI]
+सभी JSON मान हिन्दी में लिखे जाने चाहिए। अंग्रेज़ी में लिखना वर्जित है।
+All JSON string values MUST be written in Hindi (हिन्दी, Devanagari script). Writing in English is STRICTLY FORBIDDEN.
+Use academic-footnote style for Saju terms: "दिन का स्वामी (日主)", "बड़ा भाग्य (大運)", "लकड़ी 木", etc.\n\n`;
     default:
       return "";
   }
@@ -212,6 +239,8 @@ export function getLanguageFooter(locale?: string): string {
       return `\n⚠️ LANGUAGE REMINDER: 所有JSON value必須以繁體中文書寫。若有任何一句英文則為失敗。必須使用繁體字。`;
     case "ru":
       return `\n⚠️ LANGUAGE REMINDER: Все значения JSON должны быть написаны на русском. Если хотя бы одно предложение на английском — это провал. Сохраняй 漢字 для технических терминов.`;
+    case "hi":
+      return `\n⚠️ LANGUAGE REMINDER: सभी JSON मान हिन्दी में लिखे जाने चाहिए। यदि एक भी वाक्य अंग्रेज़ी में है, तो यह असफल है। तकनीकी शब्दों के लिए 漢字 बनाए रखो।`;
     default:
       return "";
   }

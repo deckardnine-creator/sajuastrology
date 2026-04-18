@@ -211,7 +211,7 @@ export async function POST(request: NextRequest) {
       weakElement: chart.weakestElement,
     };
     const { prompt, citations: ragCitations } = await injectRAGIntoPrompt(
-      basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru'
+      basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi'
     );
 
     // Build citation metadata for frontend UI
@@ -289,6 +289,9 @@ export async function POST(request: NextRequest) {
         // Russian: Cyrillic script (U+0400–U+04FF). Trivially distinguishable
         // from Latin/Hangul/Kana/CJK. A few Cyrillic chars are enough.
         isCorrectLang = /[\u0400-\u04FF]/.test(sample);
+      } else if (locale === "hi") {
+        // Hindi: Devanagari script (U+0900–U+097F). Unambiguous detection.
+        isCorrectLang = /[\u0900-\u097F]/.test(sample);
       } else {
         isCorrectLang = true;
       }

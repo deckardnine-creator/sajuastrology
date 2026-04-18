@@ -51,7 +51,7 @@ interface Citation {
 export async function buildRAGContext(
   sajuData: SajuData,
   serviceType: 'free' | 'paid' | 'compatibility' | 'consultation' = 'paid',
-  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' = 'ko'
+  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi' = 'ko'
 ): Promise<RAGContext> {
   const emptyContext: RAGContext = {
     contextText: '',
@@ -159,7 +159,7 @@ export async function buildRAGContext(
  */
 function formatContextForPrompt(
   chunks: any[],
-  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru'
+  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi'
 ): string {
   if (chunks.length === 0) return '';
 
@@ -177,6 +177,8 @@ function formatContextForPrompt(
     ? `[古典四柱理論參考資料 — 請將以下古典原典的內容自然地融入解讀中]`
     : locale === 'ru'
     ? `[Справочник классической теории Четырёх Столпов — естественно интегрируй эти классические тексты в своё чтение]`
+    : locale === 'hi'
+    ? `[शास्त्रीय चार स्तंभ सिद्धांत संदर्भ — इन शास्त्रीय ग्रंथों को अपनी रीडिंग में स्वाभाविक रूप से शामिल करो]`
     : `[古典四柱理論参考資料 - 以下の古典原典の内容をリーディングに自然に反映してください]`;
 
   const instruction = locale === 'ko'
@@ -193,6 +195,8 @@ function formatContextForPrompt(
     ? `請在解讀中自然地引用每段古典文獻。例如：「滴天髓有云：...」或「窮通寶鑒云：...」。直接使用古典原書名稱（如滴天髓、窮通寶鑒、子平真詮）。必須使用繁體中文書寫，不可使用簡體字。`
     : locale === 'ru'
     ? `Естественно цитируй каждый классический отрывок в своём чтении. Пример: "Согласно Капле Небесного Костного Мозга (滴天髓)..." или "Зеркало Сокровищ (穷通宝鉴) гласит...". Включай оригинальное китайское название (漢字) для аутентичности. Когда термин технический или специфичный для Саджу, сохраняй корейский или китайский оригинальный термин с кратким объяснением на русском в скобках.`
+    : locale === 'hi'
+    ? `अपनी रीडिंग में हर शास्त्रीय अंश को स्वाभाविक रूप से उद्धृत करो। उदाहरण: "स्वर्गीय अस्थि-मज्जा बिन्दु (滴天髓) के अनुसार..." या "खजाने का दर्पण (穷通宝鉴) कहता है...". प्रामाणिकता के लिए मूल चीनी नाम (漢字) शामिल करो। जब शब्द तकनीकी या सजू-विशिष्ट हो, मूल कोरियाई या चीनी शब्द को कोष्ठक में संक्षिप्त हिन्दी व्याख्या के साथ रखो।`
     : `各古典の一節をリーディングの中で自然に引用してください。例：「滴天髓によれば…」「穷通宝鉴では…」のように原典名を明記してください。`;
 
   const chunkTexts = chunks.map((c, i) => {
@@ -212,7 +216,7 @@ export async function injectRAGIntoPrompt(
   basePrompt: string,
   sajuData: SajuData,
   serviceType: 'free' | 'paid' | 'compatibility' | 'consultation' = 'paid',
-  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' = 'ko'
+  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru' | 'hi' = 'ko'
 ): Promise<{ prompt: string; citations: Citation[] }> {
   const ragContext = await buildRAGContext(sajuData, serviceType, locale);
 
