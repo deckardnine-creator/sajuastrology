@@ -211,7 +211,7 @@ export async function POST(request: NextRequest) {
       weakElement: chart.weakestElement,
     };
     const { prompt, citations: ragCitations } = await injectRAGIntoPrompt(
-      basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt'
+      basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW'
     );
 
     // Build citation metadata for frontend UI
@@ -276,6 +276,15 @@ export async function POST(request: NextRequest) {
         const hasPortugueseStopwords = /\b(o|a|os|as|de|do|da|dos|das|que|em|no|na|nos|nas|um|uma|é|são|está|estão|você|seu|sua|seus|suas|com|para|por|como|e|ou|mas|se|este|esta|estes|estas|isso|mais|porque|quando|também|muito|já)\b/i.test(sample);
         const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
         isCorrectLang = (hasPortugueseChars || hasPortugueseStopwords) && !(hasEnglishStopwords && !hasPortugueseStopwords && !hasPortugueseChars);
+      } else if (locale === "zh-TW") {
+        // Traditional Chinese: presence of CJK ideographs (U+4E00–U+9FFF range)
+        // AND absence of Korean Hangul or Japanese Kana (which would indicate
+        // misclassification). Note: simplified vs traditional differentiation
+        // is not enforced here since Gemini honors the system instruction.
+        const hasCJK = /[\u4E00-\u9FFF]/.test(sample);
+        const hasHangul = /[\uAC00-\uD7AF]/.test(sample);
+        const hasKana = /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+        isCorrectLang = hasCJK && !hasHangul && !hasKana;
       } else {
         isCorrectLang = true; // unknown locale — accept
       }

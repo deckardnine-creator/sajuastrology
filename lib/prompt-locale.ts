@@ -15,6 +15,8 @@ export function getLanguageInstruction(locale?: string): string {
       return "Write your ENTIRE response in French (français). Use natural, literary French with friendly direct tone (tu form, not vous). Standard Parisian French. For Saju technical terms, use academic-footnote style bilingual form: 'Maître du Jour (日主 / Day Master)', 'Grande Fortune (大運)', 'les Quatre Piliers (四柱)', 'les Cinq Éléments (五行)', 'Bois 木', 'Feu 火', 'Terre 土', 'Métal 金', 'Eau 水'. When a term has no elegant French rendering, keep the English term (e.g., 'Day Master'). Preserve all Chinese characters (漢字) for authenticity.";
     case "pt":
       return "Write your ENTIRE response in Portuguese (português). Use natural, literary Brazilian Portuguese with friendly direct tone (você form, not tu). Standard Brazilian Portuguese. For Saju technical terms, use academic-footnote style bilingual form: 'Mestre do Dia (日主 / Day Master)', 'Grande Fortuna (大運)', 'os Quatro Pilares (四柱)', 'os Cinco Elementos (五行)', 'Madeira 木', 'Fogo 火', 'Terra 土', 'Metal 金', 'Água 水'. When a term has no elegant Portuguese rendering, keep the English term (e.g., 'Day Master'). Preserve all Chinese characters (漢字) for authenticity.";
+    case "zh-TW":
+      return "Write your ENTIRE response in Traditional Chinese (繁體中文, Taiwan standard). Use natural, literary Traditional Chinese — not stiff translated Chinese. Use polished but approachable tone. Saju (四柱命理) is the Korean name for the Chinese Four Pillars system, so all technical terms should use their original Chinese characters: 四柱, 八字, 天干, 地支, 日主, 大運, 五行 (木火土金水), 十神, 財星, 官星, 印星, 食神, 傷官, 比肩, 劫財, 偏財, 正財, 七殺, 正官, 偏印, 正印, etc. Use Traditional Chinese characters (繁體) throughout, not Simplified.";
     default:
       return "Write in English.";
   }
@@ -27,6 +29,7 @@ export function getLocaleLabel(locale?: string): string {
     case "es": return "Spanish";
     case "fr": return "French";
     case "pt": return "Portuguese";
+    case "zh-TW": return "Traditional Chinese";
     default: return "English";
   }
 }
@@ -112,6 +115,18 @@ REGRAS ABSOLUTAS DE IDIOMA:
 - Quando um conceito não tiver tradução elegante para o português ou o termo português for desajeitado, mantenha o termo em inglês (ex. "Day Master", "Yang Wood") ou em coreano/chinês com tradução entre parênteses.
 - Preserve todos os caracteres chineses (漢字) para autenticidade.
 - Ao citar textos clássicos, use o nome original: "o Adivinhação do Céu Gotejante (滴天髓)", "o Espelho do Tesouro (穷通宝鉴)".`;
+    case "zh-TW":
+      return `你是一位擁有40年經驗的四柱命理大師。
+
+絕對的語言規則：
+- 所有回應的文字值（value）必須以繁體中文書寫。
+- JSON鍵（key）必須保持英文（career, love, health, decade_forecast, monthly_energy, hidden_talent）。
+- 嚴禁使用英文書寫。值必須100%為繁體中文。
+- 使用自然、文雅的繁體中文 — 禁止生硬翻譯腔。
+- 使用得體有禮但平易近人的語調。
+- 必須使用繁體字（不是簡體字）。
+- 四柱命理用語保持原始漢字形式：四柱、八字、天干、地支、日主、大運、五行（木火土金水）、十神、財星、官星、印星、食神、傷官、比肩、劫財、偏財、正財、七殺、正官、偏印、正印等。
+- 引用古典文獻時使用原始名稱：「滴天髓」、「窮通寶鑒」、「子平真詮」等。`;
     default:
       return null; // EN uses responseMimeType, no system instruction needed
   }
@@ -143,6 +158,11 @@ Use academic-footnote style for Saju terms: "Maître du Jour (日主)", "Grande 
 Todos os valores JSON DEVEM ser escritos em português. Escrever em inglês é PROIBIDO.
 All JSON string values MUST be written in Portuguese (português). Writing in English is STRICTLY FORBIDDEN.
 Use academic-footnote style for Saju terms: "Mestre do Dia (日主)", "Grande Fortuna (大運)", "Madeira 木", etc.\n\n`;
+    case "zh-TW":
+      return `[OUTPUT LANGUAGE: TRADITIONAL CHINESE]
+所有JSON value必須以繁體中文書寫。嚴禁使用英文。
+All JSON string values MUST be written in Traditional Chinese (繁體中文). Writing in English is STRICTLY FORBIDDEN.
+必須使用繁體字（非簡體）。Saju terms in original Chinese: 四柱, 八字, 天干, 地支, 日主, 大運, 五行, etc.\n\n`;
     default:
       return "";
   }
@@ -161,6 +181,8 @@ export function getLanguageFooter(locale?: string): string {
       return `\n⚠️ LANGUAGE REMINDER: Toutes les valeurs JSON doivent être écrites en français. Si une seule phrase est en anglais, c'est un échec. Préserve les 漢字 pour les termes techniques.`;
     case "pt":
       return `\n⚠️ LANGUAGE REMINDER: Todos os valores JSON devem ser escritos em português. Se uma única frase estiver em inglês, é uma falha. Preserve os 漢字 para termos técnicos.`;
+    case "zh-TW":
+      return `\n⚠️ LANGUAGE REMINDER: 所有JSON value必須以繁體中文書寫。若有任何一句英文則為失敗。必須使用繁體字。`;
     default:
       return "";
   }

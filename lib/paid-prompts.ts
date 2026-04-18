@@ -13,6 +13,7 @@ function langPrefix(locale?: string): string {
   if (locale === "es") return "Escribe completamente en español. ";
   if (locale === "fr") return "Écris entièrement en français. ";
   if (locale === "pt") return "Escreva inteiramente em português. ";
+  if (locale === "zh-TW") return "必須以繁體中文書寫。";
   return "";
 }
 
@@ -78,6 +79,25 @@ function portugueseTermingRule(locale?: string): string {
 - Use friendly, direct tone (você form, not tu). Standard Brazilian Portuguese.`;
 }
 
+// Traditional Chinese-specific glossary & term-handling rule. Unlike Western
+// languages, Chinese readers already know the original Chinese 漢字 names for
+// Saju terms — so we don't need bilingual footnotes. Just use the canonical
+// Chinese names directly. Saju is the Korean reading of 四柱 (sì zhù).
+// Critical: must be Traditional Chinese (繁體), not Simplified (简体).
+function traditionalChineseTermingRule(locale?: string): string {
+  if (locale !== "zh-TW") return "";
+  return `
+- TRADITIONAL CHINESE TERMINOLOGY RULE: Use canonical Chinese names directly without translation footnotes (Chinese readers know these terms):
+  · 四柱（即韓國「Saju」、日本「四柱推命」）
+  · 八字、天干、地支、日主、大運（10年運勢）
+  · 五行：木、火、土、金、水
+  · 十神：比肩、劫財、食神、傷官、偏財、正財、七殺、正官、偏印、正印
+  · 神煞：天乙貴人、文昌貴人、桃花、驛馬等
+- 必須使用繁體中文（如：時、運、學、體），不可使用簡體字（如：时、运、学、体）。
+- 引用古典時直接使用原始名稱：滴天髓、窮通寶鑒、子平真詮、命理正宗、三命通會。
+- 使用得體有禮但平易近人的語調，避免過於正式或文言文化的表達。`;
+}
+
 export function buildPaidPromptPart1(chartSummary: string, locale?: string): string {
   const lp = langPrefix(locale);
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long" });
@@ -95,7 +115,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - Be SPECIFIC: name industries, career types, partner qualities, timing windows.
 - Use the person's element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}
 
 GENERATE as JSON:
 {
@@ -124,7 +144,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - Be SPECIFIC about timing, seasons, health practices, and yearly predictions.
 - Use element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}
 
 GENERATE as JSON:
 {
@@ -153,7 +173,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - The hidden_talent section should be the most MEMORABLE part of the entire reading.
 - Use element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}
 
 GENERATE as JSON:
 {

@@ -12,6 +12,9 @@ function detectLocaleFromContent(text: string | null): string | null {
   const sample = text.substring(0, 300);
   if (/[\uAC00-\uD7AF]/.test(sample)) return "ko";
   if (/[\u3040-\u309F\u30A0-\u30FF]/.test(sample)) return "ja";
+  // Traditional Chinese: CJK ideographs without Hangul or Kana.
+  // Must be checked AFTER ko/ja since both can also contain CJK characters.
+  if (/[\u4E00-\u9FFF]/.test(sample)) return "zh-TW";
   // Spanish detection (Latin script): look for Spanish-specific markers first,
   // then fall back to common Spanish stopwords. Avoid false positives on English
   // that happens to contain a stray accent or common short words by requiring
@@ -210,6 +213,13 @@ function checkContentLanguage(parsed: Record<string, any>, locale: string): bool
     const hasPortugueseChars = /[ãõçáéíóúâêôÃÕÇÁÉÍÓÚÂÊÔ]/.test(sample);
     const hasPortugueseStopwords = /\b(o|a|os|as|do|da|dos|das|que|em|no|na|nos|nas|um|uma|é|são|está|estão|você|seu|sua|com|para|por|como|mas|se|este|esta|isso|mais|porque|quando|também|muito|já)\b/i.test(sample);
     return hasPortugueseChars || hasPortugueseStopwords;
+  }
+  if (locale === "zh-TW") {
+    // CJK ideographs present, no Hangul or Kana mixed in.
+    const hasCJK = /[\u4E00-\u9FFF]/.test(sample);
+    const hasHangul = /[\uAC00-\uD7AF]/.test(sample);
+    const hasKana = /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+    return hasCJK && !hasHangul && !hasKana;
   }
   return true;
 }

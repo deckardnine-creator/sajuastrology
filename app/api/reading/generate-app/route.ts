@@ -213,7 +213,7 @@ export async function POST(req: NextRequest) {
     try {
       const sajuData = { dayStem: ds, dayBranch: db, monthStem: ms, monthBranch: mb, yearStem: ys, yearBranch: yb, hourStem: hs, hourBranch: hb, dominantElement: chart.dominantElement, weakElement: chart.weakestElement };
       const { prompt: ragPrompt, citations } = await injectRAGIntoPrompt(
-        buildFreeReadingPrompt(chart, loc), sajuData, 'free', loc as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt'
+        buildFreeReadingPrompt(chart, loc), sajuData, 'free', loc as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW'
       );
       ragPrefix = ragPrompt;
       if (citations?.length > 0) {
@@ -259,6 +259,11 @@ export async function POST(req: NextRequest) {
         const hasPortugueseStopwords = /\b(o|a|os|as|do|da|dos|das|que|em|no|na|nos|nas|um|uma|é|são|está|estão|você|seu|sua|com|para|por|como|mas|se|este|esta|isso|mais|porque|quando|também|muito|já)\b/i.test(sample);
         const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
         isCorrectLang = (hasPortugueseChars || hasPortugueseStopwords) && !(hasEnglishStopwords && !hasPortugueseStopwords && !hasPortugueseChars);
+      } else if (loc === "zh-TW") {
+        const hasCJK = /[\u4E00-\u9FFF]/.test(sample);
+        const hasHangul = /[\uAC00-\uD7AF]/.test(sample);
+        const hasKana = /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+        isCorrectLang = hasCJK && !hasHangul && !hasKana;
       } else {
         isCorrectLang = true;
       }

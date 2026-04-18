@@ -51,7 +51,7 @@ interface Citation {
 export async function buildRAGContext(
   sajuData: SajuData,
   serviceType: 'free' | 'paid' | 'compatibility' | 'consultation' = 'paid',
-  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' = 'ko'
+  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' = 'ko'
 ): Promise<RAGContext> {
   const emptyContext: RAGContext = {
     contextText: '',
@@ -159,7 +159,7 @@ export async function buildRAGContext(
  */
 function formatContextForPrompt(
   chunks: any[],
-  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt'
+  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW'
 ): string {
   if (chunks.length === 0) return '';
 
@@ -173,6 +173,8 @@ function formatContextForPrompt(
     ? `[Référence de théorie classique des Quatre Piliers — Intègre naturellement ces textes classiques dans ta lecture]`
     : locale === 'pt'
     ? `[Referência de Teoria Clássica dos Quatro Pilares — Incorpore naturalmente estes textos clássicos na sua leitura]`
+    : locale === 'zh-TW'
+    ? `[古典四柱理論參考資料 — 請將以下古典原典的內容自然地融入解讀中]`
     : `[古典四柱理論参考資料 - 以下の古典原典の内容をリーディングに自然に反映してください]`;
 
   const instruction = locale === 'ko'
@@ -185,6 +187,8 @@ function formatContextForPrompt(
     ? `Cite naturellement chaque passage classique dans ta lecture. Exemple : "Selon le Adivination du Ciel Gouttant (滴天髓)..." ou "Le Miroir du Trésor (穷通宝鉴) dit...". Inclus le nom original en chinois (漢字) pour plus d'authenticité. Quand un terme est technique ou spécifique au Saju, garde le terme coréen ou chinois original avec une brève explication en français entre parenthèses.`
     : locale === 'pt'
     ? `Cite naturalmente cada passagem clássica na sua leitura. Exemplo: "Segundo o Adivinhação do Céu Gotejante (滴天髓)..." ou "O Espelho do Tesouro (穷通宝鉴) diz...". Inclua o nome original em chinês (漢字) para maior autenticidade. Quando o termo for técnico ou específico do Saju, mantenha o termo coreano ou chinês original com uma breve explicação em português entre parênteses.`
+    : locale === 'zh-TW'
+    ? `請在解讀中自然地引用每段古典文獻。例如：「滴天髓有云：...」或「窮通寶鑒云：...」。直接使用古典原書名稱（如滴天髓、窮通寶鑒、子平真詮）。必須使用繁體中文書寫，不可使用簡體字。`
     : `各古典の一節をリーディングの中で自然に引用してください。例：「滴天髓によれば…」「穷通宝鉴では…」のように原典名を明記してください。`;
 
   const chunkTexts = chunks.map((c, i) => {
@@ -204,7 +208,7 @@ export async function injectRAGIntoPrompt(
   basePrompt: string,
   sajuData: SajuData,
   serviceType: 'free' | 'paid' | 'compatibility' | 'consultation' = 'paid',
-  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' = 'ko'
+  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' = 'ko'
 ): Promise<{ prompt: string; citations: Citation[] }> {
   const ragContext = await buildRAGContext(sajuData, serviceType, locale);
 
