@@ -7,40 +7,9 @@ import { Sparkles } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useLanguage } from "@/lib/language-context"
+import { t } from "@/lib/translations"
 import { useNativeApp } from "@/lib/native-app"
 import { requestIAP, onFlutterMessage } from "@/lib/flutter-bridge"
-
-const content = {
-  title: {
-    en: "This is your free overview.",
-    ko: "여기까지가 무료 분석입니다.",
-    ja: "ここまでが無料分析です。",
-  },
-  desc: {
-    en: "Unlock your full 10-year forecast, career & love deep-dive, and hidden talent analysis.",
-    ko: "10년 대운, 직업·연애 심층 분석, 숨겨진 재능 분석을 확인하세요.",
-    ja: "10年大運、職業・恋愛の深層分析、隠れた才能分析をご覧ください。",
-  },
-  cta: {
-    en: "Unlock Premium — $9.99 one-time",
-    ko: "프리미엄 잠금 해제 — $9.99 일회 결제",
-    ja: "プレミアム解放 — $9.99 一回払い",
-  },
-  ctaApp: {
-    en: "Unlock Premium — $9.99",
-    ko: "프리미엄 잠금 해제 — $9.99",
-    ja: "プレミアム解放 — $9.99",
-  },
-  free: {
-    en: "Or continue with free daily readings",
-    ko: "또는 무료 일일 리딩 계속하기",
-    ja: "または無料デイリー鑑定を続ける",
-  },
-} as const
-
-function tx(obj: Record<string, string>, locale: string): string {
-  return obj[locale] || obj.en
-}
 
 export function UpgradeCTA() {
   const { locale } = useLanguage()
@@ -77,10 +46,10 @@ export function UpgradeCTA() {
           <Sparkles className="w-8 h-8 text-primary" />
         </div>
         <h3 className="font-serif text-2xl font-bold mb-3">
-          {tx(content.title, locale)}
+          {t("upgrade.title", locale)}
         </h3>
         <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
-          {tx(content.desc, locale)}
+          {t("upgrade.desc", locale)}
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           {isNative ? (
@@ -90,7 +59,7 @@ export function UpgradeCTA() {
               className="gold-gradient text-primary-foreground font-semibold"
               onClick={handleIAPPurchase}
             >
-              {tx(content.ctaApp, locale)}
+              {t("upgrade.ctaApp", locale)}
             </Button>
           ) : (
             /* Web mode: link to pricing page (PayPal) */
@@ -99,7 +68,7 @@ export function UpgradeCTA() {
                 size="lg"
                 className="gold-gradient text-primary-foreground font-semibold"
               >
-                {tx(content.cta, locale)}
+                {t("upgrade.cta", locale)}
               </Button>
             </Link>
           )}
@@ -107,11 +76,11 @@ export function UpgradeCTA() {
             href="/daily"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            {tx(content.free, locale)}
+            {t("upgrade.free", locale)}
           </Link>
         </div>
         {locale === "ko" && !isNative && (
-          <p className="text-[10px] text-muted-foreground/40 mt-3">해외 결제 수단 전용 · 국내 카드 미지원</p>
+          <p className="text-[10px] text-muted-foreground/40 mt-3">{t("upgrade.koNotice", locale)}</p>
         )}
       </div>
     </motion.section>
