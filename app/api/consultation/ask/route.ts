@@ -444,7 +444,7 @@ async function handleStart({
         weakElement: chart.weakestElement,
       };
       const ragContext = await buildRAGContext(
-        sajuDataForRAG, 'consultation', (locale as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW')
+        sajuDataForRAG, 'consultation', (locale as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru')
       );
       ragPrefix = ragContext.contextText || "";
       if (ragContext.citations && ragContext.citations.length > 0) {

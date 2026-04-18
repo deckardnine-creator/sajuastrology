@@ -17,6 +17,8 @@ export function getLanguageInstruction(locale?: string): string {
       return "Write your ENTIRE response in Portuguese (português). Use natural, literary Brazilian Portuguese with friendly direct tone (você form, not tu). Standard Brazilian Portuguese. For Saju technical terms, use academic-footnote style bilingual form: 'Mestre do Dia (日主 / Day Master)', 'Grande Fortuna (大運)', 'os Quatro Pilares (四柱)', 'os Cinco Elementos (五行)', 'Madeira 木', 'Fogo 火', 'Terra 土', 'Metal 金', 'Água 水'. When a term has no elegant Portuguese rendering, keep the English term (e.g., 'Day Master'). Preserve all Chinese characters (漢字) for authenticity.";
     case "zh-TW":
       return "Write your ENTIRE response in Traditional Chinese (繁體中文, Taiwan standard). Use natural, literary Traditional Chinese — not stiff translated Chinese. Use polished but approachable tone. Saju (四柱命理) is the Korean name for the Chinese Four Pillars system, so all technical terms should use their original Chinese characters: 四柱, 八字, 天干, 地支, 日主, 大運, 五行 (木火土金水), 十神, 財星, 官星, 印星, 食神, 傷官, 比肩, 劫財, 偏財, 正財, 七殺, 正官, 偏印, 正印, etc. Use Traditional Chinese characters (繁體) throughout, not Simplified.";
+    case "ru":
+      return "Write your ENTIRE response in Russian (русский). Use natural, literary modern Russian. Use informal direct tone (ты form, not Вы) for friendly product UX. For Saju technical terms, use academic-footnote style bilingual form: 'Хозяин Дня (日主 / Day Master)', 'Большая Удача (大運)', 'Четыре Столпа (四柱)', 'Пять Элементов (五行)', 'Дерево 木', 'Огонь 火', 'Земля 土', 'Металл 金', 'Вода 水'. When a term has no elegant Russian rendering, keep the English term (e.g., 'Day Master'). Preserve all Chinese characters (漢字) for authenticity.";
     default:
       return "Write in English.";
   }
@@ -30,6 +32,7 @@ export function getLocaleLabel(locale?: string): string {
     case "fr": return "French";
     case "pt": return "Portuguese";
     case "zh-TW": return "Traditional Chinese";
+    case "ru": return "Russian";
     default: return "English";
   }
 }
@@ -127,8 +130,27 @@ REGRAS ABSOLUTAS DE IDIOMA:
 - 必須使用繁體字（不是簡體字）。
 - 四柱命理用語保持原始漢字形式：四柱、八字、天干、地支、日主、大運、五行（木火土金水）、十神、財星、官星、印星、食神、傷官、比肩、劫財、偏財、正財、七殺、正官、偏印、正印等。
 - 引用古典文獻時使用原始名稱：「滴天髓」、「窮通寶鑒」、「子平真詮」等。`;
+    case "ru":
+      return `Ты мастер Саджу (四柱 / Четыре Столпа Судьбы) с 40-летним опытом.
+
+АБСОЛЮТНЫЕ ПРАВИЛА ЯЗЫКА:
+- Все текстовые значения (value) в ответе ДОЛЖНЫ быть написаны на русском.
+- JSON-ключи (key) должны оставаться на английском (career, love, health, decade_forecast, monthly_energy, hidden_talent).
+- Писать на английском СТРОГО ЗАПРЕЩЕНО. Значения должны быть 100% на русском.
+- Используй естественный, литературный современный русский — не переводной и не искусственный.
+- Используй неформальное обращение (ты), не Вы. Стандартный современный русский.
+- Для технических терминов Саджу используй двуязычный академический стиль:
+  · "Хозяин Дня (日主 / Day Master)"
+  · "Большая Удача (大運 / 10-летний цикл удачи)"
+  · "Четыре Столпа (四柱)"
+  · "Пять Элементов (五行)"
+  · "Дерево 木, Огонь 火, Земля 土, Металл 金, Вода 水"
+  · "Звезда Богатства (財星)", "Скрытый Бог (藏干)"
+- Когда понятие не имеет изящного русского перевода или русский термин был бы неуклюжим, оставь английский термин (напр. "Day Master", "Yang Wood") или корейский/китайский с переводом в скобках.
+- Сохраняй все китайские иероглифы (漢字) для аутентичности.
+- При цитировании классических текстов используй оригинальное название: "Капля Небесного Костного Мозга (滴天髓)", "Зеркало Сокровищ (穷通宝鉴)".`;
     default:
-      return null; // EN uses responseMimeType, no system instruction needed
+      return null;
   }
 }
 
@@ -163,6 +185,11 @@ Use academic-footnote style for Saju terms: "Mestre do Dia (日主)", "Grande Fo
 所有JSON value必須以繁體中文書寫。嚴禁使用英文。
 All JSON string values MUST be written in Traditional Chinese (繁體中文). Writing in English is STRICTLY FORBIDDEN.
 必須使用繁體字（非簡體）。Saju terms in original Chinese: 四柱, 八字, 天干, 地支, 日主, 大運, 五行, etc.\n\n`;
+    case "ru":
+      return `[OUTPUT LANGUAGE: RUSSIAN]
+Все значения JSON ДОЛЖНЫ быть написаны на русском. Писать на английском ЗАПРЕЩЕНО.
+All JSON string values MUST be written in Russian (русский). Writing in English is STRICTLY FORBIDDEN.
+Use academic-footnote style for Saju terms: "Хозяин Дня (日主)", "Большая Удача (大運)", "Дерево 木", etc.\n\n`;
     default:
       return "";
   }
@@ -183,6 +210,8 @@ export function getLanguageFooter(locale?: string): string {
       return `\n⚠️ LANGUAGE REMINDER: Todos os valores JSON devem ser escritos em português. Se uma única frase estiver em inglês, é uma falha. Preserve os 漢字 para termos técnicos.`;
     case "zh-TW":
       return `\n⚠️ LANGUAGE REMINDER: 所有JSON value必須以繁體中文書寫。若有任何一句英文則為失敗。必須使用繁體字。`;
+    case "ru":
+      return `\n⚠️ LANGUAGE REMINDER: Все значения JSON должны быть написаны на русском. Если хотя бы одно предложение на английском — это провал. Сохраняй 漢字 для технических терминов.`;
     default:
       return "";
   }

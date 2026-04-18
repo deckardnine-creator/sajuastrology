@@ -14,6 +14,7 @@ function langPrefix(locale?: string): string {
   if (locale === "fr") return "Écris entièrement en français. ";
   if (locale === "pt") return "Escreva inteiramente em português. ";
   if (locale === "zh-TW") return "必須以繁體中文書寫。";
+  if (locale === "ru") return "Пиши полностью на русском. ";
   return "";
 }
 
@@ -98,6 +99,26 @@ function traditionalChineseTermingRule(locale?: string): string {
 - 使用得體有禮但平易近人的語調，避免過於正式或文言文化的表達。`;
 }
 
+// Russian-specific glossary & term-handling rule. Mirrors Spanish/French/PT
+// pattern: natural Russian prose with bilingual academic-footnote style for
+// technical Saju terms, preserving 漢字 for authenticity. Use ты form
+// (informal direct, modern product UX standard). Where Russian rendering
+// would be awkward, fall back to English or Korean/Chinese with Russian gloss.
+function russianTermingRule(locale?: string): string {
+  if (locale !== "ru") return "";
+  return `
+- RUSSIAN TERMINOLOGY RULE: When referring to technical Saju concepts, use natural Russian but preserve original terms for authenticity, in academic-footnote style:
+  · "Хозяин Дня (日主 / Day Master)"
+  · "Большая Удача (大運 / 10-летний цикл удачи)"
+  · "Четыре Столпа (四柱)"
+  · "Пять Элементов (五行)"
+  · "Дерево 木, Огонь 火, Земля 土, Металл 金, Вода 水"
+  · "Звезда Богатства (財星)", "Скрытый Бог (藏干)"
+- When a concept has no elegant Russian rendering or the Russian term would be awkward in tight UI-like spaces, keep the English term (e.g., "Day Master", "Yang Wood"). Do not invent or literally translate technical compound terms.
+- For classical text citations, cite the Korean or Chinese name with Chinese characters, e.g., "Капля Небесного Костного Мозга (滴天髓)".
+- Use informal, direct tone (ты form, not Вы). Modern Russian.`;
+}
+
 export function buildPaidPromptPart1(chartSummary: string, locale?: string): string {
   const lp = langPrefix(locale);
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long" });
@@ -115,7 +136,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - Be SPECIFIC: name industries, career types, partner qualities, timing windows.
 - Use the person's element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : locale === "ru" ? "Russian (русский)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}
 
 GENERATE as JSON:
 {
@@ -144,7 +165,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - Be SPECIFIC about timing, seasons, health practices, and yearly predictions.
 - Use element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : locale === "ru" ? "Russian (русский)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}
 
 GENERATE as JSON:
 {
@@ -173,7 +194,7 @@ RULES:
 - NEVER mention AI. Speak as the voice of ancient wisdom.
 - The hidden_talent section should be the most MEMORABLE part of the entire reading.
 - Use element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : locale === "ru" ? "Russian (русский)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}
 
 GENERATE as JSON:
 {

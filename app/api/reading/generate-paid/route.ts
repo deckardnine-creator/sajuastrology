@@ -12,6 +12,9 @@ function detectLocaleFromContent(text: string | null): string | null {
   const sample = text.substring(0, 300);
   if (/[\uAC00-\uD7AF]/.test(sample)) return "ko";
   if (/[\u3040-\u309F\u30A0-\u30FF]/.test(sample)) return "ja";
+  // Russian: Cyrillic script. Check before Latin-script langs since
+  // Cyrillic is unambiguous and very fast to detect.
+  if (/[\u0400-\u04FF]/.test(sample)) return "ru";
   // Traditional Chinese: CJK ideographs without Hangul or Kana.
   // Must be checked AFTER ko/ja since both can also contain CJK characters.
   if (/[\u4E00-\u9FFF]/.test(sample)) return "zh-TW";
@@ -220,6 +223,10 @@ function checkContentLanguage(parsed: Record<string, any>, locale: string): bool
     const hasHangul = /[\uAC00-\uD7AF]/.test(sample);
     const hasKana = /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
     return hasCJK && !hasHangul && !hasKana;
+  }
+  if (locale === "ru") {
+    // Cyrillic script — unambiguous detection.
+    return /[\u0400-\u04FF]/.test(sample);
   }
   return true;
 }

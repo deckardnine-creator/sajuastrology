@@ -213,7 +213,7 @@ export async function POST(req: NextRequest) {
     try {
       const sajuData = { dayStem: ds, dayBranch: db, monthStem: ms, monthBranch: mb, yearStem: ys, yearBranch: yb, hourStem: hs, hourBranch: hb, dominantElement: chart.dominantElement, weakElement: chart.weakestElement };
       const { prompt: ragPrompt, citations } = await injectRAGIntoPrompt(
-        buildFreeReadingPrompt(chart, loc), sajuData, 'free', loc as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW'
+        buildFreeReadingPrompt(chart, loc), sajuData, 'free', loc as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' | 'zh-TW' | 'ru'
       );
       ragPrefix = ragPrompt;
       if (citations?.length > 0) {
@@ -264,6 +264,8 @@ export async function POST(req: NextRequest) {
         const hasHangul = /[\uAC00-\uD7AF]/.test(sample);
         const hasKana = /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
         isCorrectLang = hasCJK && !hasHangul && !hasKana;
+      } else if (loc === "ru") {
+        isCorrectLang = /[\u0400-\u04FF]/.test(sample);
       } else {
         isCorrectLang = true;
       }
