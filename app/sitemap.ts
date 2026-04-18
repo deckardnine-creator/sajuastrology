@@ -5,7 +5,7 @@ const BASE = "https://sajuastrology.com";
 
 // Languages with actual translation data in translations.ts.
 // Expand this list as new languages get translated content.
-const PUBLISHED_LOCALES = ["en", "ko", "ja"] as const;
+const PUBLISHED_LOCALES = ["en", "ko", "ja", "es"] as const;
 
 // Build a { "x-default": url, en: url, ko: url, ja: url } alternates block.
 // All languages point to the same URL — Next.js serves the same page and

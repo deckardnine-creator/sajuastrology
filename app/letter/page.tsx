@@ -31,6 +31,7 @@ export const metadata: Metadata = {
       en: "https://sajuastrology.com/letter",
       ko: "https://sajuastrology.com/letter",
       ja: "https://sajuastrology.com/letter",
+      es: "https://sajuastrology.com/letter",
     },
   },
 }

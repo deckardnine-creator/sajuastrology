@@ -124,6 +124,7 @@ export const metadata: Metadata = {
       en: BASE_URL,
       ko: BASE_URL,
       ja: BASE_URL,
+      es: BASE_URL,
     },
   },
 }

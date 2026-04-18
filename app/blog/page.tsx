@@ -19,6 +19,7 @@ export const metadata: Metadata = {
       en: "https://sajuastrology.com/blog",
       ko: "https://sajuastrology.com/blog",
       ja: "https://sajuastrology.com/blog",
+      es: "https://sajuastrology.com/blog",
     },
   },
 };

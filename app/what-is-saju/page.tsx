@@ -27,6 +27,7 @@ export const metadata: Metadata = {
       en: `${BASE_URL}/what-is-saju`,
       ko: `${BASE_URL}/what-is-saju`,
       ja: `${BASE_URL}/what-is-saju`,
+      es: `${BASE_URL}/what-is-saju`,
     },
   },
 }
