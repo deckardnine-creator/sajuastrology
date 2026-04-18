@@ -37,6 +37,7 @@ const notoSerifKR = Noto_Serif_KR({
 })
 
 const BASE_URL = 'https://sajuastrology.com'
+const MIXPANEL_TOKEN = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN || ''
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -73,6 +74,12 @@ export const metadata: Metadata = {
     'гороскоп', 'натальная карта', 'гороскоп бесплатно', 'совместимость', 'китайский гороскоп',
     // Spanish
     'horóscopo', 'carta natal', 'horóscopo gratis', 'astrología coreana', 'compatibilidad', 'carta astral gratis',
+    // Portuguese
+    'horóscopo', 'mapa astral', 'horóscopo grátis', 'astrologia coreana', 'compatibilidade amorosa',
+    // Hindi
+    'सजू', 'राशिफल', 'जन्म कुंडली', 'मुफ्त राशिफल', 'चार स्तंभ',
+    // Indonesian
+    'saju', 'ramalan bintang', 'horoskop', 'kompatibilitas cinta', 'ramalan gratis',
   ],
   authors: [{ name: 'SajuAstrology', url: BASE_URL }],
   creator: 'SajuAstrology',
@@ -125,6 +132,12 @@ export const metadata: Metadata = {
       ko: BASE_URL,
       ja: BASE_URL,
       es: BASE_URL,
+      fr: BASE_URL,
+      pt: BASE_URL,
+      "zh-TW": BASE_URL,
+      ru: BASE_URL,
+      hi: BASE_URL,
+      id: BASE_URL,
     },
   },
 }
@@ -167,6 +180,7 @@ export default function RootLayout({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className={`${inter.variable} ${playfair.variable} ${notoSansKR.variable} ${notoSerifKR.variable} font-sans antialiased`}>
+        {/* GA4 — primary web analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-CBGH7EYJWJ"
           strategy="afterInteractive"
@@ -179,6 +193,22 @@ export default function RootLayout({
             gtag('config', 'G-CBGH7EYJWJ');
           `}
         </Script>
+        {/* Mixpanel — funnels, cohorts, retention (1-year free for startups) */}
+        {MIXPANEL_TOKEN && (
+          <Script id="mixpanel-init" strategy="afterInteractive">
+            {`
+              (function(f,b){if(!b.__SV){var e,g,i,h;window.mixpanel=b;b._i=[];b.init=function(e,f,c){function g(a,d){var b=d.split(".");2==b.length&&(a=a[b[0]],d=b[1]);a[d]=function(){a.push([d].concat(Array.prototype.slice.call(arguments,0)))}}var a=b;"undefined"!==typeof c?a=b[c]=[]:c="mixpanel";a.people=a.people||[];a.toString=function(a){var d="mixpanel";"mixpanel"!==c&&(d+="."+c);a||(d+=" (stub)");return d};a.people.toString=function(){return a.toString(1)+".people (stub)"};i="disable time_event track track_pageview track_links track_forms track_with_groups add_group set_group remove_group register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove".split(" ");
+              for(h=0;h<i.length;h++)g(a,i[h]);var j="set set_once union unset remove delete".split(" ");a.get_group=function(){function b(c){d[c]=function(){call2_args=arguments;call2=[c].concat(Array.prototype.slice.call(call2_args,0));a.push([e,call2])}}for(var d={},e=["get_group"].concat(Array.prototype.slice.call(arguments,0)),c=0;c<j.length;c++)b(j[c]);return d};b._i.push([e,f,c])};b.__SV=1.2;e=f.createElement("script");e.type="text/javascript";e.async=!0;e.src="undefined"!==typeof MIXPANEL_CUSTOM_LIB_URL?MIXPANEL_CUSTOM_LIB_URL:"https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";g=f.getElementsByTagName("script")[0];g.parentNode.insertBefore(e,g)}})(document,window.mixpanel||[]);
+              window.mixpanel.init('${MIXPANEL_TOKEN}', {
+                debug: false,
+                track_pageview: true,
+                persistence: 'localStorage',
+                ignore_dnt: false,
+                loaded: function(mp) { mp.__loaded = true; }
+              });
+            `}
+          </Script>
+        )}
         <AuthProvider>
           <LanguageProvider>
             {children}
