@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth-context"
 import { useLanguage } from "@/lib/language-context"
 import { t, type TranslationKey } from "@/lib/translations"
 import { safeSet } from "@/lib/safe-storage"
+import { track, Events } from "@/lib/analytics"
 
 interface PlanDef {
   nameKey: TranslationKey;
@@ -80,6 +81,19 @@ export function PricingCards() {
   const router = useRouter()
 
   const handlePlanClick = (plan: PlanDef) => {
+    // ── Mixpanel: pricing page CTA — captures intent before auth / PayPal ──
+    // The `plan` id is derived from the nameKey (e.g. "pc.full.name" → "full"),
+    // giving us a clean segmentation field without depending on index position.
+    try {
+      const planId = plan.nameKey.replace("pc.", "").replace(".name", "");
+      track(Events.pricing_cta_clicked, {
+        plan: planId,
+        price: plan.price,
+        href: plan.href,
+        signed_in: !!user,
+      });
+    } catch {}
+
     if (plan.price === 0) {
       router.push(plan.href)
       return

@@ -10,6 +10,7 @@ import { useLanguage } from "@/lib/language-context"
 import { t } from "@/lib/translations"
 import { useNativeApp } from "@/lib/native-app"
 import { requestIAP, onFlutterMessage } from "@/lib/flutter-bridge"
+import { track, Events } from "@/lib/analytics"
 
 export function UpgradeCTA() {
   const { locale } = useLanguage()
@@ -31,8 +32,47 @@ export function UpgradeCTA() {
   }, [isNative])
 
   const handleIAPPurchase = () => {
+    // ── Mixpanel: user requested in-app purchase from the /reading/ upgrade CTA ──
+    // Paired with iap:success / iap:error listeners below to measure conversion.
+    try {
+      track(Events.iap_purchase_requested_web, {
+        product: "full_destiny_reading",
+        share_slug: shareSlug,
+        surface: "upgrade_cta",
+      });
+    } catch {}
     requestIAP("full_destiny_reading", shareSlug)
   }
+
+  // ── Mixpanel: track web-side IAP outcomes reported back by Flutter ──
+  // These events run inside the WebView so we can correlate web funnel steps
+  // (reading view → upgrade CTA click → IAP sheet → success/error) end-to-end.
+  useEffect(() => {
+    if (!isNative) return
+    const unsubSuccessWeb = onFlutterMessage("iap:success:", () => {
+      try {
+        track(Events.iap_purchase_success_web, {
+          product: "full_destiny_reading",
+          share_slug: shareSlug,
+          surface: "upgrade_cta",
+        });
+      } catch {}
+    })
+    const unsubErrorWeb = onFlutterMessage("iap:error:", (payload) => {
+      try {
+        track(Events.iap_purchase_error_web, {
+          product: "full_destiny_reading",
+          share_slug: shareSlug,
+          surface: "upgrade_cta",
+          reason: payload || "unknown",
+        });
+      } catch {}
+    })
+    return () => {
+      unsubSuccessWeb()
+      unsubErrorWeb()
+    }
+  }, [isNative, shareSlug])
 
   return (
     <motion.section
@@ -63,7 +103,19 @@ export function UpgradeCTA() {
             </Button>
           ) : (
             /* Web mode: link to pricing page (PayPal) */
-            <Link href="/pricing">
+            <Link
+              href="/pricing"
+              onClick={() => {
+                // Mixpanel: web-mode upgrade CTA click → drives pricing page funnel
+                try {
+                  track(Events.upgrade_cta_clicked, {
+                    surface: "upgrade_cta",
+                    mode: "web",
+                    share_slug: shareSlug,
+                  });
+                } catch {}
+              }}
+            >
               <Button
                 size="lg"
                 className="gold-gradient text-primary-foreground font-semibold"

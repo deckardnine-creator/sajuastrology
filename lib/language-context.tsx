@@ -10,6 +10,7 @@ import {
   t as translate,
 } from "./translations";
 import { safeGet, safeSet } from "./safe-storage";
+import { track, setUserProperties, Events } from "./analytics";
 
 interface LanguageContextType {
   locale: Locale;
@@ -93,6 +94,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setLocale = useCallback((newLocale: Locale) => {
+    // Capture the previous locale BEFORE state update so we can attribute
+    // the change direction (e.g. en → ko) in analytics.
+    const prevLocale = locale;
     setLocaleState(newLocale);
     safeSet("locale", newLocale);
     // Update html lang + dir attributes
@@ -100,7 +104,16 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       document.documentElement.lang = newLocale;
       document.documentElement.dir = isRTL(newLocale) ? "rtl" : "ltr";
     }
-  }, []);
+    // ── Mixpanel: locale change is a key segmentation dimension ──
+    // Also persist as a user property so all future events are bucketed
+    // by the user's current language without needing to attach it each time.
+    try {
+      if (prevLocale !== newLocale) {
+        track(Events.locale_changed, { from: prevLocale, to: newLocale });
+      }
+      setUserProperties({ locale: newLocale });
+    } catch {}
+  }, [locale]);
 
   const tFn = useCallback(
     (key: TranslationKey) => translate(key, locale),

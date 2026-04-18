@@ -28,6 +28,7 @@ import { safeGet } from "@/lib/safe-storage";
 import Link from "next/link";
 import { useNativeApp } from "@/lib/native-app";
 import { requestIAP, requestAuth, onFlutterMessage } from "@/lib/flutter-bridge";
+import { track, Events } from "@/lib/analytics";
 
 /* ─── Types ─── */
 
@@ -316,6 +317,14 @@ export function ConsultationClient() {
   /* ─── Start consultation ─── */
   const handleStartConsultation = async () => {
     if (!question.trim() || !category || !user || !isBirthDataValid) return;
+    // ── Mixpanel: consultation question submitted — user has spent a credit ──
+    try {
+      track(Events.consultation_question_submitted, {
+        category,
+        locale,
+        question_length: question.trim().length,
+      });
+    } catch {}
     setIsSubmitting(true);
     setError("");
     setStep("generating");

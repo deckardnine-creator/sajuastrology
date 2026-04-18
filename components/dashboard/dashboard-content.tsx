@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { ConsultationHistory } from "@/components/consultation/consultation-history";
 import { RestorePurchasesButton } from "@/components/dashboard/restore-purchases-button";
 import { safeGet, safeSet, safeRemove } from "@/lib/safe-storage";
+import { track, Events } from "@/lib/analytics";
 
 interface SavedReading {
   id: string;
@@ -89,6 +90,17 @@ function DashboardInner() {
   const isNative = useNativeApp();
   const [dailyScore, setDailyScore] = useState(72);
   const [mounted, setMounted] = useState(false);
+
+  // ── Mixpanel: dashboard view — fires once per mount (not on re-renders) ──
+  // Key VC-facing metric: "dashboard views" proxies active engagement.
+  useEffect(() => {
+    try {
+      track(Events.dashboard_viewed, {
+        platform: isNative ? "native" : "web",
+      });
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [savedReadings, setSavedReadings] = useState<SavedReading[]>([]);
   const [showAllReadings, setShowAllReadings] = useState(false);
   const [readingsLoaded, setReadingsLoaded] = useState(false);

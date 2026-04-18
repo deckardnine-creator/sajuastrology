@@ -1,162 +1,153 @@
-// lib/analytics.ts
+// ═══════════════════════════════════════════════════════════════════
+// Unified analytics wrapper — Mixpanel (primary) + GA4 (secondary).
 //
-// Unified analytics layer: every event fires to BOTH GA4 and Mixpanel from
-// a single call site. Use track() everywhere — never call gtag/mixpanel
-// directly from components.
-//
-// Setup:
-// - GA4: tag G-CBGH7EYJWJ loaded in app/layout.tsx (afterInteractive)
-// - Mixpanel: SDK loaded in app/layout.tsx via CDN (afterInteractive)
-// - NEXT_PUBLIC_MIXPANEL_TOKEN must be set in Vercel env vars
-//
-// Why both: GA4 is free + good for traffic/SEO/Google ads. Mixpanel is
-// 1-year free + best-in-class for funnels/cohorts/retention which is what
-// VC due diligence will look at.
-
-type EventProps = Record<string, unknown>;
+// Design principles:
+//   1. FIRE-AND-FORGET. Every function tolerates missing SDKs and never
+//      throws. A broken analytics pipeline must not degrade the product.
+//   2. IDEMPOTENT identify/reset. Safe to call multiple times.
+//   3. NO PII IN EVENT NAMES. Event names are stable; properties carry
+//      the variable context.
+//   4. CENTRAL EVENT CATALOG. The Events object below is the single
+//      source of truth — components import from here and never type raw
+//      strings, so renaming stays cheap.
+// ═══════════════════════════════════════════════════════════════════
 
 declare global {
   interface Window {
-    gtag?: (...args: unknown[]) => void;
+    // Mixpanel SDK is loaded asynchronously via inline script in app/layout.tsx.
+    // Before load, `mixpanel` is a queue stub; after load, it's the real SDK.
     mixpanel?: {
-      init: (token: string, config?: unknown) => void;
-      track: (eventName: string, props?: EventProps) => void;
-      identify: (userId: string) => void;
+      track: (event: string, props?: Record<string, unknown>) => void;
+      identify: (id: string) => void;
       reset: () => void;
-      register: (props: EventProps) => void;
-      people: {
-        set: (props: EventProps) => void;
-        set_once: (props: EventProps) => void;
-      };
-      get_distinct_id: () => string;
+      people?: { set: (props: Record<string, unknown>) => void };
+      register?: (props: Record<string, unknown>) => void;
       __loaded?: boolean;
     };
+    // Google Analytics 4 (gtag.js) — also loaded in app/layout.tsx.
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
-// Production-only safety: dev/preview can opt-in via NEXT_PUBLIC_ANALYTICS_DEBUG=1
-const isProduction = process.env.NODE_ENV === 'production';
-const debugMode = process.env.NEXT_PUBLIC_ANALYTICS_DEBUG === '1';
-const enabled = isProduction || debugMode;
+// ─── Event catalog ───────────────────────────────────────────────────
+// All event names used across the codebase. Grouped by domain for easier
+// review. Adding an event here without a corresponding track() call is a
+// no-op; removing a name used elsewhere is a compile-time error.
+export const Events = {
+  // ─ Auth ─
+  signin_modal_opened: "signin_modal_opened",
+  signin_clicked: "signin_clicked",
+  signin_completed: "signin_completed",
+  signup_first_time: "signup_first_time",
+  signout_completed: "signout_completed",
 
-function safeGA(eventName: string, props?: EventProps) {
-  if (typeof window === 'undefined' || !window.gtag) return;
+  // ─ Localization ─
+  locale_changed: "locale_changed",
+
+  // ─ Pricing / upgrade surfaces ─
+  pricing_cta_clicked: "pricing_cta_clicked",
+  upgrade_cta_clicked: "upgrade_cta_clicked",
+
+  // ─ Reading page payment flow ─
+  reading_unlock_clicked: "reading_unlock_clicked",
+  reading_payment_initiated: "reading_payment_initiated",
+  reading_payment_return: "reading_payment_return",
+
+  // ─ Native in-app purchase (web-side mirror of Flutter events) ─
+  iap_purchase_requested_web: "iap_purchase_requested_web",
+  iap_purchase_success_web: "iap_purchase_success_web",
+  iap_purchase_error_web: "iap_purchase_error_web",
+
+  // ─ Apple 4.10 compliance ─
+  restore_purchases_clicked: "restore_purchases_clicked",
+  restore_purchases_success: "restore_purchases_success",
+
+  // ─ Engagement / funnel ─
+  dashboard_viewed: "dashboard_viewed",
+  consultation_question_submitted: "consultation_question_submitted",
+
+  // ─ Reserved for future server-side events ─
+  // (API routes fire these via Mixpanel HTTP ingestion, not via the
+  //  browser SDK. Listed here so the codebase is one place.)
+  reading_generated_free: "reading_generated_free",
+  reading_generated_paid: "reading_generated_paid",
+  consultation_answered: "consultation_answered",
+} as const;
+
+export type AnalyticsEvent = (typeof Events)[keyof typeof Events];
+
+// ─── Core API ────────────────────────────────────────────────────────
+
+/**
+ * Fire a tracked event. Silent on any failure.
+ *
+ * @param event One of the Events catalog entries.
+ * @param params Optional properties to attach. Keep keys snake_case for
+ *   Mixpanel's dashboard auto-faceting.
+ */
+export function track(
+  event: AnalyticsEvent | string,
+  params?: Record<string, unknown>
+): void {
+  if (typeof window === "undefined") return;
+
+  // Mixpanel — primary pipeline. The inline loader defines a queue stub
+  // so calls before SDK load still enqueue correctly.
   try {
-    window.gtag('event', eventName, props || {});
-  } catch (err) {
-    if (debugMode) console.warn('[analytics] GA4 track failed:', err);
-  }
-}
+    window.mixpanel?.track(event, params);
+  } catch {}
 
-function safeMixpanel(eventName: string, props?: EventProps) {
-  if (typeof window === 'undefined' || !window.mixpanel || !window.mixpanel.__loaded) return;
+  // GA4 — secondary pipeline. gtag accepts "event" as the command verb
+  // followed by the name and properties object.
   try {
-    window.mixpanel.track(eventName, props);
-  } catch (err) {
-    if (debugMode) console.warn('[analytics] Mixpanel track failed:', err);
-  }
+    window.gtag?.("event", event, params ?? {});
+  } catch {}
 }
 
 /**
- * Track a single event to both GA4 and Mixpanel.
- *
- * Naming convention: snake_case verbs in past tense (e.g. signup_completed,
- * reading_generated_free, consultation_purchased). Stay consistent — Mixpanel
- * funnels group by exact event name.
- *
- * @param eventName - Event name in snake_case
- * @param props - Optional properties (will be sent to both platforms)
+ * Bind subsequent events to a specific user identity. Typically called
+ * once after successful sign-in. Subsequent calls with the same id are
+ * safe no-ops.
  */
-export function track(eventName: string, props?: EventProps): void {
-  if (!enabled) {
-    if (debugMode) console.log('[analytics] track', eventName, props);
-    return;
-  }
-  safeGA(eventName, props);
-  safeMixpanel(eventName, props);
+export function identify(userId: string): void {
+  if (typeof window === "undefined" || !userId) return;
+  try {
+    window.mixpanel?.identify(userId);
+  } catch {}
+  // GA4 equivalent — user_id parameter on every subsequent event
+  try {
+    window.gtag?.("set", { user_id: userId });
+  } catch {}
 }
 
 /**
- * Identify a user across both platforms. Call this once on sign-in / app load
- * if user is authenticated. Subsequent track() calls will attribute to this user.
- *
- * @param userId - Stable user ID (e.g. Supabase auth user.id)
- * @param traits - Optional profile traits to set
+ * Persist user-level properties (email, provider, locale, etc.) to the
+ * identified profile. Called immediately after identify().
  */
-export function identify(userId: string, traits?: EventProps): void {
-  if (!enabled) {
-    if (debugMode) console.log('[analytics] identify', userId, traits);
-    return;
-  }
-  // GA4: set user_id on the config (only way to attribute server-side too)
-  if (typeof window !== 'undefined' && window.gtag) {
-    try {
-      window.gtag('config', 'G-CBGH7EYJWJ', { user_id: userId });
-    } catch { /* ignore */ }
-  }
-  // Mixpanel: identify + set people properties
-  if (typeof window !== 'undefined' && window.mixpanel && window.mixpanel.__loaded) {
-    try {
-      window.mixpanel.identify(userId);
-      if (traits) window.mixpanel.people.set(traits);
-    } catch { /* ignore */ }
-  }
+export function setUserProperties(props: Record<string, unknown>): void {
+  if (typeof window === "undefined" || !props) return;
+  try {
+    window.mixpanel?.people?.set(props);
+  } catch {}
+  try {
+    // GA4 carries user_properties as a separate config call.
+    window.gtag?.("set", "user_properties", props);
+  } catch {}
 }
 
 /**
- * Set persistent user properties (super properties in Mixpanel).
- * Sent with every subsequent event automatically.
- */
-export function setUserProperties(props: EventProps): void {
-  if (!enabled) return;
-  if (typeof window !== 'undefined' && window.mixpanel && window.mixpanel.__loaded) {
-    try {
-      window.mixpanel.register(props);
-      window.mixpanel.people.set(props);
-    } catch { /* ignore */ }
-  }
-}
-
-/**
- * Reset analytics on sign-out. Mixpanel needs this to clear distinct_id
- * so the next sign-in is treated as a new user identification event.
+ * Clear identity and any cached super-properties. Called on sign-out to
+ * prevent the next anonymous session from being merged into the
+ * previous user's timeline.
  */
 export function resetAnalytics(): void {
-  if (typeof window !== 'undefined' && window.mixpanel && window.mixpanel.__loaded) {
-    try {
-      window.mixpanel.reset();
-    } catch { /* ignore */ }
-  }
+  if (typeof window === "undefined") return;
+  try {
+    window.mixpanel?.reset();
+  } catch {}
+  // GA4 has no formal reset for anonymous flows; removing the user_id
+  // binding is the closest equivalent.
+  try {
+    window.gtag?.("set", { user_id: null });
+  } catch {}
 }
-
-// ─── Predefined event names (use these constants, not raw strings) ─────────
-// Funnel order: page_viewed → signup_completed → free_reading → paid_reading
-export const Events = {
-  // Acquisition
-  PAGE_VIEWED: 'page_viewed', // GA4 auto-tracks this; only fire manually if needed
-  LANGUAGE_CHANGED: 'language_changed',
-  // Auth
-  SIGNUP_COMPLETED: 'signup_completed',
-  SIGNIN_COMPLETED: 'signin_completed',
-  SIGNOUT_COMPLETED: 'signout_completed',
-  // Free reading funnel (top of funnel)
-  CALCULATOR_OPENED: 'calculator_opened',
-  READING_FORM_SUBMITTED: 'reading_form_submitted',
-  READING_GENERATED_FREE: 'reading_generated_free',
-  // Compatibility (free)
-  COMPATIBILITY_FORM_SUBMITTED: 'compatibility_form_submitted',
-  COMPATIBILITY_GENERATED: 'compatibility_generated',
-  // Paid reading conversion (key VC metric)
-  UPGRADE_CTA_CLICKED: 'upgrade_cta_clicked',
-  PAID_CHECKOUT_STARTED: 'paid_checkout_started',
-  READING_GENERATED_PAID: 'reading_generated_paid',
-  // Consultation
-  CONSULTATION_OPENED: 'consultation_opened',
-  CONSULTATION_FORM_SUBMITTED: 'consultation_form_submitted',
-  CONSULTATION_PURCHASED: 'consultation_purchased',
-  CONSULTATION_GENERATED: 'consultation_generated',
-  // Engagement
-  DAILY_FORTUNE_VIEWED: 'daily_fortune_viewed',
-  READING_SHARED: 'reading_shared',
-  DASHBOARD_VIEWED: 'dashboard_viewed',
-} as const;

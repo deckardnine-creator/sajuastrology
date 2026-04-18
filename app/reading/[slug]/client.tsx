@@ -19,6 +19,7 @@ import { safeGet, safeSet, safeRemove } from "@/lib/safe-storage";
 import { CitationBanner, CitationCards, CitationMethodology, type CitationMeta } from "@/components/reading/citation-display";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
+import { track, Events } from "@/lib/analytics";
 
 // Render markdown to styled HTML
 function renderPaidMarkdown(text: string | null): string {
@@ -176,6 +177,23 @@ export default function ReadingPageClient() {
     if (typeof window === "undefined") return "";
     const p = new URLSearchParams(window.location.search); return p.get("session_id") || p.get("token") || "";
   });
+
+  // ── Mixpanel: fire exactly once when the user returns from a completed payment ──
+  // This is the VC-critical "purchase succeeded" event. It fires regardless of
+  // payment rail: PayPal (real session_id), IAP native (session_id=iap-native),
+  // or admin bypass. The isPaymentReturn check is synchronous, so a user who
+  // navigated away and came back WITHOUT ?payment=success won't trigger this.
+  useEffect(() => {
+    if (!isPaymentReturn) return;
+    try {
+      track(Events.reading_payment_return, {
+        share_slug: slug,
+        method: paymentSessionId === "iap-native" ? "iap" : "paypal",
+        session_id: paymentSessionId,
+      });
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Reset payment loading when user returns from LemonSqueezy (browser tab regains focus)
   useEffect(() => {
@@ -706,6 +724,15 @@ export default function ReadingPageClient() {
   useEffect(() => {
     if (!isNative) return;
     const unsubSuccess = onFlutterMessage("iap:success:", () => {
+      // Mixpanel: web-side record that IAP succeeded; server-side event comes
+      // separately from iap_service.dart via Firebase. Both feed Mixpanel funnels.
+      try {
+        track(Events.iap_purchase_success_web, {
+          product: "full_destiny_reading",
+          share_slug: slug,
+          surface: "reading_unlock",
+        });
+      } catch {}
       // Redirect with payment-return query params so the same PayPal-return
       // flow kicks in: isPaymentReturn becomes true → PaymentReturnProgress
       // loading UI shows → /api/payment/verify is attempted (fails silently
@@ -717,6 +744,15 @@ export default function ReadingPageClient() {
       window.location.href = `/reading/${slug}?payment=success&session_id=iap-native`;
     });
     const unsubError = onFlutterMessage("iap:error:", (payload) => {
+      // Mixpanel: web-side IAP failure capture
+      try {
+        track(Events.iap_purchase_error_web, {
+          product: "full_destiny_reading",
+          share_slug: slug,
+          surface: "reading_unlock",
+          reason: payload || "unknown",
+        });
+      } catch {}
       setPaymentLoading(false);
       setPaymentError(payload || "Payment failed");
     });
@@ -753,6 +789,17 @@ export default function ReadingPageClient() {
   const handleUnlock = async () => {
     if (!reading) return;
     setPaymentError(null);
+
+    // ── Mixpanel: user clicked "Unlock" — intent captured regardless of path ──
+    // (sign-in required, IAP native, or PayPal web — downstream events narrow it)
+    try {
+      track(Events.reading_unlock_clicked, {
+        share_slug: reading.share_slug,
+        signed_in: !!user,
+        platform: isNative ? "native" : "web",
+      });
+    } catch {}
+
     if (!user) {
       // Show sign-in modal in both web and native — user picks Google or Apple.
       // sign-in-modal.tsx handles the native branch (routes to Flutter bridge).
@@ -767,11 +814,28 @@ export default function ReadingPageClient() {
     // auto-generates the paid content.
     const isAdmin = user.email?.toLowerCase() === "rimfacai@gmail.com";
     if (isNative && !isAdmin) {
+      // Mixpanel: IAP requested — paired with iap:success/iap:error events
+      try {
+        track(Events.iap_purchase_requested_web, {
+          product: "full_destiny_reading",
+          share_slug: reading.share_slug,
+          surface: "reading_unlock",
+        });
+      } catch {}
       setPaymentLoading(true);
       requestIAP("full_destiny_reading", reading.share_slug);
       return;
     }
     // Web mode OR admin in native mode: hit checkout endpoint
+    // Mixpanel: PayPal checkout redirect initiated — funnel step before leaving our domain
+    try {
+      track(Events.reading_payment_initiated, {
+        share_slug: reading.share_slug,
+        method: "paypal",
+        amount: 9.99,
+        currency: "USD",
+      });
+    } catch {}
     setPaymentLoading(true);
     try {
       const res = await fetch("/api/payment/checkout", {

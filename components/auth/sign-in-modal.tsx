@@ -11,6 +11,8 @@ import { t } from "@/lib/translations";
 import { requestAuth } from "@/lib/flutter-bridge";
 import { isNativeApp } from "@/lib/native-app";
 import Link from "next/link";
+import { useEffect } from "react";
+import { track, Events } from "@/lib/analytics";
 
 // Detect which native platform is hosting the WebView.
 // Returns "ios" | "android" | null (null = regular web browser).
@@ -27,6 +29,14 @@ export function SignInModal() {
   const { isSignInModalOpen, closeSignInModal, signIn, signInWithApple, isLoading } = useAuth();
   const { locale } = useLanguage();
 
+  // ── Mixpanel: track when the sign-in modal becomes visible ──
+  // Debounced via effect so we fire once per open cycle, not on every render.
+  useEffect(() => {
+    if (isSignInModalOpen) {
+      try { track(Events.signin_modal_opened); } catch {}
+    }
+  }, [isSignInModalOpen]);
+
   if (!isSignInModalOpen) return null;
 
   // Platform-specific login buttons:
@@ -41,6 +51,7 @@ export function SignInModal() {
   // Route through Flutter native → Chrome Custom Tabs → deep link callback.
   // In a normal browser (no FlutterBridge), fall back to the original web flow.
   const handleGoogleSignIn = () => {
+    try { track(Events.signin_clicked, { method: "google", platform: platform ?? "web" }); } catch {}
     if (typeof window !== "undefined" && window.FlutterBridge) {
       requestAuth("google");
       closeSignInModal();
@@ -50,6 +61,7 @@ export function SignInModal() {
   };
 
   const handleAppleSignIn = () => {
+    try { track(Events.signin_clicked, { method: "apple", platform: platform ?? "web" }); } catch {}
     if (typeof window !== "undefined" && window.FlutterBridge) {
       requestAuth("apple");
       closeSignInModal();

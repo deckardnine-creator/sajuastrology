@@ -9,6 +9,7 @@ import type { SajuChart } from "./saju-calculator";
 import { reconstructChartFromReading } from "./constants";
 import { safeGet, safeSet, safeRemove } from "./safe-storage";
 import { isNativeApp } from "./native-app";
+import { track, identify, setUserProperties, resetAnalytics, Events } from "./analytics";
 
 export interface User {
   id: string; name: string; email: string; image?: string;
@@ -183,6 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const newUser = mapSupabaseUser(session.user);
         // Clear previous user's data if different account
         const prevUserId = safeGet("current-user-id");
+        const isFirstTimeSignIn = !prevUserId;
         if (prevUserId && prevUserId !== newUser.id) {
           safeRemove("saju-data");
           safeRemove("primary-reading-id");
@@ -197,6 +199,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsSignInModalOpen(false);
         setIsLoading(false);
         setIsSigningOut(false);
+
+        // ── Mixpanel: link this session to the Supabase user ──────────
+        // identify() merges anonymous pre-signin events into this user's
+        // timeline so we can reconstruct the full journey. Set a few
+        // durable properties so we can segment by provider / signup date.
+        try {
+          identify(newUser.id);
+          const provider =
+            session.user.app_metadata?.provider ||
+            (session.user.identities?.[0]?.provider ?? "unknown");
+          setUserProperties({
+            $email: newUser.email,
+            $name: newUser.name,
+            provider,
+            platform: isNativeApp() ? "native" : "web",
+          });
+          // Fire signup_first_time ONLY when this browser has never seen a
+          // current-user-id before — proxy for "newly registered". Any
+          // subsequent signin (same browser, same account) fires signin_completed.
+          track(
+            isFirstTimeSignIn ? Events.signup_first_time : Events.signin_completed,
+            { provider, platform: isNativeApp() ? "native" : "web" }
+          );
+        } catch {}
+
         await claimReadings(session.user.id);
         await claimPendingCompat(session.user.id);
         setClaimTrigger(prev => prev + 1);
@@ -274,6 +301,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     // Set signing out flag FIRST — prevents UI flash
     setIsSigningOut(true);
+
+    // ── Mixpanel: log out cleanly so next anonymous session starts fresh ──
+    // Fired BEFORE clearing user state so we still have the user id.
+    try {
+      track(Events.signout_completed, {
+        platform: isNativeApp() ? "native" : "web",
+      });
+      resetAnalytics();
+    } catch {}
+
     // Immediately clear user so UI reflects logged-out state without delay
     setUser(null);
 

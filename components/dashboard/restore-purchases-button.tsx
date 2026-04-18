@@ -7,6 +7,7 @@ import { useLanguage } from "@/lib/language-context";
 import { t, tf } from "@/lib/translations";
 import { useNativeApp } from "@/lib/native-app";
 import { sendToFlutter, onFlutterMessage } from "@/lib/flutter-bridge";
+import { track, Events } from "@/lib/analytics";
 
 /**
  * Restore Purchases button — visible ONLY inside the native app.
@@ -48,6 +49,9 @@ export function RestorePurchasesButton() {
 
     const unsubSuccess = onFlutterMessage("iap:restore:success:", (payload) => {
       const count = parseInt(payload, 10) || 0;
+      // Mixpanel: restore outcome — `count` tells us whether the user actually
+      // had past purchases on their Apple ID.
+      try { track(Events.restore_purchases_success, { count }); } catch {}
       const text =
         count > 0
           ? count === 1
@@ -97,6 +101,8 @@ export function RestorePurchasesButton() {
 
   const handleRestore = () => {
     if (loading) return;
+    // ── Mixpanel: Apple 4.10 compliance action — user tapped "Restore" ──
+    try { track(Events.restore_purchases_clicked); } catch {}
     setMessage(null);
     setLoading(true);
     const sent = sendToFlutter("iap:restore");
