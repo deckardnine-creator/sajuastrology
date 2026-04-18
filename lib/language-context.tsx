@@ -104,6 +104,27 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       document.documentElement.lang = newLocale;
       document.documentElement.dir = isRTL(newLocale) ? "rtl" : "ltr";
     }
+    // ── SEO: mirror the locale into the URL as ?lang=<code> ───────────
+    // This is the single change that unlocks multilingual indexing.
+    // Without it, every language renders from the same URL and Google
+    // collapses them into a single indexed page — which is why the
+    // previous sitemap's hreflang alternates had no effect.
+    //
+    // We use history.replaceState (not router.push) to avoid a full
+    // Next.js page transition and to keep the history clean.
+    // English is the default, so we remove the parameter entirely
+    // to keep the canonical URL for x-default / hreflang="en".
+    if (typeof window !== "undefined") {
+      try {
+        const url = new URL(window.location.href);
+        if (newLocale === "en") {
+          url.searchParams.delete("lang");
+        } else {
+          url.searchParams.set("lang", newLocale);
+        }
+        window.history.replaceState({}, "", url.toString());
+      } catch {}
+    }
     // ── Mixpanel: locale change is a key segmentation dimension ──
     // Also persist as a user property so all future events are bucketed
     // by the user's current language without needing to attach it each time.
