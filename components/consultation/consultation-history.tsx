@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Crown, ChevronDown, ChevronUp, Calendar } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
-import { t } from "@/lib/translations";
+import { t, toBCP47 } from "@/lib/translations";
 import Link from "next/link";
 
 interface ConsultationRecord {
@@ -85,7 +85,7 @@ export function ConsultationHistory() {
       <div className="flex items-center gap-2 mb-4">
         <Crown className="w-4 h-4 text-purple-400" />
         <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-          {locale === "ko" ? "상담 내역" : locale === "ja" ? "相談履歴" : "Consultation History"}
+          {t("ch.historyTitle", locale)}
         </h2>
       </div>
 
@@ -94,7 +94,7 @@ export function ConsultationHistory() {
           const isOpen = expanded === c.id;
           const catLabel = CATEGORY_LABELS[c.category]?.[locale] || c.category;
           const date = new Date(c.created_at).toLocaleDateString(
-            locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US",
+            toBCP47(locale),
             { month: "short", day: "numeric", year: "numeric" }
           );
 
@@ -144,7 +144,7 @@ export function ConsultationHistory() {
       <div className="mt-4 text-center">
         <Link href="/consultation"
           className="text-xs text-purple-400/70 hover:text-purple-400 transition-colors">
-          {locale === "ko" ? "+ 새 상담 시작하기" : locale === "ja" ? "+ 新しい相談を始める" : "+ Start New Consultation"}
+          {t("ch.startNew", locale)}
         </Link>
       </div>
     </motion.section>

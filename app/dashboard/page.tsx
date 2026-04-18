@@ -7,6 +7,7 @@ import { DashboardContent } from "@/components/dashboard/dashboard-content";
 import { MobileDashboardNav } from "@/components/dashboard/mobile-dashboard-nav";
 import { Navbar } from "@/components/landing/navbar";
 import { useLanguage } from "@/lib/language-context";
+import { t } from "@/lib/translations";
 
 export default function DashboardPage() {
   const { user, isLoading, openSignInModal } = useAuth();
@@ -43,29 +44,21 @@ export default function DashboardPage() {
           </div>
 
           <h2 className="text-xl font-serif text-primary mb-2">
-            {locale === "ko" ? "환영합니다" : locale === "ja" ? "ようこそ" : "Welcome"}
+            {t("dash.welcomeGuest", locale)}
           </h2>
           <p className="text-muted-foreground text-sm mb-8">
-            {locale === "ko"
-              ? "로그인하여 사주 결과를 저장하고 운세를 확인하세요."
-              : locale === "ja"
-              ? "ログインして鑑定結果を保存し、運勢を確認しましょう。"
-              : "Sign in to save readings, track your fortune, and access your cosmic dashboard."}
+            {t("dash.signInDesc", locale)}
           </p>
 
           <button
             onClick={() => openSignInModal()}
             className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-lg"
           >
-            {locale === "ko" ? "로그인" : locale === "ja" ? "ログイン" : "Sign In"}
+            {t("nav.signIn", locale)}
           </button>
 
           <p className="text-xs text-muted-foreground/60 mt-6">
-            {locale === "ko"
-              ? "계속 진행하면 이용약관 및 개인정보 처리방침에 동의하는 것입니다."
-              : locale === "ja"
-              ? "続行することで、利用規約とプライバシーポリシーに同意したものとみなされます。"
-              : "By continuing, you agree to our Terms of Service and Privacy Policy."}
+            {t("dash.termsConsent", locale)}
           </p>
         </div>
       </div>

@@ -227,8 +227,8 @@ export default function CalculatePage() {
         const rawErr = errData.error || `Request failed with status ${res.status}`;
         console.error("API error:", rawErr);
         const errMsg = (rawErr?.includes("529") || rawErr?.includes("overloaded"))
-          ? (locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요." : locale === "ja" ? "AIが混雑しています。しばらくしてから再試行してください。" : "The AI is busy right now. Please try again in a moment.")
-          : (locale === "ko" ? "오류가 발생했습니다. 다시 시도해주세요." : locale === "ja" ? "エラーが発生しました。再試行してください。" : t("calc.couldntGenerate", locale));
+          ? t("common.aiBusy", locale)
+          : (locale === "en" ? t("calc.couldntGenerate", locale) : t("common.somethingWentWrong", locale));
         apiErrorRef.current = errMsg;
         apiDoneRef.current = true;
 
@@ -259,8 +259,8 @@ export default function CalculatePage() {
       const rawErr2 = err?.message || "Network error";
       console.error("API call failed:", rawErr2);
       const errMsg = (rawErr2?.includes("529") || rawErr2?.includes("overloaded"))
-        ? (locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요." : locale === "ja" ? "AIが混雑しています。しばらくしてから再試行してください。" : "The AI is busy right now. Please try again in a moment.")
-        : (locale === "ko" ? "네트워크 오류가 발생했습니다. 다시 시도해주세요." : locale === "ja" ? "ネットワークエラーが発生しました。再試行してください。" : "Network error — please check your connection.");
+        ? t("common.aiBusy", locale)
+        : t("common.networkErrorConnection", locale);
       apiErrorRef.current = errMsg;
       apiDoneRef.current = true;
 

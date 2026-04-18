@@ -593,6 +593,7 @@ const translations = {
   "blog.allArticles": { en: "All Articles", ko: "모든 글", ja: "すべての記事" },
   "blog.readyToSeeChart": { en: "Ready to see your chart?", ko: "내 사주를 확인할 준비가 되셨나요?", ja: "あなたの命式を確認する準備はできましたか？" },
   "blog.getFreeReading": { en: "Get your free Four Pillars reading in 30 seconds.", ko: "30초 만에 무료 사주 분석을 받아보세요.", ja: "30秒で無料の四柱推命鑑定を受けましょう。" },
+  "blog.getMyFreeReading": { en: "Get My Free Reading", ko: "무료 사주 보기", ja: "無料で鑑定する" },
 
   // ─── Disclaimer ───
   "disclaimer": {

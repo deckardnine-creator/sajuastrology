@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowLeft, Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { t, type Locale } from "@/lib/translations";
 import type { BlogPost } from "@/lib/blog-posts";
 
 function renderMarkdown(text: string): string {
@@ -32,6 +33,10 @@ function renderMarkdown(text: string): string {
 }
 
 export function BlogArticle({ post }: { post: BlogPost }) {
+  // post.locale is the blog article's own language ("ko"/"ja"/"en"),
+  // not the user's UI language. Cast to Locale for the t() function.
+  const postLocale = post.locale as Locale;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -50,7 +55,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
       <article className="pt-page-lg pb-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <Link href="/blog" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-6">
-            <ArrowLeft className="w-4 h-4" /> {post.locale === "ko" ? "모든 글" : post.locale === "ja" ? "すべての記事" : "All Articles"}
+            <ArrowLeft className="w-4 h-4" /> {t("blog.allArticles", postLocale)}
           </Link>
 
           <header className="mb-8">
@@ -69,14 +74,14 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
           <div className="mt-12 bg-card/80 border border-primary/20 rounded-2xl p-6 sm:p-8 text-center">
             <h3 className="font-serif text-xl text-primary mb-2">
-              {post.locale === "ko" ? "내 사주를 확인할 준비가 되셨나요?" : post.locale === "ja" ? "あなたの命式を確認する準備はできましたか？" : "Ready to see your chart?"}
+              {t("blog.readyToSeeChart", postLocale)}
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
-              {post.locale === "ko" ? "30초 만에 무료 사주 분석을 받아보세요." : post.locale === "ja" ? "30秒で無料の四柱推命鑑定を受けましょう。" : "Get your free Four Pillars reading in 30 seconds."}
+              {t("blog.getFreeReading", postLocale)}
             </p>
             <Link href="/calculate">
               <Button className="gold-gradient text-primary-foreground font-semibold px-8 min-h-[44px]">
-                {post.locale === "ko" ? "무료 사주 보기" : post.locale === "ja" ? "無料で鑑定する" : "Get My Free Reading"} <ArrowRight className="w-4 h-4 ml-2" />
+                {t("blog.getMyFreeReading", postLocale)} <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
           </div>

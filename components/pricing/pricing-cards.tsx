@@ -192,7 +192,7 @@ export function PricingCards() {
               {t(plan.ctaKey, locale)}
             </Button>
             {plan.price > 0 && locale === "ko" && (
-              <p className="text-[10px] text-muted-foreground/40 mt-2 text-center">해외 결제 수단 전용 · 국내 카드 미지원</p>
+              <p className="text-[10px] text-muted-foreground/40 mt-2 text-center">{t("upgrade.koNotice", locale)}</p>
             )}
           </motion.div>
         )
