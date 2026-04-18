@@ -77,9 +77,9 @@ const content = {
   },
   moat3Title: { en: "Domain-Specialized Architecture", ko: "도메인 특화 아키텍처", ja: "ドメイン特化アーキテクチャ" },
   moat3Desc: {
-    en: "Purpose-built saju calculation engine (만세력 calendar + solar time correction), custom embedding pipeline, and 6 months of prompt optimization across 3 languages. The stack is not reproducible by calling a generic API.",
-    ko: "만세력 기반 사주 계산 엔진(진태양시 보정), 맞춤 임베딩 파이프라인, 3개 언어 6개월 프롬프트 최적화. 범용 API 호출로는 재현 불가능한 기술 스택.",
-    ja: "万年暦ベース四柱計算エンジン（真太陽時補正）、カスタム埋め込みパイプライン、3言語6ヶ月のプロンプト最適化。汎用APIでは再現不可能な技術スタック。",
+    en: "Purpose-built saju calculation engine (만세력 calendar + solar time correction), custom embedding pipeline, and prompt optimization across 10 languages (EN/KO/JA/ES/FR/PT/zh-TW/RU/HI/ID) — the world's first Saju AI covering 4.3B+ population. The stack is not reproducible by calling a generic API.",
+    ko: "만세력 기반 사주 계산 엔진(진태양시 보정), 맞춤 임베딩 파이프라인, 10개 언어(EN/KO/JA/ES/FR/PT/zh-TW/RU/HI/ID) 프롬프트 최적화 — 43억 인구 커버, 세계 최초 사주 AI. 범용 API 호출로는 재현 불가능한 기술 스택.",
+    ja: "万年暦ベース四柱計算エンジン（真太陽時補正）、カスタム埋め込みパイプライン、10言語（EN/KO/JA/ES/FR/PT/zh-TW/RU/HI/ID）プロンプト最適化 — 43億人口をカバーする世界初の四柱推命AI。汎用APIでは再現不可能な技術スタック。",
   },
   moat4Title: { en: "Data Compound Effect", ko: "데이터 복리 효과", ja: "データ複利効果" },
   moat4Desc: {

@@ -18,49 +18,145 @@ export default function TermsPage() {
           <h1 className="text-3xl md:text-4xl font-serif text-primary mb-2">Terms of Service</h1>
           <p className="text-sm text-muted-foreground mb-10">Last updated: April 2026</p>
           <div className="space-y-8 text-sm text-foreground/90 leading-relaxed">
+
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">1. Agreement</h2>
-              <p>By using SajuAstrology.com or the SajuAstrology mobile app, you agree to these Terms. Operated by Rimfactory (Reg. No. 402-44-01247), Seoul, Korea.</p>
-            </section>
-            <section>
-              <h2 className="text-lg font-serif text-primary mb-3">2. Service</h2>
-              <p>Personalized readings based on Korean Saju (Four Pillars of Destiny) principles, generated with AI technology. Available on web and mobile apps (iOS and Android) in English, Korean, and Japanese. Includes free readings, free compatibility analysis, premium readings, and master consultations.</p>
-            </section>
-            <section>
-              <h2 className="text-lg font-serif text-primary mb-3">3. Important Disclaimer</h2>
-              <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4">
-                <p>Readings are for <strong>entertainment and self-reflection only</strong>. Not professional advice. <strong>Do not</strong> make financial, medical, legal, or relationship decisions based solely on readings. Rimfactory disclaims all liability for decisions resulting from our content.</p>
+              <p className="mb-2">By accessing or using SajuAstrology.com (the &ldquo;Website&rdquo;) or the SajuAstrology mobile application (the &ldquo;App&rdquo;, collectively the &ldquo;Service&rdquo;), you agree to be legally bound by these Terms of Service (&ldquo;Terms&rdquo;). If you do not agree, do not use the Service.</p>
+              <p>The Service is operated by Rimfactory (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;Rimfactory&rdquo;), a business entity registered in the Republic of Korea with the following details:</p>
+              <div className="bg-card/50 border border-border rounded-xl p-4 mt-2 text-xs">
+                <p><strong>Business name:</strong> Rimfactory</p>
+                <p><strong>Representative:</strong> Yun Choyeon</p>
+                <p><strong>Business Registration No.:</strong> 402-44-01247</p>
+                <p><strong>Mail-order Business Report No.:</strong> 2025-Seoul Guro-2056</p>
+                <p><strong>Address:</strong> 243, 1F, Sindorim Technomart, 97 Saemal-ro, Guro-gu, Seoul 08213, Republic of Korea</p>
+                <p><strong>Email:</strong> <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a></p>
+                <p><strong>Phone:</strong> +82-10-4648-6793</p>
               </div>
             </section>
+
             <section>
-              <h2 className="text-lg font-serif text-primary mb-3">4. Accounts</h2>
-              <p className="mb-2">Sign in to save readings and make purchases. On the web, both Google and Apple sign-in are available. In the iOS app, Apple sign-in is used. In the Android app, Google sign-in is used. Must be 13+ to create an account. Your account syncs between the web and the mobile app when using the same sign-in method.</p>
-              <p>You may delete your account and all associated data at any time from your dashboard, or by contacting <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. Upon request, we will permanently delete your account and personal data within 30 days.</p>
+              <h2 className="text-lg font-serif text-primary mb-3">2. The Service</h2>
+              <p className="mb-2">SajuAstrology provides AI-generated content based on the principles of Korean Saju (사주 — Four Pillars of Destiny), a traditional East Asian cosmological framework. The Service is available on the Website and through native mobile apps on iOS (Apple App Store) and Android (Google Play) in ten languages: English, Korean (한국어), Japanese (日本語), Spanish, French, Portuguese, Traditional Chinese (繁體中文), Russian, Hindi (हिन्दी), and Indonesian.</p>
+              <p>Offerings include free Saju readings, free compatibility analysis, a paid Full Destiny Reading, and paid Master Consultation credits.</p>
             </section>
+
             <section>
-              <h2 className="text-lg font-serif text-primary mb-3">5. Pricing</h2>
-              <p className="mb-2"><strong>Free:</strong> Personal reading (personality, elements, year forecast), full compatibility analysis (love, work, friendship, conflict, yearly forecast), daily fortune, shareable profiles.</p>
-              <p className="mb-2"><strong>Full Destiny Reading ($9.99):</strong> Career and wealth blueprint, love and relationship insights, health timing, 10-year fortune cycle, monthly energy calendar, hidden talent analysis. One-time payment per reading.</p>
-              <p className="mb-2"><strong>Master Consultation ($29.99):</strong> 5 AI-generated follow-up analysis rounds for specific life questions. Powered by RimSaju Engine. Credits never expire.</p>
-              <p className="text-muted-foreground">All prices USD. One-time payments only — no subscriptions or recurring charges.</p>
+              <h2 className="text-lg font-serif text-primary mb-3">3. Entertainment Only — Important Disclaimer</h2>
+              <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 space-y-2">
+                <p>All content generated by the Service is provided strictly for <strong>entertainment, cultural exploration, and personal self-reflection purposes</strong>. It is <strong>not</strong> professional advice of any kind and must not be treated as such.</p>
+                <p><strong>You must not rely on any reading, consultation, or daily fortune to make decisions regarding:</strong> medical, psychological, or health matters; legal or regulatory matters; financial, investment, insurance, or tax decisions; relationships, marriage, or reproductive choices; employment, career, or business decisions; child welfare, custody, or educational choices; or any other matter with meaningful real-world consequences. Always consult a qualified, licensed professional.</p>
+                <p>Saju is a traditional East Asian cultural practice, not a religious practice or divine prophecy, and has no scientifically validated predictive power. Acceptance of fortune-telling, divination, or astrology varies widely across cultures and religions. You are solely responsible for determining whether use of the Service is appropriate for you and consistent with your personal, cultural, or religious values.</p>
+              </div>
             </section>
+
             <section>
-              <h2 className="text-lg font-serif text-primary mb-3">6. Payments and Refunds</h2>
-              <p className="mb-2">Payments are processed securely through our payment partners. On the web, payments are handled via PayPal Checkout (Visa, Mastercard, Amex, and other major methods accepted). In the mobile app, payments are processed through Apple App Store (iOS) or Google Play (Android) in-app purchase. We never store your credit card details.</p>
-              <p>Digital content is delivered instantly — sales are generally final. If an AI analysis error occurs before your results are delivered, you may request a refund within 7 days by contacting <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. For in-app purchases, refunds are handled by Apple or Google according to their respective refund policies. Unused consultation credits remain indefinitely.</p>
+              <h2 className="text-lg font-serif text-primary mb-3">4. Eligibility and Age</h2>
+              <p className="mb-2">By signing in to the Service, you represent that you are at least <strong>14 years of age</strong> (the minimum digital-consent age under Korea&rsquo;s Personal Information Protection Act) and that you have the legal capacity to agree to these Terms. EU/EEA residents must also meet the minimum digital-consent age in their member state (generally 16, lower in some countries).</p>
+              <p>We do not knowingly collect information from children under the applicable minimum age. If we learn that such data has been collected in violation of applicable law, we will delete it promptly. Parents or legal guardians who believe a minor has submitted information should contact <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>.</p>
             </section>
+
             <section>
-              <h2 className="text-lg font-serif text-primary mb-3">7. AI Content</h2>
-              <p>Readings generated by AI (Google Gemini, Anthropic Claude). May contain inaccuracies. Each reading is unique. Not a substitute for professional advice.</p>
+              <h2 className="text-lg font-serif text-primary mb-3">5. Accounts</h2>
+              <p className="mb-2">Accounts are created exclusively via Google OAuth or Apple Sign-in. We do not operate username/password accounts. You are responsible for safeguarding access to the third-party identity provider account used to sign in. You agree to provide accurate information, including the birth data you voluntarily supply for readings. False or fraudulent use of the Service is grounds for immediate termination.</p>
+              <p>Your account syncs between Website and App when you use the same sign-in method. In the iOS App, Apple Sign-in is used; in the Android App, Google Sign-in is used. You may delete your account and all associated personal data at any time from your dashboard, or by contacting <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. Deletion will be completed within 30 days.</p>
             </section>
+
             <section>
-              <h2 className="text-lg font-serif text-primary mb-3">8. Liability</h2>
-              <p>Maximum liability limited to amounts paid in the preceding 12 months. Service provided as-is. Governed by Korean law, Seoul courts.</p>
+              <h2 className="text-lg font-serif text-primary mb-3">6. Pricing</h2>
+              <p className="mb-2"><strong>Free tier:</strong> personal Saju reading (personality, Five Elements, year forecast), full compatibility analysis (love, work, friendship, conflict, yearly forecast), personalized daily fortune, and shareable result pages.</p>
+              <p className="mb-2"><strong>Full Destiny Reading (US$9.99):</strong> one-time payment per reading. Includes career and wealth blueprint, love and relationship insights, health timing guidance, 10-year fortune cycle analysis, monthly energy calendar, and hidden-talent analysis. Permanent access to your reading page.</p>
+              <p className="mb-2"><strong>Master Consultation (US$29.99):</strong> five (5) AI-generated follow-up analysis rounds for specific life questions. Powered by our RimSaju Engine (see §8). Credits never expire and remain associated with your account indefinitely.</p>
+              <p className="text-muted-foreground">All prices are in U.S. Dollars. All purchases are one-time payments — <strong>no subscriptions, no auto-renewals, and no recurring charges</strong>. Prices are identical across the Website and the App.</p>
             </section>
+
+            <section>
+              <h2 className="text-lg font-serif text-primary mb-3">7. Payments and Refunds</h2>
+              <p className="mb-2"><strong>Web payments</strong> are processed by PayPal Checkout (accepting PayPal, Visa, Mastercard, American Express, and other major cards). <strong>App payments</strong> are processed by the Apple App Store (iOS) or Google Play (Android) through in-app purchase. We do not receive, handle, or store your payment card details.</p>
+              <p className="mb-2">Digital content (AI-generated readings) is delivered immediately and uniquely for your birth chart upon purchase.</p>
+              <ul className="list-disc pl-6 mb-2 space-y-1">
+                <li>If a technical error prevents your reading from being delivered, contact <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> within 7 days of purchase for a refund.</li>
+                <li>For in-app purchases (iOS/Android), refund requests must be submitted through Apple or Google according to their respective refund policies. We cannot process App Store refunds on your behalf.</li>
+                <li><strong>Korean consumers:</strong> Rights under Korea&rsquo;s Act on the Consumer Protection in Electronic Commerce (including the 7-day cooling-off right for digital content, subject to statutory exceptions for digital content the use of which has commenced) are preserved in full.</li>
+                <li><strong>EU/EEA consumers:</strong> Rights under Directive 2011/83/EU are preserved. By proceeding to purchase digital content that is delivered immediately upon payment, you acknowledge that performance begins at the moment of purchase, to the extent permitted by law.</li>
+                <li>Unused Master Consultation credits remain on your account indefinitely, subject to account deletion.</li>
+              </ul>
+              <p>Chargebacks initiated without first attempting resolution via <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> may result in account suspension.</p>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-serif text-primary mb-3">8. AI-Generated Content and Model Providers</h2>
+              <p className="mb-2">All readings, consultations, and daily fortunes are generated in whole or in part by large language models — primarily Google Gemini (via Google&rsquo;s generative AI APIs) with Anthropic Claude used as a fallback and verification layer (the &ldquo;Models&rdquo;). Our proprietary orchestration layer (&ldquo;RimSaju Engine&rdquo;) combines deterministic Saju calculations (Four Pillars, Five Elements, True Solar Time correction) with retrieval-augmented generation from 562 classical passages across 5 ancient source texts.</p>
+              <p className="mb-2">You understand and agree that:</p>
+              <ul className="list-disc pl-6 mb-2 space-y-1">
+                <li>AI output may contain inaccuracies, inconsistencies, or fabricated content (&ldquo;hallucinations&rdquo;).</li>
+                <li>Each reading is generated uniquely at the moment of request and may differ if regenerated.</li>
+                <li>Your birth data is transmitted to the Models as prompt input for the purpose of generating your reading. We do not knowingly submit your birth data to these providers for the purpose of training their foundation models. For the providers&rsquo; own data-handling practices, please refer to their respective privacy policies, which govern their processing of the input they receive.</li>
+                <li>AI output is not a substitute for professional advice (see §3).</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-serif text-primary mb-3">9. User Conduct and Acceptable Use</h2>
+              <p className="mb-2">You agree not to:</p>
+              <ul className="list-disc pl-6 space-y-1">
+                <li>Submit birth data or any personal information of another person without that person&rsquo;s informed consent (including minors, partners, or public figures) for anything beyond anonymous compatibility checks;</li>
+                <li>Use the Service to harass, defame, or make predictive claims about identifiable third parties;</li>
+                <li>Scrape, copy, resell, or redistribute readings or the RimSaju Engine output in bulk;</li>
+                <li>Reverse-engineer, probe, or attempt to extract the underlying prompts, embeddings, or RAG sources;</li>
+                <li>Upload or input content that is unlawful, hateful, sexually explicit, or violates third-party rights;</li>
+                <li>Circumvent rate limits, payment validation, or IAP verification.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-serif text-primary mb-3">10. Intellectual Property</h2>
+              <p>The SajuAstrology name, brand, RimSaju Engine, website design, code, classical-passage curation, and all original content are owned by Rimfactory and protected by copyright, trademark, and related laws. We grant you a limited, non-exclusive, non-transferable, revocable license to use the Service for your own personal, non-commercial use. AI-generated readings delivered to you may be shared via the share links provided, but may not be used to train other AI models or resold.</p>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-serif text-primary mb-3">11. Changes and Termination</h2>
+              <p>We may modify, suspend, or discontinue any part of the Service at any time. Material changes to these Terms will be announced via the Website with a new &ldquo;Last updated&rdquo; date, and where required by law, via email. Continued use after changes constitutes acceptance. We may suspend or terminate your account for breach of these Terms, suspected fraud, or as required by law.</p>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-serif text-primary mb-3">12. Warranty Disclaimer</h2>
+              <p>THE SERVICE IS PROVIDED ON AN &ldquo;AS IS&rdquo; AND &ldquo;AS AVAILABLE&rdquo; BASIS. TO THE MAXIMUM EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND ACCURACY OF AI-GENERATED CONTENT.</p>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-serif text-primary mb-3">13. Limitation of Liability</h2>
+              <p className="mb-2">TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, RIMFACTORY SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR LOSS OF PROFITS, DATA, OR GOODWILL, ARISING OUT OF OR RELATING TO YOUR USE OF THE SERVICE. OUR AGGREGATE LIABILITY FOR ALL CLAIMS SHALL NOT EXCEED THE TOTAL AMOUNT YOU PAID TO RIMFACTORY IN THE TWELVE (12) MONTHS PRECEDING THE EVENT GIVING RISE TO THE CLAIM, OR US$100, WHICHEVER IS GREATER.</p>
+              <p>Nothing in this section limits or excludes any liability that, under applicable consumer-protection law in your country of residence, cannot be limited or excluded. In particular, for consumers resident in the Republic of Korea, rights under the Framework Act on Consumers and the Act on the Consumer Protection in Electronic Commerce are preserved in full.</p>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-serif text-primary mb-3">14. Indemnification</h2>
+              <p>To the maximum extent permitted by applicable law, you agree to indemnify and hold harmless Rimfactory and its officers, employees, and agents from any claims, damages, or expenses (including reasonable attorneys&rsquo; fees) arising from (a) your violation of these Terms, (b) your misuse of the Service, (c) your infringement of any third party&rsquo;s rights, or (d) your reliance on any reading, consultation, or content in violation of §3. This indemnification does not apply to the extent prohibited by the consumer-protection laws of your country of residence.</p>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-serif text-primary mb-3">15. Dispute Resolution</h2>
+              <p className="mb-2"><strong>Informal resolution first.</strong> Before initiating any formal proceeding, you agree to contact us at <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> and allow at least 30 days for us to attempt resolution in good faith.</p>
+              <p className="mb-2"><strong>Governing law.</strong> These Terms are governed by the laws of the Republic of Korea, without regard to its conflict-of-laws principles. Mandatory consumer-protection rights in your country of residence are not affected.</p>
+              <p className="mb-2"><strong>Jurisdiction.</strong> Subject to mandatory local consumer-protection laws, the Seoul Central District Court of Korea shall have exclusive jurisdiction, except that either party may bring a small-claims action in the court of the other party&rsquo;s residence for claims that qualify for small-claims procedures.</p>
+              <p><strong>No class actions.</strong> To the maximum extent permitted by law, you and Rimfactory agree that any dispute will be resolved on an individual basis only, and neither party will participate in a class action, consolidated action, or representative action against the other.</p>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-serif text-primary mb-3">16. Third-Party App Store Terms</h2>
+              <p>If you download the App from Apple App Store or Google Play, additional terms from the respective store apply. These Terms do not modify those agreements. Apple and Google are third-party beneficiaries of these Terms to the extent required by their developer agreements, and may enforce them against you.</p>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-serif text-primary mb-3">17. Severability and Entire Agreement</h2>
+              <p>If any provision is found unenforceable, the remaining provisions remain in effect. These Terms, together with our Privacy Policy, constitute the entire agreement between you and Rimfactory regarding the Service.</p>
+            </section>
+
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Contact</h2>
               <div className="bg-card/50 border border-border rounded-xl p-4">
-                <p><strong>Rimfactory</strong> — 243, 1F, Sindorim Technomart, 97 Saemallo, Guro-gu, Seoul</p>
+                <p><strong>Rimfactory</strong> — 243, 1F, Sindorim Technomart, 97 Saemal-ro, Guro-gu, Seoul 08213, Republic of Korea</p>
+                <p className="mt-1">Business Registration No.: 402-44-01247 · Mail-order Business Report No.: 2025-Seoul Guro-2056</p>
                 <p className="mt-1">Email: <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> · Phone: +82-10-4648-6793</p>
               </div>
             </section>
