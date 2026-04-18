@@ -26,6 +26,11 @@ function detectLocaleFromContent(text: string | null): string | null {
   const hasFrenchStopwords = /\b(le|la|les|du|des|que|en|un|une|est|sont|et|ou|mais|tu|tes|ton|ta|avec|pour|par|comme|au|aux|se|son|ses|ce|cette|ces|plus|parce|quand|qui|qu)\b/i.test(sample);
   const hasFrenchApostrophe = /\b[lndsjmtcLNDSJMTC]'[a-zA-ZàâçéèêëîïôùûüÿœÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ]/.test(sample);
   if (hasFrenchChars || hasFrenchStopwords || hasFrenchApostrophe) return "fr";
+  // Portuguese detection (Latin script): Portuguese-specific characters
+  // (ã, õ are strongly Portuguese), or common você-form Brazilian stopwords.
+  const hasPortugueseChars = /[ãõçáéíóúâêôÃÕÇÁÉÍÓÚÂÊÔ]/.test(sample);
+  const hasPortugueseStopwords = /\b(o|a|os|as|do|da|dos|das|que|em|no|na|nos|nas|um|uma|é|são|está|estão|você|seu|sua|com|para|por|como|mas|se|este|esta|isso|mais|porque|quando|também|muito|já)\b/i.test(sample);
+  if (hasPortugueseChars || hasPortugueseStopwords) return "pt";
   return "en";
 }
 
@@ -198,6 +203,13 @@ function checkContentLanguage(parsed: Record<string, any>, locale: string): bool
     const hasFrenchStopwords = /\b(le|la|les|du|des|que|en|un|une|est|sont|et|ou|mais|tu|tes|ton|ta|avec|pour|par|comme|au|aux|se|son|ses|ce|cette|ces|plus|parce|quand|qui|qu)\b/i.test(sample);
     const hasFrenchApostrophe = /\b[lndsjmtcLNDSJMTC]'[a-zA-ZàâçéèêëîïôùûüÿœÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ]/.test(sample);
     return hasFrenchChars || hasFrenchStopwords || hasFrenchApostrophe;
+  }
+  if (locale === "pt") {
+    // Portuguese is Latin script — use character + stopword heuristics.
+    // ã, õ are strong Portuguese-only signals among Latin-script languages here.
+    const hasPortugueseChars = /[ãõçáéíóúâêôÃÕÇÁÉÍÓÚÂÊÔ]/.test(sample);
+    const hasPortugueseStopwords = /\b(o|a|os|as|do|da|dos|das|que|em|no|na|nos|nas|um|uma|é|são|está|estão|você|seu|sua|com|para|por|como|mas|se|este|esta|isso|mais|porque|quando|também|muito|já)\b/i.test(sample);
+    return hasPortugueseChars || hasPortugueseStopwords;
   }
   return true;
 }

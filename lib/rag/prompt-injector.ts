@@ -51,7 +51,7 @@ interface Citation {
 export async function buildRAGContext(
   sajuData: SajuData,
   serviceType: 'free' | 'paid' | 'compatibility' | 'consultation' = 'paid',
-  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' = 'ko'
+  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' = 'ko'
 ): Promise<RAGContext> {
   const emptyContext: RAGContext = {
     contextText: '',
@@ -159,7 +159,7 @@ export async function buildRAGContext(
  */
 function formatContextForPrompt(
   chunks: any[],
-  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr'
+  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt'
 ): string {
   if (chunks.length === 0) return '';
 
@@ -171,6 +171,8 @@ function formatContextForPrompt(
     ? `[Referencia de Teoría Clásica de los Cuatro Pilares — Incorpora de forma natural estos textos clásicos en tu lectura]`
     : locale === 'fr'
     ? `[Référence de théorie classique des Quatre Piliers — Intègre naturellement ces textes classiques dans ta lecture]`
+    : locale === 'pt'
+    ? `[Referência de Teoria Clássica dos Quatro Pilares — Incorpore naturalmente estes textos clássicos na sua leitura]`
     : `[古典四柱理論参考資料 - 以下の古典原典の内容をリーディングに自然に反映してください]`;
 
   const instruction = locale === 'ko'
@@ -181,6 +183,8 @@ function formatContextForPrompt(
     ? `Cita naturalmente cada pasaje clásico en tu lectura. Ejemplo: "Según el Adivinación del Cielo Goteante (滴天髓)..." o "El Espejo del Tesoro (穷通宝鉴) dice...". Incluye el nombre original en chino (漢字) para mayor autenticidad. Cuando el término sea técnico o específico del Saju, mantén el término coreano o chino original con una breve explicación en español entre paréntesis.`
     : locale === 'fr'
     ? `Cite naturellement chaque passage classique dans ta lecture. Exemple : "Selon le Adivination du Ciel Gouttant (滴天髓)..." ou "Le Miroir du Trésor (穷通宝鉴) dit...". Inclus le nom original en chinois (漢字) pour plus d'authenticité. Quand un terme est technique ou spécifique au Saju, garde le terme coréen ou chinois original avec une brève explication en français entre parenthèses.`
+    : locale === 'pt'
+    ? `Cite naturalmente cada passagem clássica na sua leitura. Exemplo: "Segundo o Adivinhação do Céu Gotejante (滴天髓)..." ou "O Espelho do Tesouro (穷通宝鉴) diz...". Inclua o nome original em chinês (漢字) para maior autenticidade. Quando o termo for técnico ou específico do Saju, mantenha o termo coreano ou chinês original com uma breve explicação em português entre parênteses.`
     : `各古典の一節をリーディングの中で自然に引用してください。例：「滴天髓によれば…」「穷通宝鉴では…」のように原典名を明記してください。`;
 
   const chunkTexts = chunks.map((c, i) => {
@@ -200,7 +204,7 @@ export async function injectRAGIntoPrompt(
   basePrompt: string,
   sajuData: SajuData,
   serviceType: 'free' | 'paid' | 'compatibility' | 'consultation' = 'paid',
-  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' = 'ko'
+  locale: 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt' = 'ko'
 ): Promise<{ prompt: string; citations: Citation[] }> {
   const ragContext = await buildRAGContext(sajuData, serviceType, locale);
 

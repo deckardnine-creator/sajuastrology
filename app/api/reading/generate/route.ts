@@ -211,7 +211,7 @@ export async function POST(request: NextRequest) {
       weakElement: chart.weakestElement,
     };
     const { prompt, citations: ragCitations } = await injectRAGIntoPrompt(
-      basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja' | 'es' | 'fr'
+      basePrompt, sajuDataForRAG, 'free', locale as 'ko' | 'en' | 'ja' | 'es' | 'fr' | 'pt'
     );
 
     // Build citation metadata for frontend UI
@@ -266,6 +266,16 @@ export async function POST(request: NextRequest) {
         const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
         // French if we see French markers AND French isn't overwhelmed by English
         isCorrectLang = (hasFrenchChars || hasFrenchStopwords || hasFrenchApostrophe) && !(hasEnglishStopwords && !hasFrenchStopwords && !hasFrenchChars);
+      } else if (locale === "pt") {
+        // Portuguese uses Latin script (same as English), detected by:
+        // (1) Portuguese-specific characters (ã, õ, ç, á, é, í, ó, ú, â, ê, ô),
+        // (2) common Portuguese stopwords (você, é, são, está, etc.),
+        // (3) absence of overwhelming English stopwords.
+        // Brazilian Portuguese standard: "você" form, not "tu".
+        const hasPortugueseChars = /[ãõçáéíóúâêôÃÕÇÁÉÍÓÚÂÊÔ]/.test(sample);
+        const hasPortugueseStopwords = /\b(o|a|os|as|de|do|da|dos|das|que|em|no|na|nos|nas|um|uma|é|são|está|estão|você|seu|sua|seus|suas|com|para|por|como|e|ou|mas|se|este|esta|estes|estas|isso|mais|porque|quando|também|muito|já)\b/i.test(sample);
+        const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
+        isCorrectLang = (hasPortugueseChars || hasPortugueseStopwords) && !(hasEnglishStopwords && !hasPortugueseStopwords && !hasPortugueseChars);
       } else {
         isCorrectLang = true; // unknown locale — accept
       }
