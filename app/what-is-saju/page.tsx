@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
 import { SajuHero } from "@/components/education/saju-hero"
@@ -6,6 +7,29 @@ import { HowSajuWorks } from "@/components/education/how-saju-works"
 import { WhyDifferent } from "@/components/education/why-different"
 import { CredibilitySection } from "@/components/education/credibility-section"
 import { EducationCTA } from "@/components/education/education-cta"
+
+const BASE_URL = "https://sajuastrology.com"
+
+export const metadata: Metadata = {
+  title: "What is Saju? — Korean Four Pillars of Destiny Explained",
+  description: "Learn what Saju (사주) is — the 2,000-year-old Korean astrology system based on your birth date and time. How the Four Pillars, Day Master, and Five Elements reveal your cosmic blueprint. More precise than Western astrology.",
+  keywords: ["what is saju", "saju explained", "korean astrology basics", "four pillars of destiny", "day master", "five elements", "bazi explained"],
+  openGraph: {
+    title: "What is Saju? — Korean Four Pillars of Destiny Explained",
+    description: "The 2,000-year-old Korean astrology system. 518,400 unique profiles based on the exact moment of your birth.",
+    url: `${BASE_URL}/what-is-saju`,
+    type: "article",
+  },
+  alternates: {
+    canonical: `${BASE_URL}/what-is-saju`,
+    languages: {
+      "x-default": `${BASE_URL}/what-is-saju`,
+      en: `${BASE_URL}/what-is-saju`,
+      ko: `${BASE_URL}/what-is-saju`,
+      ja: `${BASE_URL}/what-is-saju`,
+    },
+  },
+}
 
 export default function WhatIsSajuPage() {
   return (

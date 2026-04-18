@@ -1,7 +1,13 @@
 import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
 
-export const metadata = { title: "Terms of Service" }
+export const metadata = {
+  title: "Terms of Service",
+  robots: {
+    index: false,
+    follow: true,
+  },
+}
 
 export default function TermsPage() {
   return (

@@ -1,7 +1,13 @@
 import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
 
-export const metadata = { title: "Privacy Policy" }
+export const metadata = {
+  title: "Privacy Policy",
+  robots: {
+    index: false,
+    follow: true,
+  },
+}
 
 export default function PrivacyPage() {
   return (

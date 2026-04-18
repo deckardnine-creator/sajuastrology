@@ -26,6 +26,12 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://sajuastrology.com/letter",
+    languages: {
+      "x-default": "https://sajuastrology.com/letter",
+      en: "https://sajuastrology.com/letter",
+      ko: "https://sajuastrology.com/letter",
+      ja: "https://sajuastrology.com/letter",
+    },
   },
 }
 

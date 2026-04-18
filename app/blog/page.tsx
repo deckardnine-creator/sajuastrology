@@ -12,6 +12,15 @@ export const metadata: Metadata = {
     description: "Deep dives into Saju astrology. Day Masters, Five Elements, compatibility, and more.",
     url: "https://sajuastrology.com/blog",
   },
+  alternates: {
+    canonical: "https://sajuastrology.com/blog",
+    languages: {
+      "x-default": "https://sajuastrology.com/blog",
+      en: "https://sajuastrology.com/blog",
+      ko: "https://sajuastrology.com/blog",
+      ja: "https://sajuastrology.com/blog",
+    },
+  },
 };
 
 export default function BlogPage() {
