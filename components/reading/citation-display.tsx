@@ -96,7 +96,7 @@ export function CitationCards({
         citations={enrichedCitations}
         locale={locale as 'en' | 'ko' | 'ja'}
         maxDisplay={citationMeta.matchCount}
-        collapsible={true}
+        collapsible={false}
       />
     </div>
   );
