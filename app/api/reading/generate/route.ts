@@ -12,17 +12,11 @@ async function callGemini(prompt: string, model = "gemini-2.5-flash", locale = "
   const apiKey = process.env.GOOGLE_AI_API_KEY || "";
   if (!apiKey) throw new Error("Gemini not configured");
 
-  // Gemini 2.5 Pro requires thinking mode — rejects thinkingBudget:0 with HTTP 400.
-  // Gemini 2.5 Flash accepts thinkingBudget:0 to disable thinking for speed.
-  // Anything else: omit thinkingConfig to let the API use its defaults safely.
-  const isFlash = model.includes("flash");
   const genConfig: any = {
     maxOutputTokens: 4000,
     temperature: 0.7,
+    thinkingConfig: { thinkingBudget: 0 },
   };
-  if (isFlash) {
-    genConfig.thinkingConfig = { thinkingBudget: 0 };
-  }
   if (locale === "en") {
     genConfig.responseMimeType = "application/json";
   }
