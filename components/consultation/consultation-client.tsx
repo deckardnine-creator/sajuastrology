@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
-import { t } from "@/lib/translations";
+import { t, toBCP47 } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
 import { searchCities, type City } from "@/lib/cities-data";
 import { safeGet } from "@/lib/safe-storage";
@@ -289,7 +289,7 @@ export function ConsultationClient() {
           setCredits((c) => Math.max(0, c - 1));
           setStep("report");
         } else {
-          setError(locale === "ko" ? "생성 시간이 초과되었습니다. 다시 시도해주세요." : locale === "ja" ? "生成がタイムアウトしました。再試行してください。" : "Generation timed out. Please try again.");
+          setError(t("common.generationTimedOut", locale));
           setStep("form");
         }
         setIsSubmitting(false);
@@ -448,8 +448,8 @@ export function ConsultationClient() {
         {
           const rawErr = data.error || "Something went wrong";
           setError((rawErr?.includes("529") || rawErr?.includes("overloaded"))
-            ? (locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요." : locale === "ja" ? "AIが混雑しています。しばらくしてから再試行してください。" : "The AI is busy right now. Please try again in a moment.")
-            : (locale === "ko" ? "오류가 발생했습니다. 다시 시도해주세요." : locale === "ja" ? "エラーが発生しました。再試行してください。" : "Something went wrong. Please try again."));
+            ? t("common.aiBusy", locale)
+            : t("common.somethingWentWrong", locale));
         }
         setStep("form");
         setIsSubmitting(false);
@@ -488,21 +488,21 @@ export function ConsultationClient() {
             {
               const rawErr = clarifyData.error || "Generation failed.";
               setError((rawErr?.includes("529") || rawErr?.includes("overloaded"))
-                ? (locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요." : locale === "ja" ? "AIが混雑しています。しばらくしてから再試行してください。" : "The AI is busy right now. Please try again in a moment.")
-                : (locale === "ko" ? "생성 실패. 크레딧은 사용되지 않았습니다." : locale === "ja" ? "生成に失敗しました。クレジットは使用されていません。" : "Generation failed. Your credit is safe."));
+                ? t("common.aiBusy", locale)
+                : t("consult.creditSafe", locale));
             }
             setStep("form");
           }
         } catch {
-          setError(locale === "ko" ? "네트워크 오류. 다시 시도해주세요." : locale === "ja" ? "ネットワークエラー。再試行してください。" : "Network error. Please try again.");
+          setError(t("common.networkError", locale));
           setStep("form");
         }
       } else {
-        setError(locale === "ko" ? "예상치 못한 응답입니다. 다시 시도해주세요." : locale === "ja" ? "予期しない応答です。再試行してください。" : "Unexpected response. Please try again.");
+        setError(t("consult.unexpectedResponse", locale));
         setStep("form");
       }
     } catch {
-      setError(locale === "ko" ? "네트워크 오류. 다시 시도해주세요." : locale === "ja" ? "ネットワークエラー。再試行してください。" : "Network error. Please try again.");
+      setError(t("common.networkError", locale));
       setStep("form");
     }
     setIsSubmitting(false);
@@ -532,8 +532,8 @@ export function ConsultationClient() {
         {
           const rawErr = data.error || "Generation failed.";
           setError((rawErr?.includes("529") || rawErr?.includes("overloaded"))
-            ? (locale === "ko" ? "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요. 크레딧은 사용되지 않았습니다." : locale === "ja" ? "AIが混雑しています。クレジットは使用されていません。" : "The AI is busy right now. Please try again. Your credit was not used.")
-            : (locale === "ko" ? "생성 실패. 크레딧은 안전합니다. 다시 시도해주세요." : locale === "ja" ? "生成に失敗しました。クレジットは安全です。" : "Generation failed. Your credit is safe — please try again."));
+            ? t("consult.aiBusyCredit", locale)
+            : t("consult.generationFailedCredit", locale));
         }
         setStep("form");
         setIsSubmitting(false);
@@ -545,7 +545,7 @@ export function ConsultationClient() {
       setStep("report");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
-      setError(locale === "ko" ? "네트워크 오류. 크레딧은 사용되지 않았습니다. 다시 시도해주세요." : locale === "ja" ? "ネットワークエラー。クレジットは使用されていません。再試行してください。" : "Network error. Please try again — your credit was not used.");
+      setError(t("consult.networkErrorCredit", locale));
       setStep("form");
     }
     setIsSubmitting(false);
@@ -583,7 +583,7 @@ export function ConsultationClient() {
         window.location.href = data.url;
       }
     } catch {
-      setError(locale === "ko" ? "결제 설정 실패" : locale === "ja" ? "決済設定に失敗しました" : "Payment setup failed");
+      setError(t("consult.paymentSetupFailed", locale));
     }
     setIsSubmitting(false);
   };
@@ -765,7 +765,7 @@ export function ConsultationClient() {
                 </p>
                 {question.length > 0 && question.length < 100 && question.length >= 30 && (
                   <p className="text-xs text-amber-400/70">
-                    {locale === "ko" ? "100자 이상 자세히 입력할수록 정확한 답을 얻습니다" : locale === "ja" ? "100文字以上詳しく書くほど精度が上がります" : "Write 100+ chars for a more accurate reading"}
+                    {t("consult.writeMore", locale)}
                   </p>
                 )}
               </div>
@@ -847,7 +847,7 @@ export function ConsultationClient() {
                   <div className="px-6 py-3 border-b border-border bg-[rgba(242,202,80,0.05)] flex items-center gap-2">
                     <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
                     <span className="text-xs text-primary font-medium">
-                      {locale === "ko" ? "미리보기 — 생성 중..." : locale === "ja" ? "プレビュー — 生成中..." : "Preview — generating..."}
+                      {t("common.previewGenerating", locale)}
                     </span>
                   </div>
                   {partialReport.title && (
@@ -894,7 +894,7 @@ export function ConsultationClient() {
                   {report.title}
                 </h2>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {new Date().toLocaleDateString(locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US", {
+                  {new Date().toLocaleDateString(toBCP47(locale), {
                     weekday: "long",
                     year: "numeric",
                     month: "long",
@@ -1020,7 +1020,7 @@ function BirthDataForm({ data, onChange, locale }: { data: BirthData; onChange: 
 
       {/* Birth Date — steppers */}
       <div>
-        <label className="block text-xs text-muted-foreground mb-2">{t("form.birthDate", locale)} <span className="text-[10px] opacity-60">({locale === "ko" ? "양력" : locale === "ja" ? "新暦" : "Solar Calendar"})</span></label>
+        <label className="block text-xs text-muted-foreground mb-2">{t("form.birthDate", locale)} <span className="text-[10px] opacity-60">({t("common.solarCalendar", locale)})</span></label>
         <div className="grid grid-cols-3 gap-2">
           {/* Year */}
           <div className="flex flex-col items-center gap-1">
@@ -1448,7 +1448,7 @@ function NoCreditsCTA({
             )}
             {t("consult.get5", locale)}
           </Button>
-          {locale === "ko" && <p className="text-[10px] text-muted-foreground/40 mt-3">해외 결제 수단 전용 · 국내 카드 미지원</p>}
+          {locale === "ko" && <p className="text-[10px] text-muted-foreground/40 mt-3">{t("upgrade.koNotice", locale)}</p>}
           {paymentError && (
             <p className="text-xs text-red-400 mt-3 max-w-sm mx-auto">{paymentError}</p>
           )}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { RotateCw } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { t, tf } from "@/lib/translations";
 import { useNativeApp } from "@/lib/native-app";
 import { sendToFlutter, onFlutterMessage } from "@/lib/flutter-bridge";
 
@@ -49,16 +50,10 @@ export function RestorePurchasesButton() {
       const count = parseInt(payload, 10) || 0;
       const text =
         count > 0
-          ? locale === "ko"
-            ? `${count}개의 구매가 복원되었습니다`
-            : locale === "ja"
-            ? `${count}件の購入を復元しました`
-            : `${count} purchase${count === 1 ? "" : "s"} restored`
-          : locale === "ko"
-          ? "복원할 구매가 없습니다"
-          : locale === "ja"
-          ? "復元する購入はありません"
-          : "No purchases to restore";
+          ? count === 1
+            ? t("restore.restoredOne", locale)
+            : tf("restore.restoredMany", locale, { count })
+          : t("restore.noPurchases", locale);
 
       setLoading(false);
       setMessage({ type: "success", text });
@@ -76,12 +71,7 @@ export function RestorePurchasesButton() {
     });
 
     const unsubError = onFlutterMessage("iap:restore:error:", (payload) => {
-      const text =
-        locale === "ko"
-          ? `복원 실패: ${payload}`
-          : locale === "ja"
-          ? `復元失敗: ${payload}`
-          : `Restore failed: ${payload}`;
+      const text = tf("restore.restoreFailed", locale, { payload });
       setLoading(false);
       setMessage({ type: "error", text });
       setTimeout(() => setMessage(null), 5000);
@@ -101,19 +91,9 @@ export function RestorePurchasesButton() {
   // (The sign-in prompt is already shown by DashboardPage in that state.)
   if (!user) return null;
 
-  const buttonLabel =
-    locale === "ko"
-      ? "구매 복원"
-      : locale === "ja"
-      ? "購入を復元"
-      : "Restore Purchases";
+  const buttonLabel = t("restore.buttonLabel", locale);
 
-  const helperText =
-    locale === "ko"
-      ? "이전에 결제한 내역을 다시 불러옵니다."
-      : locale === "ja"
-      ? "以前の購入履歴を再読み込みします。"
-      : "Re-check your App Store account for past purchases.";
+  const helperText = t("restore.helperText", locale);
 
   const handleRestore = () => {
     if (loading) return;
@@ -126,12 +106,7 @@ export function RestorePurchasesButton() {
       setLoading(false);
       setMessage({
         type: "error",
-        text:
-          locale === "ko"
-            ? "앱 연결을 확인할 수 없습니다"
-            : locale === "ja"
-            ? "アプリ接続を確認できません"
-            : "Could not reach the native app",
+        text: t("restore.noAppConnection", locale),
       });
       setTimeout(() => setMessage(null), 4000);
     }
@@ -150,13 +125,7 @@ export function RestorePurchasesButton() {
           className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
         >
           <RotateCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-          {loading
-            ? locale === "ko"
-              ? "확인 중..."
-              : locale === "ja"
-              ? "確認中..."
-              : "Checking..."
-            : buttonLabel}
+          {loading ? t("restore.checking", locale) : buttonLabel}
         </button>
       </div>
 

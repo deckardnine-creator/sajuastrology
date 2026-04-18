@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { t, tf, toBCP47 } from "@/lib/translations";
 import { useNativeApp } from "@/lib/native-app";
 import { supabase } from "@/lib/supabase-client";
 import { ELEMENTS, calculateDailyEnergy, type Element } from "@/lib/saju-calculator";
@@ -219,7 +220,7 @@ function DashboardInner() {
   const setAsMyChart = (readingId: string) => {
     if (primaryReadingId === readingId) return;
     if (!canChangeToday) {
-      setSwitchMessage(locale === "ko" ? "오늘 이미 변경했어요. 내일 다시 시도하세요." : locale === "ja" ? "今日はすでに変更しました。明日もう一度お試しください。" : "You already switched today. Try again tomorrow.");
+      setSwitchMessage(t("dash.alreadySwitchedToday", locale));
       setTimeout(() => setSwitchMessage(""), 3000);
       return;
     }
@@ -242,7 +243,7 @@ function DashboardInner() {
     setTimeout(() => setCopiedSlug(null), 2000);
   };
 
-  const dateLocale = locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US";
+  const dateLocale = toBCP47(locale);
   const formattedDate = new Date().toLocaleDateString(dateLocale, {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -252,7 +253,7 @@ function DashboardInner() {
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(); d.setDate(d.getDate() + i);
       const score = sajuData.chart ? Math.round(calculateDailyEnergy(sajuData.chart, d)) : 0;
-      const wLocale = locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US";
+      const wLocale = toBCP47(locale);
       return { day: d.toLocaleDateString(wLocale, { weekday: "short" }), dateNum: d.getDate(), score };
     });
   }, [sajuData.chart]);
@@ -288,7 +289,7 @@ function DashboardInner() {
 
   const handleShareFortune = () => {
     if (!fortune) return;
-    const siteTag = locale === "ko" ? "나의 오늘의 사주 운세 — sajuastrology.com" : locale === "ja" ? "今日の四柱推命運勢 — sajuastrology.com" : "My Saju Daily Fortune — sajuastrology.com";
+    const siteTag = t("dash.siteTag", locale);
     const text = `${fortune.shareText}\n\n${siteTag}`;
     if (navigator.share) {
       navigator.share({ text }).catch(() => {});
@@ -324,22 +325,22 @@ function DashboardInner() {
             </Link>
             <Link href="/compatibility">
               <Button variant="outline" className="h-12 px-6">
-                <Heart className="w-4 h-4 mr-2" /> {locale === "ko" ? "궁합 보기" : locale === "ja" ? "相性を見る" : "Check Compatibility"}
+                <Heart className="w-4 h-4 mr-2" /> {t("dash.viewCompat", locale)}
               </Button>
             </Link>
           </div>
         </motion.div>
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-auto pt-8 pb-4 text-[11px] text-muted-foreground/50">
           <Link href="/privacy" className="hover:text-muted-foreground transition-colors">
-            {locale === "ko" ? "개인정보" : locale === "ja" ? "プライバシー" : "Privacy"}
+            {t("common.privacy", locale)}
           </Link>
           <span>·</span>
           <Link href="/terms" className="hover:text-muted-foreground transition-colors">
-            {locale === "ko" ? "이용약관" : locale === "ja" ? "利用規約" : "Terms"}
+            {t("common.terms", locale)}
           </Link>
           <span>·</span>
           <a href="mailto:info@rimfactory.io" className="hover:text-muted-foreground transition-colors">
-            {locale === "ko" ? "문의" : locale === "ja" ? "お問い合わせ" : "Contact"}
+            {t("common.contact", locale)}
           </a>
           <span>·</span>
           <button
@@ -404,15 +405,15 @@ function DashboardInner() {
             className={deleteConfirmStep === 1 ? "text-red-400 font-medium animate-pulse transition-colors" : deleteConfirmStep === 2 ? "text-red-400/30 pointer-events-none" : "text-red-400/50 hover:text-red-400 transition-colors"}
           >
             {deleteConfirmStep === 2
-              ? (locale === "ko" ? "삭제 중..." : locale === "ja" ? "削除中..." : "Deleting...")
+              ? t("dash.deleting", locale)
               : deleteConfirmStep === 1
-              ? (locale === "ko" ? "탭하여 삭제 확인" : locale === "ja" ? "タップして確認" : "Tap to confirm delete")
-              : (locale === "ko" ? "계정삭제" : locale === "ja" ? "退会" : "Delete Account")}
+              ? t("dash.tapToConfirmDelete", locale)
+              : t("dash.deleteAccount", locale)}
           </button>
         </div>
         {deleteConfirmStep === 1 && (
           <p className="text-[11px] text-red-400/80 text-center mt-2 animate-in fade-in duration-200">
-            {locale === "ko" ? "정말 삭제하시겠습니까? 모든 데이터가 영구 삭제됩니다." : locale === "ja" ? "本当に削除しますか？すべてのデータが完全に削除されます。" : "Are you sure? All data will be permanently deleted."}
+            {t("dash.deleteWarning", locale)}
           </p>
         )}
       </div>
@@ -522,7 +523,7 @@ function DashboardInner() {
                 className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 shrink-0 min-h-[32px]"
               >
                 {fortuneCopied ? <Check className="w-3 h-3" /> : <Share2 className="w-3 h-3" />}
-                {fortuneCopied ? (locale === "ko" ? "복사됨!" : locale === "ja" ? "コピー済み!" : "Copied!") : (locale === "ko" ? "공유" : locale === "ja" ? "共有" : "Share")}
+                {fortuneCopied ? t("common.copied", locale) : t("dash.share", locale)}
               </button>
             </div>
             <p className="text-sm sm:text-base text-foreground leading-relaxed mb-3">{fortune.message}</p>
@@ -648,13 +649,13 @@ function DashboardInner() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">
-                      {r.name}{locale === "ko" ? "의 사주" : locale === "ja" ? "の四柱" : "'s Reading"}
-                      {isPrimary && <span className="ml-2 text-[10px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded-full">{locale === "ko" ? "내 사주" : locale === "ja" ? "マイチャート" : "MY CHART"}</span>}
+                      {r.name}{t("dash.possessiveReading", locale)}
+                      {isPrimary && <span className="ml-2 text-[10px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded-full">{t("dash.myChart", locale)}</span>}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {r.archetype}
-                      {r.is_paid && <span className="ml-2 text-primary">· {locale === "ko" ? "프리미엄" : locale === "ja" ? "プレミアム" : "Premium"}</span>}
-                      <span className="ml-2">· {new Date(r.created_at).toLocaleDateString(locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US", { month: "short", day: "numeric" })}</span>
+                      {r.is_paid && <span className="ml-2 text-primary">· {t("dash.premium", locale)}</span>}
+                      <span className="ml-2">· {new Date(r.created_at).toLocaleDateString(toBCP47(locale), { month: "short", day: "numeric" })}</span>
                     </p>
                   </div>
                   <div className="flex items-center gap-0.5 shrink-0">
@@ -675,7 +676,7 @@ function DashboardInner() {
             })}
             {savedReadings.length > 3 && !showAllReadings && (
               <button onClick={() => setShowAllReadings(true)} className="w-full py-2 text-sm text-primary hover:underline">
-                {locale === "ko" ? `전체 ${savedReadings.length}개 보기` : locale === "ja" ? `全${savedReadings.length}件を表示` : `Show all ${savedReadings.length} readings`}
+                {tf("dash.showAllReadings", locale, { count: savedReadings.length })}
               </button>
             )}
           </div>
@@ -717,7 +718,7 @@ function DashboardInner() {
                       {c.person_a_name} & {c.person_b_name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(c.created_at).toLocaleDateString(locale === "ko" ? "ko-KR" : locale === "ja" ? "ja-JP" : "en-US", { month: "short", day: "numeric" })}
+                      {new Date(c.created_at).toLocaleDateString(toBCP47(locale), { month: "short", day: "numeric" })}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
@@ -750,15 +751,15 @@ function DashboardInner() {
       {/* Footer — Privacy, Terms, Contact, Delete Account */}
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-8 mb-4 text-[11px] text-muted-foreground/50">
         <Link href="/privacy" className="hover:text-muted-foreground transition-colors">
-          {locale === "ko" ? "개인정보" : locale === "ja" ? "プライバシー" : "Privacy"}
+          {t("common.privacy", locale)}
         </Link>
         <span>·</span>
         <Link href="/terms" className="hover:text-muted-foreground transition-colors">
-          {locale === "ko" ? "이용약관" : locale === "ja" ? "利用規約" : "Terms"}
+          {t("common.terms", locale)}
         </Link>
         <span>·</span>
         <a href="mailto:info@rimfactory.io" className="hover:text-muted-foreground transition-colors">
-          {locale === "ko" ? "문의" : locale === "ja" ? "お問い合わせ" : "Contact"}
+          {t("common.contact", locale)}
         </a>
         <span>·</span>
         <button
@@ -823,15 +824,15 @@ function DashboardInner() {
           className={deleteConfirmStep === 1 ? "text-red-400 font-medium animate-pulse transition-colors" : deleteConfirmStep === 2 ? "text-red-400/30 pointer-events-none" : "text-red-400/50 hover:text-red-400 transition-colors"}
         >
           {deleteConfirmStep === 2
-            ? (locale === "ko" ? "삭제 중..." : locale === "ja" ? "削除中..." : "Deleting...")
+            ? t("dash.deleting", locale)
             : deleteConfirmStep === 1
-            ? (locale === "ko" ? "탭하여 삭제 확인" : locale === "ja" ? "タップして確認" : "Tap to confirm delete")
-            : (locale === "ko" ? "계정삭제" : locale === "ja" ? "退会" : "Delete Account")}
+            ? t("dash.tapToConfirmDelete", locale)
+            : t("dash.deleteAccount", locale)}
         </button>
       </div>
       {deleteConfirmStep === 1 && (
         <p className="text-[11px] text-red-400/80 text-center mt-2 animate-in fade-in duration-200">
-          {locale === "ko" ? "정말 삭제하시겠습니까? 모든 데이터가 영구 삭제됩니다." : locale === "ja" ? "本当に削除しますか？すべてのデータが完全に削除されます。" : "Are you sure? All data will be permanently deleted."}
+          {t("dash.deleteWarning", locale)}
         </p>
       )}
     </div>

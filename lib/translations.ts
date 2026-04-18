@@ -433,6 +433,7 @@ const translations = {
   "dash.generateReading": { en: "Generate My Reading", ko: "내 사주 보기", ja: "鑑定を生成する" },
   "dash.newCheck": { en: "New Check", ko: "새 궁합", ja: "新規チェック" },
   "dash.checkCompat": { en: "Check Compatibility", ko: "궁합 확인하기", ja: "相性をチェック" },
+  "dash.viewCompat": { en: "Check Compatibility", ko: "궁합 보기", ja: "相性を見る" },
   "dash.checkCompatDesc": { en: "See how your Four Pillars align with a partner, friend, or colleague", ko: "파트너, 친구, 동료와 당신의 사주가 어떻게 조화되는지 확인하세요", ja: "パートナー、友人、同僚との四柱の調和を確認" },
   "dash.setPrimaryHint": { en: "Tap ★ to set your primary chart (once per day).", ko: "★를 눌러 기본 사주를 설정하세요 (하루 1회).", ja: "★を押してメインの命式を設定（1日1回）。" },
   "dash.viewAllChecks": { en: "View all", ko: "모두 보기", ja: "すべて見る" },
