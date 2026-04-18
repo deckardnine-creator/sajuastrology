@@ -5,6 +5,7 @@
 'use client';
 
 import React from 'react';
+import type { Locale } from '@/lib/translations';
 import CorpusAnalysisBanner from './corpus-analysis-banner';
 import ClassicCitationCard, { CitationCardList } from './classic-citation-card';
 import AnalysisMethodology from './analysis-methodology';
@@ -55,7 +56,7 @@ export function CitationBanner({
       topSimilarity={citationMeta.topSimilarity}
       sourceCount={citationMeta.sourceCount}
       queryDimensions={citationMeta.queryDimensions}
-      locale={locale as 'en' | 'ko' | 'ja'}
+      locale={locale as Locale}
     />
   );
 }
@@ -94,7 +95,7 @@ export function CitationCards({
     <div className="mb-10">
       <CitationCardList
         citations={enrichedCitations}
-        locale={locale as 'en' | 'ko' | 'ja'}
+        locale={locale as Locale}
         maxDisplay={citationMeta.matchCount}
         collapsible={false}
       />
@@ -120,7 +121,7 @@ export function CitationMethodology({
       monthBranch={citationMeta.monthBranch}
       matchCount={citationMeta.matchCount}
       totalCorpusSize={citationMeta.totalCorpusSize}
-      locale={locale as 'en' | 'ko' | 'ja'}
+      locale={locale as Locale}
     />
   );
 }

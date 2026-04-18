@@ -2,18 +2,19 @@
 // Concept 4: Analysis Methodology Strip
 // Shows at the bottom of reading — "How this reading was generated"
 // 4-step process timeline: Saju calc → Vector embedding → Corpus matching → AI synthesis
-// Supports EN/KO/JA
+// Supports all locales — falls back to EN for translations not yet provided.
 
 'use client';
 
 import React from 'react';
+import type { Locale } from '@/lib/translations';
 
 interface AnalysisMethodologyProps {
   dayMaster: string;
   monthBranch: string;
   matchCount: number;
   totalCorpusSize: number;
-  locale?: 'en' | 'ko' | 'ja';
+  locale?: Locale;
 }
 
 interface Step {
@@ -22,13 +23,14 @@ interface Step {
 }
 
 const getSteps = (
-  locale: 'en' | 'ko' | 'ja',
+  locale: Locale,
   dayMaster: string,
   monthBranch: string,
   matchCount: number,
   totalCorpusSize: number
 ): Step[] => {
-  const steps: Record<string, Step[]> = {
+  // en is the guaranteed fallback; additional locales land later.
+  const steps: Partial<Record<Locale, Step[]>> & { en: Step[] } = {
     en: [
       {
         title: 'Saju calculation',
@@ -88,7 +90,8 @@ const getSteps = (
   return steps[locale] || steps.en;
 };
 
-const headings: Record<string, string> = {
+// en is the guaranteed fallback.
+const headings: Partial<Record<Locale, string>> & { en: string } = {
   en: 'How this reading was generated',
   ko: '이 리딩의 분석 과정',
   ja: 'この鑑定の分析プロセス',

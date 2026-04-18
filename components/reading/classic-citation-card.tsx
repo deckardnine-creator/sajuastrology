@@ -1,11 +1,12 @@
 // components/reading/classic-citation-card.tsx
 // Concept 3: Inline Citation Card
 // Inserted between reading paragraphs to show classical source references
-// Supports EN/KO/JA
+// Supports all locales — falls back to EN for translations not yet provided.
 
 'use client';
 
 import React, { useState } from 'react';
+import type { Locale } from '@/lib/translations';
 
 interface ClassicCitationCardProps {
   sourceNameKo: string;
@@ -18,12 +19,18 @@ interface ClassicCitationCardProps {
   interpretationEn?: string;
   interpretationJa?: string;
   similarity: number;
-  locale?: 'en' | 'ko' | 'ja';
+  locale?: Locale;
   /** If true, shows collapsed by default with toggle */
   collapsible?: boolean;
 }
 
-const translations = {
+// Translation dict — en is the guaranteed fallback. Other locales
+// may be absent and will resolve to en at lookup time. Staged rollout
+// per Phase 1a: types are expanded first, translations per language
+// land later without touching this structure.
+const translations: Partial<Record<Locale, { badge: string; similarity: string; showOriginal: string; hideOriginal: string }>> & {
+  en: { badge: string; similarity: string; showOriginal: string; hideOriginal: string };
+} = {
   en: {
     badge: 'Classical reference',
     similarity: 'Vector similarity',
@@ -59,6 +66,9 @@ export default function ClassicCitationCard({
   collapsible = false,
 }: ClassicCitationCardProps) {
   const [expanded, setExpanded] = useState(!collapsible);
+  // Translation lookup: fall back to English for any locale we haven't
+  // translated yet. Safe for all 11 locales even though only en/ko/ja
+  // have data at this stage.
   const t = translations[locale] || translations.en;
 
   // Pick display name and interpretation by locale
@@ -205,7 +215,7 @@ export function CitationCardList({
     interpretationJa?: string;
     similarity: number;
   }>;
-  locale?: 'en' | 'ko' | 'ja';
+  locale?: Locale;
   maxDisplay?: number;
   collapsible?: boolean;
 }) {

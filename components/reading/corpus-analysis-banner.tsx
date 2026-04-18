@@ -1,11 +1,12 @@
 // components/reading/corpus-analysis-banner.tsx
 // Concept 1: Analysis Pipeline Banner
 // Shows at the top of reading results — "562 passages analyzed, similarity 0.72"
-// Supports EN/KO/JA
+// Supports all locales — falls back to EN for translations not yet provided.
 
 'use client';
 
 import React from 'react';
+import type { Locale } from '@/lib/translations';
 
 interface CorpusAnalysisBannerProps {
   totalCorpusSize: number;
@@ -13,10 +14,21 @@ interface CorpusAnalysisBannerProps {
   topSimilarity: number;
   sourceCount: number;
   queryDimensions: number;
-  locale?: 'en' | 'ko' | 'ja';
+  locale?: Locale;
 }
 
-const translations = {
+// en is required as the fallback; other locales may be absent and
+// will resolve to en at lookup time (see translations[locale] || translations.en).
+type BannerText = {
+  analyzed: (n: number) => string;
+  matches: (n: number) => string;
+  passages: string;
+  sources: string;
+  similarity: string;
+  dimensions: string;
+};
+
+const translations: Partial<Record<Locale, BannerText>> & { en: BannerText } = {
   en: {
     analyzed: (n: number) => `Matched your saju against ${n} classical passages with the highest vector similarity`,
     matches: (n: number) => `${n} matches`,
