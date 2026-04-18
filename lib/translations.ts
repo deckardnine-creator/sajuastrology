@@ -98,6 +98,9 @@ const translations = {
     ko: "앱 곧 출시 — 지금은 웹에서 이용하세요!",
     ja: "アプリ近日公開 — 今はWebでご利用ください！",
   },
+  "hero.techLine": { en: "562 classical passages from 5 ancient texts — vector-matched in real time", ko: "5대 고전 원전 562개 패시지 실시간 벡터 분석", ja: "5大古典原典562パッセージをリアルタイムベクトル分析" },
+  "hero.letterLink": { en: "✒ A Letter from Rimfactory — what we're building →", ko: "✒ 림팩토리의 편지 — 우리가 무엇을 만들고 있는지 →", ja: "✒ Rimfactoryからの手紙 — 何を作っているのか →" },
+  "hero.celebLink": { en: "✦ Read Celebrity Saju Readings →", ko: "✦ 셀럽 사주 분석 보기 →", ja: "✦ セレブの四柱推命を見る →" },
 
   // ─── How It Works ───
   "hiw.title": { en: "How It Works", ko: "이용 방법", ja: "ご利用方法" },
@@ -118,14 +121,17 @@ const translations = {
   "comp.western2": { en: "Based on sun position", ko: "태양 위치 기반", ja: "太陽の位置に基づく" },
   "comp.western3": { en: "Monthly predictions", ko: "월별 예측", ja: "月別予測" },
   "comp.western4": { en: "Generic advice", ko: "일반적인 조언", ja: "汎用的なアドバイス" },
+  "comp.western5": { en: "No source attribution", ko: "출처 불명의 해석", ja: "出典不明の解釈" },
   "comp.saju": { en: "K-Astrology (Saju)", ko: "K-점성술 (사주)", ja: "K-占星術（四柱推命）" },
   "comp.saju1": { en: "518,400 Types", ko: "518,400가지 유형", ja: "518,400タイプ" },
   "comp.saju2": { en: "Based on full cosmic state", ko: "완전한 우주적 상태 기반", ja: "完全な宇宙状態に基づく" },
   "comp.saju3": { en: "Daily precision readings", ko: "일별 정밀 분석", ja: "日別精密鑑定" },
   "comp.saju4": { en: "Hyper-personalized guidance", ko: "초개인화 가이던스", ja: "超パーソナライズガイダンス" },
+  "comp.saju5": { en: "Grounded in classical texts", ko: "고전 원전 근거 제시", ja: "古典原典の根拠を提示" },
 
   // ─── CTA Banner ───
   "cta.title": { en: "Your cosmic code is waiting.", ko: "당신의 우주적 코드가 기다리고 있습니다.", ja: "あなたの宇宙コードが待っています。" },
+  "cta.desc": { en: "Grounded in 2,000 years of classical texts", ko: "2,000년 고전 원전에 근거한 당신만의 분석", ja: "2,000年の古典原典に基づくあなただけの分析" },
   "cta.btn": { en: "Get My Free Reading", ko: "무료 사주 보기", ja: "無料で鑑定する" },
 
   // ─── Pricing ───
@@ -323,6 +329,7 @@ const translations = {
   "compat.title1": { en: "Cosmic", ko: "운명적", ja: "宇宙の" },
   "compat.title2": { en: "Compatibility", ko: "궁합", ja: "相性" },
   "compat.desc": { en: "Discover how your Four Pillars align with another person's destiny.", ko: "당신의 사주가 상대방의 운명과 어떻게 조화되는지 알아보세요.", ja: "あなたの四柱が相手の運命とどう調和するか確認しましょう。" },
+  "compat.generatedAt": { en: "Generated", ko: "생성일시", ja: "作成日時" },
   "compat.you": { en: "You", ko: "나", ja: "あなた" },
   "compat.partner": { en: "Partner", ko: "상대방", ja: "相手" },
   "compat.next": { en: "Next: Partner's Info", ko: "다음: 상대방 정보", ja: "次：相手の情報" },
@@ -611,6 +618,14 @@ const translations = {
   "hero.appStore": { en: "App Store", ko: "App Store", ja: "App Store" },
   "hero.getItOn": { en: "Get it on", ko: "다운로드", ja: "ダウンロード" },
   "hero.googlePlay": { en: "Google Play", ko: "Google Play", ja: "Google Play" },
+
+  // ─── Upgrade CTA (Reading Page) ───
+  "upgrade.title": { en: "This is your free overview.", ko: "여기까지가 무료 분석입니다.", ja: "ここまでが無料分析です。" },
+  "upgrade.desc": { en: "Unlock your full 10-year forecast, career & love deep-dive, and hidden talent analysis.", ko: "10년 대운, 직업·연애 심층 분석, 숨겨진 재능 분석을 확인하세요.", ja: "10年大運、職業・恋愛の深層分析、隠れた才能分析をご覧ください。" },
+  "upgrade.cta": { en: "Unlock Premium — $9.99 one-time", ko: "프리미엄 잠금 해제 — $9.99 일회 결제", ja: "プレミアム解放 — $9.99 一回払い" },
+  "upgrade.ctaApp": { en: "Unlock Premium — $9.99", ko: "프리미엄 잠금 해제 — $9.99", ja: "プレミアム解放 — $9.99" },
+  "upgrade.free": { en: "Or continue with free daily readings", ko: "또는 무료 일일 리딩 계속하기", ja: "または無料デイリー鑑定を続ける" },
+  "upgrade.koNotice": { en: "", ko: "해외 결제 수단 전용 · 국내 카드 미지원", ja: "" },
 
   // ─── Compatibility Checker (quick check on reading page) ───
   "qc.title": { en: "Check Your Compatibility", ko: "궁합 확인하기", ja: "相性をチェック" },
