@@ -90,11 +90,7 @@ export function HeroSection() {
             {/* Tech credibility line */}
             <p className="text-[11px] sm:text-xs text-muted-foreground/60 flex items-center gap-1.5 flex-wrap">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500/80 animate-pulse" />
-              {locale === "ko"
-                ? "5대 고전 원전 562개 패시지 실시간 벡터 분석"
-                : locale === "ja"
-                ? "5大古典原典562パッセージをリアルタイムベクトル分析"
-                : "562 classical passages from 5 ancient texts — vector-matched in real time"}
+              {t("hero.techLine")}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-2">
@@ -115,22 +111,18 @@ export function HeroSection() {
               className="text-[13px] sm:text-[14px] text-muted-foreground/85 hover:text-primary transition-colors text-center sm:text-left inline-flex items-center gap-1.5"
             >
               <span>
-                {locale === "ko"
-                  ? "✒ 림팩토리의 편지 — 우리가 무엇을 만들고 있는지 →"
-                  : locale === "ja"
-                  ? "✒ Rimfactoryからの手紙 — 何を作っているのか →"
-                  : "✒ A Letter from Rimfactory — what we're building →"}
+                {t("hero.letterLink")}
               </span>
             </Link>
 
             {/* Celebrity Readings link */}
             <a
-              href={locale === "ko" ? "https://blog.sajuastrology.com" : locale === "ja" ? "https://blog.sajuastrology.com" : "https://blog.sajuastrology.com"}
+              href="https://blog.sajuastrology.com"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[14px] sm:text-[15px] text-[#d4af37] hover:text-[#f5d76e] transition-colors text-center sm:text-left"
             >
-              {locale === "ko" ? "✦ 셀럽 사주 분석 보기 →" : locale === "ja" ? "✦ セレブの四柱推命を見る →" : "✦ Read Celebrity Saju Readings →"}
+              {t("hero.celebLink")}
             </a>
 
             {/* App Download Buttons — hidden inside native app */}
