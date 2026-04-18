@@ -30,7 +30,7 @@ type BugBountyCopy = { badge: string; title: string; desc: string }
 const bugBounty: Partial<Record<Locale, BugBountyCopy>> & { en: BugBountyCopy } = {
   en: {
     badge: "Early Access",
-    title: "Found a bug? Get a free Master Consultation ($29.99)",
+    title: "Found a bug? Get a free Master Consultation credit ($29.99 — 5 AI analysis sessions)",
     desc: "We're in early launch — your feedback makes us better. Report any bug with your Google account email to the address below and receive a free Master Consultation credit (5 AI analysis rounds) when your report leads to a fix.",
   },
   ko: {

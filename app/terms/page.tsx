@@ -37,7 +37,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">2. The Service</h2>
               <p className="mb-2">SajuAstrology provides AI-generated content based on the principles of Korean Saju (사주 — Four Pillars of Destiny), a traditional East Asian cosmological framework. The Service is available on the Website and through native mobile apps on iOS (Apple App Store) and Android (Google Play) in ten languages: English, Korean (한국어), Japanese (日本語), Spanish, French, Portuguese, Traditional Chinese (繁體中文), Russian, Hindi (हिन्दी), and Indonesian.</p>
-              <p>Offerings include free Saju readings, free compatibility analysis, a paid Full Destiny Reading, and paid Master Consultation credits.</p>
+              <p>Offerings include free Saju readings, free compatibility analysis, a paid Full Destiny Reading, and paid Master Consultation credits (each credit grants five AI-generated analysis sessions for specific life questions; see §6 for details).</p>
             </section>
 
             <section>
