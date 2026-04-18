@@ -253,6 +253,14 @@ const translations = {
   "consult.doNotLeave": { en: "Please stay on this page. Leaving may interrupt your reading and your session credit cannot be restored.", ko: "이 페이지에 머물러주세요. 떠나면 분석이 중단되고 크레딧이 복원되지 않습니다.", ja: "このページにとどまってください。離脱すると鑑定が中断され、クレジットは復元できません。" },
   "consult.craftedUniquely": { en: "Your analysis is being computed in real time — this takes 30–60 seconds", ko: "분석이 실시간으로 생성 중입니다 — 30~60초 소요", ja: "分析をリアルタイムで生成中 — 30〜60秒" },
   "consult.entertainment": { en: "This consultation is for entertainment and self-reflection only. See our Terms.", ko: "이 상담은 오락 및 자기 성찰 목적입니다. 이용약관 참고.", ja: "エンターテインメントおよび自己理解の目的です。利用規約参照。" },
+  "consult.creditSafe": { en: "Generation failed. Your credit is safe.", ko: "생성 실패. 크레딧은 사용되지 않았습니다.", ja: "生成に失敗しました。クレジットは使用されていません。" },
+  "consult.aiBusyCredit": { en: "The AI is busy right now. Please try again. Your credit was not used.", ko: "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요. 크레딧은 사용되지 않았습니다.", ja: "AIが混雑しています。クレジットは使用されていません。" },
+  "consult.generationFailedCredit": { en: "Generation failed. Your credit is safe — please try again.", ko: "생성 실패. 크레딧은 안전합니다. 다시 시도해주세요.", ja: "生成に失敗しました。クレジットは安全です。" },
+  "consult.networkErrorCredit": { en: "Network error. Please try again — your credit was not used.", ko: "네트워크 오류. 크레딧은 사용되지 않았습니다. 다시 시도해주세요.", ja: "ネットワークエラー。クレジットは使用されていません。再試行してください。" },
+  "consult.paymentSetupFailed": { en: "Payment setup failed", ko: "결제 설정 실패", ja: "決済設定に失敗しました" },
+  "consult.unexpectedResponse": { en: "Unexpected response. Please try again.", ko: "예상치 못한 응답입니다. 다시 시도해주세요.", ja: "予期しない応答です。再試行してください。" },
+  "consult.writeMore": { en: "Write 100+ chars for a more accurate reading", ko: "100자 이상 자세히 입력할수록 정확한 답을 얻습니다", ja: "100文字以上詳しく書くほど精度が上がります" },
+  "consult.koPaymentNotice": { en: "", ko: "해외 결제 수단 전용 · 국내 카드 미지원", ja: "" },
 
   // ─── Consultation History ───
   "ch.title": { en: "My Consultations", ko: "내 상담", ja: "相談履歴" },
@@ -267,6 +275,18 @@ const translations = {
   "ch.readFull": { en: "Read Full Report", ko: "전체 보고서 보기", ja: "レポート全文を読む" },
   "ch.notAvailable": { en: "Report not available.", ko: "보고서를 사용할 수 없습니다.", ja: "レポートは利用できません。" },
   "ch.showAll": { en: "Show all", ko: "모두 보기", ja: "すべて表示" },
+  "ch.historyTitle": { en: "Consultation History", ko: "상담 내역", ja: "相談履歴" },
+  "ch.startNew": { en: "+ Start New Consultation", ko: "+ 새 상담 시작하기", ja: "+ 新しい相談を始める" },
+
+  // ─── Restore Purchases (native app only) ───
+  "restore.buttonLabel": { en: "Restore Purchases", ko: "구매 복원", ja: "購入を復元" },
+  "restore.helperText": { en: "Re-check your App Store account for past purchases.", ko: "이전에 결제한 내역을 다시 불러옵니다.", ja: "以前の購入履歴を再読み込みします。" },
+  "restore.checking": { en: "Checking...", ko: "확인 중...", ja: "確認中..." },
+  "restore.noPurchases": { en: "No purchases to restore", ko: "복원할 구매가 없습니다", ja: "復元する購入はありません" },
+  "restore.restoredOne": { en: "1 purchase restored", ko: "1개의 구매가 복원되었습니다", ja: "1件の購入を復元しました" },
+  "restore.restoredMany": { en: "{count} purchases restored", ko: "{count}개의 구매가 복원되었습니다", ja: "{count}件の購入を復元しました" },
+  "restore.restoreFailed": { en: "Restore failed: {payload}", ko: "복원 실패: {payload}", ja: "復元失敗: {payload}" },
+  "restore.noAppConnection": { en: "Could not reach the native app", ko: "앱 연결을 확인할 수 없습니다", ja: "アプリ接続を確認できません" },
 
   // ─── Categories ───
   "cat.career": { en: "Career & Work", ko: "직업 & 일", ja: "仕事 & キャリア" },
@@ -309,6 +329,14 @@ const translations = {
   "calc.craftedUniquely": { en: "Your reading is crafted uniquely — this takes a moment", ko: "맞춤 리딩 생성 중 — 잠시만 기다려주세요", ja: "あなただけの鑑定を作成中 — 少々お待ちください" },
   "calc.somethingWrong": { en: "Something went wrong", ko: "오류가 발생했습니다", ja: "エラーが発生しました" },
   "calc.couldntGenerate": { en: "We couldn't generate your reading. Please try again.", ko: "리딩 생성 실패. 다시 시도해주세요.", ja: "鑑定を生成できませんでした。もう一度お試しください。" },
+  "calc.westernGivesYou": { en: "Western astrology gives you ", ko: "서양 별자리는 ", ja: "西洋占星術は" },
+  "calc.oneOfTwelve": { en: "1 of 12", ko: "12가지 중 1가지", ja: "12タイプの1つ" },
+  "calc.types": { en: " types.", ko: " 유형.", ja: "。" },
+  "calc.sajuMaps": { en: "Saju maps ", ko: "사주는 ", ja: "四柱推命は" },
+  "calc.uniqueProfiles": { en: " unique cosmic profiles from the exact moment and place you were born.", ko: "가지 고유한 우주적 프로필을 제공합니다.", ja: "通りの固有プロフィールを提供。" },
+  "calc.readyIn": { en: "Your reading will be ready in ", ko: "리딩이 ", ja: "鑑定は" },
+  "calc.seconds30": { en: "30 seconds", ko: "30초 후", ja: "30秒で" },
+  "calc.readyInSuffix": { en: ".", ko: "에 준비됩니다.", ja: "準備完了。" },
 
   // ─── Compatibility ───
 
@@ -409,6 +437,19 @@ const translations = {
   "dash.setPrimaryHint": { en: "Tap ★ to set your primary chart (once per day).", ko: "★를 눌러 기본 사주를 설정하세요 (하루 1회).", ja: "★を押してメインの命式を設定（1日1回）。" },
   "dash.viewAllChecks": { en: "View all", ko: "모두 보기", ja: "すべて見る" },
   "dash.checks": { en: "checks", ko: "궁합 결과", ja: "件のチェック" },
+  "dash.welcomeGuest": { en: "Welcome", ko: "환영합니다", ja: "ようこそ" },
+  "dash.signInDesc": { en: "Sign in to save readings, track your fortune, and access your cosmic dashboard.", ko: "로그인하여 사주 결과를 저장하고 운세를 확인하세요.", ja: "ログインして鑑定結果を保存し、運勢を確認しましょう。" },
+  "dash.termsConsent": { en: "By continuing, you agree to our Terms of Service and Privacy Policy.", ko: "계속 진행하면 이용약관 및 개인정보 처리방침에 동의하는 것입니다.", ja: "続行することで、利用規約とプライバシーポリシーに同意したものとみなされます。" },
+  "dash.deleting": { en: "Deleting...", ko: "삭제 중...", ja: "削除中..." },
+  "dash.tapToConfirmDelete": { en: "Tap to confirm delete", ko: "탭하여 삭제 확인", ja: "タップして確認" },
+  "dash.deleteAccount": { en: "Delete Account", ko: "계정삭제", ja: "退会" },
+  "dash.deleteWarning": { en: "Are you sure? All data will be permanently deleted.", ko: "정말 삭제하시겠습니까? 모든 데이터가 영구 삭제됩니다.", ja: "本当に削除しますか？すべてのデータが完全に削除されます。" },
+  "dash.possessiveReading": { en: "'s Reading", ko: "의 사주", ja: "の四柱" },
+  "dash.myChart": { en: "MY CHART", ko: "내 사주", ja: "マイチャート" },
+  "dash.premium": { en: "Premium", ko: "프리미엄", ja: "プレミアム" },
+  "dash.showAllReadings": { en: "Show all {count} readings", ko: "전체 {count}개 보기", ja: "全{count}件を表示" },
+  "dash.alreadySwitchedToday": { en: "You already switched today. Try again tomorrow.", ko: "오늘 이미 변경했어요. 내일 다시 시도하세요.", ja: "今日はすでに変更しました。明日もう一度お試しください。" },
+  "dash.siteTag": { en: "My Saju Daily Fortune — sajuastrology.com", ko: "나의 오늘의 사주 운세 — sajuastrology.com", ja: "今日の四柱推命運勢 — sajuastrology.com" },
 
   // ─── Common ───
   "common.back": { en: "Back", ko: "뒤로", ja: "戻る" },
@@ -421,6 +462,19 @@ const translations = {
   "common.excellent": { en: "Excellent", ko: "아주 좋음", ja: "最高" },
   "common.balanced": { en: "Balanced", ko: "균형", ja: "バランス" },
   "common.beGentle": { en: "Be gentle", ko: "무리하지 마세요", ja: "ゆっくりと" },
+  "common.contact": { en: "Contact", ko: "문의", ja: "お問い合わせ" },
+  "common.privacy": { en: "Privacy", ko: "개인정보", ja: "プライバシー" },
+  "common.terms": { en: "Terms", ko: "이용약관", ja: "利用規約" },
+  "common.aiBusy": { en: "The AI is busy right now. Please try again in a moment.", ko: "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요.", ja: "AIが混雑しています。しばらくしてから再試行してください。" },
+  "common.aiBusyShort": { en: "The AI is a bit busy right now. Please try again in a moment.", ko: "AI가 잠시 바빠요. 잠깐 후 다시 시도해주세요.", ja: "AIが少し混雑しています。しばらくしてからもう一度お試しください。" },
+  "common.networkError": { en: "Network error. Please try again.", ko: "네트워크 오류. 다시 시도해주세요.", ja: "ネットワークエラー。再試行してください。" },
+  "common.networkErrorConnection": { en: "Network error — please check your connection.", ko: "네트워크 오류가 발생했습니다. 다시 시도해주세요.", ja: "ネットワークエラーが発生しました。再試行してください。" },
+  "common.somethingWentWrong": { en: "Something went wrong. Please try again.", ko: "오류가 발생했습니다. 다시 시도해주세요.", ja: "エラーが発生しました。もう一度お試しください。" },
+  "common.requestTimedOut": { en: "Request timed out. Please try again.", ko: "요청 시간이 초과됐습니다. 다시 시도해주세요.", ja: "リクエストがタイムアウトしました。もう一度お試しください。" },
+  "common.generationTimedOut": { en: "Generation timed out. Please try again.", ko: "생성 시간이 초과되었습니다. 다시 시도해주세요.", ja: "生成がタイムアウトしました。再試行してください。" },
+  "common.previewGenerating": { en: "Preview — generating...", ko: "미리보기 — 생성 중...", ja: "プレビュー — 生成中..." },
+  "common.learnMore": { en: "Learn more", ko: "자세히 보기", ja: "詳細を見る" },
+  "common.solarCalendar": { en: "Solar Calendar", ko: "양력", ja: "新暦" },
 
   // ─── Compatibility Page — Loading Steps ───
   "compat.load1.label": { en: "Decoding your Day Masters", ko: "일주 해석 중", ja: "日主を解読中" },
@@ -440,6 +494,7 @@ const translations = {
   "compat.backToYour": { en: "Back to your info", ko: "내 정보로 돌아가기", ja: "あなたの情報に戻る" },
   "compat.freeNoCard": { en: "Free · No credit card required", ko: "무료 · 신용카드 불필요", ja: "無料 · カード不要" },
   "compat.analyzingPair": { en: "cosmic connection", ko: "우주적 연결", ja: "宇宙のつながり" },
+  "compat.birthTimeUnknown": { en: "I don't know the birth time", ko: "출생 시간을 모릅니다", ja: "出生時間がわかりません" },
 
   // ─── Compatibility Result — Score Labels ───
   "cr.labelSoulmates": { en: "Cosmic Soulmates", ko: "운명적 소울메이트", ja: "宇宙のソウルメイト" },
@@ -526,6 +581,18 @@ const translations = {
   "reading.saveShareDesc": { en: "Sign in to save this reading to your dashboard, revisit anytime, and share with friends.", ko: "로그인하여 대시보드에 저장하고, 언제든 다시 보고, 친구와 공유하세요.", ja: "ログインしてダッシュボードに保存、いつでも閲覧、友人と共有。" },
   "reading.free3s": { en: "Free — takes 3 seconds", ko: "무료 — 3초면 완료", ja: "無料 — 3秒で完了" },
   "reading.processing": { en: "Processing...", ko: "처리 중...", ja: "処理中..." },
+  "reading.verifyingPayment": { en: "Verifying payment...", ko: "결제 확인 중...", ja: "決済確認中..." },
+  "reading.verifyingDesc": { en: "Please wait — your reading will begin shortly.", ko: "잠시만 기다려주세요. 곧 리딩이 시작됩니다.", ja: "少々お待ちください。まもなく鑑定が始まります。" },
+  "reading.generating": { en: "Generating your reading", ko: "사주 생성 중", ja: "四柱を生成中" },
+  "reading.stayMsg": { en: "Please stay on this page — leaving may interrupt the reading.", ko: "이 페이지를 떠나지 마세요 — 해석이 중단될 수 있습니다.", ja: "このページを離れないでください — 解釈が中断される可能性があります。" },
+  "reading.titleTop": { en: "Cosmic", ko: "우주적", ja: "宇宙の" },
+  "reading.titleBottom": { en: "Blueprint", ko: "청사진", ja: "設計図" },
+  "reading.estimated": { en: "estimated", ko: "추정값", ja: "推定値" },
+
+  // ─── Blog Article ───
+  "blog.allArticles": { en: "All Articles", ko: "모든 글", ja: "すべての記事" },
+  "blog.readyToSeeChart": { en: "Ready to see your chart?", ko: "내 사주를 확인할 준비가 되셨나요?", ja: "あなたの命式を確認する準備はできましたか？" },
+  "blog.getFreeReading": { en: "Get your free Four Pillars reading in 30 seconds.", ko: "30초 만에 무료 사주 분석을 받아보세요.", ja: "30秒で無料の四柱推命鑑定を受けましょう。" },
 
   // ─── Disclaimer ───
   "disclaimer": {
@@ -664,6 +731,49 @@ export function t(key: TranslationKey, locale: Locale): string {
   const entry = translations[key] as Record<string, string> | undefined;
   if (!entry) return key;
   return entry[locale] ?? entry.en ?? key;
+}
+
+// ─── Templated translation ────────────────────────────────────────
+// For strings with {variable} placeholders. Example:
+//   tf("restore.restoredMany", "ko", { count: 3 })
+//   → "3개의 구매가 복원되었습니다"
+//
+// Values are coerced to String(). Missing vars leave the placeholder
+// in place rather than inserting "undefined".
+export function tf(
+  key: TranslationKey,
+  locale: Locale,
+  vars: Record<string, string | number> = {},
+): string {
+  let s = t(key, locale);
+  for (const [k, v] of Object.entries(vars)) {
+    s = s.replace(new RegExp(`\\{${k}\\}`, "g"), String(v));
+  }
+  return s;
+}
+
+// ─── BCP 47 language tag mapping ──────────────────────────────────
+// For browser APIs that need standard locale codes (e.g.
+// Date.toLocaleDateString, Intl.NumberFormat). NOT a translation —
+// this is a system-level code lookup.
+//
+// Unknown locales fall back to "en-US" rather than throwing.
+const BCP47_MAP: Record<Locale, string> = {
+  en: "en-US",
+  ko: "ko-KR",
+  ja: "ja-JP",
+  "zh-TW": "zh-TW",
+  hi: "hi-IN",
+  es: "es-ES",
+  ar: "ar-SA",
+  fr: "fr-FR",
+  pt: "pt-BR",
+  ru: "ru-RU",
+  id: "id-ID",
+};
+
+export function toBCP47(locale: Locale): string {
+  return BCP47_MAP[locale] ?? "en-US";
 }
 
 export default translations;
