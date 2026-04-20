@@ -229,26 +229,69 @@ export function getDailyFortune(element: string, score: number, date: Date = new
 }
 
 // Locale-aware entry point used by dashboard
+// Accepts optional fortune maps for all 9 non-English languages.
+// locale string is normalized (case-insensitive, handles zh-TW variations)
 export function getDailyFortuneLocale(
   element: string,
   score: number,
   locale: string,
   koFortunes?: Record<string, Record<string, DailyFortune[]>>,
   jaFortunes?: Record<string, Record<string, DailyFortune[]>>,
+  esFortunes?: Record<string, Record<string, DailyFortune[]>>,
+  frFortunes?: Record<string, Record<string, DailyFortune[]>>,
+  ptFortunes?: Record<string, Record<string, DailyFortune[]>>,
+  zhTWFortunes?: Record<string, Record<string, DailyFortune[]>>,
+  ruFortunes?: Record<string, Record<string, DailyFortune[]>>,
+  hiFortunes?: Record<string, Record<string, DailyFortune[]>>,
+  idFortunes?: Record<string, Record<string, DailyFortune[]>>,
   date: Date = new Date()
 ): DailyFortune {
   const el = element.toLowerCase();
   const tier: Tier = score >= 75 ? "high" : score >= 55 ? "mid" : "low";
   const hash = dateHash(date);
 
-  if (locale === "ko" && koFortunes) {
+  // Normalize locale: "zh-TW", "zh_TW", "zhTW", "zh-tw" -> "zhtw"
+  const l = locale.toLowerCase().replace(/[-_]/g, "");
+
+  // Language routing with graceful fallback to English
+  if (l === "ko" && koFortunes) {
     const pool = (koFortunes[el] || koFortunes.water)[tier];
     return pool[hash % pool.length];
   }
-  if (locale === "ja" && jaFortunes) {
+  if (l === "ja" && jaFortunes) {
     const pool = (jaFortunes[el] || jaFortunes.water)[tier];
     return pool[hash % pool.length];
   }
+  if (l.startsWith("es") && esFortunes) {
+    const pool = (esFortunes[el] || esFortunes.water)[tier];
+    return pool[hash % pool.length];
+  }
+  if (l.startsWith("fr") && frFortunes) {
+    const pool = (frFortunes[el] || frFortunes.water)[tier];
+    return pool[hash % pool.length];
+  }
+  if (l.startsWith("pt") && ptFortunes) {
+    const pool = (ptFortunes[el] || ptFortunes.water)[tier];
+    return pool[hash % pool.length];
+  }
+  if (l === "zhtw" && zhTWFortunes) {
+    const pool = (zhTWFortunes[el] || zhTWFortunes.water)[tier];
+    return pool[hash % pool.length];
+  }
+  if (l.startsWith("ru") && ruFortunes) {
+    const pool = (ruFortunes[el] || ruFortunes.water)[tier];
+    return pool[hash % pool.length];
+  }
+  if (l.startsWith("hi") && hiFortunes) {
+    const pool = (hiFortunes[el] || hiFortunes.water)[tier];
+    return pool[hash % pool.length];
+  }
+  if (l.startsWith("id") && idFortunes) {
+    const pool = (idFortunes[el] || idFortunes.water)[tier];
+    return pool[hash % pool.length];
+  }
+
+  // Fallback to English
   const pool = (FORTUNES[el] || FORTUNES.water)[tier];
   return pool[hash % pool.length];
 }
