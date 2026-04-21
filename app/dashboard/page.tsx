@@ -1,26 +1,32 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
 import { MobileDashboardNav } from "@/components/dashboard/mobile-dashboard-nav";
 import { Navbar } from "@/components/landing/navbar";
 import { useLanguage } from "@/lib/language-context";
-import { t } from "@/lib/translations";
 
 export default function DashboardPage() {
-  const { user, isLoading, openSignInModal } = useAuth();
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
   const { locale } = useLanguage();
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
-
-  // Auto-open sign-in modal for unauthenticated users
+  // Redirect unauthenticated users to home with ?signin=1.
+  // Home detects the param and auto-opens the sign-in modal. This prevents
+  // the "dashboard flash before modal" UX — unauthenticated users never
+  // see dashboard chrome and never land on a dead /dashboard URL.
   useEffect(() => {
     if (!isLoading && !user) {
-      openSignInModal();
+      const params = new URLSearchParams();
+      params.set("signin", "1");
+      if (locale && locale !== "en") params.set("lang", locale);
+      router.replace(`/?${params.toString()}`);
     }
-  }, [isLoading, user, openSignInModal]);
+  }, [isLoading, user, locale, router]);
 
   if (isLoading) {
     return (
@@ -33,34 +39,7 @@ export default function DashboardPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center px-6 max-w-sm w-full">
-          {/* Icon */}
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
-              </svg>
-            </div>
-          </div>
-
-          <h2 className="text-xl font-serif text-primary mb-2">
-            {t("dash.welcomeGuest", locale)}
-          </h2>
-          <p className="text-muted-foreground text-sm mb-8">
-            {t("dash.signInDesc", locale)}
-          </p>
-
-          <button
-            onClick={() => openSignInModal()}
-            className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-lg"
-          >
-            {t("nav.signIn", locale)}
-          </button>
-
-          <p className="text-xs text-muted-foreground/60 mt-6">
-            {t("dash.termsConsent", locale)}
-          </p>
-        </div>
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
