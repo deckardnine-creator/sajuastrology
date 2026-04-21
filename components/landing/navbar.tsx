@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X, Globe, Check, ChevronDown } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
@@ -163,7 +163,16 @@ export function Navbar() {
   const { user, isLoading, isSigningOut, openSignInModal, signOut } = useAuth()
   const { t, locale } = useLanguage()
   const router = useRouter()
+  const pathname = usePathname()
   const isNative = useNativeApp()
+
+  // ═══ Minimal navbar mode — blog LIST page (/blog) only ═══
+  // Blog list is purely an SEO funnel from Google: strip all chrome so
+  // visitors focus on clicking an article (or the logo to reach home).
+  // Individual blog articles (/blog/[slug]) keep the full navbar so UI
+  // language stays consistent with article language (Header/Footer sync
+  // is handled in blog-article.tsx).
+  const isBlogListPage = pathname === "/blog"
 
   const homeHref = "/"
   const footerLabel = FOOTER_LABELS[locale] ?? FOOTER_LABELS.en
@@ -186,6 +195,30 @@ export function Navbar() {
       await signOut()
     } catch {}
     // signOut() already handles window.location.href redirect
+  }
+
+  // ═══ /blog list page: logo-only minimal header ═══
+  // No menu, no language toggle, no sign in, no hamburger.
+  // Logo clicks through to home — where the full brand experience lives
+  // (hero, Soram, app install badges) and where UI language auto-syncs.
+  if (isBlogListPage) {
+    return (
+      <motion.nav
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/30 navbar-wrapper"
+      >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 md:h-20 items-center justify-center">
+            <Link href={homeHref} className="flex items-center">
+              <Image src="/logo1.png" alt="SajuAstrology" width={150} height={44}
+                className="h-10 md:h-12 w-auto object-contain" priority />
+            </Link>
+          </div>
+        </div>
+      </motion.nav>
+    )
   }
 
   return (
