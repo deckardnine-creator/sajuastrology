@@ -70,9 +70,13 @@ export default function BlogPage() {
                 </span>
               </div>
 
-              {/* Dual CTAs — Free Reading + Compatibility */}
+              {/* Dual CTAs — both lead to home: lets first-time readers see
+                  the full hero (Soram visual, app store badges, social proof)
+                  before being asked for personal data. Conversion comes from
+                  trust built by home + visibility of app install badges
+                  critical for recurring DAU. */}
               <div className="flex flex-col sm:flex-row gap-3 mt-2">
-                <Link href="/calculate" className="block">
+                <Link href="/" className="block">
                   <Button
                     size="lg"
                     className="gold-gradient text-primary-foreground font-semibold text-base px-6 w-full sm:w-auto min-h-[48px] hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(234,179,8,0.35)] transition-all"
@@ -82,7 +86,7 @@ export default function BlogPage() {
                   </Button>
                 </Link>
 
-                <Link href="/compatibility" className="block">
+                <Link href="/" className="block">
                   <Button
                     size="lg"
                     variant="outline"

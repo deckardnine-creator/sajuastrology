@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Clock, ArrowRight, Heart, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { t, type Locale } from "@/lib/translations";
+import { useLanguage } from "@/lib/language-context";
 import type { BlogPost } from "@/lib/blog-posts";
 
 function renderMarkdown(text: string): string {
@@ -72,6 +74,31 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   // not the user's UI language. Cast to Locale for the t() function.
   const postLocale = post.locale as Locale;
 
+  // ── Sync site-wide UI language to this article's language ──
+  //
+  // Without this, a user landing on a Korean blog article from Google
+  // sees Korean body text but an English Navbar/Footer, which looks broken
+  // and kills conversion. This effect switches the LanguageProvider so
+  // Navbar/Footer re-render in the article's language.
+  //
+  // Why it's safe:
+  //   - setLocale is the official API of language-context (same one the
+  //     language switcher uses). It writes to localStorage and updates
+  //     <html lang> + dir attributes, so SEO and accessibility stay correct.
+  //   - Effect runs once on mount (deps: [postLocale]). setLocale is
+  //     intentionally NOT in deps to avoid a feedback loop — we want
+  //     ONE sync on article load, not a loop with language-context state.
+  //   - If user manually changes language via the switcher AFTER this
+  //     runs, their choice wins (no override because effect doesn't re-run).
+  //   - Defensive: only fires when UI locale differs from article locale.
+  const { locale: uiLocale, setLocale } = useLanguage();
+  useEffect(() => {
+    if (postLocale && uiLocale !== postLocale) {
+      setLocale(postLocale);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postLocale]);
+
   // Localized CTA copy — keeps article language consistent
   const ctaCopy = {
     en: {
@@ -123,28 +150,40 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   const renderedHtml = renderMarkdown(post.content);
   const { first, second } = splitHtmlForInlineCta(renderedHtml);
 
-  // Locale-aware CTA: navigate to /calculate or /compatibility in this article's language.
+  // Locale-aware CTA: navigate to the HOME page in this article's language.
   //
-  // Why the custom handler instead of <Link href="/calculate?lang=ko">:
-  //   /calculate and /compatibility are aggressively CDN-cached (see next.config.js).
-  //   The HTML served on first paint is whatever language the CDN cached (usually EN).
-  //   React then hydrates and detectLocale() in language-context reads the URL lang
-  //   param and switches — but by then the user already saw the EN flash.
+  // Why home instead of /calculate or /compatibility directly:
+  //   Sending a first-time reader straight to a birthdate input form feels
+  //   invasive — they've just read a blog post, they don't yet trust the site
+  //   with personal data. Landing on home first lets them see the full hero
+  //   (Soram visual, 5,000-year code headline, app store badges, social proof)
+  //   and THEN click the in-hero CTA with full context. Conversion lift comes
+  //   from (a) trust built by the home page, and (b) app install badges that
+  //   only exist on home — critical for recurring DAU (vs one-shot web users).
   //
-  // Fix: write the locale to localStorage BEFORE navigating. On the new page,
-  // detectLocale() reads localStorage first (step 1 in its fallback chain) and
-  // hydrates in the correct language immediately. No EN flash, no race with CDN.
+  // Why the custom handler instead of <Link href="/?lang=ko">:
+  //   Home (/) is aggressively CDN-cached (see next.config.js). First paint
+  //   shows whatever language the CDN cached (usually EN). React hydrates and
+  //   detectLocale() switches — but the user sees an EN flash.
   //
-  // Fallback: if localStorage write fails, we still navigate to the URL with
-  // ?lang=XX so detectLocale()'s URL-param path (step 0) catches it.
-  const goToCalculate = () => {
+  // Fix: write locale to localStorage BEFORE navigating. On home, detectLocale()
+  // reads localStorage first (step 1 in its fallback chain) and hydrates in
+  // the correct language immediately. No EN flash, no CDN race.
+  //
+  // We keep two separate handlers (and two buttons) so button label/intent
+  // is preserved. Both land on home — the user's interest signal stays
+  // visible via button copy and can be tracked in analytics.
+  //
+  // Fallback: if localStorage write fails, ?lang=XX in URL still triggers
+  // detectLocale()'s URL-param path (step 0).
+  const goToHome = () => {
     try { localStorage.setItem("locale", postLocale); } catch {}
-    window.location.href = `/calculate?lang=${postLocale}`;
+    window.location.href = `/?lang=${postLocale}`;
   };
-  const goToCompatibility = () => {
-    try { localStorage.setItem("locale", postLocale); } catch {}
-    window.location.href = `/compatibility?lang=${postLocale}`;
-  };
+  // Both CTAs route to home; keeping two handlers for future analytics
+  // segmentation (reading-intent vs compatibility-intent).
+  const goToCalculate = goToHome;
+  const goToCompatibility = goToHome;
 
   return (
     <>
