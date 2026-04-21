@@ -123,10 +123,28 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   const renderedHtml = renderMarkdown(post.content);
   const { first, second } = splitHtmlForInlineCta(renderedHtml);
 
-  // Locale-aware CTA destinations: blog article's language carries over to /calculate & /compatibility
-  // via ?lang=XX query param, which detectLocale() in language-context picks up and syncs to localStorage.
-  const calculateHref = `/calculate?lang=${postLocale}`;
-  const compatibilityHref = `/compatibility?lang=${postLocale}`;
+  // Locale-aware CTA: navigate to /calculate or /compatibility in this article's language.
+  //
+  // Why the custom handler instead of <Link href="/calculate?lang=ko">:
+  //   /calculate and /compatibility are aggressively CDN-cached (see next.config.js).
+  //   The HTML served on first paint is whatever language the CDN cached (usually EN).
+  //   React then hydrates and detectLocale() in language-context reads the URL lang
+  //   param and switches — but by then the user already saw the EN flash.
+  //
+  // Fix: write the locale to localStorage BEFORE navigating. On the new page,
+  // detectLocale() reads localStorage first (step 1 in its fallback chain) and
+  // hydrates in the correct language immediately. No EN flash, no race with CDN.
+  //
+  // Fallback: if localStorage write fails, we still navigate to the URL with
+  // ?lang=XX so detectLocale()'s URL-param path (step 0) catches it.
+  const goToCalculate = () => {
+    try { localStorage.setItem("locale", postLocale); } catch {}
+    window.location.href = `/calculate?lang=${postLocale}`;
+  };
+  const goToCompatibility = () => {
+    try { localStorage.setItem("locale", postLocale); } catch {}
+    window.location.href = `/compatibility?lang=${postLocale}`;
+  };
 
   return (
     <>
@@ -166,21 +184,18 @@ export function BlogArticle({ post }: { post: BlogPost }) {
                   {copy.inlineDesc}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2.5">
-                  <Link href={calculateHref} className="block">
-                    <Button className="gold-gradient text-primary-foreground font-semibold w-full sm:w-auto min-h-[44px]">
-                      {copy.btnReading}
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link href={compatibilityHref} className="block">
-                    <Button
-                      variant="outline"
-                      className="bg-transparent border-[1.5px] border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold w-full sm:w-auto min-h-[44px]"
-                    >
-                      <Heart className="mr-2 h-4 w-4" />
-                      {copy.btnCompat}
-                    </Button>
-                  </Link>
+                  <Button onClick={goToCalculate} className="gold-gradient text-primary-foreground font-semibold w-full sm:w-auto min-h-[44px]">
+                    {copy.btnReading}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={goToCompatibility}
+                    variant="outline"
+                    className="bg-transparent border-[1.5px] border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold w-full sm:w-auto min-h-[44px]"
+                  >
+                    <Heart className="mr-2 h-4 w-4" />
+                    {copy.btnCompat}
+                  </Button>
                 </div>
               </div>
               <div className="prose-saju" dangerouslySetInnerHTML={{ __html: second }} />
@@ -202,25 +217,23 @@ export function BlogArticle({ post }: { post: BlogPost }) {
               {copy.finalDesc}
             </p>
             <div className="flex flex-col sm:flex-row gap-2.5 justify-center">
-              <Link href={calculateHref} className="block">
-                <Button
-                  size="lg"
-                  className="gold-gradient text-primary-foreground font-semibold px-6 w-full sm:w-auto min-h-[48px]"
-                >
-                  {copy.btnReading}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href={compatibilityHref} className="block">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="bg-transparent border-2 border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold px-6 w-full sm:w-auto min-h-[48px]"
-                >
-                  <Heart className="mr-2 h-4 w-4" />
-                  {copy.btnCompat}
-                </Button>
-              </Link>
+              <Button
+                onClick={goToCalculate}
+                size="lg"
+                className="gold-gradient text-primary-foreground font-semibold px-6 w-full sm:w-auto min-h-[48px]"
+              >
+                {copy.btnReading}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+              <Button
+                onClick={goToCompatibility}
+                size="lg"
+                variant="outline"
+                className="bg-transparent border-2 border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold px-6 w-full sm:w-auto min-h-[48px]"
+              >
+                <Heart className="mr-2 h-4 w-4" />
+                {copy.btnCompat}
+              </Button>
             </div>
             <p className="text-xs text-muted-foreground/70 mt-4">
               {copy.noSignup}
