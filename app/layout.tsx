@@ -205,7 +205,7 @@ export default function RootLayout({
                 persistence: 'localStorage',
                 ignore_dnt: false,
                 record_sessions_percent: 100,
-                loaded: function(mp) { mp.__loaded = true; }
+                loaded: function(mp) { mp.__loaded = true; if (typeof mp.start_session_recording === 'function') { mp.start_session_recording(); } }
               });
             `}
           </Script>
