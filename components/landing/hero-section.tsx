@@ -119,10 +119,10 @@ export function HeroSection() {
               </Link>
             </div>
 
-            {/* Letter (CEO message) link — always centered */}
+            {/* Letter (CEO message) link — centered on mobile, left-aligned on sm+ (matches CTA buttons) */}
             <Link
               href="/letter"
-              className="text-[13px] sm:text-[14px] text-muted-foreground/85 hover:text-primary transition-colors inline-flex items-center justify-center gap-1.5 self-center"
+              className="text-[13px] sm:text-[14px] text-muted-foreground/85 hover:text-primary transition-colors inline-flex items-center gap-1.5 self-center sm:self-start"
             >
               <span>
                 {t("hero.letterLink")}
