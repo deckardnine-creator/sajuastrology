@@ -111,7 +111,7 @@ export function HeroSection() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="bg-transparent border-[1.5px] border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold text-base px-6 group w-full lg:w-auto transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99]"
+                  className="bg-transparent border-2 border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold text-base px-6 group w-full lg:w-auto transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99]"
                 >
                   <span className="truncate lg:overflow-visible lg:whitespace-nowrap">{t("hero.ctaCompatibility")}</span>
                   <ArrowRight className="ml-2 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
@@ -119,10 +119,10 @@ export function HeroSection() {
               </Link>
             </div>
 
-            {/* Letter (CEO message) link — sits between free reading CTA and celebrity link */}
+            {/* Letter (CEO message) link — always centered */}
             <Link
               href="/letter"
-              className="text-[13px] sm:text-[14px] text-muted-foreground/85 hover:text-primary transition-colors text-center sm:text-left inline-flex items-center gap-1.5"
+              className="text-[13px] sm:text-[14px] text-muted-foreground/85 hover:text-primary transition-colors inline-flex items-center justify-center gap-1.5 self-center"
             >
               <span>
                 {t("hero.letterLink")}
