@@ -93,14 +93,28 @@ export function HeroSection() {
               {t("hero.techLine")}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 mt-2">
-              <Link href="/calculate" className="w-full sm:w-auto">
+            {/* CTA buttons — 2 rows, always vertical stack, equal fixed width (280px) */}
+            <div className="flex flex-col items-center sm:items-start gap-3 mt-2">
+              {/* Primary: Free saju reading */}
+              <Link href="/calculate" className="block w-[280px] lg:w-auto">
                 <Button
                   size="lg"
-                  className="gold-gradient text-primary-foreground font-semibold text-base px-7 group w-full sm:w-auto"
+                  className="gold-gradient text-primary-foreground font-semibold text-base px-6 group w-full lg:w-auto transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(234,179,8,0.35)] active:scale-[0.99]"
                 >
-                  {t("hero.cta")}
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  <span className="truncate lg:overflow-visible lg:whitespace-nowrap">{t("hero.cta")}</span>
+                  <ArrowRight className="ml-2 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+
+              {/* Secondary: Compatibility check (free) */}
+              <Link href="/compatibility" className="block w-[280px] lg:w-auto">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-transparent border-[1.5px] border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold text-base px-6 group w-full lg:w-auto transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99]"
+                >
+                  <span className="truncate lg:overflow-visible lg:whitespace-nowrap">{t("hero.ctaCompatibility")}</span>
+                  <ArrowRight className="ml-2 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
             </div>
@@ -160,31 +174,59 @@ export function HeroSection() {
             )}
           </motion.div>
 
-          {/* Right: Four Pillars */}
+          {/* Right: Four Pillars + Soram image — CENTER aligned on desktop */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex justify-center lg:justify-end pb-4 sm:pb-8 lg:pb-0"
+            className="flex flex-col items-center lg:items-center justify-center gap-5 lg:gap-7 pb-4 sm:pb-8 lg:pb-0"
           >
-            <div className="flex gap-1.5 xs:gap-2 sm:gap-3 lg:gap-4">
+            {/* Four Pillars — mobile size unchanged, desktop 1.4x larger */}
+            <div className="flex gap-1.5 xs:gap-2 sm:gap-3 lg:gap-5">
               {pillars.map((pillar, index) => (
                 <motion.div
                   key={pillar.chinese}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                  className={`pillar-card rounded-xl lg:rounded-2xl p-2 xs:p-3 sm:p-4 lg:p-6 flex flex-col items-center gap-1.5 lg:gap-4 glow-${pillar.element} min-w-0`}
+                  className={`pillar-card rounded-xl lg:rounded-2xl p-2 xs:p-3 sm:p-4 lg:p-8 flex flex-col items-center gap-1.5 lg:gap-5 glow-${pillar.element} min-w-0`}
                 >
-                  <span className={`text-2xl xs:text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-serif ${pillar.color}`}>
+                  <span className={`text-2xl xs:text-3xl sm:text-4xl lg:text-7xl xl:text-8xl font-serif ${pillar.color}`}>
                     {pillar.chinese}
                   </span>
-                  <span className="text-[8px] xs:text-[9px] sm:text-xs text-muted-foreground uppercase tracking-wider">
+                  <span className="text-[8px] xs:text-[9px] sm:text-xs lg:text-sm text-muted-foreground uppercase tracking-wider">
                     {pillar.english}
                   </span>
                 </motion.div>
               ))}
             </div>
+
+            {/* Soram cinematic image — display only, no link */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+              className="block w-full max-w-[480px] mt-2"
+              aria-label={t("hero.soramCaption")}
+            >
+              <div
+                className="relative w-full aspect-[16/9] rounded-[14px] overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.4)]"
+              >
+                {/* Use plain <img> with eager loading (first-impression element; no lazy) */}
+                <img
+                  src="/soram/soram_consultation.webp"
+                  alt="Soram — A cat scholar reading saju"
+                  loading="eager"
+                  fetchPriority="high"
+                  className="w-full h-full object-cover"
+                  draggable={false}
+                />
+              </div>
+              <p className="text-center mt-3 text-[13px] italic tracking-[0.3px] font-serif"
+                 style={{ color: "rgba(234, 179, 8, 0.85)", fontFamily: "Georgia, 'Times New Roman', serif" }}>
+                — {t("hero.soramCaption")} —
+              </p>
+            </motion.div>
           </motion.div>
 
         </div>
