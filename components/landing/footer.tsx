@@ -219,10 +219,9 @@ export function Footer() {
           </div>
           )}
 
-          {/* Copyright + Language switcher */}
-          <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap justify-center">
+          {/* Copyright — centered */}
+          <div className="flex items-center justify-center text-sm text-muted-foreground">
             <span>&copy; 2026 SajuAstrology.com</span>
-            <FooterLangDropdown />
           </div>
 
           {/* Business info — hidden in native app */}
