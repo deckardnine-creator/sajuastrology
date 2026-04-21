@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { BlogList } from "@/components/blog/blog-list";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Heart, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Saju Astrology Blog — Korean Four Pillars Guides & Insights",
@@ -32,19 +36,110 @@ export default function BlogPage() {
         <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] rounded-full bg-primary/10 blur-[130px]" />
       </div>
       <Navbar />
-      <section className="pt-page-lg pb-16">
+
+      {/* ═══════════════════════════════════════════════════════════
+          HERO — Direct funnel to free reading / compatibility
+          ═══════════════════════════════════════════════════════════ */}
+      <section className="pt-page-lg pb-8 sm:pb-12">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-[1.2fr_1fr] gap-8 lg:gap-12 items-center">
+
+            {/* LEFT — Headline + CTAs */}
+            <div className="flex flex-col gap-5 order-2 lg:order-1">
+              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.15]">
+                Your Birth Date Holds a
+                <br />
+                <span className="gold-gradient-text">5,000-Year-Old Code.</span>
+              </h1>
+
+              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-xl">
+                Western astrology gives you 1 of 12 types. Saju gives you 1 of 518,400 unique
+                cosmic profiles. Get your free Korean Four Pillars reading in 30 seconds.
+              </p>
+
+              {/* Social proof */}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  <span className="font-medium text-foreground/80">#1 on ChatGPT</span>
+                </span>
+                <span className="hidden sm:inline text-muted-foreground/40">·</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500/80" />
+                  30+ countries · 10 languages
+                </span>
+              </div>
+
+              {/* Dual CTAs — Free Reading + Compatibility */}
+              <div className="flex flex-col sm:flex-row gap-3 mt-2">
+                <Link href="/calculate" className="block">
+                  <Button
+                    size="lg"
+                    className="gold-gradient text-primary-foreground font-semibold text-base px-6 w-full sm:w-auto min-h-[48px] hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(234,179,8,0.35)] transition-all"
+                  >
+                    Free Saju Reading
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+
+                <Link href="/compatibility" className="block">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="bg-transparent border-2 border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold text-base px-6 w-full sm:w-auto min-h-[48px] hover:-translate-y-0.5 transition-all"
+                  >
+                    <Heart className="mr-2 h-4 w-4" />
+                    Check Compatibility — Free
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+
+              <p className="text-xs text-muted-foreground/70 mt-1">
+                No signup required · Results in 30 seconds
+              </p>
+            </div>
+
+            {/* RIGHT — App mockup */}
+            <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
+              <div
+                className="relative w-full max-w-[260px] sm:max-w-[300px]"
+                style={{
+                  filter: "drop-shadow(0 20px 50px rgba(234, 179, 8, 0.15))",
+                }}
+              >
+                <Image
+                  src="/app/five-elements-balance.webp"
+                  alt="SajuAstrology app — Five Elements Balance screen"
+                  width={600}
+                  height={1300}
+                  className="w-full h-auto rounded-[28px] border border-white/10"
+                  priority
+                />
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          BLOG LIST
+          ═══════════════════════════════════════════════════════════ */}
+      <section className="pb-16">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h1 className="font-serif text-3xl sm:text-4xl font-bold mb-3">
+          <div className="text-center mb-10 sm:mb-12 border-t border-border/30 pt-10">
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-2">
               Saju Astrology <span className="gold-gradient-text">Blog</span>
-            </h1>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
               Guides, insights, and deep dives into the Korean Four Pillars of Destiny.
             </p>
           </div>
           <BlogList />
         </div>
       </section>
+
       <Footer />
     </main>
   );

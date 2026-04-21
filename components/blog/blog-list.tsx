@@ -1,14 +1,22 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Clock, Tag } from "lucide-react";
+import { ArrowRight, Clock, ChevronDown } from "lucide-react";
 import { BLOG_POSTS } from "@/lib/blog-posts";
 
+const INITIAL_COUNT = 6;
+
 export function BlogList() {
+  const [expanded, setExpanded] = useState(false);
+
+  const visiblePosts = expanded ? BLOG_POSTS : BLOG_POSTS.slice(0, INITIAL_COUNT);
+  const hasMore = BLOG_POSTS.length > INITIAL_COUNT;
+
   return (
     <div className="space-y-6">
-      {BLOG_POSTS.map((post, i) => (
+      {visiblePosts.map((post, i) => (
         <motion.div
           key={post.slug}
           initial={{ opacity: 0, y: 20 }}
@@ -44,6 +52,24 @@ export function BlogList() {
           </Link>
         </motion.div>
       ))}
+
+      {/* More button — expands to show remaining posts */}
+      {hasMore && !expanded && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="flex justify-center pt-4"
+        >
+          <button
+            onClick={() => setExpanded(true)}
+            className="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground bg-card/50 backdrop-blur border border-border hover:border-primary/30 rounded-full transition-all"
+          >
+            More
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        </motion.div>
+      )}
     </div>
   );
 }
