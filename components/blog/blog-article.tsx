@@ -123,6 +123,11 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   const renderedHtml = renderMarkdown(post.content);
   const { first, second } = splitHtmlForInlineCta(renderedHtml);
 
+  // Locale-aware CTA destinations: blog article's language carries over to /calculate & /compatibility
+  // via ?lang=XX query param, which detectLocale() in language-context picks up and syncs to localStorage.
+  const calculateHref = `/calculate?lang=${postLocale}`;
+  const compatibilityHref = `/compatibility?lang=${postLocale}`;
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -161,13 +166,13 @@ export function BlogArticle({ post }: { post: BlogPost }) {
                   {copy.inlineDesc}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2.5">
-                  <Link href="/calculate" className="block">
+                  <Link href={calculateHref} className="block">
                     <Button className="gold-gradient text-primary-foreground font-semibold w-full sm:w-auto min-h-[44px]">
                       {copy.btnReading}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link href="/compatibility" className="block">
+                  <Link href={compatibilityHref} className="block">
                     <Button
                       variant="outline"
                       className="bg-transparent border-[1.5px] border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold w-full sm:w-auto min-h-[44px]"
@@ -197,7 +202,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
               {copy.finalDesc}
             </p>
             <div className="flex flex-col sm:flex-row gap-2.5 justify-center">
-              <Link href="/calculate" className="block">
+              <Link href={calculateHref} className="block">
                 <Button
                   size="lg"
                   className="gold-gradient text-primary-foreground font-semibold px-6 w-full sm:w-auto min-h-[48px]"
@@ -206,7 +211,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/compatibility" className="block">
+              <Link href={compatibilityHref} className="block">
                 <Button
                   size="lg"
                   variant="outline"
