@@ -80,7 +80,7 @@ export function HeroSection() {
             <h1 className="font-serif text-[2rem] xs:text-[2.25rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.25] break-words">
               {t("hero.title1")}
               <br className="sm:hidden" />
-              <span className="gold-gradient-text">{t("hero.title2")}</span>
+              <span className="gold-gradient-text">{" "}{t("hero.title2")}</span>
             </h1>
 
             <p className="text-base sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl">
