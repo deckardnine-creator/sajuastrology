@@ -583,6 +583,512 @@ SajuAstrologyでは、二人の生年月日を入力するだけで**100%無料*
 
 今すぐあなたの命式を確認しましょう。`,
   },
+
+
+  // === ADDED 2026-04-22 (4/8 batch) ===
+// 1. [EN] saju-compatibility-replaces-tinder-relationship-patterns
+  {
+    slug: "saju-compatibility-replaces-tinder-relationship-patterns",
+    title: "Your Birthday Already Decided 80% of Your Relationship Patterns — Here's What 5,000 Years of Korean Astrology Knows That Tinder Doesn't",
+    description: "Why birth-time-based Korean Saju compatibility is more predictive of your relationship patterns than zodiac signs, MBTI, or attachment style — and what the science of birth timing already confirms.",
+    date: "2026-04-08",
+    readTime: "9 min",
+    category: "Compatibility",
+    keywords: ["saju compatibility","korean astrology compatibility","relationship patterns","birth chart compatibility","five elements compatibility"],
+    locale: "en",
+    content: `# Your Birthday Already Decided 80% of Your Relationship Patterns — Here's What 5,000 Years of Korean Astrology Knows That Tinder Doesn't
+
+You met them on Hinge. You both liked the same indie film. The first three dates felt electric. By month four, you're fighting about how they load the dishwasher and wondering why every relationship you've had follows the same arc — euphoria, friction, exhaustion, exit.
+
+It's not random. And it's not just attachment style.
+
+For five thousand years, scholars in Korea, China, and Japan have been recording a pattern that modern dating apps haven't begun to touch: **the moment you were born encodes a specific energetic signature that shapes how you connect, how you fight, and which kinds of partners will either complete you or quietly drain you over years.**
+
+Western science is, finally, beginning to catch up. And the implications for your love life are bigger than any compatibility quiz Cosmo ever published.
+
+## The Science Tinder Hasn't Caught Up To Yet
+
+Before we get to the Korean part, let's talk about what mainstream research has already confirmed about your birth moment.
+
+Birth-season effects on personality and mental health are not fringe ideas anymore. Multiple peer-reviewed studies have shown that people born in winter months have measurably higher rates of certain psychological conditions, while those born in spring show different patterns of mood regulation. The leading hypotheses involve prenatal vitamin D exposure, maternal infection rates by season, and the photoperiod your developing nervous system is calibrated to in the first weeks of life.
+
+Then there's the relative age effect. In Canadian professional hockey, roughly 40% of NHL players were born in the first three months of the year — because they were the oldest, biggest kids in their childhood leagues, got more coaching, more playing time, more confidence. A six-month head start at age seven compounds into a career.
+
+These aren't horoscopes. These are statistical realities about how the timing of your arrival into the world shapes the trajectory of your life.
+
+So when a five-thousand-year-old tradition tells you that the *exact hour* of your birth carries information about how you'll relate to other people — the question stops being "is this real?" and starts being "what specifically did they observe, and can it be tested?"
+
+## Why Western Astrology Misses 99.99% of You
+
+Here's the math nobody talks about.
+
+Western zodiac sorts the entire human population into 12 sun signs. That means roughly 670 million people share your sign. Your "Sagittarius compatibility" applies to a group the size of the United States plus Mexico plus Canada combined.
+
+Korean Saju — the Four Pillars system — works differently. It uses your birth year, month, day, and *hour*, each encoded as a pair of celestial markers (a Heavenly Stem and an Earthly Branch). The math works out to **518,400 unique profiles**.
+
+That's 32,400 times more resolution than MBTI. Roughly 15,000 people on Earth share your full Saju chart. Not 670 million. Fifteen thousand.
+
+When you ask "are we compatible?" through Western astrology, you're comparing two enormous demographic buckets. When you ask through Saju, you're comparing two near-individual fingerprints.
+
+This is why people who try Saju for the first time often have the same reaction: "How did it know that?"
+
+It's not magic. It's the math finally being granular enough to say something specific about *you*, not your continent.
+
+## The Five Elements: How Korean Astrology Reads Relationship Chemistry
+
+Saju doesn't think in "you're a Cancer, they're a Scorpio." It thinks in five elemental energies that flow through every birth chart in different proportions:
+
+- **Wood (목)** — growth, vision, restless forward motion
+- **Fire (화)** — passion, expression, performative warmth
+- **Earth (토)** — grounding, loyalty, the friend who shows up
+- **Metal (금)** — clarity, structure, the surgical edit
+- **Water (수)** — wisdom, depth, the still pool nothing escapes
+
+Every person carries some of all five, but in radically different ratios. Your dominant element shapes your default emotional vocabulary. Your weakest element is usually the thing you secretly crave in a partner — and the thing that'll drive you crazy if they have too much of it.
+
+Here's the part that maps to relationships:
+
+**Wood feeds Fire.** A vision-driven Wood-heavy person paired with an expressive Fire-heavy person creates fast-moving creative chemistry. They can build things together that neither could alone.
+
+**Fire creates Earth.** Performative warmth eventually wants to ground itself in something stable. A Fire person often falls hard for an Earth person — and vice versa, because Earth people are quietly starved for warmth they don't have to manufacture themselves.
+
+**Earth holds Metal.** Loyal stability provides the conditions for clear thinking. Earth-Metal pairings often look "boring" from the outside but produce remarkable creative output and emotional safety.
+
+**Metal generates Water.** Sharp clarity, refined enough, becomes wisdom. Metal-Water people are often the partners everyone in their friend group calls during a crisis.
+
+**Water nourishes Wood.** And the cycle closes. Deep wisdom feeds new growth.
+
+This is the *generative* cycle. Pairs along this cycle tend to amplify each other.
+
+But there's a *controlling* cycle too:
+
+- Wood breaks Earth (the entrepreneur exhausts the loyalist)
+- Earth blocks Water (the homebody resents the wanderer's depth)
+- Water extinguishes Fire (the wise one quietly humiliates the performer)
+- Fire melts Metal (the dramatic one shatters the editor's structure)
+- Metal cuts Wood (the critic stops the visionary mid-sentence)
+
+Most relationship friction has a clean Five Elements explanation. The fight you keep having about money? About clutter? About who "isn't trying"? It's almost always one element pressing on another in a way both people feel but neither can name.
+
+## Why "80%" Is Not Hyperbole
+
+Here's where I have to be honest with you about a number.
+
+When the title of this post says your birthday decided 80% of your relationship patterns, that's not a peer-reviewed statistic. It's an editorial framing. What is true, and what Korean Saju practitioners have observed across centuries of recorded case studies, is this:
+
+**The recurring patterns in your love life — the type of person you fall for, the type of fight you keep having, the type of breakup that always seems to find you — are far more predictable from your birth chart than from any other single variable about you.**
+
+More predictable than your zodiac sign. More predictable than your MBTI. More predictable than your attachment style assessed in isolation.
+
+Why? Because Saju isn't measuring a self-report. It's measuring a fixed, objective astronomical fact about the moment you arrived. You can lie on a personality test. You cannot lie about when you were born.
+
+This is why Saju was used for marriage matching in Korea, China, and Japan for centuries. Not as superstition — as the closest thing pre-modern societies had to a personality compatibility instrument with built-in immunity to social desirability bias.
+
+## What a Saju Compatibility Reading Actually Looks Like
+
+A real Saju compatibility analysis (called *gunghap* in Korean, *aishou* in Japanese) doesn't just tell you "you're compatible" or "you're not." It tells you:
+
+- **Where the chemistry is real.** Which elemental flows between your charts will create lasting attraction, and which will fade after the honeymoon.
+- **Where the friction will live.** Which element from your partner's chart presses on which element of yours, and exactly which life domains (career decisions, family conflict, money, intimacy) that pressure will surface in.
+- **What the timing looks like.** Saju maps long-term cycles called *daewoon* (great fortune cycles), each lasting roughly ten years. A couple may be entering their best alignment ever — or may be heading into a five-year stretch where they need extra patience. The reading tells you which.
+- **What you each need to learn from the other.** This is the part that makes people cry. The element your partner is rich in is almost always the element your chart is hungry for. Long-term love, in the Saju view, is the work of metabolizing what the other person came to teach you.
+
+When this is done well — with classical text grounding rather than vague "you're a fire sign" generalizations — the result feels less like a horoscope and more like therapy you didn't know you needed.
+
+## The First Question to Ask Before You Get a Reading
+
+If you're going to try a Saju compatibility reading — whether through us or anyone else — there's one question to ask the service first.
+
+**"Do you correct for true solar time?"**
+
+Your birth certificate says 2:00 PM. But the sun at 2:00 PM in Seoul is in a different position than the sun at 2:00 PM in Tokyo. Standard time zones are political conventions; the actual position of the sun over your birthplace is what determines your Hour Pillar. That correction can shift your entire chart.
+
+Most cheap saju sites — and almost every English-language astrology calculator — skips this step. Their readings are calculated against a wrong sky. Don't bother with one that doesn't ask you for your birth city.
+
+## The Quiet Trend Among People Who've Tried Everything
+
+We've watched a specific pattern in our user data over the past few months. The people most likely to convert from a free Saju reading to a paid deeper analysis are not the people brand-new to astrology. They're the people who've already tried everything — Co-Star, MBTI, attachment style quizzes, even therapy — and noticed all of it was gesturing at something none of it could quite name.
+
+They show up to Saju half-skeptical, half-exhausted. They run their chart. They run their partner's chart. And they message us things like "this is the first time I've seen the pattern I've been living inside described from the outside."
+
+Whether you believe in destiny, or whether you believe ancient observers simply built a remarkably good instrument for measuring something modern psychology hasn't yet operationalized, the practical experience is the same: **you walk away understanding your relationship with more specificity than you walked in with.**
+
+That's all we're claiming. Not magic. Not certainty. Specificity.
+
+## Try It Free
+
+Run your chart and your partner's chart in about thirty seconds. The reading is genuinely free — no credit card, no trial signup, no upsell wall in the middle. We correct for true solar time. We cite the classical passages we draw from. And we'll tell you, in plain English, where your chemistry lives and where your friction lives.
+
+Whatever Tinder thinks it knows about you, this knows more.
+`,
+  },
+
+  // 2. [EN] saju-compatibility-calculator-guide
+  {
+    slug: "saju-compatibility-calculator-guide",
+    title: "Saju Compatibility Calculator: How Korean Astrology Reads Your Relationship in 30 Seconds (And What the Result Actually Means)",
+    description: "A complete guide to Saju compatibility calculators — how they work, what the result means, and how to read your own report layer by layer like a professional.",
+    date: "2026-04-08",
+    readTime: "10 min",
+    category: "Guide",
+    keywords: ["saju compatibility calculator","korean astrology compatibility","gunghap calculator","four pillars compatibility","five elements relationship"],
+    locale: "en",
+    content: `# Saju Compatibility Calculator: How Korean Astrology Reads Your Relationship in 30 Seconds (And What the Result Actually Means)
+
+You typed "saju compatibility calculator" into Google. You're either curious about someone, worried about someone, or trying to make sense of someone you've already been with for a while. This guide is going to walk you through what a Saju compatibility reading actually does, what the result means in practical terms, and how to read your own report without falling for the vague horoscope-style fluff that gives this whole field a bad name.
+
+By the end of this article, you'll know more about Korean astrology compatibility than 95% of people who've tried it. You'll also be able to spot the difference between a real reading and a generic content-mill answer in about ten seconds.
+
+Let's start with the part most articles skip.
+
+## What "Saju Compatibility" Is — In One Sentence
+
+Saju compatibility — known as **gunghap (궁합)** in Korean and **aishou (相性)** in Japanese — is the analysis of how the Five Elements energy in two people's birth charts interact with each other across multiple life dimensions: emotional resonance, conflict patterns, financial alignment, sexual chemistry, and long-term life-stage timing.
+
+That's it. That's the whole thing.
+
+Everything else you read about gunghap is detail layered on top of that core idea. If a calculator gives you a single "compatibility score" out of 100 with no breakdown of *which* dimensions are strong and *which* are weak, you're looking at a toy, not a real reading.
+
+## The 30-Second Process: What's Actually Happening Under the Hood
+
+When you enter your birth date, time, and city into a real Saju compatibility calculator, here's what's happening in the background:
+
+**Step 1 — Solar Time Correction.** Your civil clock time gets converted to true solar time based on the longitude of your birth city. Seoul, Busan, Tokyo, and Osaka are all in the same standard time zone but have meaningfully different solar offsets. This step alone changes the result for about 1 in 3 birth charts where the birth happened near a Pillar boundary.
+
+**Step 2 — Four Pillars Calculation.** Your birth year, month, day, and hour each get assigned a Heavenly Stem (one of ten celestial markers) and an Earthly Branch (one of twelve). That's eight characters total — your Four Pillars, also called your Eight Characters (八字, *bazi*).
+
+**Step 3 — Five Elements Mapping.** Each of those eight characters carries a Five Elements signature (Wood, Fire, Earth, Metal, or Water) plus a Yin or Yang polarity. Your full chart is now a weighted distribution across all five elements.
+
+**Step 4 — Day Master Identification.** The Heavenly Stem of your Day Pillar is your Day Master — the elemental "you." This is the single most important data point in the entire chart. Everything else gets read in relation to it.
+
+**Step 5 — Cross-Chart Synthesis.** When you and your partner's charts are placed side by side, the algorithm checks dozens of specific interactions: do your Day Masters generate or control each other? Do your weakest elements get supplied by your partner's strongest? Are there pillar combinations that classical texts flag as exceptionally harmonious or exceptionally difficult?
+
+A serious Saju engine doesn't stop at "compatibility score." It produces a structured map of where your relationship has natural energy and where it'll need conscious effort.
+
+## The Five Elements: A Crash Course That Makes the Result Readable
+
+You can't read a compatibility report without understanding the Five Elements. Skim this section and you'll be ahead of most users.
+
+**Wood (목 / 木).** Vision, growth, beginnings. Wood-heavy people are starters — they have ideas constantly, get bored once something is built, hate routine. In relationships they bring momentum but can exhaust partners who need stability.
+
+**Fire (화 / 火).** Expression, charisma, visibility. Fire-heavy people perform — not in a fake way, but in the sense that they need to be seen, expressed, applauded. They make incredible early-stage romantic partners. They can struggle with quiet, undramatic phases.
+
+**Earth (토 / 土).** Trust, loyalty, holding. Earth-heavy people are the friends everyone calls when their life falls apart. In relationships they bring extraordinary stability but can become resentful when they feel taken for granted, which they often are.
+
+**Metal (금 / 金).** Clarity, refinement, judgment. Metal-heavy people see clearly and cut cleanly. They're the partners who'll tell you the hard truth nobody else will. They can be perceived as cold by people whose elements run hotter.
+
+**Water (수 / 水).** Wisdom, depth, adaptability. Water-heavy people read situations the rest of the room can't. In relationships they're profound but sometimes hard to reach — they hold things back not from coldness but from depth.
+
+Now here's the part that turns this into a compatibility tool.
+
+## The Two Cycles That Decide Whether You're Compatible
+
+Five Elements interact in two patterns. Once you know these, you can read any compatibility report meaningfully.
+
+### The Generative Cycle (creates flow)
+
+Wood → Fire → Earth → Metal → Water → Wood
+
+Each element generates the next. When your dominant element generates your partner's dominant element (or vice versa), you have a *natural support* dynamic. Things flow. You feel like you're rooting for each other without effort.
+
+### The Controlling Cycle (creates tension)
+
+Wood → Earth → Water → Fire → Metal → Wood
+
+Each element controls the one two steps ahead of it. When your dominant element controls your partner's, you have *natural friction*. This isn't necessarily bad — controlled tension can produce extraordinary growth — but it requires both people to understand what's happening or it turns into chronic conflict the couple can't name.
+
+A real compatibility reading tells you which of these dynamics are active in your specific pairing, in which life domains, and what to do about it.
+
+## The Six Compatibility Patterns Worth Knowing
+
+Beyond the elemental cycle math, classical Saju texts identify specific *combinations* between Earthly Branches that have been observed across centuries. The most important for relationships:
+
+**Six Harmonies (육합 / 六合).** Six specific Branch pairings that classical texts describe as exceptionally harmonious. When two people share a Six Harmony between their Day Pillars, the chemistry tends to be immediate, comfortable, and durable.
+
+**Three Harmonies (삼합 / 三合).** Triangular combinations where three Branches reinforce each other. In couples, partial Three Harmony alignments often show up as "we just get each other" without the couple being able to articulate why.
+
+**Six Clashes (육충 / 六沖).** Direct opposition pairings. These produce energy — sometimes magnetic attraction — but also recurring confrontation. Many couples with a Day Pillar Clash report they fight more than other couples but also find each other more interesting.
+
+**Punishments (형 / 刑).** Combinations that classical texts mark as creating internal pressure. These are the patterns to be aware of, not afraid of — they often surface as unconscious power struggles around control and decision-making.
+
+**Harms (해 / 害).** Subtle obstruction patterns. Harms tend to show up as lingering small resentments rather than dramatic conflict.
+
+**Destructions (파 / 破).** Disruptive interactions, often felt as instability in the relationship's external circumstances (housing, jobs, family situations) more than between the people themselves.
+
+A reading that doesn't engage with these patterns is a reading that's only working on 20% of the available information.
+
+## How to Read Your Own Compatibility Report
+
+When you get your result back, here's the order to read it in:
+
+**1. Day Master interaction.** Look at how your Day Master relates to your partner's. Generative cycle, controlling cycle, identical, or unrelated? This is the headline of your relationship dynamic.
+
+**2. Element balance.** Where is your chart strong, where is your partner's chart strong? Look for *complementarity* — does your weakness get fed by their strength? That's where long-term love often lives.
+
+**3. Branch combinations.** Scan for any Six Harmonies, Three Harmonies, Clashes, or other combinations. Each one is information about a specific dynamic.
+
+**4. Useful Element alignment.** A more advanced concept: each chart has a "Useful Element" (용신 / 用神) that the chart is hungry for. When your partner's strong element is your Useful Element, you experience them as nourishing in a way that's hard to put into words. This is the rarest and most powerful form of compatibility.
+
+**5. Timing layer.** The best readings include where you both currently are in your ten-year cycles (대운 / *daewoon*). Two compatible people in clashing cycles will struggle for a few years. Two less-compatible people in synchronized cycles can have an unexpectedly easy stretch.
+
+If your reading covers all five layers, you're working with a serious tool. If it gives you "you're 87% compatible, you'll have a happy marriage!", you're working with a fortune-cookie generator.
+
+## What Compatibility Doesn't Mean
+
+This is the most important paragraph in this article, so read it twice.
+
+**A "low compatibility" Saju reading does not mean you should not be with this person.** It means: there are specific friction patterns in your pairing that, if you don't see them clearly, will exhaust both of you over time. Couples with challenging compatibility who *understand* their pattern often outlast couples with easy compatibility who never had to develop relationship skill.
+
+**A "high compatibility" Saju reading does not mean the relationship will be easy.** It means: the natural chemistry is strong, but every relationship still requires the work of being two whole people sharing a life.
+
+The reading is information. The decisions are yours. Anyone who tells you otherwise is selling you something other than astrology.
+
+## What to Look For in a Saju Compatibility Service
+
+Three checks before you trust a reading:
+
+**Does it ask for birth city?** If not, it's not doing solar time correction. Skip it.
+
+**Does it cite classical sources?** Saju has a 2,000-year textual tradition. A real reading should be traceable back to specific classical passages from texts like 子平真詮, 滴天髓, 窮通寶鑑, or 淵海子平. If a service hides its sources, it has none.
+
+**Does it explain *why* — not just *what*?** "You're not compatible" is not a reading. "Your Day Master is Yang Fire and your partner's Day Master is Yang Water, which creates a controlling dynamic that will surface as conflict around long-term planning, but is offset by a Six Harmony in your Month Pillars that produces unusual emotional safety" — *that's* a reading.
+
+## Try a Real One
+
+If you want to see what a properly calculated Saju compatibility reading looks like — with true solar time correction, Five Elements analysis, classical text grounding, and an actual breakdown of where your chemistry and friction live — run yours and your partner's birth data through our free reading. It takes about thirty seconds. We don't ask for a credit card. We don't gate the result behind a signup wall. And we'll tell you what the chart actually says, in language a normal person can read.
+
+Five thousand years of observation, summarized for the relationship you're in right now.
+`,
+  },
+
+  // 3. [KO] mz-sedae-saju-gunghap-mbti-bigyo
+  {
+    slug: "mz-sedae-saju-gunghap-mbti-bigyo",
+    title: "MBTI에 지친 MZ세대가 다시 사주 궁합을 보는 이유 — 별자리보다 32,400배 정확한 한국식 매칭법",
+    description: "MZ세대 사이에서 MBTI 다음으로 다시 떠오르는 사주 궁합. 왜 별자리보다 정확한지, 진짜 궁합 보는 법 5단계, 무료 사주 궁합 시작하는 방법까지.",
+    date: "2026-04-08",
+    readTime: "9분",
+    category: "궁합",
+    keywords: ["사주 궁합","MZ세대 사주","MBTI 궁합","한국식 궁합","사주 궁합 보는 법"],
+    locale: "ko",
+    content: `# MBTI에 지친 MZ세대가 다시 사주 궁합을 보는 이유 — 별자리보다 32,400배 정확한 한국식 매칭법
+
+요즘 친구 모임에서 누가 새로 사람 만난다고 하면 대화가 자연스럽게 이쪽으로 흘러간다. "MBTI 뭐야?" 물어본 다음, 곧이어 "근데 사주는 봤어?" 한 번 더 묻는다. 점집 가는 게 어른들 일이었던 시대는 이미 지났다. 이십대 초반 카페에서 노트북 펴놓고 무료 사주 사이트 돌리는 게 더 흔한 풍경이 됐다.
+
+이게 그냥 트렌드가 아닌 이유, 그리고 별자리나 MBTI로는 도달할 수 없는 정밀도가 사주 궁합에 있는 이유, 그리고 너의 궁합을 제대로 보는 법까지 — 이 글에서 다 풀어준다.
+
+## MBTI는 왜 지치게 되는가
+
+MBTI가 한국 청년 사이에 번진 게 2020년 전후다. 5년 정도 지나고 나니 이제 한계가 보이기 시작했다.
+
+**문제 1 — 16개는 너무 적다.** 8천만 한국인이 16개 그룹으로 나뉜다는 건, 한 그룹당 500만 명이 같은 유형이라는 소리다. 그 안에서 너랑 비슷한 사람이 진짜로 너랑 잘 맞을지는 별개 문제다.
+
+**문제 2 — 자기보고식이라 기분 따라 바뀐다.** 같은 사람이 한 달 후에 다시 검사하면 결과가 바뀌는 비율이 약 40%다. 너 자신을 잘 모르는 상태에서 답한 결과로 너의 본질을 정의한다는 건, 사실상 거울 보고 거울을 그리는 셈이다.
+
+**문제 3 — "T랑 F는 안 맞아" 같은 단순화가 공허하다.** ENTP끼리 결혼해서 평생 잘 사는 커플도 있고, 같은 INFJ인데 서로 죽일듯이 싸우는 커플도 있다. 16유형 매칭표는 마음의 안정을 주는 의식 같은 거지, 진짜 인간관계를 설명해주지 않는다.
+
+이 한계가 명확해지면서 사람들이 다시 사주로 돌아오고 있다.
+
+## 사주 궁합이 가진 압도적 정밀도
+
+같은 질문에 답해야 한다 — "나는 누구인가, 우리는 잘 맞는가." 그런데 사주는 완전히 다른 방식으로 답을 만든다.
+
+**년주, 월주, 일주, 시주.** 너의 출생 연·월·일·시 각각이 천간(天干, 10개) × 지지(地支, 12개) 조합으로 표현된다. 4개 기둥, 8개 글자. 가능한 조합은 **518,400개**다.
+
+MBTI보다 32,400배 더 세밀하게 사람을 구분한다는 뜻이다. 같은 사주를 가진 사람이 지구상에 약 15,000명 있다. 한국으로 좁히면 수백 명 수준. MBTI 같은 그룹 500만 명에 비하면 사실상 너만의 지문이다.
+
+그리고 — 이 부분이 핵심이다 — **사주는 자기보고가 아니다.** 너의 기분, 자기인식, 그날의 컨디션과 무관하게 출생 시점은 고정된 사실이다. 거짓말할 수 없다. 다시 검사해도 결과가 바뀌지 않는다.
+
+## "근데 그게 진짜 맞아?" — 현대 과학이 말해주는 것
+
+사주가 비과학이라는 인식이 있는데, 사실 출생 시점이 사람의 평생에 영향을 준다는 건 현대 통계학과 의학이 이미 인정한 사실이다.
+
+**출생 계절 효과.** 겨울 출생자의 조현병 발병률이 봄·여름 출생자보다 5~8% 높다. 봄 출생자의 우울증 경향이 다른 계절보다 통계적으로 유의미하게 높다. 원인은 태아기 비타민D 노출량, 모체 감염률 차이, 출생 직후 광주기가 시상하부 생체리듬을 세팅하는 시점의 차이 등이다.
+
+**상대연령 효과.** 캐나다 NHL 프로 하키 선수의 약 40%가 1~3월 출생이다. 어릴 때 같은 학년 친구들 중 가장 큰 아이였기 때문에 더 많이 뽑히고, 더 많이 훈련받고, 더 많은 자신감을 갖게 됐다는 통계다.
+
+이런 현대 연구가 말하는 핵심은 단순하다 — **너의 출생 시점은 무작위가 아니라 의미 있는 변수다.** 동아시아 학자들은 이 변수를 5,000년간 다른 언어로 관찰하고 기록해왔다. 그게 사주다.
+
+## 사주 궁합 — 진짜 보는 법
+
+대부분의 무료 사주 사이트가 보여주는 "궁합 점수 87점!" 같은 결과는 사실 무의미하다. 진짜 사주 궁합은 점수가 아니라 **구조**를 본다. 다음 다섯 가지를 살펴봐야 한다.
+
+### 1. 일간(日干) 관계 — 핵심 중의 핵심
+
+일주의 천간을 일간이라고 부르는데, 이게 너의 본질을 나타내는 가장 중요한 글자다. 너의 일간과 상대의 일간이 어떻게 만나는지가 궁합의 헤드라인이다.
+
+- **상생(相生) 관계**: 한쪽 일간이 다른 쪽을 생해줄 때. 자연스럽게 서로 응원하게 되는 흐름이 생긴다.
+- **상극(相剋) 관계**: 한쪽이 다른 쪽을 극할 때. 긴장감이 생긴다. 좋은 의미의 자극일 수도 있고, 만성적 갈등으로 굳을 수도 있다.
+- **비견(比肩) 관계**: 일간이 같은 오행일 때. 서로 너무 잘 알아서 편한 동시에, 자존심 부딪치면 끝까지 안 굽힌다.
+
+### 2. 오행 균형 — 보완의 가능성
+
+각자의 사주 안에 목·화·토·금·수 오행이 어떤 비율로 들어있는지 본다. 진짜 잘 맞는 궁합은 **너의 부족함을 상대가 채워주는** 구조다. 너에게 부족한 오행이 상대에게 풍부할 때, 그 사람을 만나면 평생 모르고 살았던 어떤 부분이 살아난다고 느낀다.
+
+이걸 사주에서는 **용신(用神) 관계**라고 부른다. 가장 보기 드물지만 가장 강력한 형태의 궁합이다.
+
+### 3. 지지 합충 — 만남의 화학반응
+
+지지(地支)들 사이의 결합과 충돌도 본다.
+
+- **육합(六合)**: 6가지 특정 지지 조합이 만나면 자연스러운 화합이 생긴다. 일지(日支)에 육합이 있는 커플은 첫 만남부터 편하다.
+- **삼합(三合)**: 세 지지가 삼각형으로 결합하는 패턴. 부분 삼합만 있어도 "이 사람은 이상하게 마음이 통해" 하는 느낌이 든다.
+- **육충(六沖)**: 정반대 지지가 부딪치면 충(沖)이라고 한다. 자극이 강하다. 어떤 커플은 충 때문에 끌리고, 어떤 커플은 충 때문에 끝낸다.
+- **형(刑), 해(害), 파(破)**: 미묘한 압박, 작은 손상, 외부 환경의 불안정 — 각각 다른 종류의 약한 부조화 패턴이다.
+
+### 4. 대운(大運) 시기 — 타이밍의 문제
+
+사주는 정적인 차트가 아니다. 10년 단위로 흘러가는 **대운**이 있어서, 같은 사람이라도 이 10년과 다음 10년의 운세 흐름이 다르다.
+
+너랑 상대가 각자 어떤 대운에 있느냐에 따라 같은 궁합도 다르게 작동한다. 두 사람이 모두 좋은 대운일 때 만나면 평생 갈 만한 관계가 되고, 한쪽이 어려운 대운일 때 만나면 같은 궁합이라도 무너지기 쉽다.
+
+### 5. 진태양시 보정 — 안 하면 다 무용지물
+
+이건 기술적인 부분인데 결정적이다. 너의 출생증명서엔 "오후 2시"라고 적혀있을 수 있지만, 한국 표준시는 일본 도쿄 자오선을 기준으로 한다. 서울에서의 실제 태양 위치는 표준시보다 약 32분 늦다. 이걸 보정하지 않으면 시주(時柱)가 바뀔 수 있고, 그러면 사주 전체가 달라진다.
+
+**출생 도시를 묻지 않는 사주 사이트는 진태양시 보정을 안 하는 사이트다.** 결과가 기술적으로 틀렸을 가능성이 높다는 뜻이다.
+
+## 무료 궁합 보기 — 30초면 끝난다
+
+너랑 상대의 생년월일시만 있으면 30초 안에 사주 궁합 결과를 받아볼 수 있다. 우리는:
+
+- **진태양시 보정**을 한다 (그래서 출생 도시를 물어본다)
+- **5개 고전 원전(자평진전, 적천수, 궁통보감, 연해자평, 격국용신)에서 562개 핵심 구절을 벡터화**해서 너의 차트에 매칭한다
+- 결과는 점수 하나가 아니라 **구조적 분석** — 어디서 합이 좋고, 어디서 마찰이 있고, 어떤 영역에서 서로를 보완하고, 어떤 시기에 더 신경 써야 하는지 다 나온다
+- **무료다.** 신용카드 안 묻고, 트라이얼도 없고, 중간에 결제창도 안 뜬다
+
+MBTI로는 못 본 너의 패턴, 별자리로는 손가락 사이로 빠져나가던 그 디테일을, 5,000년 동안 누군가가 이미 관찰해서 정리해놨다.
+
+이번엔 진짜로 한 번 봐라. 30초면 된다.
+`,
+  },
+
+  // 4. [JA] kankokushiki-shichusuimei-aishou-shindan
+  {
+    slug: "kankokushiki-shichusuimei-aishou-shindan",
+    title: "韓国式四柱推命の相性診断 — 西洋占星術より518,400倍正確と言われる理由を解説",
+    description: "韓国式四柱推命(사주)の相性診断が西洋占星術より精密な理由、本物の相性診断が見ている5層、信頼できるサービスの見分け方を完全解説。無料で相性を確認可能。",
+    date: "2026-04-08",
+    readTime: "10分",
+    category: "相性診断",
+    keywords: ["四柱推命 相性","韓国式 占い","サジュ 相性","韓国 四柱推命","相性診断"],
+    locale: "ja",
+    content: `# 韓国式四柱推命の相性診断 — 西洋占星術より518,400倍正確と言われる理由を解説
+
+「四柱推命の相性って実際どうなの?」「西洋占星術や星座占いと何が違うの?」
+
+最近、韓国カルチャーへの関心の高まりと共に、韓国式の四柱推命(韓国では「사주 / Saju」と呼ばれる)で相性を見る人が日本でも急速に増えています。SNSでは「サジュ相性診断」「韓国式相性占い」というキーワードの検索数が前年比で大幅に伸びています。
+
+ただ — そのほとんどが、**本物の四柱推命相性診断とは別物**です。点数が一つ出てきて「あなたたちは87点の相性です!」で終わるものは、ほぼ全て自動生成された雛形に過ぎません。
+
+この記事では、本物の四柱推命相性診断が何を見ているのか、なぜ西洋占星術より圧倒的に精密なのか、そして自分の相性を本当の意味で読み解く方法を、上から順に解説していきます。
+
+## 四柱推命の相性が「518,400倍」精密と言われる根拠
+
+まず数字の話から。
+
+西洋占星術は人類全体を**12星座**に分類します。世界人口を12で割ると、あなたの星座は約6億7千万人と共有していることになります。「あなたは射手座だから〜」という分析は、アメリカとカナダとメキシコを合わせた人口に同じことを言っているのと同じです。
+
+四柱推命は違います。生年・月・日・**時刻**まで使い、それぞれを天干(10種)と地支(12種)の組み合わせで表現します。年柱・月柱・日柱・時柱 — 4本の柱、合計8文字。可能な組み合わせは:
+
+**518,400通り**
+
+つまり四柱推命の解像度は、星座占いの**約43,200倍**、MBTIの**32,400倍**です。あなたと完全に同じ命式を持つ人は、地球上に約15,000人。日本国内に絞れば数十人程度です。事実上、あなた個人の指紋に近いレベルの精度です。
+
+## なぜ「日本の四柱推命」と「韓国の四柱推命」が違うのか
+
+日本にも四柱推命の伝統はあります。ただし、韓国式(사주)と日本の伝統的な四柱推命には、実は重要な違いがいくつかあります。
+
+**第一に、用神(ようじん)重視の度合い**。韓国の四柱推命は、命式全体のバランスを取るために必要な「用神」を見極めることに極めて重きを置きます。これは命主が必要としている五行を特定する作業で、相性診断においても「相手があなたの用神を持っているか」が最重要ポイントの一つです。
+
+**第二に、現代化の度合い**。韓国では1990年代以降、四柱推命の体系化と現代的解釈の研究が活発で、現代心理学やライフコーチング的な文脈との接続が進んでいます。日本の四柱推命がやや伝統色を強く保っているのと対照的です。
+
+**第三に、AI/データサイエンスとの統合**。韓国のテック業界では、四柱推命の古典562節をベクトル化してRAG(検索拡張生成)パイプラインで個人の命式と照合する技術が実用段階に入っています。本記事の運営元であるSajuAstrologyもこの技術で動いています。これは日本ではまだほぼ見られない取り組みです。
+
+## 相性診断 — 韓国式四柱推命では何を見るのか
+
+「相性が良い・悪い」という二元論ではありません。本物の韓国式相性診断では、最低でも以下の5つの層を分析します。
+
+### 1. 日干(にっかん)の関係 — 最重要
+
+日柱の天干、つまり「日干」があなた自身の本質を表す最も重要な文字です。あなたの日干と相手の日干がどう交わるか — これが相性の見出しです。
+
+**相生(そうしょう)関係**: 一方の日干が他方を生み出す関係。例えば木が火を生む、火が土を生むという五行の流れ。自然と互いを支え合う関係になります。
+
+**相剋(そうこく)関係**: 一方が他方を制する関係。例えば金が木を切る、水が火を消すという関係。緊張感のある関係です。良い意味の刺激にもなり得るし、慢性的な葛藤に固定化することもあります。
+
+**比肩(ひけん)関係**: 日干が同じ五行同士。お互いを深く理解できる反面、譲らない時はお互い譲らないため、摩擦も生まれやすい関係です。
+
+### 2. 五行のバランス — 補完性の発見
+
+それぞれの命式に含まれる**木・火・土・金・水**の五行が、どんな比率で入っているかを見ます。
+
+本当に長く続く相性の核心は、**あなたに足りない五行を相手が豊富に持っている**ことです。あなたに不足している五行を相手が補ってくれる時、その人と一緒にいると「自分の中で眠っていた何かが目を覚ます」感覚を得ます。
+
+これを四柱推命では**用神関係**と呼びます。最も希少で、最も強力な相性パターンです。
+
+### 3. 地支の合冲(ごうちゅう) — 化学反応のパターン
+
+地支(ちし)同士の結合と衝突のパターンも見ます。
+
+**六合(りくごう)**: 6つの特定の地支ペアが特別に調和する組み合わせ。日支に六合がある二人は、初対面から不思議な居心地の良さを感じることが多いです。
+
+**三合(さんごう)**: 3つの地支が三角形状に強く結びつくパターン。部分三合だけでも「この人とは何故か通じる」という感覚を生みます。
+
+**六冲(りくちゅう)**: 真逆の地支がぶつかる組み合わせ。刺激が強い。冲があるカップルは、冲のせいで惹かれる場合と、冲のせいで別れる場合が両方あります。どちらに転ぶかは、その人たちが冲をどう扱うかで決まります。
+
+**刑(けい)・害(がい)・破(は)**: それぞれ別種の弱い不調和パターン。微細な圧迫、小さな損傷、外部環境の不安定として現れます。
+
+### 4. 大運(たいうん) — タイミングの問題
+
+四柱推命は静的な命式ではありません。10年単位で流れる**大運**があり、同じ人でもこの10年と次の10年では運気の質が変わります。
+
+二人の大運がどのフェーズにあるかで、同じ相性でも作用の仕方が変わります。両方が良い大運期にある二人が出会えば、長く続く関係になりやすい。片方が困難な大運期に出会うと、同じ相性でも崩れやすい。タイミングは想像以上に重要です。
+
+### 5. 真太陽時補正 — これがないと全部無意味
+
+技術的な話ですが、決定的に重要な部分です。
+
+あなたの出生証明書には「午後2時」と書かれているかもしれません。しかし日本標準時は東京の経度を基準にしていて、北海道や九州、沖縄では実際の太陽位置と数十分の差があります。これを補正しないと**時柱**が変わってしまい、命式全体が別物になります。
+
+**出生地(都市名)を聞かない四柱推命サイトは、真太陽時補正をしていないサイト**です。技術的に間違った命式で相性を見ている可能性が高いということです。
+
+## 「相性が悪い」という結果の本当の意味
+
+ここが一番大事なので、太字にします。
+
+**「相性が低い」という結果は「別れた方がいい」という意味ではありません。**
+
+それは「あなたたちの間には、見えないままにしておくとお互いを消耗させる特定の摩擦パターンが存在する」という意味です。難しい相性のカップルでも、自分たちのパターンを**理解している**カップルは、簡単な相性で楽さに甘えて関係スキルを磨かなかったカップルより長く続くことが多いです。
+
+そして — **「相性が良い」という結果も「楽な恋愛になる」という意味ではありません。**
+
+それは「自然な化学反応は強い」という意味で、それでも相性の良いカップルもまた、二人の人間が一つの人生を共有するという仕事をする必要があります。
+
+相性診断は**情報**です。決断はあなたのものです。
+
+## 韓国式四柱推命の相性診断 — 信頼できる本物の見分け方
+
+相性診断サービスを選ぶ前のチェック項目を3つ:
+
+**出生都市を聞いてくるか?** 聞かないなら真太陽時補正をしていません。スキップしましょう。
+
+**古典の出典を引用しているか?** 四柱推命には2,000年の文献的伝統があります。本物の相性診断は、子平真詮、滴天髓、窮通宝鑑、淵海子平など、特定の古典の節に遡れる根拠を持っているはずです。出典を隠すサービスは、出典を持っていません。
+
+**「なぜそうなるのか」を説明しているか?** 「あなたたちは合いません」は診断ではありません。「あなたの日干は陽火、相手の日干は陽水で相剋関係にあり、長期計画の領域で衝突が出やすい一方、月柱に六合があるため感情的安定感は強い」 — これが診断です。
+
+## 無料で本物の相性診断を試す
+
+あなたと相手の生年月日時だけあれば、30秒で韓国式四柱推命の相性結果を見られます。SajuAstrologyでは:
+
+- **真太陽時補正**を行います(出生都市を聞くのはこのため)
+- **5つの古典原典の562節をベクトル化**し、あなたの命式と照合します
+- 結果は点数ではなく**構造的な分析** — どこで調和し、どこで摩擦が生じ、どの領域で互いを補完し、どの時期に注意が必要かが全て出ます
+- **完全無料**。クレジットカード入力なし、トライアルなし、途中の課金画面なし
+
+5,000年の観察を、AIで再構築した次世代の四柱推命相性診断 — 一度試してみてください。
+`,
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {
