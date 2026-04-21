@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Clock, ArrowRight, Heart, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Heart, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { t, type Locale } from "@/lib/translations";
 import { useLanguage } from "@/lib/language-context";
@@ -197,7 +197,6 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           <header className="mb-8">
             <div className="flex items-center gap-3 mb-4 text-xs text-muted-foreground">
               <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{post.category}</span>
-              <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{post.readTime}</span>
               <span>{post.date}</span>
             </div>
             <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-tight mb-4">

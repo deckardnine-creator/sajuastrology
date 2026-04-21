@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useLanguage } from "@/lib/language-context"
 import { useNativeApp } from "@/lib/native-app"
 import {
@@ -136,6 +137,14 @@ function FooterLangDropdown() {
 export function Footer() {
   const { t, locale } = useLanguage()
   const isNative = useNativeApp()
+  const pathname = usePathname()
+
+  // ═══ Minimal footer mode — blog LIST page (/blog) only ═══
+  // Matches the minimal Navbar on the same page. Blog list is a pure
+  // SEO funnel from Google: strip site chrome so visitors focus on
+  // clicking an article. Individual blog articles (/blog/[slug]) keep
+  // the full footer so UI language stays consistent with article language.
+  const isBlogListPage = pathname === "/blog"
 
   // Defense in depth: if useNativeApp() somehow returns false in the iOS app
   // (hydration timing, deployment cache, etc), this direct check covers it.
@@ -153,6 +162,26 @@ export function Footer() {
   }, [])
 
   const hideWebOnly = isNative || directNative
+
+  // ═══ /blog list page: copyright-only minimal footer ═══
+  // Logo + © line only. No nav links, no bug bounty banner, no business info.
+  // Mirrors the minimal Navbar on /blog (logo-only header).
+  if (isBlogListPage) {
+    return (
+      <footer className="bg-card py-8 sm:py-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center gap-4">
+            <Link href="/" className="flex items-center">
+              <span className="font-serif text-xl font-bold text-primary">SajuAstrology</span>
+            </Link>
+            <div className="flex items-center justify-center text-sm text-muted-foreground">
+              <span>&copy; 2026 SajuAstrology.com</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+    )
+  }
 
   // Safe locale lookups with English fallback for locales not yet translated.
   const letter = letterLabel[locale] ?? letterLabel.en

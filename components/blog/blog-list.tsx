@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Clock, ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { BLOG_POSTS } from "@/lib/blog-posts";
 
 const INITIAL_COUNT = 6;
@@ -27,7 +27,6 @@ export function BlogList() {
             <article className="group bg-card/50 backdrop-blur border border-border hover:border-primary/30 rounded-xl p-5 sm:p-6 transition-all">
               <div className="flex items-center gap-3 mb-3 text-xs text-muted-foreground">
                 <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{post.category}</span>
-                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{post.readTime}</span>
                 <span>{post.date}</span>
               </div>
               <h2 className="font-serif text-lg sm:text-xl font-semibold text-foreground group-hover:text-primary transition-colors mb-2 leading-snug">
