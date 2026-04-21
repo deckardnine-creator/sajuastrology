@@ -1098,3 +1098,8 @@ export function getBlogPost(slug: string): BlogPost | undefined {
 export function getAllBlogSlugs(): string[] {
   return BLOG_POSTS.map((p) => p.slug);
 }
+
+// Sorted by date desc (newest first) for blog list display.
+// Use this in components/blog/blog-list.tsx; keep BLOG_POSTS for getBySlug/sitemap/etc.
+export const BLOG_POSTS_SORTED: BlogPost[] =
+  [...BLOG_POSTS].sort((a, b) => b.date.localeCompare(a.date));

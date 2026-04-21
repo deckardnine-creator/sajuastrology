@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown } from "lucide-react";
-import { BLOG_POSTS } from "@/lib/blog-posts";
+import { BLOG_POSTS_SORTED as BLOG_POSTS } from "@/lib/blog-posts";
 
 const INITIAL_COUNT = 6;
 
