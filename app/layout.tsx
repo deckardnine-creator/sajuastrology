@@ -204,6 +204,7 @@ export default function RootLayout({
                 track_pageview: true,
                 persistence: 'localStorage',
                 ignore_dnt: false,
+                record_sessions_percent: 10,
                 loaded: function(mp) { mp.__loaded = true; }
               });
             `}
