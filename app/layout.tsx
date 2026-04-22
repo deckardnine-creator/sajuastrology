@@ -5,6 +5,7 @@ import { AuthProvider } from '@/lib/auth-context'
 import { LanguageProvider } from '@/lib/language-context'
 import { SignInModal } from '@/components/auth/sign-in-modal'
 import { ScrollToTop } from '@/components/ui/scroll-to-top'
+import MixpanelBootstrap from './MixpanelBootstrap'
 import Script from 'next/script'
 import './globals.css'
 
@@ -212,6 +213,7 @@ export default function RootLayout({
         )}
         <AuthProvider>
           <LanguageProvider>
+            <MixpanelBootstrap />
             {children}
             <SignInModal />
             <ScrollToTop />
