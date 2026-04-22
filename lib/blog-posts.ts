@@ -1265,7 +1265,420 @@ AI技術を活用した最新の相性診断は、生年月日を入力してか
 5,000年の観察を、AIで再構築した次世代の四柱推命相性診断 — 一度試してみてください。
 `,
   },
+
+
+  // === ADDED 2026-04-22 (4/22 batch) ===
+  // Celebrity Compatibility Series Vol.1 + Japanese 10-pattern guide
+  // 1. [EN] iconic-couples-saju-compatibility-series-vol-1
+  {
+    slug: "iconic-couples-saju-compatibility-series-vol-1",
+    title: "The World's Most Iconic Couples Through the Lens of Korean Saju — Celebrity Compatibility Series Vol.1",
+    description: "What does 5,000-year-old Korean astrology say about five of the world's most-watched partnerships? A respectful cultural lens on Beyoncé & Jay-Z, Beckhams, Binjin couple, Priyanka & Nick, Cristiano & Georgina.",
+    date: "2026-04-22",
+    readTime: "11 min",
+    category: "Celebrity Series",
+    keywords: ["saju celebrity compatibility","korean astrology couples","beyonce jay-z saju","beckham saju","hyun bin son ye-jin compatibility","priyanka nick saju","cristiano ronaldo saju","celebrity birth chart analysis"],
+    locale: "en",
+    content: `# The World's Most Iconic Couples Through the Lens of Korean Saju
+
+**Celebrity Compatibility Series — Vol. 1**
+
+*An entertainment-oriented look at what 5,000-year-old Korean astrology might say about five of the most-watched partnerships on Earth. Not predictions. Not judgments. A cultural lens.*
+
+When Western astrology pairs you by Sun sign — one of twelve broad categories — Korean Saju (사주, "Four Pillars of Destiny") does something more granular. It reads four pillars of your birth moment (year, month, day, hour) and generates one of **518,400 possible cosmic profiles**. For couples, Saju compares two full charts to describe *how two energy patterns interact* — not who is "better" or "worse."
+
+This series brings that Korean lens to couples the whole world already knows. We'll look at five for Volume 1. The goal is not to predict anything. It is to show how this tradition reads partnerships, and to give you a vocabulary for thinking about your own.
+
+> **Read this article in your language** — [한국어](/?lang=ko) · [日本語](/?lang=ja) · [Español](/?lang=es) · [Français](/?lang=fr) · [Português](/?lang=pt) · [中文(繁體)](/?lang=zh-TW) · [हिन्दी](/?lang=hi) · [Русский](/?lang=ru) · [Bahasa Indonesia](/?lang=id)
+
+---
+
+## How Saju Reads a Couple
+
+Before we get into specific couples, here's the quick version of what Korean Saju actually looks at when comparing two people:
+
+- **Day Master (일간 / il-gan)** — the single Chinese character that represents your core self. There are ten: Yang Wood (甲), Yin Wood (乙), Yang Fire (丙), Yin Fire (丁), Yang Earth (戊), Yin Earth (己), Yang Metal (庚), Yin Metal (辛), Yang Water (壬), and Yin Water (癸).
+- **Five Elements balance (오행 / o-haeng)** — how much Wood, Fire, Earth, Metal, and Water each person carries. Good couples often *complete* each other's element gaps.
+- **Year Pillar (년주 / nyeon-ju)** — the generational energy. Couples with harmonious year pillars often report feeling "like they've known each other forever."
+- **Clash or Harmony (충·합 / chung-hap)** — specific structural relationships between the eight characters that show friction points and resonance points.
+
+Traditional Saju practitioners will also look at hour pillar (requires exact birth time), ten-year cycles (대운), and current-year interactions. For celebrity readings where precise birth hours are rarely public, we'll stay at the year/month/day level — which is already plenty to talk about.
+
+**One disclaimer we'll keep repeating**: Saju describes *tendencies in energy patterns*, not predictions of the future. A chart doesn't say a couple will "make it" or "fail." It describes the texture of how two people's energies meet. What they do with that texture is entirely up to them.
+
+---
+
+## 1. Beyoncé × Jay-Z — The Water and Wood Dynasty
+
+- **Beyoncé** · born September 4, 1981
+- **Jay-Z** · born December 4, 1969
+
+Right away, Saju notices something poetic here: both were born on the **4th day of their respective months**. The couple has famously built much of their public mythology around the number four (their wedding was on 4/4/2008, their matching tattoos read "IV"). In Saju, the day pillar carries your core self — and two partners sharing a day *number* (not the same day pillar, but the same numerical position) often creates a subtle resonance traditional readers call *柱共鳴 ("pillar resonance")*.
+
+### The Element Read
+
+Jay-Z was born in early December 1969 — a **Water-dominant month in a Metal-Earth year**. In Korean Saju, December corresponds to the 子 (Rat) month, which is pure Water energy. This gives him a chart where **strategy, depth, and patience** are natural resources. Water in Saju is not passive — it carves canyons. It's the element of vision and long-term architecture. (Jay-Z's entire business empire, built over three decades rather than three years, reads accurately with this element.)
+
+Beyoncé's September 1981 birth falls in the 酉 (Rooster) month — pure **Metal energy**. Metal in Saju represents refinement, discipline, and the ability to cut away what doesn't serve the final form. (Anyone who has watched her rehearsal footage understands Metal.) Her 1981 year is a Yin Metal year, reinforcing that refinement tendency.
+
+### What Saju Would Say About the Pairing
+
+In the Five Elements cycle, **Metal produces Water** (金生水). This is considered one of the most supportive generative relationships in Korean astrology — the older element *feeds* the younger. Beyoncé's Metal naturally flows into Jay-Z's Water, and Water in turn nourishes the Wood of creative output that both are known for.
+
+This is not a chart of "opposites attract." It's a chart of **one energy nourishing another in a productive chain**. Traditional Saju texts describe this as 相生 (sang-saeng / mutual generation) — the kind of partnership where the long view rewards both partners.
+
+### A fan reading, not a prediction
+
+The couple's 20+ years together, their public commitment to the number four, and their shared creative output read interestingly through this lens. Again: not destiny. Just a cultural read on the chart.
+
+---
+
+## 2. David × Victoria Beckham — Fire Meeting Fire
+
+- **David Beckham** · born May 2, 1975
+- **Victoria Beckham** · born April 17, 1974
+
+The Beckhams have been married since 1999 — one of the longest-running celebrity power couples of the modern era. Saju has a phrase for their chart combination: 同氣相求 (dong-gi sang-gu / "like energies seek each other").
+
+### The Element Read
+
+David Beckham was born in **early May 1975** — the 巳 (Snake) month, which is **Yin Fire** energy. May is when spring finishes and summer begins to burn. People born in this window often have the classic Fire qualities: visibility, charisma, the ability to walk into a room and shift the temperature. David's 1975 year adds Wood to the chart, and **Wood feeds Fire** (木生火). This is a self-reinforcing chart — an engine that runs on its own fuel.
+
+Victoria was born in **mid-April 1974** — the 辰 (Dragon) month, which is **Yang Earth** with Wood undertones. Her 1974 year (Wood Tiger) reinforces Wood. So Victoria brings a chart of **Wood-and-Earth** — the combination that traditional Saju associates with *structure*, *lasting foundation*, and what Korean practitioners sometimes call 土德 (to-deok / "earth virtue").
+
+### What Saju Would Say About the Pairing
+
+Wood feeds Fire (木生火). Earth holds Fire in place and prevents it from burning out (火生土 in reverse — Earth becomes the product of Fire).
+
+In Saju language, Victoria's Wood-Earth chart **literally produces and stabilizes** David's Fire. A Fire person without grounding tends to burn bright and burn fast. A Fire person with Earth support burns long. Traditional Korean marriage readings place enormous weight on this configuration — it's one of the more classically "compatible" element arrangements.
+
+Their 25+ years together, through global moves (Manchester → Madrid → Los Angeles → Miami) and four children, map onto this pattern of "Fire staying lit because Earth keeps the hearth." Again — a cultural lens, not a prediction. But the lens describes what we can observe.
+
+---
+
+## 3. Hyun Bin × Son Ye-jin — The Autumn Harmony
+
+- **Hyun Bin (현빈 / 玄彬)** · born September 25, 1982
+- **Son Ye-jin (손예진 / 孫藝珍)** · born January 11, 1982
+
+Known to global fans as the "Binjin couple" since their 2022 marriage, Hyun Bin and Son Ye-jin met on the set of *Crash Landing on You* — the drama that brought Korean romance to 190+ countries via Netflix. In Korea they are routinely called the 국민 커플 ("nation's couple"). Their Saju reading is, for Korean audiences especially, one of the most analyzed celebrity charts of the decade.
+
+### The Element Read
+
+They were **born in the same year — 1982**. In Saju that year's pillar is 壬戌 (Yang Water Dog). Sharing a year pillar creates what Korean readers call 동갑 (dong-gap) — a generational resonance. Partners who share the same year-pillar often report an unusual ease of mutual understanding; they grew up with the same energetic weather.
+
+Hyun Bin's September 25 birthday places him in the 酉 (Rooster) month — **Yin Metal**, like Beyoncé. Metal in Saju is associated with refinement, clarity of purpose, and a certain quiet intensity. It is considered the element of the artist who practices a craft for decades.
+
+Son Ye-jin's January 11 birthday falls in the 丑 (Ox) month — **Yin Earth** with Water and Metal undertones. The Ox is the quiet worker of the Chinese zodiac, but in Saju its hidden stems (藏干) often produce people with surprising depth beneath a calm exterior.
+
+### What Saju Would Say About the Pairing
+
+**Earth produces Metal** (土生金). Son Ye-jin's Yin Earth chart naturally generates and supports Hyun Bin's Yin Metal. The two pillars share a Metal undertone (his main, her hidden), which in classical readings suggests an unusual level of *shared internal vocabulary* — they speak the same inner language without having to translate.
+
+Their shared 1982 Yang Water year adds another layer: **both of them carry Water in the year pillar**, which feeds the Wood of creativity and softens Metal's sharpness with Water's fluidity. This is why many Korean Saju practitioners publicly called this match "이상적 (ideal)" when it was announced in 2021.
+
+---
+
+## 4. Priyanka Chopra × Nick Jonas — The Cross-Cultural Yin-Yang
+
+- **Priyanka Chopra Jonas** · born July 18, 1982
+- **Nick Jonas** · born September 16, 1992
+
+Priyanka and Nick's pairing is one of the most globally visible East-meets-West partnerships of our generation. Married in 2018 with both Christian and Hindu ceremonies, they represent the kind of modern cross-cultural partnership that Korean Saju, as a tradition, actually handles beautifully — because Saju reads *energy patterns*, not nationality.
+
+### The Element Read
+
+Priyanka's July 18, 1982 birth places her in the **未 (Goat) month — Yin Earth** with strong Fire influence from the summer peak. July in Saju is late summer, when Earth has absorbed all the Fire of the season. This produces what classical texts call 火土 (fire-earth) personalities — warm, generative, deeply caring. Her 1982 Yang Water year adds depth and intuition.
+
+Nick's September 16, 1992 birth places him in the **酉 (Rooster) month — Yin Metal** (same month as Hyun Bin and Beyoncé). Metal born in autumn at its full strength. His 1992 year (Yang Water Monkey) brings Water and Metal together — a cool, precise, musical configuration. Anyone who has watched Nick Jonas's musicianship knows the discipline of Yin Metal in autumn.
+
+### What Saju Would Say About the Pairing
+
+**Earth produces Metal** (土生金) — again, the same generative flow we saw with the Binjin couple. Priyanka's Earth nourishes and strengthens Nick's Metal. In relationship terms, this is traditionally described as the chart of "a partner who makes you more yourself" — not a clash, but a deepening.
+
+Their 10-year age gap, which the couple has addressed publicly, actually reads *constructively* in Saju. Wider age gaps mean the partners' **year pillars don't clash** — they come from different ten-year cycles (대운) and therefore rarely trigger each other's pressure points simultaneously. Traditional Korean matchmakers often recommend gaps of this size for Earth-Metal pairings.
+
+---
+
+## 5. Cristiano Ronaldo × Georgina Rodríguez — The Strategic Metal Pair
+
+- **Cristiano Ronaldo** · born February 5, 1985
+- **Georgina Rodríguez** · born January 27, 1994
+
+Engaged in 2025 after nearly a decade together, Cristiano and Georgina represent a Portuguese-Argentinian-Spanish partnership that has moved with the rhythm of his career — Madrid, Turin, Manchester, Riyadh. Five children, a globally watched Netflix docuseries (*I Am Georgina*), and a public partnership built in full view of billions of football fans.
+
+### The Element Read
+
+Cristiano's February 5, 1985 birth places him right at the cusp between **丑 (Ox) and 寅 (Tiger) months** — a transitional pillar. Early February in the Saju calendar is when **Wood begins to emerge from Earth**. This produces what traditional readers call 立春 (ip-chun) personalities — "standing at the beginning of spring." The energy is: strong foundation (Earth), but already reaching upward (Wood). Ambition anchored in discipline.
+
+Georgina's January 27, 1994 birth is in the **丑 (Ox) month — Yin Earth** (same as Son Ye-jin), but her 1994 year is 甲戌 (Yang Wood Dog). So her chart brings **Earth stabilized by Wood** — grounding plus growth.
+
+### What Saju Would Say About the Pairing
+
+Here's where the reading gets interesting. Both partners carry **Ox-month Earth energy**, which Saju describes as 同柱 (dong-ju / "shared pillar"). Partners who share the same month pillar often build their lives around the same rhythms — they work the same hours, they want the same things at the same time, they get tired at the same season.
+
+Cristiano's emerging Wood finds root in Georgina's stable Earth. Georgina's Wood finds Fire-support in Cristiano's February-Fire undertones. It's a four-way element weave where **neither partner is the only source of any element** — a hallmark of charts traditionally called 相互依存 (sang-ho ui-jon / "mutually interdependent"). These are not codependent charts; they're charts where both partners bring resources to the table.
+
+Nine years together, five children, and a relocation to Riyadh for his Al-Nassr contract all suggest a partnership that handles structural change well — which is exactly what Ox-Earth pairings are classically good at.
+
+---
+
+## What This Series Is Not
+
+This is a cultural and entertainment read. It is not:
+
+- A prediction that any of these couples will stay together or separate
+- A claim that Saju is deterministic
+- A judgment on anyone's relationship, marriage, or personal life
+
+Korean Saju is a 5,000-year-old observational system. Its value is in giving us **a vocabulary for thinking about partnerships** — not a verdict. Every couple's real life is made of choices, growth, and private dimensions no chart can see.
+
+## Your Turn — What Does Your Saju Say?
+
+If this made you curious about how Korean Saju would read *your* birth chart, or your compatibility with someone, you can run a free reading on SajuAstrology. It takes under 30 seconds, supports 10 languages, and uses the same 562 classical passages that traditional Korean readers reference.
+
+[**→ Get your free Saju reading**](/) · [**→ Check compatibility with someone**](/)
+
+No signup required. No credit card. Just your birth date and, ideally, your birth time for the most detailed read.
+
+---
+
+## Next in the Series
+
+**Volume 2** will look at five more iconic couples from around the world — including pairs from Japan, China, Spain, and more East Asian partnerships that our community has been asking about. If there's a couple you'd like to see analyzed, mention them in the comments on any of our social channels.
+
+Until then — may your five elements stay in balance.
+
+---
+
+*This article is part of the Celebrity Compatibility Series from SajuAstrology — a Korean astrology service available in 10 languages, used by readers in 30+ countries. The analysis here is based on publicly available birth dates. Precise Saju readings require exact birth time for full accuracy; the charts discussed above use year-month-day information as published in open sources such as Wikipedia.*
+
+*Saju is a cultural and philosophical system. It is not a substitute for personal judgment, professional counseling, or medical advice. All discussions of real people here are intended as respectful cultural interpretation, not prediction or judgment of private lives.*
+`,
+  },
+
+  // 2. [JA] shichusuimei-aishou-10-patterns-goguide
+  {
+    slug: "shichusuimei-aishou-10-patterns-goguide",
+    title: "四柱推命 相性 — 五行で読み解く10の恋愛パターン【完全ガイド】",
+    description: "四柱推命の相性は五行(木火土金水)の10パターンで決まる。相生5パターンと相克5パターンの違い、それぞれの恋愛における意味、自分のパターンを調べる方法を完全解説。無料で相性診断も可能。",
+    date: "2026-04-22",
+    readTime: "12分",
+    category: "相性ガイド",
+    keywords: ["四柱推命 相性","五行 相性","相生 相克","四柱推命 恋愛","サジュ 相性","相性診断 無料","四柱推命 10パターン"],
+    locale: "ja",
+    content: `# 四柱推命 相性 — 五行で読み解く10の恋愛パターン【完全ガイド】
+
+> **TL;DR**: 四柱推命の相性は「五行(木火土金水)の関係」で決まる。10のパターンを理解すれば、自分とパートナーのエネルギーがどう噛み合うかが見えてくる。無料で相性を確認する方法も紹介。
+
+「四柱推命の相性って、実際どう読むの?」「相生(そうせい)と相克(そうこく)って何が違うの?」
+
+韓国ドラマや K-POP をきっかけに、韓国式の四柱推命(サジュ/사주)で恋愛相性を見る人が日本でも急速に増えています。検索キーワード「四柱推命 相性」「サジュ 相性 無料」の検索数は前年比で大きく伸び、Google Search Console のデータでもクリック率が他ジャンルを上回っています。
+
+でも、相性診断のサイトで「点数」だけ出されても、**なぜその点数なのかが分からないと意味がない**。このガイドでは、四柱推命が相性を見る時に実際に読んでいる**五行の10パターン**を、一つずつ丁寧に解説します。
+
+> **この記事を他言語で読む** — [English](/?lang=en) · [한국어](/?lang=ko) · [Español](/?lang=es) · [Français](/?lang=fr) · [Português](/?lang=pt) · [中文(繁體)](/?lang=zh-TW) · [हिन्दी](/?lang=hi) · [Русский](/?lang=ru) · [Bahasa Indonesia](/?lang=id)
+
+---
+
+## そもそも四柱推命の相性とは?
+
+四柱推命は生年月日時から**「年柱・月柱・日柱・時柱」の4つの柱**を立て、それぞれに**天干(てんかん)と地支(ちし)**を配置します。計8つの文字が、その人のエネルギーパターンを表します。
+
+相性を見る時、四柱推命は**2人の五行(木・火・土・金・水)がどう関係しているか**を重点的に読みます。五行には**10種類のパターン**があります:
+
+- **相生(そうせい)** — 一方が他方を生かす関係(5パターン)
+- **相克(そうこく)** — 一方が他方を制する関係(5パターン)
+
+「相生=良い」「相克=悪い」ではありません。**どちらも必要な関係性**です。相生だけの組み合わせは成長しますが緊張感がなくなり、相克だけの組み合わせは刺激がありますが消耗します。**実際の相性は両方が混ざった複雑な織物**として読まれます。
+
+---
+
+## 五行の基本 — 4行でまとめると
+
+本題に入る前に、五行それぞれの性質をごく短くまとめます:
+
+- **木(もく)** — 成長・拡張・計画。外へ伸びるエネルギー。
+- **火(か)** — 表現・情熱・可視性。上へ燃えるエネルギー。
+- **土(ど)** — 安定・受容・変換。中心を保つエネルギー。
+- **金(ごん)** — 収束・判断・美学。内へ固めるエネルギー。
+- **水(すい)** — 深さ・知恵・流動。下へ沈むエネルギー。
+
+四柱推命の相性は、**あなたの日主(日柱の天干)とパートナーの日主がどの五行か**、そして**両者の命式全体の五行バランス**がどう噛み合うかを見ます。
+
+---
+
+## 相生の5パターン ― 支え合う関係
+
+相生(そうせい)とは、片方の五行がもう片方を**生み出し、育てる**関係です。恋愛においては「一緒にいると自然と伸びていく」感覚が特徴です。
+
+### 1. 木 × 火 ― 燃え上がるタイプ (木生火)
+
+**木は火を生みます**。木が燃えることで火は強くなります。これは四柱推命で最も情熱的とされる相生パターンです。
+
+- **木の人** — 理想家、計画家、外へ広がるエネルギー
+- **火の人** — 表現者、情熱家、場を明るくする存在
+
+このペアの特徴は、**木の人のビジョンを火の人が世界に届ける**関係です。二人で一緒にいると、単独の時より「見える場所」に立つことが多くなります。注意点は、火が強すぎると木を燃やし尽くしてしまうこと。お互いのペースを尊重することが大切です。
+
+### 2. 火 × 土 ― 育てるタイプ (火生土)
+
+**火が燃えた後に灰(土)が残り、土壌を豊かにします**。これは四柱推命の相性の中でも「家庭を作る」エネルギーが最も強いパターンです。
+
+- **火の人** — 情熱・表現・瞬発力
+- **土の人** — 受容・安定・持続力
+
+火の人のエネルギーを土の人が受け止めて、**長く続く生活の基盤へ変換**します。韓国の伝統的な婚姻占いでは、この組み合わせを「家を建てる相性(家を築く命式)」と呼び、長期的な関係に非常に向いているとされます。
+
+### 3. 土 × 金 ― 磨き合うタイプ (土生金)
+
+**土の中から金属が採れます**。土が金を育てる関係です。これは派手さはありませんが、四柱推命では「職人的な関係」と呼ばれる、最も安定した相生パターンの一つです。
+
+- **土の人** — 支える、受け止める、変わらない
+- **金の人** — 磨く、精密化する、完成させる
+
+土の人が提供する安定した環境の中で、金の人が自分の能力を**研ぎ澄ませていく**。お互いを派手に変えることはありませんが、**10年後、20年後に振り返った時に「一緒にいて良かった」と感じる**タイプの相性です。
+
+### 4. 金 × 水 ― 深まっていくタイプ (金生水)
+
+**金属の表面に結露するように、金から水が生まれます**。これは四柱推命で「深さ」を生むパターンです。
+
+- **金の人** — 判断力・美学・明快さ
+- **水の人** — 知恵・内省・長期視座
+
+金の明快さが水の深さに流れ込むと、**戦略性とビジョンを併せ持つパートナーシップ**が生まれます。ビジネスで成功している夫婦にこのパターンがよく見られます。欠点は、外から見ると「クールすぎる」と映ること。二人の間の温かさは、外に見せるものではなく、内側で深まっていくタイプです。
+
+### 5. 水 × 木 ― 広がっていくタイプ (水生木)
+
+**水が根に染み込むと、木は成長します**。これは四柱推命の相性の中で最も「未来志向」なパターンです。
+
+- **水の人** — 深さ・計画・資源
+- **木の人** — 成長・拡張・アクション
+
+水の人が蓄えてきたものを、木の人が世界へ広げていく。**夢を現実にするコンビ**として読まれることが多く、一緒にいる時間と共に二人の影響範囲が広がっていく傾向があります。水が枯れないよう、木の人が「どこから水が来ているか」を忘れないことが長続きの鍵です。
+
+---
+
+## 相克の5パターン ― 刺激し合う関係
+
+相克(そうこく)とは、片方の五行がもう片方を**制する、または変化させる**関係です。「悪い」という意味ではありません。**お互いに成長を促す緊張感**を生むパターンです。
+
+### 6. 木 × 土 ― 変化を促すタイプ (木克土)
+
+**木の根は土を分け、土を動かします**。木の人が土の人の「安定の殻」を揺さぶるパターンです。
+
+- **木の人** — 動こう、変えよう、挑戦しよう
+- **土の人** — 今のままで十分、安定を守ろう
+
+このペアは、**相手のおかげで自分一人では行けなかった場所へ行く**ことが特徴です。土の人は木の人のおかげで新しい景色を見、木の人は土の人のおかげで基盤を持ちます。短期的に摩擦が生じやすいですが、**長期的には最も成長が大きい**相克パターンとされます。
+
+### 7. 土 × 水 ― 受け止めるタイプ (土克水)
+
+**土は水の流れを堰き止めます**。土の人が水の人の「感情の流れ」に形を与えるパターンです。
+
+- **土の人** — 現実・構造・受容
+- **水の人** — 感情・直感・流動
+
+水の人は感情が深く豊かですが、時に方向性を失いがちです。土の人は水の人に**安心して流れる器**を提供します。水の人にとって、土のパートナーは「やっと呼吸ができる場所」になることが多いです。ただし、土が強すぎると水が窒息することもあるので、**お互いの呼吸を尊重する**ことが大切です。
+
+### 8. 水 × 火 ― 覚醒させるタイプ (水克火)
+
+**水は火を消します**。これは最も激しい相克パターンの一つです。
+
+- **水の人** — 冷静・分析・慎重
+- **火の人** — 感情・表現・衝動
+
+一見、相性が悪そうに見えます。しかし四柱推命では、**このパターンこそが「人生の転換点」を生む相性**と読まれます。火の人が単独では止まれない時、水の人が止めてくれる。水の人が動けない時、火の人が火をつけてくれる。**お互いを目覚めさせる関係**です。長続きの鍵は、どちらも相手を「消す」のではなく「律する」姿勢を保つことです。
+
+### 9. 火 × 金 ― 鍛え合うタイプ (火克金)
+
+**火は金属を溶かし、形を変えます**。火の人が金の人の「固まった形」を溶かして、新しい形を作るパターンです。
+
+- **火の人** — 情熱・行動・変化
+- **金の人** — 完成・洗練・保守
+
+金の人は既に完成された美しさを持っていますが、時に「変化できない」壁にぶつかります。火の人は金の人を**溶かして、新しい形に再生させる**触媒です。このペアは、出会いの後に**お互いが別人のように成長する**傾向があります。重要なのは、火が金を「破壊」するのではなく「再形成」する意図で関わることです。
+
+### 10. 金 × 木 ― 整えるタイプ (金克木)
+
+**斧(金)は木を切って、形を整えます**。金の人が木の人の「伸びすぎたエネルギー」を剪定するパターンです。
+
+- **金の人** — 判断・洗練・明快
+- **木の人** — 成長・拡張・可能性
+
+木の人は放っておくと全方向に伸びすぎて、結果を出せないことがあります。金の人は木の人に**「この方向に集中しよう」という剪定の視点**を提供します。芸術家と編集者、起業家と共同創業者、俳優とマネージャー — このタイプのペアは**才能を実現させる相性**として読まれます。
+
+---
+
+## 自分の相性はどのパターン?
+
+ここまで読んで、「で、自分とパートナー(または気になる人)はどのパターンなの?」と思われたかもしれません。
+
+**簡単に調べる方法**:
+1. 二人の**日主(日柱の天干)の五行**を調べる
+2. 上記の10パターンから当てはまるものを見つける
+
+ただし、四柱推命の本当の相性は**日主だけでは完結しません**。命式全体の五行バランス、地支の蔵干、大運(10年ごとの運気)、現在の年運 — これらが全て影響します。
+
+**SajuAstrology の無料相性診断**では、二人の生年月日時を入力するだけで、10のパターンのどれに当てはまるかを含む**総合的な相性分析**が出ます。10言語対応、562の古典引用を参照、クレジットカード入力なし。
+
+[**→ 無料で相性診断をする**](/) · [**→ 自分の四柱推命命式を見る**](/)
+
+---
+
+## よくある質問
+
+### Q. 相克だと結婚してはいけませんか?
+
+**いいえ**。相克のパターンの中にも、長続きする素晴らしい関係は多くあります。むしろ相克は「お互いを成長させる」相性とも読まれます。実際、伝統的な韓国の婚姻占いでは「完全に相生だけのペア」より「相生と相克が適度に混ざったペア」の方が長続きすると言われることもあります。
+
+### Q. 生まれた時間が分かりません
+
+日主は**生年月日**だけで計算できるので、時間が不明でも相性の基本パターンは分かります。時間が分かればより詳細な分析ができますが、**分からなくても十分使える診断**です。
+
+### Q. 点数が低いと別れた方がいいですか?
+
+四柱推命は**予言ではなく、エネルギーパターンの説明**です。「点数」はあくまで相性の「テクスチャー」を数値化したもの。実際の関係は、二人の**選択・成長・コミュニケーション**が決めます。四柱推命が教えてくれるのは「どこに注意すればうまく流れるか」であって、「運命は決まっている」ではありません。
+
+### Q. 相生同士で結婚すれば絶対うまくいきますか?
+
+相生パターンは**出発点が楽**ですが、刺激や成長が少ないため、**倦怠期が来やすい**とも言われます。相性は出発点ではなく「10年後、20年後にどう育てるか」です。
+
+---
+
+## まとめ
+
+四柱推命の相性を決めるのは、**五行の10パターン**です:
+
+- **相生5パターン** — 木×火、火×土、土×金、金×水、水×木
+- **相克5パターン** — 木×土、土×水、水×火、火×金、金×木
+
+どのパターンも「良い・悪い」ではなく、**異なる成長の仕方**を意味します。相生は自然に支え合い、相克はお互いを覚醒させます。
+
+大切なのは、**自分たちの相性パターンを知った上で、それをどう活かすか**です。四柱推命は予言ではなく、**「あなたたちはこういうテクスチャーを持っている」という地図**を渡してくれる伝統です。
+
+---
+
+## 無料で自分の相性を確認する
+
+5,000年の観察をAIで再構築した次世代の四柱推命相性診断。**生年月日(時間があれば尚可)を入力するだけで、30秒で結果**が出ます。
+
+- 日本語完全対応(他9言語でも利用可能)
+- 562の古典引用を参照
+- 10パターンすべてに対応した分析
+- クレジットカード入力なし、完全無料
+
+[**→ 今すぐ無料で相性診断をする**](/)
+
+[**→ 自分の命式を先に見てみる**](/)
+
+---
+
+*この記事は四柱推命の五行相性の基本パターンを、文化的・教育的な観点から解説したものです。四柱推命は5,000年の観察の蓄積ですが、予言や運命論ではありません。関係の実際は、二人の選択・成長・日々のコミュニケーションが作ります。この記事は個人の判断や専門的なカウンセリングを代替するものではありません。*
+`,
+  },
 ];
+
 
 export function getBlogPost(slug: string): BlogPost | undefined {
   return BLOG_POSTS.find((p) => p.slug === slug);
