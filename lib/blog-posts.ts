@@ -1289,8 +1289,6 @@ When Western astrology pairs you by Sun sign — one of twelve broad categories 
 
 This series brings that Korean lens to couples the whole world already knows. We'll look at five for Volume 1. The goal is not to predict anything. It is to show how this tradition reads partnerships, and to give you a vocabulary for thinking about your own.
 
-> **Read this article in your language** — [한국어](/?lang=ko) · [日本語](/?lang=ja) · [Español](/?lang=es) · [Français](/?lang=fr) · [Português](/?lang=pt) · [中文(繁體)](/?lang=zh-TW) · [हिन्दी](/?lang=hi) · [Русский](/?lang=ru) · [Bahasa Indonesia](/?lang=id)
-
 ---
 
 ## How Saju Reads a Couple
@@ -1476,8 +1474,6 @@ Until then — may your five elements stay in balance.
 韓国ドラマや K-POP をきっかけに、韓国式の四柱推命(サジュ/사주)で恋愛相性を見る人が日本でも急速に増えています。検索キーワード「四柱推命 相性」「サジュ 相性 無料」の検索数は前年比で大きく伸び、Google Search Console のデータでもクリック率が他ジャンルを上回っています。
 
 でも、相性診断のサイトで「点数」だけ出されても、**なぜその点数なのかが分からないと意味がない**。このガイドでは、四柱推命が相性を見る時に実際に読んでいる**五行の10パターン**を、一つずつ丁寧に解説します。
-
-> **この記事を他言語で読む** — [English](/?lang=en) · [한국어](/?lang=ko) · [Español](/?lang=es) · [Français](/?lang=fr) · [Português](/?lang=pt) · [中文(繁體)](/?lang=zh-TW) · [हिन्दी](/?lang=hi) · [Русский](/?lang=ru) · [Bahasa Indonesia](/?lang=id)
 
 ---
 

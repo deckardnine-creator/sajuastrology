@@ -139,12 +139,14 @@ export function Footer() {
   const isNative = useNativeApp()
   const pathname = usePathname()
 
-  // ═══ Minimal footer mode — blog LIST page (/blog) only ═══
-  // Matches the minimal Navbar on the same page. Blog list is a pure
-  // SEO funnel from Google: strip site chrome so visitors focus on
-  // clicking an article. Individual blog articles (/blog/[slug]) keep
-  // the full footer so UI language stays consistent with article language.
+  // ═══ Minimal footer mode — ALL blog pages (/blog and /blog/*) ═══
+  // Matches the minimal Navbar across the entire blog section. Blog is a
+  // standalone SEO funnel from Google: uniform minimal chrome on both the
+  // list page and individual articles. Visitors focus on the article
+  // content and the single CTA path (article CTAs → home, logo → home).
   const isBlogListPage = pathname === "/blog"
+  const isBlogArticlePage = pathname?.startsWith("/blog/") ?? false
+  const isBlogPage = isBlogListPage || isBlogArticlePage
 
   // Defense in depth: if useNativeApp() somehow returns false in the iOS app
   // (hydration timing, deployment cache, etc), this direct check covers it.
@@ -163,10 +165,10 @@ export function Footer() {
 
   const hideWebOnly = isNative || directNative
 
-  // ═══ /blog list page: copyright-only minimal footer ═══
+  // ═══ All blog pages (/blog and /blog/*): copyright-only minimal footer ═══
   // Logo + © line only. No nav links, no bug bounty banner, no business info.
-  // Mirrors the minimal Navbar on /blog (logo-only header).
-  if (isBlogListPage) {
+  // Mirrors the minimal Navbar across the blog section.
+  if (isBlogPage) {
     return (
       <footer className="bg-card py-8 sm:py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

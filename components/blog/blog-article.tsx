@@ -74,22 +74,28 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   // not the user's UI language. Cast to Locale for the t() function.
   const postLocale = post.locale as Locale;
 
-  // ── Sync site-wide UI language to this article's language ──
+  // ── Sync localStorage locale to this article's language ──
   //
-  // Without this, a user landing on a Korean blog article from Google
-  // sees Korean body text but an English Navbar/Footer, which looks broken
-  // and kills conversion. This effect switches the LanguageProvider so
-  // Navbar/Footer re-render in the article's language.
+  // Navbar and Footer are minimal on all /blog pages (logo + copyright
+  // only), so this effect is NOT about matching navbar language anymore.
+  //
+  // What this effect still does — and why it matters:
+  //
+  // 1) Sets <html lang> to the article's language.
+  //    SEO signal for Google: "this page is in Korean/Japanese/English".
+  //    Helps article rank in the correct language-targeted search results.
+  //
+  // 2) Writes the article's locale to localStorage.
+  //    This is the bridge to the CTA flow: when the user clicks any CTA
+  //    in the article, they navigate to home (/?lang=XX). The home page's
+  //    detectLocale() reads localStorage first, so the home page renders
+  //    in the article's language from first paint — no English flash, no
+  //    CDN cache race.
   //
   // Why it's safe:
   //   - setLocale is the official API of language-context (same one the
-  //     language switcher uses). It writes to localStorage and updates
-  //     <html lang> + dir attributes, so SEO and accessibility stay correct.
-  //   - Effect runs once on mount (deps: [postLocale]). setLocale is
-  //     intentionally NOT in deps to avoid a feedback loop — we want
-  //     ONE sync on article load, not a loop with language-context state.
-  //   - If user manually changes language via the switcher AFTER this
-  //     runs, their choice wins (no override because effect doesn't re-run).
+  //     main-site language switcher uses, unavailable on blog pages).
+  //   - Effect runs once on mount (deps: [postLocale]). No feedback loop.
   //   - Defensive: only fires when UI locale differs from article locale.
   const { locale: uiLocale, setLocale } = useLanguage();
   useEffect(() => {

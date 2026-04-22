@@ -166,13 +166,23 @@ export function Navbar() {
   const pathname = usePathname()
   const isNative = useNativeApp()
 
-  // ═══ Minimal navbar mode — blog LIST page (/blog) only ═══
-  // Blog list is purely an SEO funnel from Google: strip all chrome so
-  // visitors focus on clicking an article (or the logo to reach home).
-  // Individual blog articles (/blog/[slug]) keep the full navbar so UI
-  // language stays consistent with article language (Header/Footer sync
-  // is handled in blog-article.tsx).
+  // ═══ Minimal navbar mode — ALL blog pages (/blog and /blog/*) ═══
+  // Blog is a standalone SEO funnel from Google: same minimal chrome on
+  // both the list page and individual articles. Strips menu, language
+  // toggle, sign-in, and hamburger so visitors focus on the content and
+  // the single CTA path (article CTAs → home, logo → home).
+  //
+  // Why not keep full navbar on article pages:
+  //   - Language toggle misleads: toggling UI language doesn't translate
+  //     the article itself (each article is written in one language).
+  //   - Menu items like Pricing/Compatibility/Consultation belong to the
+  //     main product experience — blog readers should reach those via the
+  //     home page, not by sideloading into mid-funnel pages.
+  //   - Uniform minimal chrome across /blog and /blog/[slug] creates a
+  //     consistent "this is the blog section" feel.
   const isBlogListPage = pathname === "/blog"
+  const isBlogArticlePage = pathname?.startsWith("/blog/") ?? false
+  const isBlogPage = isBlogListPage || isBlogArticlePage
 
   const homeHref = "/"
   const footerLabel = FOOTER_LABELS[locale] ?? FOOTER_LABELS.en
@@ -197,11 +207,11 @@ export function Navbar() {
     // signOut() already handles window.location.href redirect
   }
 
-  // ═══ /blog list page: logo-only minimal header ═══
+  // ═══ All blog pages (/blog and /blog/*): logo-only minimal header ═══
   // No menu, no language toggle, no sign in, no hamburger.
   // Logo clicks through to home — where the full brand experience lives
   // (hero, Soram, app install badges) and where UI language auto-syncs.
-  if (isBlogListPage) {
+  if (isBlogPage) {
     return (
       <motion.nav
         initial={{ y: -20, opacity: 0 }}
