@@ -205,6 +205,20 @@ export function buildHomeMetadata(locale: Locale): Metadata {
       siteName: "SajuAstrology",
       locale: locale === "en" ? "en_US" : locale === "ja" ? "ja_JP" : locale === "ko" ? "ko_KR" : locale,
       type: "website",
+      images: [
+        {
+          url: "https://sajuastrology.com/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "SajuAstrology - Ancient Wisdom, Modern Intelligence",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: ogTitle,
+      description,
+      images: ["https://sajuastrology.com/og-image.png"],
     },
     alternates: {
       canonical: buildCanonical("/", locale),
@@ -229,7 +243,22 @@ export function buildPageMetadata(
     openGraph: {
       url: buildCanonical(path, locale),
       locale: locale === "en" ? "en_US" : locale === "ja" ? "ja_JP" : locale === "ko" ? "ko_KR" : locale,
+      siteName: "SajuAstrology",
+      type: "website",
+      images: [
+        {
+          url: "https://sajuastrology.com/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "SajuAstrology - Ancient Wisdom, Modern Intelligence",
+        },
+      ],
       ...(overrides?.openGraph || {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: ["https://sajuastrology.com/og-image.png"],
+      ...(overrides?.twitter || {}),
     },
     ...overrides,
   };
