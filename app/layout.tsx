@@ -7,6 +7,8 @@ import { SignInModal } from '@/components/auth/sign-in-modal'
 import { ScrollToTop } from '@/components/ui/scroll-to-top'
 import MixpanelBootstrap from './MixpanelBootstrap'
 import Script from 'next/script'
+import { getServerLocale, buildHomeMetadata } from '@/lib/seo-utils'
+import { isRTL } from '@/lib/translations'
 import './globals.css'
 
 const inter = Inter({ 
@@ -40,107 +42,52 @@ const notoSerifKR = Noto_Serif_KR({
 const BASE_URL = 'https://sajuastrology.com'
 const MIXPANEL_TOKEN = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN || ''
 
-export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
-  title: {
-    default: 'SajuAstrology — Free Korean Astrology Birth Chart Reading | Four Pillars of Destiny',
-    template: '%s | SajuAstrology',
-  },
-  description: 'Free Saju birth chart reading in 30 seconds. 518,400 unique cosmic profiles based on Korean Four Pillars (사주). More precise than Western astrology. Day Master, Five Elements, compatibility, fortune forecast.',
-  keywords: [
-    // English
-    'saju', 'korean astrology', 'four pillars of destiny', 'four pillars', 'birth chart',
-    'bazi', 'bazi calculator', 'free birth chart reading', 'astrology reading',
-    'day master', 'five elements', 'love compatibility', 'destiny reading',
-    'horoscope', 'fortune telling', 'zodiac alternative', 'free astrology',
-    'saju reading', 'korean fortune', 'K-astrology', 'birth chart calculator',
-    'astrology compatibility', 'personality test astrology', 'cosmic blueprint',
-    // Korean
-    '사주', '사주팔자', '궁합', '운세', '무료 사주', '사주 보는 법', '오늘 운세',
-    '무료 운세', '사주풀이', '2026 운세', '토정비결', '궁합 보기',
-    // Japanese
-    '四柱推命', '四柱推命 無料', '相性占い', '運勢', '占い 無料', '今日の運勢',
-    '命式', '無料占い', '相性診断', '2026 運勢',
-    // Chinese
-    '八字', '八字算命', '八字免费', '四柱算命', '生辰八字', '免费算命', '八字合婚', '五行', '命理',
-    // Vietnamese
-    'tử vi', 'xem tử vi', 'tử vi miễn phí', 'bát tự', 'xem bói', 'tử vi 2026',
-    // Thai
-    'ดูดวง', 'ดูดวงฟรี', 'โหราศาสตร์', 'ดวงชะตา', 'ดูดวงความรัก',
-    // German
-    'Horoskop', 'Astrologie', 'Geburtshoroskop', 'chinesisches Horoskop', 'Horoskop kostenlos',
-    // French
-    'horoscope gratuit', 'astrologie chinoise', 'thème astral', 'compatibilité amoureuse',
-    // Russian
-    'гороскоп', 'натальная карта', 'гороскоп бесплатно', 'совместимость', 'китайский гороскоп',
-    // Spanish
-    'horóscopo', 'carta natal', 'horóscopo gratis', 'astrología coreana', 'compatibilidad', 'carta astral gratis',
-    // Portuguese
-    'horóscopo', 'mapa astral', 'horóscopo grátis', 'astrologia coreana', 'compatibilidade amorosa',
-    // Hindi
-    'सजू', 'राशिफल', 'जन्म कुंडली', 'मुफ्त राशिफल', 'चार स्तंभ',
-    // Indonesian
-    'saju', 'ramalan bintang', 'horoskop', 'kompatibilitas cinta', 'ramalan gratis',
-  ],
-  authors: [{ name: 'SajuAstrology', url: BASE_URL }],
-  creator: 'SajuAstrology',
-  publisher: 'Rimfactory',
-  icons: {
-    icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/favicon.png', type: 'image/png' },
+// ═══════════════════════════════════════════════════════════════════
+// SEO Phase 2: Locale-aware metadata generation
+// ═══════════════════════════════════════════════════════════════════
+// generateMetadata reads ?lang= from request URL and returns
+// localized title/description/OG tags. This is what Googlebot sees
+// in the server-rendered HTML, fixing the "all language URLs serve
+// identical English HTML" problem that caused ?lang=ko to be flagged
+// as "Alternate page with proper canonical tag" in Search Console.
+//
+// Falls back to English when no ?lang= is present (covers main /).
+// ═══════════════════════════════════════════════════════════════════
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale();
+  const baseMetadata = buildHomeMetadata(locale);
+
+  return {
+    metadataBase: new URL(BASE_URL),
+    ...baseMetadata,
+    title: {
+      default: baseMetadata.title as string,
+      template: '%s | SajuAstrology',
+    },
+    keywords: [
+      // English
+      'saju', 'korean astrology', 'four pillars of destiny', 'four pillars', 'birth chart',
+      'bazi', 'bazi calculator', 'free birth chart reading', 'astrology reading',
+      'day master', 'five elements', 'love compatibility', 'destiny reading',
+      'horoscope', 'fortune telling', 'zodiac alternative', 'free astrology',
+      'saju reading', 'korean fortune', 'K-astrology', 'birth chart calculator',
+      'astrology compatibility', 'personality test astrology', 'cosmic blueprint',
+      // Korean
+      '사주', '사주팔자', '궁합', '운세', '무료 사주', '사주 보는 법', '오늘 운세',
+      '무료 운세', '사주풀이', '2026 운세', '신정비결', '궁합 보기',
+      // Japanese
+      '四柱推命', '四柱推命 無料', '占い', '相性', '無料 占い', '今日の運勢',
+      '韓国', '運勢占い', '四柱占い', '2026 占い',
+      // Chinese
+      '八字', '八字命理', '八字算命', '四柱命理', '免費八字', '算命八字', '八字合婚', '生辰',
     ],
-    apple: '/favicon.png',
-    shortcut: '/favicon.ico',
-  },
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: BASE_URL,
-    siteName: 'SajuAstrology',
-    title: 'SajuAstrology — Free Korean Four Pillars Birth Chart Reading',
-    description: 'Western astrology gives you 1 of 12 types. Saju gives you 1 of 518,400 unique cosmic profiles. Free reading in 30 seconds.',
-    images: [{
-      url: `${BASE_URL}/og-image1.png`,
-      width: 1200,
-      height: 630,
-      alt: 'SajuAstrology — Decode Your Cosmic Blueprint',
-      type: 'image/png',
-    }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'SajuAstrology — Free Korean Four Pillars Birth Chart Reading',
-    description: 'Western astrology gives you 1 of 12 types. Saju gives you 1 of 518,400 unique cosmic profiles.',
-    images: [`${BASE_URL}/og-image1.png`],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+    icons: {
+      icon: [
+        { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+        { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
+      ],
     },
-  },
-  alternates: {
-    canonical: BASE_URL,
-    languages: {
-      "x-default": BASE_URL,
-      en: BASE_URL,
-      ko: BASE_URL,
-      ja: BASE_URL,
-      es: BASE_URL,
-      fr: BASE_URL,
-      pt: BASE_URL,
-      "zh-TW": BASE_URL,
-      ru: BASE_URL,
-      hi: BASE_URL,
-      id: BASE_URL,
-    },
-  },
+  };
 }
 
 export const viewport: Viewport = {
@@ -150,7 +97,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
 }
 
-// JSON-LD structured data for the website
+// JSON-LD structured data for the website (locale-independent)
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
@@ -167,13 +114,28 @@ const jsonLd = {
   creator: { "@type": "Organization", name: "Rimfactory", url: "https://rimfactory.io" },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // ═══════════════════════════════════════════════════════════════════
+  // SEO Phase 2: Server-side locale detection for <html lang>
+  // ═══════════════════════════════════════════════════════════════════
+  // Reads ?lang= from request URL (or Accept-Language as fallback)
+  // and renders <html lang="..."> with the correct attribute server-side.
+  // This is the single most important change for multilingual SEO.
+  //
+  // Client-side LanguageProvider continues to handle locale switching
+  // for navigation (it updates document.documentElement.lang in useEffect).
+  // For initial server render, the <html lang> matches the URL parameter,
+  // so Googlebot sees the correct locale before JavaScript executes.
+  // ═══════════════════════════════════════════════════════════════════
+  const locale = await getServerLocale();
+  const dir = isRTL(locale) ? 'rtl' : 'ltr';
+
   return (
-    <html lang="en" className="dark">
+    <html lang={locale} dir={dir} className="dark">
       <head>
         <meta name="google-site-verification" content="6n564Wp8VQofMr5VKAQgu-QCBYX7g4I21U9ZiMZuSpI" />
         <meta name="naver-site-verification" content="733a4d2564be68587c86084a7c2f4f3d55251117" />
