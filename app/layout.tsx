@@ -9,6 +9,12 @@ import MixpanelBootstrap from './MixpanelBootstrap'
 import Script from 'next/script'
 import { getServerLocale, buildHomeMetadata } from '@/lib/seo-utils'
 import { isRTL } from '@/lib/translations'
+
+// Phase 2.5: Force per-request rendering so ?lang= produces distinct HTML.
+// Without this, Vercel CDN caches first response and serves it to all locales.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 import './globals.css'
 
 const inter = Inter({ 
