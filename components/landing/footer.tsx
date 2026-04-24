@@ -32,17 +32,17 @@ const bugBounty: Partial<Record<Locale, BugBountyCopy>> & { en: BugBountyCopy } 
   en: {
     badge: "Early Access",
     title: "Found a bug? Get a free Master Consultation credit ($29.99 — 5 AI analysis sessions)",
-    desc: "We're in early launch — your feedback makes us better. Report any bug with your Google account email to the address below and receive a free Master Consultation credit (5 AI analysis rounds) when your report leads to a fix.",
+    desc: "We're in early launch — your feedback makes us better. Report any bug along with the email address of your account to the address below, and receive a free Master Consultation credit (5 AI analysis rounds) when your report leads to a fix.",
   },
   ko: {
     badge: "얼리 액세스",
     title: "버그를 발견하셨나요? 마스터 상담($29.99)을 무료로 드립니다",
-    desc: "초기 서비스 기간입니다. 구글 계정 이메일과 함께 아래 주소로 버그를 알려주시면, 감사의 의미로 마스터 상담 이용권(AI 분석 5회)을 드립니다. (버그 수정 반영 시)",
+    desc: "초기 서비스 기간입니다. 본인 계정 이메일과 함께 아래 주소로 버그를 알려주시면, 감사의 의미로 마스터 상담 이용권(AI 분석 5회)을 드립니다. (버그 수정 반영 시)",
   },
   ja: {
     badge: "アーリーアクセス",
     title: "バグを発見しましたか？マスター鑑定（$29.99）を無料で差し上げます",
-    desc: "サービス初期段階です。Googleアカウントのメールアドレスと共に、下記アドレスへバグをご報告いただければ、マスター鑑定（AI分析5回分）を無料で提供いたします。（バグ修正反映時）",
+    desc: "サービス初期段階です。ご本人のアカウントのメールアドレスと共に、下記アドレスへバグをご報告いただければ、マスター鑑定（AI分析5回分）を無料で進呈いたします。（バグ修正反映時）",
   },
 }
 
