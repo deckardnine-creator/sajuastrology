@@ -807,6 +807,76 @@ function DashboardInner() {
         </motion.section>
       )}
 
+
+      {/* Compatibility */}
+      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="mb-6 sm:mb-8">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm tracking-wider text-muted-foreground uppercase flex items-center gap-2">
+            <Heart className="w-4 h-4 text-pink-400" /> {t("nav.compatibility")}
+          </h2>
+          <Link href="/compatibility" className="text-sm text-pink-400 hover:underline flex items-center gap-1">
+            {t("dash.newCheck")} <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+
+        {compatResults.length > 0 ? (
+          <div className="space-y-2">
+            {compatResults.slice(0, 3).map((c) => {
+              const colorA = ELEMENTS[c.person_a_element as Element]?.color || "#F2CA50";
+              const colorB = ELEMENTS[c.person_b_element as Element]?.color || "#3B82F6";
+              const scoreColor = c.overall_score >= 70 ? "#59DE9B" : c.overall_score >= 50 ? "#F2CA50" : "#EF4444";
+              return (
+                <Link key={c.id} href={`/compatibility/result/${c.share_slug}`}
+                  className="bg-card/50 border border-border rounded-xl p-3.5 sm:p-4 flex items-center gap-3 hover:border-pink-500/30 transition-colors block">
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: `${colorA}20`, color: colorA }}>
+                      {c.person_a_name.charAt(0)}
+                    </div>
+                    <Heart className="w-3 h-3 text-pink-400" />
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: `${colorB}20`, color: colorB }}>
+                      {c.person_b_name.charAt(0)}
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {c.person_a_name} & {c.person_b_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(c.created_at).toLocaleDateString(toBCP47(locale), { month: "short", day: "numeric" })}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-lg font-bold" style={{ color: scoreColor }}>{c.overall_score}%</p>
+                  </div>
+                </Link>
+              );
+            })}
+            {compatResults.length > 3 && (
+              <Link href="/compatibility" className="block w-full py-2 text-sm text-pink-400 hover:underline text-center">
+                {t("dash.viewAllChecks")} {compatResults.length} {t("dash.checks")}
+              </Link>
+            )}
+          </div>
+        ) : (
+          <Link href="/compatibility"
+            className="block bg-card/50 border border-border rounded-xl p-5 text-center hover:border-pink-500/20 transition-colors">
+            <Heart className="w-8 h-8 text-pink-400/60 mx-auto mb-2" />
+            <p className="text-sm font-medium text-foreground mb-1">{t("dash.checkCompat")}</p>
+            <p className="text-xs text-muted-foreground">{t("dash.checkCompatDesc")}</p>
+          </Link>
+        )}
+      </motion.section>
+
+      <ConsultationHistory />
+
+
+      {/* ════════════════════════════════════════════════════════════
+          v6.3: Soram conversation history MOVED to bottom (after
+          Compatibility + ConsultationHistory) per chandler's request:
+          "내사주 궁합 상담내역 밑에 소람과의 대화를 배치해라".
+          Same content & gating (!isNative + history.length > 0) as before,
+          just relocated for the desired reading order.
+      ════════════════════════════════════════════════════════════ */}
       {/* ════════════════════════════════════════════════════════════
           v1.3 Sprint 2-B: NEW — Soram conversation backup
           Surfaces 5 most recent Q&A by default; tapping "Show more"
@@ -918,67 +988,6 @@ function DashboardInner() {
           </div>
         </motion.section>
       )}
-
-      {/* Compatibility */}
-      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="mb-6 sm:mb-8">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm tracking-wider text-muted-foreground uppercase flex items-center gap-2">
-            <Heart className="w-4 h-4 text-pink-400" /> {t("nav.compatibility")}
-          </h2>
-          <Link href="/compatibility" className="text-sm text-pink-400 hover:underline flex items-center gap-1">
-            {t("dash.newCheck")} <ArrowRight className="w-3 h-3" />
-          </Link>
-        </div>
-
-        {compatResults.length > 0 ? (
-          <div className="space-y-2">
-            {compatResults.slice(0, 3).map((c) => {
-              const colorA = ELEMENTS[c.person_a_element as Element]?.color || "#F2CA50";
-              const colorB = ELEMENTS[c.person_b_element as Element]?.color || "#3B82F6";
-              const scoreColor = c.overall_score >= 70 ? "#59DE9B" : c.overall_score >= 50 ? "#F2CA50" : "#EF4444";
-              return (
-                <Link key={c.id} href={`/compatibility/result/${c.share_slug}`}
-                  className="bg-card/50 border border-border rounded-xl p-3.5 sm:p-4 flex items-center gap-3 hover:border-pink-500/30 transition-colors block">
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: `${colorA}20`, color: colorA }}>
-                      {c.person_a_name.charAt(0)}
-                    </div>
-                    <Heart className="w-3 h-3 text-pink-400" />
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: `${colorB}20`, color: colorB }}>
-                      {c.person_b_name.charAt(0)}
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {c.person_a_name} & {c.person_b_name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(c.created_at).toLocaleDateString(toBCP47(locale), { month: "short", day: "numeric" })}
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-lg font-bold" style={{ color: scoreColor }}>{c.overall_score}%</p>
-                  </div>
-                </Link>
-              );
-            })}
-            {compatResults.length > 3 && (
-              <Link href="/compatibility" className="block w-full py-2 text-sm text-pink-400 hover:underline text-center">
-                {t("dash.viewAllChecks")} {compatResults.length} {t("dash.checks")}
-              </Link>
-            )}
-          </div>
-        ) : (
-          <Link href="/compatibility"
-            className="block bg-card/50 border border-border rounded-xl p-5 text-center hover:border-pink-500/20 transition-colors">
-            <Heart className="w-8 h-8 text-pink-400/60 mx-auto mb-2" />
-            <p className="text-sm font-medium text-foreground mb-1">{t("dash.checkCompat")}</p>
-            <p className="text-xs text-muted-foreground">{t("dash.checkCompatDesc")}</p>
-          </Link>
-        )}
-      </motion.section>
-
-      <ConsultationHistory />
 
       {/* Restore Purchases — rendered only inside the native app (Apple 4.10). */}
       <RestorePurchasesButton />
