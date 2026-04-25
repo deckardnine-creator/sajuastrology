@@ -142,7 +142,20 @@ export function HeroSection() {
                 If missing in production, the onError handler hides the
                 <img> and the parent's gold background + 🌙 stays visible — graceful fallback,
                 no broken-image icon.
+                
+                v6 patch: hidden in native app (isNativeApp=true).
+                Reason — Soram entry flow is still being polished
+                (next ~3 days of iteration: greeting copy, expression
+                rotation, paid-tier link, error handling). To prevent
+                native-app users from hitting a half-finished flow
+                during that polish window, we simply don't show the
+                entry card inside the Flutter shell. The mobile
+                bottom-nav Soram tab is also natively hidden because
+                MobileBottomNav globally returns null when isNative.
+                Web visitors still get the card (they're a smaller
+                cohort and we can iterate visibly with them).
             ════════════════════════════════════════════════════════ */}
+            {!isNativeApp && (
             <button
               type="button"
               onClick={handleSoramClick}
@@ -180,6 +193,7 @@ export function HeroSection() {
                 </div>
               </div>
             </button>
+            )}
 
             {/* CTA buttons — 2 rows, always vertical stack, equal fixed width (280px) */}
             <div className="flex flex-col items-center sm:items-start gap-3 mt-2">

@@ -527,7 +527,18 @@ function DashboardInner() {
           This block sits at the very top of the dashboard so the
           v1.3 product centerpiece (Ask Soram) is the first thing
           a returning user sees on every load.
+
+          v6 patch: hidden in native app (isNative=true).
+          Reason — Soram entry flow is being polished over the next
+          ~3 days. Native app users would otherwise hit a half-finished
+          flow during that window. We hide BOTH the Soram CTA and the
+          Plan/remaining card together because the Plan card surfaces
+          Soram's "Daily Pass / remaining today" tier info — showing
+          plan info while the actual entry is hidden would just cause
+          confusion. When Soram is ready, removing the !isNative wrap
+          (or shipping a new app build) restores the row.
       ════════════════════════════════════════════════════════════ */}
+      {!isNative && (
       <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-5">
 
         {/* Soram entry card — primary CTA, 3/5 width on desktop */}
@@ -607,6 +618,7 @@ function DashboardInner() {
         </div>
 
       </div>
+      )}
 
       {/* Today's Energy + Day Master row */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-5">
@@ -802,8 +814,13 @@ function DashboardInner() {
           For full history beyond 10, the "View all conversations"
           link at the top right deep-links to /soram which renders
           the entire chat scroll.
+
+          v6 patch: hidden in native app (!isNative) — same reason
+          as the top Soram CTA row. Soram is being polished; we
+          surface ZERO Soram UI in the native shell during this
+          window so app users don't hit a half-finished flow.
       ════════════════════════════════════════════════════════════ */}
-      {soramHistoryLoaded && soramHistory.length > 0 && (
+      {!isNative && soramHistoryLoaded && soramHistory.length > 0 && (
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
