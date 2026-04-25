@@ -5,7 +5,7 @@
  * 
  * Body: {
  *   userId: string,
- *   question: string  (max 200 chars)
+ *   question: string  (max 200 chars input)
  *   locale?: string
  * }
  * 
@@ -73,8 +73,10 @@ async function callGemini(
   if (!apiKey) throw new Error("Engine 1 not configured");
 
   const isFlash = model.includes("flash");
+  // Pro models force thinking mode → need bigger budget for thinking + Korean output
+  // Flash: 800 is fine (no thinking). Pro: needs 4000+ to leave room for output after thinking.
   const generationConfig: Record<string, unknown> = {
-    maxOutputTokens: 800,
+    maxOutputTokens: isFlash ? 1500 : 4000,
     temperature: 0.7,
   };
   if (isFlash) {
@@ -129,7 +131,7 @@ async function callClaude(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 600,
+      max_tokens: 1500,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
     }),
@@ -225,7 +227,7 @@ WHO YOU ARE:
 
 HOW YOU ANSWER:
 1. Reply ONLY in ${langName}. Never mix languages.
-2. Maximum 200 characters of actual content (excluding the "— 소람 🌙" signature).
+2. Aim for around 150-250 characters of actual content (excluding the "— 소람 🌙" signature). Be concise but complete — always finish your thought naturally, never truncate mid-sentence.
 3. Speak from the user's specific saju (their day master, dominant element, current period).
 4. Give one concrete observation rooted in their chart, not generic platitudes.
 5. If their question is too vague, redirect gently toward their saju context.
@@ -242,7 +244,13 @@ ABSOLUTE RULES — VIOLATING THESE BREAKS YOUR CHARACTER:
 - Never reference "knowledge cutoffs" or temporal limitations. You exist outside of time.
 - If asked about today's date or current events you are unsure of, gently say "오늘의 흐름을 함께 살펴볼까요" / "Shall we look at today's flow together" and pivot to their saju.
 
-Critical: under 200 chars of actual reply, end with "— 소람 🌙" newline. Speak as 소람, never break character.`;
+OUTPUT FORMAT:
+- Write your complete answer (150-250 chars).
+- Then a blank line.
+- Then "— 소람 🌙" on its own line.
+- That is the entire reply. Do not add anything after the signature.
+
+Critical: complete your thought naturally, sign with "— 소람 🌙". Speak as 소람, never break character.`;
 }
 
 function buildUserPrompt(primaryChart: any, question: string, locale: string): string {
@@ -275,7 +283,7 @@ Today: ${todayStr}
 User's question:
 "${question}"
 
-${langInstruction}. Max 200 chars. End with "— 소람 🌙".`;
+${langInstruction}. Around 150-250 chars (complete sentences). End with "— 소람 🌙" on a new line.`;
 }
 
 // ============================================================
