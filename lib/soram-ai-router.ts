@@ -26,7 +26,10 @@ function getAnthropic() {
 
 function getGemini() {
   if (!geminiClient) {
-    geminiClient = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+    // GEMINI_API_KEY 또는 GOOGLE_AI_API_KEY 둘 중 존재하는 것 사용
+    // (기존 sajuastrology에 GOOGLE_AI_API_KEY 있음)
+    const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || "";
+    geminiClient = new GoogleGenerativeAI(key);
   }
   return geminiClient;
 }

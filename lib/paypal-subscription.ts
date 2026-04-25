@@ -15,7 +15,14 @@
  *      - PAYPAL_API_BASE = https://api-m.paypal.com (live) or sandbox.paypal.com
  */
 
-const PAYPAL_API_BASE = process.env.PAYPAL_API_BASE || "https://api-m.paypal.com";
+// PAYPAL_API_BASE 우선, 없으면 PAYPAL_MODE 기반 자동 결정
+// (기존 sajuastrology에 PAYPAL_MODE='live' 있음)
+const PAYPAL_API_BASE = 
+  process.env.PAYPAL_API_BASE || 
+  (process.env.PAYPAL_MODE === "sandbox" 
+    ? "https://api-m.sandbox.paypal.com" 
+    : "https://api-m.paypal.com");
+
 const PLAN_ID = process.env.PAYPAL_SUBSCRIPTION_PLAN_ID || "";
 const WEBHOOK_ID = process.env.PAYPAL_WEBHOOK_ID || "";
 
@@ -31,7 +38,9 @@ async function getAccessToken(): Promise<string> {
   }
   
   const clientId = process.env.PAYPAL_CLIENT_ID;
-  const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+  // PAYPAL_CLIENT_SECRET 또는 PAYPAL_SECRET 둘 중 하나 사용
+  // (기존 sajuastrology에 PAYPAL_SECRET 있음)
+  const clientSecret = process.env.PAYPAL_CLIENT_SECRET || process.env.PAYPAL_SECRET;
   
   if (!clientId || !clientSecret) {
     throw new Error("PayPal credentials missing");

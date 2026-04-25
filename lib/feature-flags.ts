@@ -1,17 +1,24 @@
 /**
- * v1.3 Feature Flag System
+ * v1.3 Feature Flag System (PATCHED for admin bypass)
  * 
  * Vercel 환경변수로 원격 on/off 제어.
- * 문제 발생 시 코드 배포 없이 환경변수만 변경 → 즉시 롤백 가능.
  * 
- * 사용 예:
- *   import { isV13Enabled } from "@/lib/feature-flags";
- *   if (isV13Enabled('ASK_SORAM', userId)) { ... }
+ * 바이패스 우선순위:
+ *   1. 환경변수 'true' → 모든 유저
+ *   2. ADMIN_USER_IDS 목록 → 특정 user_id (UUID)
+ *   3. ADMIN_EMAILS 목록 → 특정 이메일 (예: rimfacai@gmail.com)
+ *      (rimfacai@gmail.com은 기본값으로 항상 포함)
  */
 
 const ADMIN_PREVIEW_USER_IDS = (process.env.NEXT_PUBLIC_V13_ADMIN_USER_IDS || "")
   .split(",")
   .map(s => s.trim())
+  .filter(Boolean);
+
+// rimfacai@gmail.com은 환경변수 미설정 시에도 기본 바이패스
+const ADMIN_PREVIEW_EMAILS = (process.env.NEXT_PUBLIC_V13_ADMIN_EMAILS || "rimfacai@gmail.com")
+  .split(",")
+  .map(s => s.trim().toLowerCase())
   .filter(Boolean);
 
 export type V13Flag =
@@ -29,25 +36,37 @@ const FLAG_ENV_MAP: Record<V13Flag, string> = {
   DASHBOARD_QA: "NEXT_PUBLIC_V13_DASHBOARD_QA",
 };
 
+export interface V13UserContext {
+  userId?: string | null;
+  email?: string | null;
+}
+
+function normalizeContext(ctx?: V13UserContext | string | null): { userId: string | null; email: string | null } {
+  if (!ctx) return { userId: null, email: null };
+  if (typeof ctx === "string") return { userId: ctx, email: null };
+  return { userId: ctx.userId || null, email: ctx.email || null };
+}
+
 /**
  * Feature flag가 활성화되어 있는지 확인
- * @param flag - 체크할 플래그 이름
- * @param userId - 옵션. 어드민 프리뷰 권한 체크용
- * @returns boolean
  * 
- * 활성화 조건 (OR):
- *   1. 환경변수가 'true'로 설정됨 (모든 유저 활성)
- *   2. userId가 ADMIN_PREVIEW_USER_IDS 목록에 있음 (어드민만 활성)
+ * @param flag - 체크할 플래그 이름
+ * @param ctx - 유저 컨텍스트 (userId 또는 email 또는 둘 다)
+ *              - 문자열로 넘기면 userId로 간주
+ *              - 객체로 넘기면 { userId, email } 둘 다 활용
  */
-export function isV13Enabled(flag: V13Flag, userId?: string | null): boolean {
+export function isV13Enabled(flag: V13Flag, ctx?: V13UserContext | string | null): boolean {
   const envKey = FLAG_ENV_MAP[flag];
   const envValue = process.env[envKey];
   
-  // 전체 활성화
+  // 1. 전체 활성화
   if (envValue === "true") return true;
   
-  // 어드민 프리뷰 활성화
+  // 2. user_id / email 바이패스
+  const { userId, email } = normalizeContext(ctx);
+  
   if (userId && ADMIN_PREVIEW_USER_IDS.includes(userId)) return true;
+  if (email && ADMIN_PREVIEW_EMAILS.includes(email.toLowerCase())) return true;
   
   return false;
 }
@@ -55,20 +74,23 @@ export function isV13Enabled(flag: V13Flag, userId?: string | null): boolean {
 /**
  * 모든 v1.3 플래그 상태 한 번에 조회 (디버깅용)
  */
-export function getAllV13Flags(userId?: string | null): Record<V13Flag, boolean> {
+export function getAllV13Flags(ctx?: V13UserContext | string | null): Record<V13Flag, boolean> {
   return {
-    ASK_SORAM: isV13Enabled("ASK_SORAM", userId),
-    HOME_REDIRECT: isV13Enabled("HOME_REDIRECT", userId),
-    PRIMARY_CHART: isV13Enabled("PRIMARY_CHART", userId),
-    SUBSCRIPTION: isV13Enabled("SUBSCRIPTION", userId),
-    DASHBOARD_QA: isV13Enabled("DASHBOARD_QA", userId),
+    ASK_SORAM: isV13Enabled("ASK_SORAM", ctx),
+    HOME_REDIRECT: isV13Enabled("HOME_REDIRECT", ctx),
+    PRIMARY_CHART: isV13Enabled("PRIMARY_CHART", ctx),
+    SUBSCRIPTION: isV13Enabled("SUBSCRIPTION", ctx),
+    DASHBOARD_QA: isV13Enabled("DASHBOARD_QA", ctx),
   };
 }
 
 /**
  * 어드민 프리뷰 유저인지 확인
  */
-export function isAdminPreview(userId?: string | null): boolean {
-  if (!userId) return false;
-  return ADMIN_PREVIEW_USER_IDS.includes(userId);
+export function isAdminPreview(ctx?: V13UserContext | string | null): boolean {
+  if (!ctx) return false;
+  const { userId, email } = normalizeContext(ctx);
+  if (userId && ADMIN_PREVIEW_USER_IDS.includes(userId)) return true;
+  if (email && ADMIN_PREVIEW_EMAILS.includes(email.toLowerCase())) return true;
+  return false;
 }
