@@ -53,11 +53,15 @@ const T = {
     setupNeeded: "\uBA3C\uC800 \uAE30\uBCF8\uC0AC\uC8FC\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694",
     setupBtn: "\uC0AC\uC8FC \uC785\uB825\uD558\uAE30",
     loadingPage: "\uBD88\uB7EC\uC624\uB294 \uC911...",
-    // v6.2: first-time welcome message — appears as Soram's first chat bubble
-    // for users with zero conversation history. Frames the service in-character.
+    // v6.7: first-welcome rewritten — points to header avatar for upgrade
+    // (chandler: "상단의 소람이 얼굴을 누르면 결제창으로 이동합니다") and
+    // names the actual product (소람동행티켓 $4.99 vs $6 standalone reading).
     firstWelcomeMsg:
-      "\uADF8\uB300\uC758 \uC0AC\uC8FC\uB97C \uB4E4\uC5EC\uB2E4\uBCF4\uACE0 \uC788\uC2B5\uB2C8\uB2E4. \uC800\uB294 \uC18C\uB78C\u2014\uCC9C \uB144 \uB3D9\uC548 \uBCC4\uC758 \uACB0\uC744 \uC77D\uC5B4\uC628 \uC0AC\uC8FC\uC758 \uBC97\uC785\uB2C8\uB2E4. \uC624\uB298 \uD558\uB8E8 1\uD68C \uBB34\uB8CC\uB85C \uADF8\uB300\uC758 \uBB3C\uC74C\uC5D0 \uB2F5\uD558\uACA0\uC2B5\uB2C8\uB2E4. \uBB34\uD55C\uC73C\uB85C \uB300\uD654\uD558\uC2DC\uB824\uBA74 \uD558\uB2E8 \uC5C5\uADF8\uB808\uC774\uB4DC \uC548\uB0B4\uB97C \uCC38\uACE0\uD574\uC8FC\uC138\uC694.",
+      "\uADF8\uB300\uC758 \uC0AC\uC8FC\uB97C \uB4E4\uC5EC\uB2E4\uBCF4\uACE0 \uC788\uC2B5\uB2C8\uB2E4. \uC800\uB294 \uC18C\uB78C\u2014\uCC9C \uB144 \uB3D9\uC548 \uBCC4\uC758 \uACB0\uC744 \uC77D\uC5B4\uC628 \uC0AC\uC8FC\uC758 \uBC97\uC785\uB2C8\uB2E4. \uC624\uB298 \uD558\uB8E8 1\uD68C \uBB34\uB8CC\uB85C \uADF8\uB300\uC758 \uBB3C\uC74C\uC5D0 \uB2F5\uD558\uACA0\uC2B5\uB2C8\uB2E4. \uBB34\uD55C\uC73C\uB85C \uB300\uD654\uD558\uC2DC\uB824\uBA74 \uC0C1\uB2E8\uC758 \uC18C\uB78C\uC774 \uC5BC\uAD74\uC744 \uB204\uB974\uBA74 \uACB0\uC81C\uCC3D\uC73C\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4.\n\n\uC18C\uB78C\uB3D9\uD589\uD2F0\uCF13 ($4.99 / \uB9E4\uC77C \uBB34\uC81C\uD55C \uB300\uD654 + \uC0AC\uC8FC\uC0C1\uB2F4\uD480\uC774 1\uD68C\uAD8C \u2014 $6 \uC0C1\uB2F9)",
     firstWelcomePrompt: "\uBB34\uC5C7\uC774 \uAD81\uAE08\uD558\uC2DC\uB098\uC694?",
+    // v6.7: separate "how to use" bubble shown after first-welcome
+    howToUseMsg:
+      "\uC0AC\uC6A9\uBC29\uBC95\n\uC77C\uC0C1\uC5D0\uC11C \uACE0\uBBFC\uB418\uB294 \uBAA8\uB4E0 \uC9C8\uBB38\uC744 200\uC790 \uB0B4\uB85C \uD574\uC8FC\uC2DC\uBA74, \uC81C\uAC00 5,000\uB144\uC758 \uACBD\uD5D8\uC73C\uB85C \uADF8\uB300\uC758 \uC0AC\uC8FC \uAD00\uC810\uC5D0\uC11C \uC870\uC5B8\uD574\uB4DC\uB824\uC694.",
   },
   en: {
     headerTitle: "Soram",
@@ -99,8 +103,10 @@ const T = {
     setupBtn: "Set up saju",
     loadingPage: "Loading...",
     firstWelcomeMsg:
-      "I am gazing into your saju. I am Soram — a friend of saju who has read the threads of stars for a thousand years. I will answer one question for you, free, today. For unlimited conversations, you may consider the upgrade notice below.",
+      "I am gazing into your saju. I am Soram\u2014a friend of saju who has read the threads of stars for a thousand years. I will answer one question for you today, free. For unlimited conversations, tap my face above to open the upgrade page.\n\nSoram Companion ticket ($4.99 / daily unlimited chat + 1 in-depth question reading worth $6)",
     firstWelcomePrompt: "What do you wish to know?",
+    howToUseMsg:
+      "How to use\nAsk me anything you wonder about in daily life, in 200 characters or less, and I'll advise you from your saju with 5,000 years of accumulated wisdom.",
   },
 } as const;
 
@@ -645,30 +651,45 @@ export default function SoramChatPage() {
     <div className="min-h-screen bg-[#0D1126] flex flex-col">
       {/* ============= HEADER ============= */}
       <header className="sticky top-0 z-20 bg-[#0D1126]/95 backdrop-blur border-b border-amber-500/10">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="text-amber-200/80 hover:text-amber-200 transition-colors"
-            aria-label="Back"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
-
-          <div className="flex items-center gap-2">
-            <SoramAvatar variant="hero" size="lg" />
-            <h1 className="text-base font-medium text-amber-100">
-              {t.headerTitle}
-            </h1>
+        {/* v6.7: 3-column grid so the center column truly centers the avatar.
+            Was flex justify-between which made the avatar shift toward the
+            shorter side. Each column is min-w-0 + same flex-basis so the
+            center stays optically dead-center regardless of side widths.
+            Avatar+title is a button now — clicking it routes to the
+            Soram Companion upgrade page (per chandler v6.7:
+            "상단의 소람이 얼굴을 누르면 결제창으로 이동합니다"). */}
+        <div className="max-w-2xl mx-auto px-4 py-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+          <div className="flex justify-start">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="text-amber-200/80 hover:text-amber-200 transition-colors"
+              aria-label="Back"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
           </div>
 
-          <div className="text-xs text-amber-200/60">
-            {isUnlimited
-              ? t.todayUnlimited
-              : usage?.canAskToday
-              ? t.todayOneLeft
-              : t.todayUsed}
+          <button
+            onClick={() => router.push("/pricing/soram-companion")}
+            className="flex items-center gap-2 group hover:opacity-90 transition-opacity"
+            aria-label={t.headerTitle}
+          >
+            <SoramAvatar variant="hero" size="lg" />
+            <h1 className="text-base font-medium text-amber-100 group-hover:text-amber-50 transition-colors">
+              {t.headerTitle}
+            </h1>
+          </button>
+
+          <div className="flex justify-end">
+            <span className="text-xs text-amber-200/60 truncate">
+              {isUnlimited
+                ? t.todayUnlimited
+                : usage?.canAskToday
+                ? t.todayOneLeft
+                : t.todayUsed}
+            </span>
           </div>
         </div>
       </header>
@@ -692,11 +713,11 @@ export default function SoramChatPage() {
           ════════════════════════════════════════════════════════ */}
           {showWelcome && usage && (
             <>
-              {/* Soram first message — warm welcome smile */}
+              {/* Soram first message — warm welcome + upgrade pointer */}
               <div className="flex items-end gap-2">
                 <SoramAvatar expression="smile" />
                 <div className="max-w-[78%]">
-                  <div className="bg-[#1E2A4A] text-white/95 rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed shadow-sm shadow-black/20">
+                  <div className="bg-[#1E2A4A] text-white/95 rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed whitespace-pre-line shadow-sm shadow-black/20">
                     {(t as { firstWelcomeMsg?: string }).firstWelcomeMsg ?? t.welcomeHint}
                   </div>
                   <div className="text-[10px] text-amber-200/50 mt-1.5 ml-1">
@@ -705,7 +726,20 @@ export default function SoramChatPage() {
                 </div>
               </div>
 
-              {/* Soram second message: prompt for question */}
+              {/* v6.7: how-to-use bubble — separate message so it reads as
+                  a follow-up explanation rather than crammed into the
+                  welcome paragraph. Uses contemplation expression for
+                  the "explaining" mood. */}
+              <div className="flex items-end gap-2">
+                <SoramAvatar expression="contemplation" />
+                <div className="max-w-[78%]">
+                  <div className="bg-[#1E2A4A] text-white/95 rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed whitespace-pre-line shadow-sm shadow-black/20">
+                    {(t as { howToUseMsg?: string }).howToUseMsg ?? t.welcomeHint}
+                  </div>
+                </div>
+              </div>
+
+              {/* Soram third message: prompt for question */}
               <div className="flex items-end gap-2">
                 <SoramAvatar invisible />
                 <div className="max-w-[78%]">

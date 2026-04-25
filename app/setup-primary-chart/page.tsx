@@ -245,7 +245,7 @@ export default function SetupPrimaryChartPage() {
 
   // ============= 성공 화면 =============
   if (phase === "success") {
-    return <SuccessScreen locale={locale} />;
+    return <SuccessScreen locale={locale} next={nextSafe} />;
   }
 
   // ============= 에러 화면 =============
@@ -334,13 +334,27 @@ function ConfirmModal({
           className="bg-[#161823] border border-[rgba(242,202,80,0.25)] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* 소람 작은 이미지 */}
+          {/* v6.7: Soram avatar — concern expression for "주의 당부" mood
+              chandler asked: "표정 이미지 중 주의를 당부하는 표정으로 교체"
+              Was using soram_serious.webp (a full-body illustration that
+              rendered off-center because the figure isn't centered in the
+              source PNG). Now uses /soram/expressions/concern.webp — a
+              head-only circular crop where the figure is dead-center, so
+              it sits naturally in the modal without manual alignment. */}
           <div className="flex justify-center mb-4">
-            <img
-              src="/soram/v1/main/soram_serious.webp"
-              alt=""
-              className="w-24 h-24 object-cover rounded-full border-2 border-[rgba(242,202,80,0.3)]"
-            />
+            <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 overflow-hidden border-2 border-[rgba(242,202,80,0.35)] shadow-md shadow-amber-500/20">
+              <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-2xl">🌙</span>
+              <img
+                src="/soram/expressions/concern.webp"
+                alt=""
+                aria-hidden="true"
+                onError={(ev) => {
+                  (ev.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+                className="absolute inset-0 w-full h-full object-cover"
+                draggable={false}
+              />
+            </div>
           </div>
 
           <h2 className="text-xl sm:text-2xl font-serif text-center text-primary mb-2">
@@ -412,7 +426,20 @@ function Row({ label, value, dim }: { label: string; value: string; dim?: boolea
 // Success Screen
 // ============================================================
 
-function SuccessScreen({ locale }: { locale: string }) {
+function SuccessScreen({ locale, next }: { locale: string; next: string }) {
+  // v6.7: redirect-target text now reflects where we're actually going.
+  // /soram → "소람과의 대화로 이동합니다", default → 대시보드.
+  const isSoram = next === "/soram";
+  const redirectMsg = (() => {
+    if (isSoram) {
+      if (locale === "ko") return "잠시 후 소람과의 대화로 이동합니다...";
+      if (locale === "ja") return "間もなくソラムとの会話に移動します...";
+      return "Heading to your chat with Soram...";
+    }
+    if (locale === "ko") return "잠시 후 대시보드로 이동합니다...";
+    if (locale === "ja") return "間もなくダッシュボードに移動します...";
+    return "Redirecting to dashboard...";
+  })();
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-b from-[#0A0E1A] to-[#1A1A2E]">
       <motion.div
@@ -421,10 +448,17 @@ function SuccessScreen({ locale }: { locale: string }) {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="text-center max-w-md"
       >
+        {/* v6.7: Soram half-body shot — body-up crop of the constellation
+            portrait (the same image chandler provided for the home hero).
+            chandler asked: "내가 이미지 준 배경 어두운 소람이 정면샷 사진을
+            몸통까지 나오게 크롭해서 좀더 크게". Was using soram_cheering.webp
+            (a transparent-bg full-body illustration that floated awkwardly).
+            Now /soram/soram_success.webp — body-up framing on dark
+            constellation background, rounded corners, larger (w-72). */}
         <motion.img
-          src="/soram/v1/main/soram_cheering.webp"
+          src="/soram/soram_success.webp"
           alt="Soram"
-          className="w-64 h-auto mx-auto mb-6 rounded-2xl shadow-2xl"
+          className="w-72 sm:w-80 h-auto mx-auto mb-6 rounded-2xl shadow-2xl shadow-amber-500/15"
           initial={{ y: 20 }}
           animate={{ y: [0, -8, 0] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
@@ -459,11 +493,7 @@ function SuccessScreen({ locale }: { locale: string }) {
           className="flex items-center justify-center gap-2 text-xs text-muted-foreground/70"
         >
           <Loader2 className="w-3 h-3 animate-spin" />
-          <span>
-            {locale === "ko" && "잠시 후 대시보드로 이동합니다..."}
-            {locale === "ja" && "間もなくダッシュボードに移動します..."}
-            {locale === "en" && "Redirecting to dashboard..."}
-          </span>
+          <span>{redirectMsg}</span>
         </motion.div>
       </motion.div>
     </div>
