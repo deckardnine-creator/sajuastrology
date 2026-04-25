@@ -229,52 +229,84 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setClaimTrigger(prev => prev + 1);
 
         // ════════════════════════════════════════════════════════════
-        // v1.3 Sprint 2-B follow-up: post-signin reload (always)
+        // v1.3 Sprint 2-B v5: post-signin reload (with /auth/ guard)
         // ════════════════════════════════════════════════════════════
-        // Two reasons we ALWAYS reload after signin (not just when an
-        // intent exists):
+        // CRITICAL GUARD: never reload while on /auth/* pages.
+        // The Supabase OAuth callback page (/auth/callback) fires
+        // SIGNED_IN as part of its own flow. If we reload it, we
+        // either:
+        //   (a) tear it down before it can perform its own redirect
+        //       to the post-login destination, leaving the user
+        //       stranded at the callback URL (or worse, bounced back
+        //       to the sign-in modal because the session token in
+        //       the URL was already consumed),
+        //   (b) cause an infinite reload loop on /auth/callback.
+        // So /auth/* pages run their own redirect logic; we only
+        // intervene on actual app pages where the user is "back"
+        // from sign-in and needs the cookie re-read consistently.
         //
-        //   1. Intent path: when the user clicked a gated entry (e.g.
-        //      the home "Talk to Soram" card while logged out), we
-        //      stored their destination in `post-signin-intent` so the
-        //      reload lands exactly where they were trying to go.
+        // Two reasons we ALWAYS reload on app pages (not just when
+        // an intent exists):
         //
-        //   2. NO intent (e.g. user clicked the navbar "Sign in" link
-        //      from the home page): we reload the current page anyway.
-        //      Reason — on mobile Safari/Chrome, supabase's OAuth
-        //      callback occasionally writes the session cookie under a
-        //      slightly different origin/path than the page they sign
-        //      in from, so React state from setUser() shows them as
-        //      logged in, but the NEXT navigation (clicking the
-        //      hamburger or a /dashboard link) re-runs getSession() in
-        //      a fresh module scope and reads `null`. A full reload
-        //      forces the cookie to be re-read once everywhere, which
-        //      eliminates the "logged in here, logged out there"
-        //      inconsistency chandler reported.
+        //   1. Intent path: when the user clicked a gated entry
+        //      (e.g. the home "Talk to Soram" card while logged out),
+        //      we stored their destination in `post-signin-intent`
+        //      so the reload lands exactly where they were trying
+        //      to go.
+        //
+        //   2. NO intent (e.g. user clicked the navbar "Sign in"
+        //      from the home page): we reload the current page
+        //      anyway. Reason — on mobile Safari/Chrome, supabase's
+        //      OAuth callback occasionally writes the session cookie
+        //      under a slightly different origin/path than the page
+        //      they sign in from, so React state from setUser()
+        //      shows them as logged in, but the NEXT navigation
+        //      (clicking the hamburger or a /dashboard link) re-runs
+        //      getSession() in a fresh module scope and reads `null`.
+        //      A full reload forces the cookie to be re-read once
+        //      everywhere.
         //
         // Safety:
         //   - intent must start with "/" (same-origin) — open-redirect guard.
-        //   - if no intent, we use the CURRENT pathname + query, preserving
-        //     ?app=true on Flutter shells.
-        //   - intent is removed BEFORE navigating so back-button doesn't loop.
+        //   - intent must NOT start with "/auth/" — never auto-route
+        //     into auth machinery.
+        //   - if no intent, we use the CURRENT pathname + query,
+        //     preserving ?app=true on Flutter shells.
         // ════════════════════════════════════════════════════════════
         try {
-          const intent = safeGet("post-signin-intent");
-          let dest: string;
-          if (intent && typeof intent === "string" && intent.startsWith("/")) {
-            safeRemove("post-signin-intent");
-            dest = isNativeApp() && !intent.includes("?")
-              ? `${intent}?app=true`
-              : intent;
+          const currentPath = window.location.pathname;
+          // Hard guard: do nothing on auth pages — let them finish.
+          if (currentPath.startsWith("/auth/")) {
+            // No reload. setUser() above is enough — auth callback
+            // will route the user itself.
           } else {
-            // No explicit intent — reload current page for state consistency.
-            const path = window.location.pathname + window.location.search + window.location.hash;
-            dest = path || "/";
+            const intent = safeGet("post-signin-intent");
+            const intentValid =
+              intent &&
+              typeof intent === "string" &&
+              intent.startsWith("/") &&
+              !intent.startsWith("/auth/");
+            let dest: string;
+            if (intentValid) {
+              safeRemove("post-signin-intent");
+              dest = isNativeApp() && !intent!.includes("?")
+                ? `${intent}?app=true`
+                : intent!;
+            } else {
+              // No (valid) intent — reload current page for state consistency.
+              const path =
+                window.location.pathname +
+                window.location.search +
+                window.location.hash;
+              dest = path || "/";
+            }
+            // Defer one tick so any pending setState (claim toggles, etc.)
+            // can flush before the page tears down.
+            setTimeout(() => {
+              window.location.href = dest;
+            }, 50);
+            return;
           }
-          // Defer one tick so any pending setState (claim toggles, etc.)
-          // can flush before the page tears down.
-          setTimeout(() => { window.location.href = dest; }, 50);
-          return;
         } catch {}
       } else if (event === "SIGNED_OUT") {
         // Don't set user to null if signing out — the redirect will handle it

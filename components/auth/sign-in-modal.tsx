@@ -9,17 +9,33 @@ import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
 import { requestAuth } from "@/lib/flutter-bridge";
-import { isNativeApp } from "@/lib/native-app";
 import Link from "next/link";
 import { useEffect } from "react";
 import { track, Events } from "@/lib/analytics";
 
 // Detect which native platform is hosting the WebView.
 // Returns "ios" | "android" | null (null = regular web browser).
+//
+// v5 fix: this detection MUST be stricter than the generic
+// useNativeApp() hook used elsewhere on the site. The generic hook
+// also accepts ?app=true URL params and a sessionStorage cache, both
+// of which can persist after a single visit through a Flutter shell
+// and then incorrectly identify a regular mobile browser as a native
+// app — hiding the Apple button on web (chandler's bug report:
+// "웹에서 하면 구글과 애플버튼이 모두 나오는게 기본인데 구글만 나온다").
+//
+// For OAuth button selection, we only trust HARD evidence of being
+// inside a Flutter WebView: window.FlutterBridge (injected by
+// Flutter's addJavaScriptChannel) or the explicit "SajuApp" UA
+// substring set by Flutter via setUserAgent().
 function detectNativePlatform(): "ios" | "android" | null {
   if (typeof window === "undefined") return null;
-  if (!isNativeApp()) return null;
+  // HARD evidence only — no sessionStorage cache, no ?app=true.
+  const hasFlutterBridge =
+    typeof (window as { FlutterBridge?: unknown }).FlutterBridge !== "undefined";
   const ua = navigator.userAgent;
+  const hasSajuAppUA = ua.includes("SajuApp");
+  if (!hasFlutterBridge && !hasSajuAppUA) return null;
   if (/iPhone|iPad|iPod/.test(ua)) return "ios";
   if (/Android/.test(ua)) return "android";
   return null;
