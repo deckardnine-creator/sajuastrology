@@ -3,6 +3,10 @@
  * 
  * Soram (a thousand-year-old saju scholar) consults the user's saju 
  * and replies with classical citations, in dignified yet warm tone.
+ * 
+ * Score = "Scholarly Depth" — based on actual erudition of the answer:
+ *   hanja count + classic citations + quoted phrases + length
+ * (NOT RAG similarity, which is constant per user's saju)
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -182,7 +186,7 @@ async function generateAnswer(
 }
 
 // ============================================================
-// Soram Persona — DIGNIFIED SCHOLAR, NOT FOLKSY GRANDMOTHER
+// Soram Persona — DIGNIFIED SCHOLAR
 // ============================================================
 
 function buildSoramSystemPrompt(
@@ -207,12 +211,11 @@ function buildSoramSystemPrompt(
 
   const langName = localeMap[locale] || "English";
 
-  // Locale-specific addressing rules
   const addressingRules =
     locale === "ko"
       ? `
 HOW TO ADDRESS THE GUEST (Korean):
-- Preferred: "${userName}님" (the guest's name with 님 suffix) — use this 1-2 times in the answer.
+- Preferred: "${userName}님" (the guest's name with 님 suffix) — use 1-2 times in the answer.
 - Alternative: "그대" (elevated, scholarly second-person) — use to vary the rhythm.
 - Sentence endings MUST be respectful and elevated:
   ✓ "∼시지요", "∼니다", "∼ㅂ시다", "∼시기 바랍니다"
@@ -268,6 +271,7 @@ HOW YOU CITE CLASSICS — WOVEN INTO YOUR PROSE:
 - Use the Korean name + Hanja in parentheses: 궁통보감(窮通寶鑑), 적천수(滴天髓), 자평진전(子平眞詮)
 - Quote a short Hanja phrase (4-8 chars) when relevant: "...에서 '日干通根'이라 하였으니..."
 - This shows you have actually read these texts for a thousand years.
+- Vary which classic you cite based on the question topic — don't repeat the same one every time.
 - If your knowledge base below has no specific match, do NOT fabricate citations. Speak from accumulated wisdom.
 
 YOUR KNOWLEDGE BASE FROM CLASSICAL TEXTS:
@@ -349,6 +353,41 @@ function extractStemHanja(stemValue: any): string {
   if (typeof stemValue === "string") return stemValue;
   if (typeof stemValue === "object" && stemValue.zh) return stemValue.zh;
   return "?";
+}
+
+/**
+ * Calculate "Scholarly Depth Score" based on the answer's actual erudition.
+ * Range: 0.40 ~ 0.95
+ * 
+ * Components:
+ *   - Base: 0.40
+ *   - Hanja chars: up to +0.20 (each hanja +0.020, max 10)
+ *   - Classic citations: up to +0.18 (each name +0.06, max 3)
+ *   - Quoted hanja phrases (4+ chars in quotes): up to +0.15 (each +0.075, max 2)
+ *   - Length bonus: +0.05 if ≥250 chars
+ *   - RAG match bonus: +0.03 if RAG found ≥3 chunks
+ */
+function calculateScholarlyDepth(answer: string, ragChunks: number): number {
+  const hanjaCount = (answer.match(/[\u4e00-\u9fff]/g) || []).length;
+  const classicCitations = (
+    answer.match(
+      /(궁통보감|적천수|자평진전|명리정종|연해자평|窮通寶鑑|滴天髓|子平眞詮|命理正宗|淵海子平)/g
+    ) || []
+  ).length;
+  // Quoted hanja phrases: '旺者宜洩' or "日干通根" (4+ hanja chars in quotes)
+  const phraseQuotes = (
+    answer.match(/['"\u2018\u2019\u201c\u201d]([\u4e00-\u9fff]{4,})['"\u2018\u2019\u201c\u201d]/g) ||
+    []
+  ).length;
+
+  let score = 0.40;
+  score += Math.min(0.20, hanjaCount * 0.020);
+  score += Math.min(0.18, classicCitations * 0.06);
+  score += Math.min(0.15, phraseQuotes * 0.075);
+  if (answer.length >= 250) score += 0.05;
+  if (ragChunks >= 3) score += 0.03;
+
+  return Math.max(0.40, Math.min(0.95, score));
 }
 
 // ============================================================
@@ -494,34 +533,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Resonance score
-    const avgSim = ragContext.searchMeta.avgSimilarity || 0;
+    // Strip any signature the model added (we'll add our own)
+    answer = answer.replace(/[\s\n]*[—–\-]\s*소람\s*🌙[\s\d.]*$/u, "").trim();
+
+    // Calculate Scholarly Depth Score from the answer itself
     const chunksFound = ragContext.searchMeta.chunksFound || 0;
-    let score: number;
-    if (chunksFound === 0) {
-      score = 0.35;
-    } else if (chunksFound >= 3 && avgSim >= 0.6) {
-      score = Math.min(0.95, avgSim + 0.05);
-    } else {
-      score = Math.max(0.35, Math.min(0.95, avgSim || 0.45));
-    }
-    // Add small variance based on actual avg sim and chunks (avoids all 0.48)
-    if (chunksFound > 0 && avgSim > 0) {
-      score = Math.max(0.35, Math.min(0.95, avgSim));
-    }
+    const score = calculateScholarlyDepth(answer, chunksFound);
     const scoreStr = score.toFixed(2);
 
     // Append signature with score
-    answer = answer.replace(/[\s\n]*[—–\-]\s*소람\s*🌙[\s\d.]*$/u, "").trim();
     answer = `${answer}\n\n— 소람 🌙 ${scoreStr}`;
 
-    // Hard cap
+    // Hard cap (DB constraint LENGTH(answer) <= 300)
     if (answer.length > 295) {
       const sigMatch = answer.match(/\n\n— 소람 🌙[\s\d.]*$/u);
       const sig = sigMatch ? sigMatch[0] : "\n\n— 소람 🌙";
-      const body = answer.replace(sig, "").trim();
+      const bodyPart = answer.replace(sig, "").trim();
       const maxBodyLen = 295 - sig.length;
-      let truncated = body.substring(0, maxBodyLen);
+      let truncated = bodyPart.substring(0, maxBodyLen);
       const lastPeriod = Math.max(
         truncated.lastIndexOf("."),
         truncated.lastIndexOf("。"),
@@ -547,8 +576,9 @@ export async function POST(request: NextRequest) {
         dominant: primaryChart.dominant_element,
         pillars: `${primaryChart.year_stem}${primaryChart.year_branch} ${primaryChart.month_stem}${primaryChart.month_branch} ${primaryChart.day_stem}${primaryChart.day_branch} ${primaryChart.hour_stem || ""}${primaryChart.hour_branch || ""}`,
         today_pillar: `${todayStem}${todayBranch}`,
-        rag_score: score,
+        score: score,
         rag_chunks: chunksFound,
+        rag_avg_sim: ragContext.searchMeta.avgSimilarity || 0,
       },
       ai_model: engineId,
       latency_ms: latencyMs,
