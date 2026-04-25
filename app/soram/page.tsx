@@ -25,7 +25,6 @@ const T = {
       "\uBA74\uC811, \uC774\uBCC4, \uC2DD\uC0AC \uBA54\uB274, \uC637 \uC0C9\uAE54\uAE4C\uC9C0 \u2014 \uBB34\uC5C7\uC774\uB4E0 \uBB3C\uC5B4\uBCF4\uC138\uC694",
     samplesTitle: "\uC774\uB7F0 \uAC83\uB3C4 \uBB3C\uC5B4\uBCFC \uC218 \uC788\uC5B4\uC694",
     samples: [
-      "\uC624\uB298 \uC6B4\uC138\uB294 \uC5B4\uB54C\uC694?",
       "\uC624\uB298 \uC5B4\uB5A4 \uC637\uC744 \uC785\uC744\uAE4C\uC694?",
       "\uC774\uBC88 \uC8FC \uC88B\uC740 \uC77C\uC774 \uC788\uC744\uAE4C\uC694?",
       "\uC9DD\uC0AC\uB791\uACFC \uC798 \uB9DE\uC744\uAE4C\uC694?",
@@ -55,8 +54,18 @@ const T = {
     loadingPage: "\uBD88\uB7EC\uC624\uB294 \uC911...",
     // v6.9: first-welcome — Companion ticket framing (월구독 + 긴내용 상담풀이 1회권)
     // chandler: "$4.99 — 월구독 / 매일 무제한 대화 + 긴내용 상담풀이 1회권 추가제공 — $6 상당"
-    firstWelcomeMsg:
-      "\uADF8\uB300\uC758 \uC0AC\uC8FC\uB97C \uB4E4\uC5EC\uB2E4\uBCF4\uACE0 \uC788\uC2B5\uB2C8\uB2E4. \uC800\uB294 \uC18C\uB78C\u2014\uCC9C \uB144 \uB3D9\uC548 \uBCC4\uC758 \uACB0\uC744 \uC77D\uC5B4\uC628 \uC0AC\uC8FC\uC758 \uBC97\uC785\uB2C8\uB2E4. \uC624\uB298 \uD558\uB8E8 1\uD68C \uBB34\uB8CC\uB85C \uADF8\uB300\uC758 \uBB3C\uC74C\uC5D0 \uB2F5\uD558\uACA0\uC2B5\uB2C8\uB2E4. \uBB34\uD55C\uC73C\uB85C \uB300\uD654\uD558\uC2DC\uB824\uBA74 \uC0C1\uB2E8\uC758 \uC18C\uB78C\uC774 \uC5BC\uAD74\uC744 \uB204\uB974\uBA74 \uACB0\uC81C\uCC3D\uC73C\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4.\n\n\uC18C\uB78C\uB3D9\uD589\uD2F0\uCF13 ($4.99 \u2014 \uC6D4\uAD6C\uB3C5 / \uB9E4\uC77C \uBB34\uC81C\uD55C \uB300\uD654 + \uAE34\uB0B4\uC6A9 \uC0C1\uB2F4\uD480\uC774 1\uD68C\uAD8C \uCD94\uAC00\uC81C\uACF5 \u2014 $6 \uC0C1\uB2F9)",
+    // v6.10: split intro into headline + body for typographic hierarchy.
+    // chandler: text-only wall was overwhelming, wanted serif gold headline
+    // + smaller body, with the Companion price moved out into a separate
+    // tappable promo card (idea A + D combo). The old `firstWelcomeMsg`
+    // single-string field is deprecated but kept blank for any callers
+    // still reading it; new render uses welcomeHeadline + welcomeBody.
+    welcomeHeadline: "\uADF8\uB300\uC758 \uC0AC\uC8FC\uB97C \uB4E4\uC5EC\uB2E4\uBD05\uB2C8\uB2E4.",
+    welcomeBody:
+      "\uCC9C \uB144\uC758 \uBCC4\uC744 \uC77D\uC5B4\uC628 \uBC97, \uC18C\uB78C\uC785\uB2C8\uB2E4.\n\uC624\uB298 1\uD68C \uB2F5\uBCC0\uC740 \uBB34\uB8CC\uC785\uB2C8\uB2E4.",
+    // Promo card (separate tappable, routes to /pricing/soram-companion)
+    promoTitle: "\uD83C\uDFAB \uC18C\uB78C\uB3D9\uD589\uD2F0\uCF13 \u00B7 $4.99/\uC6D4",
+    promoSub: "\uB9E4\uC77C \uBB34\uC81C\uD55C + \uB9C8\uC2A4\uD130\uC0C1\uB2F4\uAD8C 1\uD68C (\uC57D $6)",
     firstWelcomePrompt: "\uBB34\uC5C7\uC774 \uAD81\uAE08\uD558\uC2DC\uB098\uc694?",
     // v6.9: how-to-use copy reframed as "공부한 5,000년의 지식으로"
     howToUseMsg:
@@ -73,7 +82,6 @@ const T = {
     welcomeHint: "Anything — interview, breakup, food, clothes — ask me.",
     samplesTitle: "You can ask things like",
     samples: [
-      "How is today for me?",
       "What should I wear today?",
       "Will good things happen this week?",
       "Will my crush and I be a good match?",
@@ -101,6 +109,11 @@ const T = {
     setupNeeded: "Please set up your saju first",
     setupBtn: "Set up saju",
     loadingPage: "Loading...",
+    welcomeHeadline: "Gazing into your saju.",
+    welcomeBody:
+      "I am Soram \u2014 friend of stars for a thousand years.\nOne free answer today.",
+    promoTitle: "\uD83C\uDFAB Soram Companion \u00B7 $4.99/mo",
+    promoSub: "Daily unlimited + 1 Master Consultation (worth $6)",
     firstWelcomeMsg:
       "I am gazing into your saju. I am Soram\u2014a friend of saju who has read the threads of stars for a thousand years. I will answer one question for you today, free. For unlimited conversations, tap my face above to open the upgrade page.\n\nSoram Companion ticket ($4.99 \u2014 monthly / daily unlimited chat + 1 in-depth consultation included \u2014 $6 value)",
     firstWelcomePrompt: "What do you wish to know?",
@@ -721,18 +734,134 @@ export default function SoramChatPage() {
           ════════════════════════════════════════════════════════ */}
           {showWelcome && usage && (
             <>
-              {/* Soram first message — warm welcome + upgrade pointer */}
+              {/* ════════════════════════════════════════════════════════
+                  v6.10: intro bubble redesigned (idea A + D combo).
+                  
+                  Why the old single-string firstWelcomeMsg felt heavy:
+                  ~100 Korean characters in one paragraph, no visual
+                  hierarchy, plus the Companion price spliced in as
+                  a parenthetical — which made the whole bubble read
+                  like an ad. Chandler's image (mobile screenshot)
+                  showed a "wall of text" effect.
+                  
+                  New structure:
+                    1. Headline (serif, gold gradient, larger)
+                       → "그대의 사주를 들여다봅니다." — sets the tone
+                          immediately, feels like an opening line of
+                          a literary letter rather than a system msg.
+                    2. Body (sans, white/80, smaller, separated)
+                       → identity + free-tier limit, two short sentences.
+                    3. Subtle divider (gold-tinted hairline) between
+                       headline and body — typographic separation.
+                  
+                  The Companion price is now a SEPARATE tappable promo
+                  card BELOW the bubble (rendered next, see below).
+                  This:
+                    (a) keeps the intro bubble short and elegant,
+                    (b) makes the price a clickable CTA instead of
+                        dead text, doubling the conversion entry
+                        points (header avatar + this card).
+                  
+                  Fallback: if a locale doesn't yet have welcomeHeadline
+                  /welcomeBody (older translations), we fall back to the
+                  legacy firstWelcomeMsg string. This keeps non-KO/EN
+                  locales rendering until v1.2 retranslates them.
+              ════════════════════════════════════════════════════════ */}
               <div className="flex items-end gap-2">
                 <SoramAvatar expression="smile" />
                 <div className="max-w-[78%]">
-                  <div className="bg-[#1E2A4A] text-white/95 rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed whitespace-pre-line shadow-sm shadow-black/20">
-                    {(t as { firstWelcomeMsg?: string }).firstWelcomeMsg ?? t.welcomeHint}
+                  <div className="bg-[#1E2A4A] text-white/95 rounded-2xl rounded-bl-md px-4 py-3.5 shadow-sm shadow-black/20">
+                    {(t as { welcomeHeadline?: string }).welcomeHeadline ? (
+                      <>
+                        {/* Headline — serif + gold gradient */}
+                        <p
+                          className="font-serif text-base sm:text-lg leading-snug bg-gradient-to-br from-amber-200 to-amber-400 bg-clip-text text-transparent"
+                          style={{ WebkitBackgroundClip: "text" }}
+                        >
+                          {(t as { welcomeHeadline?: string }).welcomeHeadline}
+                        </p>
+                        {/* Hairline divider — barely visible, just enough to separate */}
+                        <div className="my-2.5 h-px bg-gradient-to-r from-amber-400/30 via-amber-300/15 to-transparent" />
+                        {/* Body — sans, slightly muted, smaller */}
+                        <p className="text-sm leading-relaxed text-white/80 whitespace-pre-line">
+                          {(t as { welcomeBody?: string }).welcomeBody}
+                        </p>
+                      </>
+                    ) : (
+                      // Legacy fallback for locales not yet migrated
+                      <p className="text-sm leading-relaxed whitespace-pre-line">
+                        {(t as { firstWelcomeMsg?: string }).firstWelcomeMsg ?? t.welcomeHint}
+                      </p>
+                    )}
                   </div>
                   <div className="text-[10px] text-amber-200/50 mt-1.5 ml-1">
                     {locale === "ko" ? "\uC18C\uB78C" : "Soram"} 🌙
                   </div>
                 </div>
               </div>
+
+              {/* ════════════════════════════════════════════════════════
+                  v6.10: Companion promo card — separate tappable CTA
+                  
+                  This was the price/upgrade content that used to live
+                  inside the intro bubble. Now extracted as its own
+                  card so it:
+                    - looks like a product card, not a sentence
+                    - is touchable (whole card tap target)
+                    - routes to /pricing/soram-companion (same dest
+                      as the header avatar tap, but more discoverable
+                      because it's right under the welcome — users
+                      who missed the "↑ tap face" instruction still
+                      see the upgrade option naturally)
+                  
+                  Style: same gold-accent treatment as the home
+                  Soram CTA card (consistent visual language across
+                  the product). aria-label uses the title for screen
+                  readers.
+              ════════════════════════════════════════════════════════ */}
+              {(t as { promoTitle?: string }).promoTitle && (
+                <div className="flex items-end gap-2">
+                  {/* invisible spacer matching avatar width so card aligns
+                      with the bubble above (not the avatar gutter) */}
+                  <SoramAvatar invisible />
+                  <button
+                    type="button"
+                    onClick={() => router.push("/pricing/soram-companion")}
+                    aria-label={(t as { promoTitle?: string }).promoTitle}
+                    className="block text-left max-w-[78%] w-full group"
+                  >
+                    <div className="relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm pl-3.5 pr-3 py-2.5 transition-all duration-200 hover:border-amber-300/70 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)] active:scale-[0.99]">
+                      {/* gold left accent bar — same as home CTA */}
+                      <span aria-hidden="true" className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-amber-100 leading-tight">
+                            {(t as { promoTitle?: string }).promoTitle}
+                          </p>
+                          <p className="text-[10px] text-amber-200/70 leading-snug mt-0.5 line-clamp-2">
+                            {(t as { promoSub?: string }).promoSub}
+                          </p>
+                        </div>
+                        {/* inline arrow icon — avoids new lucide-react import */}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1"
+                          aria-hidden="true"
+                        >
+                          <path d="M5 12h14" />
+                          <path d="m12 5 7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              )}
 
               {/* v6.7: how-to-use bubble — separate message so it reads as
                   a follow-up explanation rather than crammed into the
