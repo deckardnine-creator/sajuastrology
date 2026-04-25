@@ -128,66 +128,72 @@ export function HeroSection() {
             </p>
 
             {/* ════════════════════════════════════════════════════════
-                v1.3 Sprint 2-B: Talk to Soram entry card
-                Centerpiece of the v1.3 product — placed above the
-                primary CTA stack. Click handler routes through
-                auth-aware logic in handleSoramClick (see top of
-                component) so logged-out users see the sign-in
-                modal in place instead of bouncing through /soram.
+                v1.3 Sprint 2-B v6.9: Soram CTA + primary CTAs unified
                 
-                Avatar: loads /soram/soram_hero.webp (a 320px circular
-                close-up of Soram with constellation background — kept
-                visually distinct from the bottom-nav avatar so the same
-                image isn't repeated in two places on the same screen).
-                If missing in production, the onError handler hides the
-                <img> and the parent's gold background + 🌙 stays visible — graceful fallback,
-                no broken-image icon.
+                Why this used to look "off" on mobile (chandler's bug
+                report, image 2): the Soram card lived OUTSIDE the
+                CTA stack wrapper. The wrapper has
+                `items-center sm:items-start` so on mobile the two
+                primary CTAs are centered, but the Soram card —
+                being a sibling of the wrapper, not a child — sat in
+                the parent flex (which is flex-col with default
+                stretch/start), reading as left-justified at 280px
+                width. The two yellow buttons looked centered, the
+                gold accent card looked detached and shoved left.
+                Result: visual triplet but feels like 1 + 2 instead
+                of one stack of three.
                 
-                v6 patch: hidden in native app (isNativeApp=true).
-                Reason — Soram entry flow is still being polished
-                (next ~3 days of iteration: greeting copy, expression
-                rotation, paid-tier link, error handling). To prevent
-                native-app users from hitting a half-finished flow
-                during that polish window, we simply don't show the
-                entry card inside the Flutter shell. The mobile
-                bottom-nav Soram tab is also natively hidden because
-                MobileBottomNav globally returns null when isNative.
-                Web visitors still get the card (they're a smaller
-                cohort and we can iterate visibly with them).
+                Fix: move the Soram card INTO the same wrapper as
+                the primary CTAs, as the FIRST child. All three are
+                now `w-[280px]` (mobile) / `lg:w-auto` (desktop),
+                share the same `items-center sm:items-start`, and
+                read as one cohesive triplet. Spacing between them
+                stays at gap-3 (was gap-3 + a separate mt-2 — now
+                consolidated).
+                
+                Order is intentional:
+                  1. Soram (gold accent card, smallest visual weight)
+                  2. Free saju (primary gold-fill CTA, highest weight)
+                  3. Compatibility (outline, secondary CTA)
+                Soram first because it's the v1.3 hook product;
+                primary saju gets the strongest visual treatment
+                directly underneath it.
+                
+                Avatar: tap-target now ALSO 280px wide on mobile —
+                an honest button-sized affordance that finger
+                naturally hits.
+                
+                Native-app gating preserved (Soram entry hidden
+                in Flutter shell while UX polish continues).
             ════════════════════════════════════════════════════════ */}
-            {!isNativeApp && (
-            <button
-              type="button"
-              onClick={handleSoramClick}
-              className="block text-left w-[280px] mt-2 group"
-              aria-label={t("hero.askSoram")}
-            >
-              {/* v6.2 / v6.6 — slim Soram CTA card.
-                  v6.2: removed circular avatar, single-line copy, gold left bar.
-                  v6.6: width matches the other CTA buttons (280px) so the
-                  three primary CTAs read as a stack of equal-width pills.
-                  Subtitle is allowed to wrap to 2 lines now that the card
-                  is narrower (was forcing truncate which hid useful copy). */}
-              <div className="relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm pl-3.5 pr-3 py-2.5 transition-all duration-200 hover:border-amber-300/70 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)] active:scale-[0.99]">
-                {/* gold left accent bar */}
-                <span aria-hidden="true" className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-amber-100 leading-tight">
-                      {t("hero.askSoram")}
-                    </p>
-                    <p className="text-[10px] text-amber-200/70 leading-snug mt-0.5 line-clamp-2">
-                      {t("hero.askSoramSub")}
-                    </p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
-                </div>
-              </div>
-            </button>
-            )}
-
-            {/* CTA buttons — 2 rows, always vertical stack, equal fixed width (280px) */}
             <div className="flex flex-col items-center sm:items-start gap-3 mt-2">
+
+              {/* Soram entry — gold-accent card, hidden in native shell */}
+              {!isNativeApp && (
+                <button
+                  type="button"
+                  onClick={handleSoramClick}
+                  className="block text-left w-[280px] lg:w-auto group"
+                  aria-label={t("hero.askSoram")}
+                >
+                  <div className="relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm pl-3.5 pr-3 py-2.5 transition-all duration-200 hover:border-amber-300/70 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)] active:scale-[0.99]">
+                    {/* gold left accent bar */}
+                    <span aria-hidden="true" className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-amber-100 leading-tight">
+                          {t("hero.askSoram")}
+                        </p>
+                        <p className="text-[10px] text-amber-200/70 leading-snug mt-0.5 line-clamp-2">
+                          {t("hero.askSoramSub")}
+                        </p>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                </button>
+              )}
+
               {/* Primary: Free saju reading */}
               <Link href="/calculate" className="block w-[280px] lg:w-auto">
                 <Button

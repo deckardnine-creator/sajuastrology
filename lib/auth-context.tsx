@@ -229,9 +229,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setClaimTrigger(prev => prev + 1);
 
         // ════════════════════════════════════════════════════════════
-        // v1.3 Sprint 2-B v5: post-signin reload (with /auth/ guard)
+        // v1.3 Sprint 2-B v5/v6.9: post-signin reload (with /auth/ guard
+        // AND infinite-reload guard)
         // ════════════════════════════════════════════════════════════
-        // CRITICAL GUARD: never reload while on /auth/* pages.
+        // CRITICAL GUARD #1: never reload while on /auth/* pages.
         // The Supabase OAuth callback page (/auth/callback) fires
         // SIGNED_IN as part of its own flow. If we reload it, we
         // either:
@@ -245,8 +246,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // intervene on actual app pages where the user is "back"
         // from sign-in and needs the cookie re-read consistently.
         //
-        // Two reasons we ALWAYS reload on app pages (not just when
-        // an intent exists):
+        // CRITICAL GUARD #2 (v6.9): the infinite-reload bug chandler
+        // reported. SIGNED_IN can fire EVERY page load when a session
+        // already exists (Supabase replays it on init). Without a
+        // guard, every reload re-triggers reload — infinite loop.
+        // We use sessionStorage to mark "we already reloaded for
+        // this signin"; the flag clears on browser tab close, so the
+        // next genuine signin (later session) reloads cleanly.
+        //
+        // Two reasons we ALWAYS reload (when not yet reloaded):
         //
         //   1. Intent path: when the user clicked a gated entry
         //      (e.g. the home "Talk to Soram" card while logged out),
@@ -254,17 +262,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         //      so the reload lands exactly where they were trying
         //      to go.
         //
-        //   2. NO intent (e.g. user clicked the navbar "Sign in"
-        //      from the home page): we reload the current page
-        //      anyway. Reason — on mobile Safari/Chrome, supabase's
-        //      OAuth callback occasionally writes the session cookie
-        //      under a slightly different origin/path than the page
-        //      they sign in from, so React state from setUser()
-        //      shows them as logged in, but the NEXT navigation
-        //      (clicking the hamburger or a /dashboard link) re-runs
-        //      getSession() in a fresh module scope and reads `null`.
-        //      A full reload forces the cookie to be re-read once
-        //      everywhere.
+        //   2. NO intent: we reload the current page once. Reason —
+        //      on mobile Safari/Chrome, supabase's OAuth callback
+        //      occasionally writes the session cookie under a
+        //      slightly different origin/path. A single full reload
+        //      forces the cookie to be re-read consistently.
         //
         // Safety:
         //   - intent must start with "/" (same-origin) — open-redirect guard.
@@ -272,40 +274,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         //     into auth machinery.
         //   - if no intent, we use the CURRENT pathname + query,
         //     preserving ?app=true on Flutter shells.
+        //   - reload runs at most once per browser tab session.
         // ════════════════════════════════════════════════════════════
         try {
           const currentPath = window.location.pathname;
-          // Hard guard: do nothing on auth pages — let them finish.
+          // Hard guard #1: do nothing on auth pages — let them finish.
           if (currentPath.startsWith("/auth/")) {
             // No reload. setUser() above is enough — auth callback
             // will route the user itself.
           } else {
-            const intent = safeGet("post-signin-intent");
-            const intentValid =
-              intent &&
-              typeof intent === "string" &&
-              intent.startsWith("/") &&
-              !intent.startsWith("/auth/");
-            let dest: string;
-            if (intentValid) {
-              safeRemove("post-signin-intent");
-              dest = isNativeApp() && !intent!.includes("?")
-                ? `${intent}?app=true`
-                : intent!;
+            // Hard guard #2 (v6.9): one-reload-per-session lock.
+            // sessionStorage scoped to current tab; clears on tab close.
+            // Wrapped in try/catch in case sessionStorage is unavailable
+            // (private mode etc.) — in that case we simply don't reload,
+            // which is safer than risking the infinite loop.
+            let alreadyReloaded = false;
+            try {
+              alreadyReloaded =
+                window.sessionStorage.getItem("post-signin-reloaded") === "1";
+            } catch {}
+
+            if (alreadyReloaded) {
+              // Skip the reload entirely. setUser() above already
+              // updated React state; that's enough now that the
+              // session cookie has been read once.
             } else {
-              // No (valid) intent — reload current page for state consistency.
-              const path =
-                window.location.pathname +
-                window.location.search +
-                window.location.hash;
-              dest = path || "/";
+              try {
+                window.sessionStorage.setItem("post-signin-reloaded", "1");
+              } catch {}
+
+              const intent = safeGet("post-signin-intent");
+              const intentValid =
+                intent &&
+                typeof intent === "string" &&
+                intent.startsWith("/") &&
+                !intent.startsWith("/auth/");
+              let dest: string;
+              if (intentValid) {
+                safeRemove("post-signin-intent");
+                dest = isNativeApp() && !intent!.includes("?")
+                  ? `${intent}?app=true`
+                  : intent!;
+              } else {
+                // No (valid) intent — reload current page for state consistency.
+                const path =
+                  window.location.pathname +
+                  window.location.search +
+                  window.location.hash;
+                dest = path || "/";
+              }
+              // Defer one tick so any pending setState (claim toggles, etc.)
+              // can flush before the page tears down.
+              setTimeout(() => {
+                window.location.href = dest;
+              }, 50);
+              return;
             }
-            // Defer one tick so any pending setState (claim toggles, etc.)
-            // can flush before the page tears down.
-            setTimeout(() => {
-              window.location.href = dest;
-            }, 50);
-            return;
           }
         } catch {}
       } else if (event === "SIGNED_OUT") {
@@ -313,6 +337,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // This prevents the flash of logged-out UI before redirect
         if (!isSigningOut) {
           setUser(null);
+          // v6.9: clear the reload-once lock so the NEXT signin
+          // (after this signout) gets to reload again.
+          try {
+            window.sessionStorage.removeItem("post-signin-reloaded");
+          } catch {}
         }
       } else if (event === "TOKEN_REFRESHED" && session?.user) {
         setUser(mapSupabaseUser(session.user));

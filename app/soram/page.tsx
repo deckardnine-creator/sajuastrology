@@ -53,15 +53,14 @@ const T = {
     setupNeeded: "\uBA3C\uC800 \uAE30\uBCF8\uC0AC\uC8FC\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694",
     setupBtn: "\uC0AC\uC8FC \uC785\uB825\uD558\uAE30",
     loadingPage: "\uBD88\uB7EC\uC624\uB294 \uC911...",
-    // v6.7: first-welcome rewritten — points to header avatar for upgrade
-    // (chandler: "상단의 소람이 얼굴을 누르면 결제창으로 이동합니다") and
-    // names the actual product (소람동행티켓 $4.99 vs $6 standalone reading).
+    // v6.9: first-welcome — Companion ticket framing (월구독 + 긴내용 상담풀이 1회권)
+    // chandler: "$4.99 — 월구독 / 매일 무제한 대화 + 긴내용 상담풀이 1회권 추가제공 — $6 상당"
     firstWelcomeMsg:
-      "\uADF8\uB300\uC758 \uC0AC\uC8FC\uB97C \uB4E4\uC5EC\uB2E4\uBCF4\uACE0 \uC788\uC2B5\uB2C8\uB2E4. \uC800\uB294 \uC18C\uB78C\u2014\uCC9C \uB144 \uB3D9\uC548 \uBCC4\uC758 \uACB0\uC744 \uC77D\uC5B4\uC628 \uC0AC\uC8FC\uC758 \uBC97\uC785\uB2C8\uB2E4. \uC624\uB298 \uD558\uB8E8 1\uD68C \uBB34\uB8CC\uB85C \uADF8\uB300\uC758 \uBB3C\uC74C\uC5D0 \uB2F5\uD558\uACA0\uC2B5\uB2C8\uB2E4. \uBB34\uD55C\uC73C\uB85C \uB300\uD654\uD558\uC2DC\uB824\uBA74 \uC0C1\uB2E8\uC758 \uC18C\uB78C\uC774 \uC5BC\uAD74\uC744 \uB204\uB974\uBA74 \uACB0\uC81C\uCC3D\uC73C\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4.\n\n\uC18C\uB78C\uB3D9\uD589\uD2F0\uCF13 ($4.99 / \uB9E4\uC77C \uBB34\uC81C\uD55C \uB300\uD654 + \uC0AC\uC8FC\uC0C1\uB2F4\uD480\uC774 1\uD68C\uAD8C \u2014 $6 \uC0C1\uB2F9)",
-    firstWelcomePrompt: "\uBB34\uC5C7\uC774 \uAD81\uAE08\uD558\uC2DC\uB098\uC694?",
-    // v6.7: separate "how to use" bubble shown after first-welcome
+      "\uADF8\uB300\uC758 \uC0AC\uC8FC\uB97C \uB4E4\uC5EC\uB2E4\uBCF4\uACE0 \uC788\uC2B5\uB2C8\uB2E4. \uC800\uB294 \uC18C\uB78C\u2014\uCC9C \uB144 \uB3D9\uC548 \uBCC4\uC758 \uACB0\uC744 \uC77D\uC5B4\uC628 \uC0AC\uC8FC\uC758 \uBC97\uC785\uB2C8\uB2E4. \uC624\uB298 \uD558\uB8E8 1\uD68C \uBB34\uB8CC\uB85C \uADF8\uB300\uC758 \uBB3C\uC74C\uC5D0 \uB2F5\uD558\uACA0\uC2B5\uB2C8\uB2E4. \uBB34\uD55C\uC73C\uB85C \uB300\uD654\uD558\uC2DC\uB824\uBA74 \uC0C1\uB2E8\uC758 \uC18C\uB78C\uC774 \uC5BC\uAD74\uC744 \uB204\uB974\uBA74 \uACB0\uC81C\uCC3D\uC73C\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4.\n\n\uC18C\uB78C\uB3D9\uD589\uD2F0\uCF13 ($4.99 \u2014 \uC6D4\uAD6C\uB3C5 / \uB9E4\uC77C \uBB34\uC81C\uD55C \uB300\uD654 + \uAE34\uB0B4\uC6A9 \uC0C1\uB2F4\uD480\uC774 1\uD68C\uAD8C \uCD94\uAC00\uC81C\uACF5 \u2014 $6 \uC0C1\uB2F9)",
+    firstWelcomePrompt: "\uBB34\uC5C7\uC774 \uAD81\uAE08\uD558\uC2DC\uB098\uc694?",
+    // v6.9: how-to-use copy reframed as "공부한 5,000년의 지식으로"
     howToUseMsg:
-      "\uC0AC\uC6A9\uBC29\uBC95\n\uC77C\uC0C1\uC5D0\uC11C \uACE0\uBBFC\uB418\uB294 \uBAA8\uB4E0 \uC9C8\uBB38\uC744 200\uC790 \uB0B4\uB85C \uD574\uC8FC\uC2DC\uBA74, \uC81C\uAC00 5,000\uB144\uC758 \uACBD\uD5D8\uC73C\uB85C \uADF8\uB300\uC758 \uC0AC\uC8FC \uAD00\uC810\uC5D0\uC11C \uC870\uC5B8\uD574\uB4DC\uB824\uC694.",
+      "\uC0AC\uC6A9\uBC29\uBC95\n\uC77C\uC0C1\uC5D0\uC11C \uACE0\uBBFC\uB418\uB294 \uBAA8\uB4E0 \uC9C8\uBB38\uC744 200\uC790 \uB0B4\uB85C \uD574\uC8FC\uC2DC\uBA74, \uC81C\uAC00 \uACF5\uBD80\uD55C 5,000\uB144\uC758 \uC9C0\uC2DD\uC73C\uB85C \uADF8\uB300\uC758 \uC0AC\uC8FC \uAD00\uC810\uC5D0\uC11C \uC870\uC5B8\uD574\uB4DC\uB824\uC694.",
   },
   en: {
     headerTitle: "Soram",
@@ -103,10 +102,10 @@ const T = {
     setupBtn: "Set up saju",
     loadingPage: "Loading...",
     firstWelcomeMsg:
-      "I am gazing into your saju. I am Soram\u2014a friend of saju who has read the threads of stars for a thousand years. I will answer one question for you today, free. For unlimited conversations, tap my face above to open the upgrade page.\n\nSoram Companion ticket ($4.99 / daily unlimited chat + 1 in-depth question reading worth $6)",
+      "I am gazing into your saju. I am Soram\u2014a friend of saju who has read the threads of stars for a thousand years. I will answer one question for you today, free. For unlimited conversations, tap my face above to open the upgrade page.\n\nSoram Companion ticket ($4.99 \u2014 monthly / daily unlimited chat + 1 in-depth consultation included \u2014 $6 value)",
     firstWelcomePrompt: "What do you wish to know?",
     howToUseMsg:
-      "How to use\nAsk me anything you wonder about in daily life, in 200 characters or less, and I'll advise you from your saju with 5,000 years of accumulated wisdom.",
+      "How to use\nAsk me anything you wonder about in daily life, in 200 characters or less, and I'll advise you from your saju with the 5,000 years of knowledge I've studied.",
   },
 } as const;
 
@@ -221,8 +220,17 @@ function SoramAvatar({
         <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-sm">
           🌙
         </span>
+        {/* v6.9: chat-header close-up portrait. Replaces soram_hero.webp
+            (which was the wider constellation-bg shot also used on the
+            home Soram CTA card). chandler asked for a different,
+            tighter close-up here so the chat header reads as a
+            "profile picture" — eye-contact, hat + glasses detail
+            sharp at small sizes (32–40px). The asset is pre-circle-
+            masked at 480x480 so the rounded-full container is mostly
+            cosmetic, but the gradient bg + ring stay as fallback if
+            the image 404s. */}
         <img
-          src="/soram/soram_hero.webp"
+          src="/soram/soram_chat_header.webp"
           alt=""
           aria-hidden="true"
           onError={(ev) => {
@@ -729,12 +737,37 @@ export default function SoramChatPage() {
               {/* v6.7: how-to-use bubble — separate message so it reads as
                   a follow-up explanation rather than crammed into the
                   welcome paragraph. Uses contemplation expression for
-                  the "explaining" mood. */}
+                  the "explaining" mood.
+                  v6.9: chandler asked to put the scholar illustration
+                  (cat scholar at desk with books, globe, oil lamp)
+                  INSIDE this how-to-use bubble. Image sits at the top
+                  of the bubble (rounded-t to match), text sits below.
+                  This visually anchors the "5,000 years of knowledge
+                  I've studied" claim — readers see Soram studying.
+                  Image is loading="lazy" + decoding="async" because
+                  it's below the welcome bubble (off the initial paint
+                  in most viewports) and ~50KB; lazy keeps first-paint
+                  text-only. */}
               <div className="flex items-end gap-2">
                 <SoramAvatar expression="contemplation" />
-                <div className="max-w-[78%]">
-                  <div className="bg-[#1E2A4A] text-white/95 rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed whitespace-pre-line shadow-sm shadow-black/20">
-                    {(t as { howToUseMsg?: string }).howToUseMsg ?? t.welcomeHint}
+                <div className="max-w-[78%] w-[78%] sm:w-auto">
+                  <div className="bg-[#1E2A4A] text-white/95 rounded-2xl rounded-bl-md overflow-hidden shadow-sm shadow-black/20">
+                    {/* Scholar illustration — 16:10 aspect, fills bubble width */}
+                    <img
+                      src="/soram/soram_scholar.webp"
+                      alt=""
+                      aria-hidden="true"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(ev) => {
+                        (ev.currentTarget as HTMLImageElement).style.display = "none";
+                      }}
+                      className="block w-full h-auto"
+                      draggable={false}
+                    />
+                    <div className="px-4 py-3 text-sm leading-relaxed whitespace-pre-line">
+                      {(t as { howToUseMsg?: string }).howToUseMsg ?? t.welcomeHint}
+                    </div>
                   </div>
                 </div>
               </div>
