@@ -103,7 +103,10 @@ function BarTab({
 // ════════════════════════════════════════════════════════════════════
 // Soram tab — solid gold-gradient circular icon, with a moon glyph
 // and an optional avatar image layered on top. If
-// /soram/soram_avatar.webp is deployed, it overlays the moon; if
+// /soram/soram_nav.webp (a different cropped expression than the hero
+// card uses — chandler explicitly asked: "화면 같은 그림은 한 페이지에 쓰지 마라"
+// so hero uses constellation-bg close-up, nav uses the default expression
+// portrait). If missing it overlays the moon glyph; if
 // missing in production, onError hides the <img> and the gradient
 // + moon stays visible. Either way the tab is unmistakable.
 // ════════════════════════════════════════════════════════════════════
@@ -131,7 +134,7 @@ function SoramTab({
       >
         <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center">🌙</span>
         <img
-          src="/soram/soram_avatar.webp"
+          src="/soram/soram_nav.webp"
           alt=""
           aria-hidden="true"
           onError={(ev) => {

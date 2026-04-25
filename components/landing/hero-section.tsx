@@ -135,11 +135,12 @@ export function HeroSection() {
                 component) so logged-out users see the sign-in
                 modal in place instead of bouncing through /soram.
                 
-                Avatar: tries to load /soram/soram_avatar.webp (a
-                160px circular crop of the Soram cat-scholar). If
-                that file is missing in production, the onError
-                handler hides the <img> and the parent's gold
-                background + 🌙 stays visible — graceful fallback,
+                Avatar: loads /soram/soram_hero.webp (a 320px circular
+                close-up of Soram with constellation background — kept
+                visually distinct from the bottom-nav avatar so the same
+                image isn't repeated in two places on the same screen).
+                If missing in production, the onError handler hides the
+                <img> and the parent's gold background + 🌙 stays visible — graceful fallback,
                 no broken-image icon.
             ════════════════════════════════════════════════════════ */}
             <button
@@ -156,7 +157,7 @@ export function HeroSection() {
                   <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center text-2xl sm:text-3xl shadow-md shadow-amber-500/30 shrink-0 overflow-hidden">
                     <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center">🌙</span>
                     <img
-                      src="/soram/soram_avatar.webp"
+                      src="/soram/soram_hero.webp"
                       alt=""
                       aria-hidden="true"
                       onError={(ev) => {
