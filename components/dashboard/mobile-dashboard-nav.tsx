@@ -1,51 +1,23 @@
 "use client";
 
-import Link from "next/link";
-import { useLanguage } from "@/lib/language-context";
-import { t } from "@/lib/translations";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Plus, Crown } from "lucide-react";
-import { useNativeApp } from "@/lib/native-app";
+// ════════════════════════════════════════════════════════════════════
+// MobileDashboardNav — DEPRECATED in v1.3 Sprint 2-B
+// ════════════════════════════════════════════════════════════════════
+// This was a 3-tab dashboard-only bar (Dashboard / New Reading /
+// Consultation). It has been superseded by the global 5-tab
+// MobileBottomNav (Home / Reading / Soram / Match / My) which is
+// mounted in app/layout.tsx and visible across the entire app.
+//
+// Why we keep this file as a shim instead of deleting:
+//   1. app/dashboard/page.tsx still imports it. Removing the file
+//      breaks the build before that import gets cleaned up.
+//   2. Some TestFlight builds may have the dashboard route cached.
+//      Returning null is a no-op — safe in any deployment order.
+//
+// New implementation: components/layout/mobile-bottom-nav.tsx
+// ════════════════════════════════════════════════════════════════════
 
 export function MobileDashboardNav() {
-  const pathname = usePathname();
-  const { locale } = useLanguage();
-  const isNative = useNativeApp();
-
-  // ═══ Hide inside native app — Flutter renders its own BottomNav ═══
-  if (isNative) return null;
-
-  const navItems = [
-    { href: "/dashboard", label: t("dash.dashboard", locale), icon: LayoutDashboard },
-    { href: "/calculate", label: t("dash.newReading", locale), icon: Plus },
-    { href: "/consultation", label: t("dash.consultation", locale), icon: Crown },
-  ];
-
-  return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border z-40 safe-area-bottom">
-      <div className="flex items-center justify-around h-16">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          const Icon = item.icon;
-          const isConsultation = item.href === "/consultation";
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-col items-center justify-center gap-0.5 min-w-[64px] min-h-[44px] px-3 py-1.5 rounded-lg transition-colors ${
-                isActive
-                  ? isConsultation
-                    ? "text-purple-400"
-                    : "text-primary"
-                  : "text-muted-foreground"
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
-  );
+  // Replaced by the global MobileBottomNav in app/layout.tsx.
+  return null;
 }

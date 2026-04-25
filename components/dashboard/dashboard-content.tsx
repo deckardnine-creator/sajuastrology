@@ -11,11 +11,10 @@ import {
   Share2,
   Star,
   Check,
-  Compass,
-  Palette,
-  Zap,
   Heart,
   LogOut,
+  CreditCard,
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
@@ -25,7 +24,6 @@ import { supabase } from "@/lib/supabase-client";
 import { ELEMENTS, calculateDailyEnergy, type Element } from "@/lib/saju-calculator";
 import type { SajuChart } from "@/lib/saju-calculator";
 import { reconstructChartFromReading, getElementColor } from "@/lib/constants";
-import type { DailyFortune } from "@/lib/daily-fortune";
 import { Button } from "@/components/ui/button";
 import { ConsultationHistory } from "@/components/consultation/consultation-history";
 import { RestorePurchasesButton } from "@/components/dashboard/restore-purchases-button";
@@ -65,6 +63,28 @@ interface CompatResult {
   overall_score: number;
   share_slug: string;
   created_at: string;
+}
+
+// ─── v1.3 Sprint 2-B: Soram + subscription types ───
+interface SoramUsage {
+  tier: "free" | "subscriber";
+  canAskToday: boolean;
+  remainingToday: number;
+  subscriptionEnd: string | null;
+  hasPrimaryChart: boolean;
+  userName: string | null;
+}
+
+interface SoramHistoryItem {
+  id: string;
+  question: string;
+  answer: string;
+  createdAt: string;
+  score: number;
+}
+
+interface ConsultationCreditSummary {
+  totalRemaining: number;
 }
 
 const READING_COLS = "id,name,gender,birth_date,birth_city,share_slug,archetype,ten_god,harmony_score,day_master_element,day_master_yinyang,dominant_element,weakest_element,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,is_paid,created_at";
@@ -109,8 +129,15 @@ function DashboardInner() {
   const [switchMessage, setSwitchMessage] = useState("");
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
   const [deleteConfirmStep, setDeleteConfirmStep] = useState(0); // 0=idle, 1=first tap, 2=deleting
-  const [fortuneCopied, setFortuneCopied] = useState(false);
   const [compatResults, setCompatResults] = useState<CompatResult[]>([]);
+
+  // ─── v1.3 Sprint 2-B: Soram usage + recent conversations + credits ───
+  // Loaded async after mount; UI degrades gracefully when fetch fails
+  // (renders the cards with skeleton/placeholder state, never throws).
+  const [soramUsage, setSoramUsage] = useState<SoramUsage | null>(null);
+  const [soramHistory, setSoramHistory] = useState<SoramHistoryItem[]>([]);
+  const [soramHistoryLoaded, setSoramHistoryLoaded] = useState(false);
+  const [consultCredits, setConsultCredits] = useState<number | null>(null);
 
   const todayLocal = new Intl.DateTimeFormat("en-CA", {
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -180,6 +207,75 @@ function DashboardInner() {
   useEffect(() => {
     if (sajuData.chart) setDailyScore(calculateDailyEnergy(sajuData.chart, new Date()));
   }, [sajuData.chart]);
+
+  // ════════════════════════════════════════════════════════════════
+  // v1.3 Sprint 2-B: Load Soram usage, recent conversations, and
+  // consultation credits in parallel. All three are independent and
+  // each fails silently — partial data is fine, no error must block
+  // the rest of the dashboard render.
+  // ════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+
+    // Soram usage (tier, remainingToday, hasPrimaryChart)
+    (async () => {
+      try {
+        const res = await fetch("/api/v1/soram/usage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id }),
+        });
+        if (!res.ok) return;
+        const u = (await res.json()) as SoramUsage;
+        if (!cancelled) setSoramUsage(u);
+      } catch {}
+    })();
+
+    // Soram conversation history (most recent 5 for dashboard preview)
+    (async () => {
+      try {
+        const res = await fetch("/api/v1/soram/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id, limit: 5 }),
+        });
+        if (!res.ok) {
+          if (!cancelled) setSoramHistoryLoaded(true);
+          return;
+        }
+        const h = await res.json();
+        if (!cancelled) {
+          setSoramHistory(Array.isArray(h.messages) ? h.messages : []);
+          setSoramHistoryLoaded(true);
+        }
+      } catch {
+        if (!cancelled) setSoramHistoryLoaded(true);
+      }
+    })();
+
+    // Consultation credits — sums total_credits - used_credits across rows.
+    // Reuses the same supabase client pattern as DashboardSidebar so we
+    // don't duplicate auth handling here.
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("consultation_credits")
+          .select("total_credits, used_credits")
+          .eq("user_id", user.id);
+        const remaining = (data || []).reduce(
+          (sum, c: { total_credits: number; used_credits: number }) =>
+            sum + (c.total_credits - c.used_credits),
+          0
+        );
+        if (!cancelled) setConsultCredits(remaining);
+      } catch {
+        if (!cancelled) setConsultCredits(0);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [user]);
 
   // Main data fetch on mount
   useEffect(() => {
@@ -270,47 +366,9 @@ function DashboardInner() {
     });
   }, [sajuData.chart]);
 
-  // Daily fortune — lazy loaded (52KB saved from initial bundle)
-  const [fortune, setFortune] = useState<DailyFortune | null>(null);
-  useEffect(() => {
-    if (!sajuData.chart) return;
-    const el = sajuData.chart.dayMaster.element;
-    // Load locale-specific fortune data with proper async IIFE
-    (async () => {
-      try {
-        const [baseMod, koMod, jaMod] = await Promise.all([
-          import("@/lib/daily-fortune"),
-          import("@/lib/daily-fortune-ko").catch(() => null),
-          import("@/lib/daily-fortune-ja").catch(() => null),
-        ]);
-        setFortune(baseMod.getDailyFortuneLocale(
-          el,
-          dailyScore,
-          locale,
-          (koMod as any)?.FORTUNES_KO,
-          (jaMod as any)?.FORTUNES_JA,
-        ));
-      } catch {
-        // Fallback to English fortune on error
-        import("@/lib/daily-fortune").then(mod => {
-          setFortune(mod.getDailyFortune(el, dailyScore));
-        }).catch(() => {});
-      }
-    })();
-  }, [sajuData.chart, dailyScore, locale]);
-
-  const handleShareFortune = () => {
-    if (!fortune) return;
-    const siteTag = t("dash.siteTag", locale);
-    const text = `${fortune.shareText}\n\n${siteTag}`;
-    if (navigator.share) {
-      navigator.share({ text }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(text);
-      setFortuneCopied(true);
-      setTimeout(() => setFortuneCopied(false), 2000);
-    }
-  };
+  // Daily fortune state + effect REMOVED in v1.3 Sprint 2-B
+  // (chandler #4: today's-fortune section deleted from dashboard)
+  // Saves the 52KB lazy-imported fortune data on dashboard route too.
 
   // Empty state - only show after readings have been checked
   if (!sajuData.chart) {
@@ -456,6 +514,95 @@ function DashboardInner() {
         )}
       </motion.div>
 
+      {/* ════════════════════════════════════════════════════════════
+          v1.3 Sprint 2-B: NEW — Soram entry + Plan / remaining row
+          Per chandler item #4: today's-fortune section is REMOVED;
+          replaced with three pieces — Soram CTA, plan/remaining card,
+          and (lower in the page) a conversation-backup section.
+          This block sits at the very top of the dashboard so the
+          v1.3 product centerpiece (Ask Soram) is the first thing
+          a returning user sees on every load.
+      ════════════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-5">
+
+        {/* Soram entry card — primary CTA, 3/5 width on desktop */}
+        <Link
+          href="/soram"
+          className="sm:col-span-3 group"
+          aria-label={t("dash.soramAsk")}
+        >
+          <div className="relative h-full overflow-hidden rounded-xl border border-amber-400/35 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm p-4 sm:p-5 transition-all duration-200 hover:border-amber-300/60 hover:shadow-[0_8px_24px_rgba(234,179,8,0.22)] active:scale-[0.99]">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center text-2xl sm:text-3xl shadow-md shadow-amber-500/30 shrink-0">
+                <span aria-hidden="true">🌙</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm sm:text-base font-semibold text-amber-100 leading-snug truncate">
+                  {t("dash.soramTitle", locale)}
+                </p>
+                <p className="text-[11px] sm:text-xs text-amber-200/70 leading-relaxed mt-0.5 line-clamp-2">
+                  {soramUsage?.tier === "subscriber"
+                    ? t("dash.soramDescSubscriber", locale)
+                    : soramUsage?.canAskToday === false
+                    ? t("dash.soramDescUsed", locale)
+                    : t("dash.soramDescFree", locale)}
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-xs font-semibold text-amber-100 bg-amber-500/15 px-2.5 py-1 rounded-full whitespace-nowrap">
+                  {t("dash.soramAsk", locale)}
+                </span>
+                <ArrowRight className="w-4 h-4 text-amber-300/80 transition-transform group-hover:translate-x-1" />
+              </div>
+            </div>
+          </div>
+        </Link>
+
+        {/* Plan + remaining card — secondary, 2/5 width on desktop */}
+        <div className="sm:col-span-2 bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+              <CreditCard className="w-3 h-3" />
+              {t("dash.planTitle", locale)}
+            </p>
+            {soramUsage?.tier !== "subscriber" && (
+              <Link
+                href="/pricing?plan=daily_pass"
+                className="text-[11px] text-amber-300/90 hover:text-amber-200 transition-colors min-h-[28px] flex items-center"
+              >
+                {t("dash.upgrade", locale)} →
+              </Link>
+            )}
+          </div>
+          <div className="flex items-baseline gap-2 mb-3">
+            <span className={`text-base font-semibold ${soramUsage?.tier === "subscriber" ? "text-amber-200" : "text-foreground"}`}>
+              {soramUsage?.tier === "subscriber"
+                ? t("dash.planDailyPass", locale)
+                : t("dash.planFree", locale)}
+            </span>
+          </div>
+          <div className="space-y-1.5 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">{t("dash.remainingToday", locale)}</span>
+              <span className="text-foreground font-medium">
+                {soramUsage === null
+                  ? "—"
+                  : soramUsage.tier === "subscriber"
+                  ? t("dash.unlimited", locale)
+                  : `${soramUsage.remainingToday} / 1`}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">{t("dash.remainingConsult", locale)}</span>
+              <span className="text-foreground font-medium">
+                {consultCredits === null ? "—" : consultCredits}
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
       {/* Today's Energy + Day Master row */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-5">
         {/* Energy Score */}
@@ -500,63 +647,10 @@ function DashboardInner() {
           </div>
         </motion.div>
 
-        {/* Lucky Items — desktop only as 3rd card */}
-        {fortune && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-            className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5 hidden md:block">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">{t("dash.todayLucky")}</p>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full border border-border" style={{ backgroundColor: fortune.luckyColorHex }} />
-                <span className="text-sm text-foreground">{fortune.luckyColor}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Compass className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-foreground">{fortune.luckyDirection}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-foreground truncate">{fortune.luckyActivity}</span>
-              </div>
-            </div>
-          </motion.div>
-        )}
+        {/* Lucky Items card removed in v1.3 Sprint 2-B (chandler #4: today's-fortune section deleted) */}
       </div>
 
-      {/* Daily Fortune Card — the main engagement driver */}
-      {fortune && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-          className="mb-6 sm:mb-8">
-          <div className="bg-card/50 backdrop-blur border border-primary/20 rounded-xl p-4 sm:p-5">
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">{t("dash.todayFortune")}</p>
-              <button
-                onClick={handleShareFortune}
-                className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 shrink-0 min-h-[32px]"
-              >
-                {fortuneCopied ? <Check className="w-3 h-3" /> : <Share2 className="w-3 h-3" />}
-                {fortuneCopied ? t("common.copied", locale) : t("dash.share", locale)}
-              </button>
-            </div>
-            <p className="text-sm sm:text-base text-foreground leading-relaxed mb-3">{fortune.message}</p>
-            <p className="text-sm text-primary font-medium mb-3">{fortune.advice}</p>
-
-            {/* Lucky items — mobile (shows inline since 3rd card is hidden) */}
-            <div className="flex flex-wrap gap-3 md:hidden text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full border border-border" style={{ backgroundColor: fortune.luckyColorHex }} />
-                {fortune.luckyColor}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Compass className="w-3 h-3" /> {fortune.luckyDirection}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Zap className="w-3 h-3" /> {fortune.luckyActivity}
-              </span>
-            </div>
-          </div>
-        </motion.div>
-      )}
+      {/* Daily Fortune Card removed in v1.3 Sprint 2-B (chandler #4: today's-fortune section deleted) */}
 
       {/* Four Pillars */}
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6 sm:mb-8">
@@ -693,6 +787,69 @@ function DashboardInner() {
             )}
           </div>
           )}
+        </motion.section>
+      )}
+
+      {/* ════════════════════════════════════════════════════════════
+          v1.3 Sprint 2-B: NEW — Soram conversation backup
+          Shows the most recent 5 Q&A. Tapping a row deep-links to
+          /soram (the chat page itself manages full history scroll).
+          Hidden if user has zero conversations — empty state is
+          covered by the Soram CTA card at the top of the dashboard,
+          so we don't need a duplicate empty card here.
+      ════════════════════════════════════════════════════════════ */}
+      {soramHistoryLoaded && soramHistory.length > 0 && (
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mb-6 sm:mb-8"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm tracking-wider text-muted-foreground uppercase flex items-center gap-2">
+              <MessageCircle className="w-4 h-4 text-amber-300" />
+              {t("dash.soramHistoryTitle", locale)}
+            </h2>
+            <Link
+              href="/soram"
+              className="text-sm text-amber-300/90 hover:text-amber-200 transition-colors flex items-center gap-1"
+            >
+              {t("dash.soramHistoryAll", locale)}
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {soramHistory.slice().reverse().slice(0, 5).map((msg) => {
+              const dateStr = new Date(msg.createdAt).toLocaleDateString(
+                toBCP47(locale),
+                { month: "short", day: "numeric" }
+              );
+              return (
+                <Link
+                  key={msg.id}
+                  href="/soram"
+                  className="block bg-card/50 border border-amber-500/15 rounded-xl p-3.5 sm:p-4 hover:border-amber-400/35 transition-colors"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-300/90 to-amber-500/90 flex items-center justify-center text-sm shadow-sm shrink-0">
+                      <span aria-hidden="true">🌙</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-amber-100/95 leading-snug line-clamp-1">
+                        {msg.question}
+                      </p>
+                      <p className="text-xs text-muted-foreground/85 leading-relaxed mt-1 line-clamp-2">
+                        {msg.answer}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground/50 mt-1.5">
+                        {dateStr}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </motion.section>
       )}
 

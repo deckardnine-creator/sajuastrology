@@ -5,6 +5,7 @@ import { AuthProvider } from '@/lib/auth-context'
 import { LanguageProvider } from '@/lib/language-context'
 import { SignInModal } from '@/components/auth/sign-in-modal'
 import { ScrollToTop } from '@/components/ui/scroll-to-top'
+import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav'
 import MixpanelBootstrap from './MixpanelBootstrap'
 import Script from 'next/script'
 import { getServerLocale, buildHomeMetadata } from '@/lib/seo-utils'
@@ -185,6 +186,7 @@ export default async function RootLayout({
             {children}
             <SignInModal />
             <ScrollToTop />
+            <MobileBottomNav />
           </LanguageProvider>
         </AuthProvider>
         <Analytics />

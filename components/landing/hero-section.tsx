@@ -93,6 +93,38 @@ export function HeroSection() {
               {t("hero.techLine")}
             </p>
 
+            {/* ════════════════════════════════════════════════════════
+                v1.3 Sprint 2-B: NEW — Talk to Soram entry card
+                Placed ABOVE the existing CTA buttons because Soram is the
+                v1.3 product centerpiece (per chandler's "Ask Soram" vision).
+                Gold-gradient border + moon glyph echo the chat page palette
+                so the visual language carries through from this hero into
+                /soram itself.
+            ════════════════════════════════════════════════════════ */}
+            <Link
+              href="/soram"
+              className="block w-full sm:w-[420px] mt-2 group"
+              aria-label={t("hero.askSoram")}
+            >
+              <div className="relative overflow-hidden rounded-2xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm p-4 sm:p-5 transition-all duration-200 hover:border-amber-300/70 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)] active:scale-[0.99]">
+                <div className="flex items-center gap-3">
+                  {/* Soram avatar — gold circle with moon */}
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center text-2xl sm:text-3xl shadow-md shadow-amber-500/30 shrink-0">
+                    <span aria-hidden="true">🌙</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm sm:text-base font-semibold text-amber-100 leading-snug">
+                      {t("hero.askSoram")}
+                    </p>
+                    <p className="text-[11px] sm:text-xs text-amber-200/70 leading-relaxed mt-0.5 line-clamp-2">
+                      {t("hero.askSoramSub")}
+                    </p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
+                </div>
+              </div>
+            </Link>
+
             {/* CTA buttons — 2 rows, always vertical stack, equal fixed width (280px) */}
             <div className="flex flex-col items-center sm:items-start gap-3 mt-2">
               {/* Primary: Free saju reading */}
@@ -118,26 +150,6 @@ export function HeroSection() {
                 </Button>
               </Link>
             </div>
-
-            {/* Letter (CEO message) link — centered on mobile, left-aligned on sm+ (matches CTA buttons) */}
-            <Link
-              href="/letter"
-              className="text-[13px] sm:text-[14px] text-muted-foreground/85 hover:text-primary transition-colors inline-flex items-center gap-1.5 self-center sm:self-start"
-            >
-              <span>
-                {t("hero.letterLink")}
-              </span>
-            </Link>
-
-            {/* Celebrity Readings link */}
-            <a
-              href="https://blog.sajuastrology.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[14px] sm:text-[15px] text-[#d4af37] hover:text-[#f5d76e] transition-colors text-center sm:text-left"
-            >
-              {t("hero.celebLink")}
-            </a>
 
             {/* App Download Buttons — hidden inside native app */}
             {!isNativeApp && (
@@ -172,6 +184,36 @@ export function HeroSection() {
               </div>
             </div>
             )}
+
+            {/* ════════════════════════════════════════════════════════
+                v1.3 Sprint 2-B: Letter + Celebrity links MOVED HERE,
+                below app download buttons (per chandler 12-item brief).
+                Previously they sat above the CTA stack and competed with
+                the primary "Get reading" path. Demoted to small links so
+                Soram + Reading + Compatibility can own the prime real
+                estate.
+            ════════════════════════════════════════════════════════ */}
+            <div className="flex flex-col gap-2 mt-1">
+              {/* Letter (CEO message) link — centered on mobile */}
+              <Link
+                href="/letter"
+                className="text-[13px] sm:text-[14px] text-muted-foreground/85 hover:text-primary transition-colors inline-flex items-center gap-1.5 self-center sm:self-start"
+              >
+                <span>
+                  {t("hero.letterLink")}
+                </span>
+              </Link>
+
+              {/* Celebrity Readings link */}
+              <a
+                href="https://blog.sajuastrology.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[14px] sm:text-[15px] text-[#d4af37] hover:text-[#f5d76e] transition-colors text-center sm:text-left"
+              >
+                {t("hero.celebLink")}
+              </a>
+            </div>
           </motion.div>
 
           {/* Right: Four Pillars + Soram image — CENTER aligned on desktop */}
