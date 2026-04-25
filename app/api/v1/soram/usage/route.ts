@@ -1,20 +1,17 @@
 /**
  * POST /api/v1/soram/usage
- * 
- * 소람 사용 가능 상태 조회.
+ *
  * Body: { userId: string }
- * 
+ *
  * Response:
  *   200: {
  *     tier: "free" | "subscriber",
  *     canAskToday: boolean,
- *     remainingToday: number,  // free: 1 or 0, subscriber: 999
+ *     remainingToday: number,
  *     subscriptionEnd: string | null,
  *     hasPrimaryChart: boolean,
  *     userName: string | null,
  *   }
- *   400: { error: 'userId required' }
- *   500: { error: 'Server error' }
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -60,50 +57,68 @@ export async function POST(request: NextRequest) {
     if (!userId || typeof userId !== "string") {
       return NextResponse.json({ error: "userId required" }, { status: 400 });
     }
-
     if (!supabaseUrl || !supabaseKey) {
       return NextResponse.json({ error: "Service unavailable" }, { status: 500 });
     }
 
-    // 1. Primary chart 존재 + 이름
-    const chartRes = await sbFetch(
-      `my_primary_chart?user_id=eq.${userId}&select=name`
-    );
-    const chartData = chartRes.ok ? await chartRes.json() : [];
-    const hasPrimaryChart = Array.isArray(chartData) && chartData.length > 0;
-    const userName = hasPrimaryChart ? chartData[0].name : null;
-
-    // 2. Tier 판별
-    const tierRes = await sbRpc("get_soram_user_tier", { p_user_id: userId });
-    const tierData = tierRes.ok ? await tierRes.json() : "free";
-    const tier: "free" | "subscriber" =
-      typeof tierData === "string" && tierData === "subscriber"
-        ? "subscriber"
-        : "free";
-
-    // 3. Subscriber인 경우 만료일 조회
+    // 1. tier (free / subscriber)
+    let tier: "free" | "subscriber" = "free";
     let subscriptionEnd: string | null = null;
-    if (tier === "subscriber") {
-      const subRes = await sbFetch(
-        `soram_subscriptions?user_id=eq.${userId}&status=eq.active&select=current_period_end&order=current_period_end.desc&limit=1`
-      );
-      if (subRes.ok) {
-        const subData = await subRes.json();
-        if (Array.isArray(subData) && subData.length > 0) {
-          subscriptionEnd = subData[0].current_period_end;
-        }
+    try {
+      const tierRes = await sbRpc("get_soram_user_tier", { p_user_id: userId });
+      if (tierRes.ok) {
+        const t = await tierRes.json();
+        if (typeof t === "string" && t === "subscriber") tier = "subscriber";
       }
+    } catch {}
+
+    // 2. subscription end (if subscriber)
+    if (tier === "subscriber") {
+      try {
+        const subRes = await sbFetch(
+          `soram_subscriptions?user_id=eq.${userId}&status=eq.active&select=current_period_end`,
+          { method: "GET" }
+        );
+        if (subRes.ok) {
+          const data = await subRes.json();
+          if (Array.isArray(data) && data.length > 0) {
+            subscriptionEnd = data[0].current_period_end;
+          }
+        }
+      } catch {}
     }
 
-    // 4. 오늘 질문 가능 여부 + 남은 횟수
+    // 3. canAskToday
     let canAskToday = true;
-    let remainingToday = 999;
+    let remainingToday = tier === "subscriber" ? 999 : 1;
 
     if (tier === "free") {
-      const canAskRes = await sbRpc("can_ask_soram_today", { p_user_id: userId });
-      canAskToday = canAskRes.ok ? await canAskRes.json() : true;
-      remainingToday = canAskToday ? 1 : 0;
+      try {
+        const canAskRes = await sbRpc("can_ask_soram_today", { p_user_id: userId });
+        if (canAskRes.ok) {
+          const can = await canAskRes.json();
+          canAskToday = can !== false;
+          remainingToday = canAskToday ? 1 : 0;
+        }
+      } catch {}
     }
+
+    // 4. primary chart + userName
+    let hasPrimaryChart = false;
+    let userName: string | null = null;
+    try {
+      const chartRes = await sbFetch(
+        `my_primary_chart?user_id=eq.${userId}&select=name`,
+        { method: "GET" }
+      );
+      if (chartRes.ok) {
+        const data = await chartRes.json();
+        if (Array.isArray(data) && data.length > 0) {
+          hasPrimaryChart = true;
+          userName = data[0].name || null;
+        }
+      }
+    } catch {}
 
     return NextResponse.json({
       tier,

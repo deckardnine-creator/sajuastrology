@@ -1,15 +1,12 @@
 /**
  * POST /api/v1/soram/history
- * 
- * 소람 채팅 과거 메시지 페이지네이션 조회.
- * 카카오톡식 — 가장 오래된 게 위, 최신이 아래.
- * 
- * Body: { 
- *   userId: string, 
- *   before?: string,   // ISO datetime — 이 시간 이전의 메시지 가져오기 (스크롤 업)
- *   limit?: number,    // default 30, max 50
+ *
+ * Body: {
+ *   userId: string,
+ *   before?: string,    // ISO datetime - get messages older than this (cursor)
+ *   limit?: number,     // default 30, max 50
  * }
- * 
+ *
  * Response:
  *   200: {
  *     messages: Array<{
@@ -19,11 +16,9 @@
  *       createdAt: string,
  *       score: number,
  *     }>,
- *     hasMore: boolean,   // 더 오래된 메시지가 있는지
- *     oldestCursor: string | null,  // 다음 페이지 요청용
+ *     hasMore: boolean,
+ *     oldestCursor: string | null,
  *   }
- *   400: { error: 'userId required' }
- *   500: { error: 'Server error' }
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -37,17 +32,6 @@ const supabaseKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   "";
 
-async function sbFetch(path: string) {
-  return fetch(`${supabaseUrl}/rest/v1/${path}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: supabaseKey,
-      Authorization: `Bearer ${supabaseKey}`,
-    },
-  });
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -56,55 +40,66 @@ export async function POST(request: NextRequest) {
     if (!userId || typeof userId !== "string") {
       return NextResponse.json({ error: "userId required" }, { status: 400 });
     }
-
     if (!supabaseUrl || !supabaseKey) {
       return NextResponse.json({ error: "Service unavailable" }, { status: 500 });
     }
 
     const safeLimit = Math.min(Math.max(1, Number(limit) || 30), 50);
-    // +1 fetched to detect hasMore
-    const fetchLimit = safeLimit + 1;
 
-    // Build query: most recent first, then we reverse for chat order
-    let query = `soram_questions?user_id=eq.${userId}&select=id,question,answer,created_at,primary_chart_snapshot&order=created_at.desc&limit=${fetchLimit}`;
+    // Fetch latest first (descending), then reverse client-side for chat order
+    let query = `soram_questions?user_id=eq.${userId}&select=id,question,answer,created_at,primary_chart_snapshot&order=created_at.desc&limit=${safeLimit + 1}`;
     if (before && typeof before === "string") {
       query += `&created_at=lt.${encodeURIComponent(before)}`;
     }
 
-    const res = await sbFetch(query);
-
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("[soram/history] supabase error:", errText.substring(0, 200));
-      return NextResponse.json({ error: "Service error" }, { status: 500 });
-    }
-
-    const data = await res.json();
-    const rows = Array.isArray(data) ? data : [];
-
-    const hasMore = rows.length > safeLimit;
-    const trimmed = hasMore ? rows.slice(0, safeLimit) : rows;
-
-    // Reverse so oldest is first (chat order: top = old, bottom = new)
-    const ordered = [...trimmed].reverse();
-
-    const messages = ordered.map((row: any) => {
-      const snapshot = row.primary_chart_snapshot || {};
-      const score = typeof snapshot.score === "number" 
-        ? snapshot.score 
-        : (typeof snapshot.rag_score === "number" ? snapshot.rag_score : 0.5);
-      return {
-        id: row.id,
-        question: row.question,
-        answer: row.answer,
-        createdAt: row.created_at,
-        score: score,
-      };
+    const res = await fetch(`${supabaseUrl}/rest/v1/${query}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+      },
     });
 
-    // oldestCursor = the oldest message in trimmed set (not in ordered, but same data)
-    const oldestCursor = trimmed.length > 0 
-      ? trimmed[trimmed.length - 1].created_at 
+    if (!res.ok) {
+      return NextResponse.json({ error: "Failed to fetch history" }, { status: 500 });
+    }
+
+    const rawData = (await res.json()) as Array<any>;
+    if (!Array.isArray(rawData)) {
+      return NextResponse.json({
+        messages: [],
+        hasMore: false,
+        oldestCursor: null,
+      });
+    }
+
+    const hasMore = rawData.length > safeLimit;
+    const trimmed = hasMore ? rawData.slice(0, safeLimit) : rawData;
+
+    // Convert to client format - reverse so oldest first (chat scroll order)
+    const messages = trimmed
+      .map((row) => {
+        let score = 0.5;
+        try {
+          const snap = row.primary_chart_snapshot;
+          if (snap && typeof snap === "object") {
+            if (typeof snap.score === "number") score = snap.score;
+            else if (typeof snap.rag_score === "number") score = snap.rag_score;
+          }
+        } catch {}
+        return {
+          id: String(row.id),
+          question: row.question || "",
+          answer: row.answer || "",
+          createdAt: row.created_at,
+          score,
+        };
+      })
+      .reverse();
+
+    const oldestCursor = trimmed.length > 0
+      ? trimmed[trimmed.length - 1].created_at
       : null;
 
     return NextResponse.json({
