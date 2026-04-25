@@ -396,6 +396,42 @@ export default function SoramChatPage() {
     if (!user) return;
     let cancelled = false;
 
+    // ════════════════════════════════════════════════════════════
+    // v6.6 — defensive timeout against the infinite-loading bug
+    // chandler reported: a brand-new signed-in user landing on
+    // /soram could see the loading spinner forever. Likely causes:
+    //  • usage API hangs (cold start, network)
+    //  • API returns 500/401 silently and we landed in catch but
+    //    set state to "ready" — leaving usage null and confusing
+    //    later renders
+    //  • OAuth callback completes but the access token isn't yet
+    //    propagated to the server route by the time usage is called
+    //
+    // Defenses now in place:
+    //  1. Hard 12-second client-side timeout on the load chain.
+    //     If we haven't reached "ready" or "redirecting" by then,
+    //     fall through to "needs_setup" (a real screen with a
+    //     visible "사주 입력하기" button — way better than spinning
+    //     forever).
+    //  2. catch block now sets "needs_setup" instead of "ready" so
+    //     a failed usage call doesn't drop us into a half-broken
+    //     ready state with usage=null.
+    //  3. Explicit hasPrimaryChart === true check — if usage came
+    //     back malformed (undefined hasPrimaryChart), treat it as
+    //     missing chart and redirect to setup.
+    // ════════════════════════════════════════════════════════════
+    const watchdog = setTimeout(() => {
+      if (cancelled) return;
+      // Read current pageState via setState callback to avoid stale closure
+      setPageState((prev) => {
+        if (prev === "loading") {
+          console.warn("[soram] load timed out after 12s — falling back to needs_setup");
+          return "needs_setup";
+        }
+        return prev;
+      });
+    }, 12000);
+
     (async () => {
       try {
         // 1. Usage
@@ -404,11 +440,13 @@ export default function SoramChatPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: user.id }),
         });
-        if (!usageRes.ok) throw new Error("usage fetch failed");
+        if (!usageRes.ok) throw new Error(`usage fetch failed: ${usageRes.status}`);
         const u = (await usageRes.json()) as UsageState;
         if (cancelled) return;
 
-        if (!u.hasPrimaryChart) {
+        // Only proceed if hasPrimaryChart is explicitly true.
+        // false OR undefined OR malformed → setup redirect.
+        if (u.hasPrimaryChart !== true) {
           setPageState("redirecting");
           router.replace("/setup-primary-chart?next=/soram");
           return;
@@ -431,12 +469,16 @@ export default function SoramChatPage() {
         if (!cancelled) setPageState("ready");
       } catch (e) {
         console.error("[soram] load failed", e);
-        if (!cancelled) setPageState("ready");
+        // v6.6: was "ready" — that left usage null and produced a
+        // half-broken page. Now we land on needs_setup which has
+        // a clear button to set up saju and recover the flow.
+        if (!cancelled) setPageState("needs_setup");
       }
     })();
 
     return () => {
       cancelled = true;
+      clearTimeout(watchdog);
     };
   }, [user, router]);
 

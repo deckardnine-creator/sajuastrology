@@ -159,26 +159,24 @@ export function HeroSection() {
             <button
               type="button"
               onClick={handleSoramClick}
-              className="block text-left w-full sm:w-[420px] mt-2 group"
+              className="block text-left w-[280px] mt-2 group"
               aria-label={t("hero.askSoram")}
             >
-              {/* v6.2 — slimmer card, no avatar circle.
-                  Per chandler: "원형 그림을 그냥 없애라. 매일 무료. 소람은
-                  당신의 사주를 기억하고 도움을 드립니다. 1행으로 박스 세로 얇게."
-                  Title moved to single line. Subtitle is one-line, ellipsis if
-                  it overflows on tiny viewports. py-3 (was p-4 sm:p-5) to
-                  shrink vertical height. Gold left-edge accent bar replaces
-                  the circular avatar — keeps Soram's brand color present
-                  without the heavy graphic. */}
-              <div className="relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm pl-4 pr-4 py-3 transition-all duration-200 hover:border-amber-300/70 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)] active:scale-[0.99]">
+              {/* v6.2 / v6.6 — slim Soram CTA card.
+                  v6.2: removed circular avatar, single-line copy, gold left bar.
+                  v6.6: width matches the other CTA buttons (280px) so the
+                  three primary CTAs read as a stack of equal-width pills.
+                  Subtitle is allowed to wrap to 2 lines now that the card
+                  is narrower (was forcing truncate which hid useful copy). */}
+              <div className="relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm pl-3.5 pr-3 py-2.5 transition-all duration-200 hover:border-amber-300/70 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)] active:scale-[0.99]">
                 {/* gold left accent bar */}
-                <span aria-hidden="true" className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
-                <div className="flex items-center gap-3">
+                <span aria-hidden="true" className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
+                <div className="flex items-center gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm sm:text-base font-semibold text-amber-100 leading-tight truncate">
+                    <p className="text-sm font-semibold text-amber-100 leading-tight">
                       {t("hero.askSoram")}
                     </p>
-                    <p className="text-[11px] sm:text-xs text-amber-200/70 leading-tight mt-0.5 truncate">
+                    <p className="text-[10px] text-amber-200/70 leading-snug mt-0.5 line-clamp-2">
                       {t("hero.askSoramSub")}
                     </p>
                   </div>

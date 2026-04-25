@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
 import { BirthDataForm } from "@/components/calculate/birth-data-form";
@@ -19,6 +19,22 @@ interface PendingData {
 
 export default function SetupPrimaryChartPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // ════════════════════════════════════════════════════════════
+  // v6.6 — honor ?next= param
+  // chandler bug: brand-new user lands on /soram → redirected to
+  // /setup-primary-chart?next=/soram → fills out saju → was being
+  // sent to /dashboard regardless of `next`, which made /soram
+  // unreachable from the setup flow. We now read `next` and route
+  // to it after successful save (and on the existing-chart bypass).
+  // Whitelist: only allow same-origin paths starting with "/" to
+  // avoid open-redirect risk from a crafted URL.
+  // ════════════════════════════════════════════════════════════
+  const rawNext = searchParams?.get("next") || "";
+  const nextSafe =
+    rawNext.startsWith("/") && !rawNext.startsWith("//")
+      ? rawNext
+      : "/dashboard";
   const { user, isLoading: authLoading } = useAuth();
   const { locale } = useLanguage();
 
@@ -46,8 +62,8 @@ export default function SetupPrimaryChartPage() {
         });
         const data = await res.json();
         if (data?.chart) {
-          // 이미 저장됨 → 대시보드로
-          router.replace("/dashboard");
+          // 이미 저장됨 → next 파라미터로 (없으면 dashboard)
+          router.replace(nextSafe);
           return;
         }
         setPhase("form");
@@ -56,7 +72,7 @@ export default function SetupPrimaryChartPage() {
         setPhase("form");
       }
     })();
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, nextSafe]);
 
   // ============= 2. BirthDataForm 결과 처리 =============
   const handleCalculate = (chart: SajuChart, cityName: string) => {
@@ -97,8 +113,8 @@ export default function SetupPrimaryChartPage() {
       const data = await res.json();
 
       if (res.status === 409) {
-        // 이미 있음 → 대시보드로
-        router.replace("/dashboard");
+        // 이미 있음 → next 또는 dashboard
+        router.replace(nextSafe);
         return;
       }
 
@@ -110,9 +126,9 @@ export default function SetupPrimaryChartPage() {
 
       setPhase("success");
 
-      // 3초 후 dashboard로 자동 이동
+      // 3초 후 next 또는 dashboard로 자동 이동
       setTimeout(() => {
-        router.replace("/dashboard");
+        router.replace(nextSafe);
       }, 3000);
     } catch (err: any) {
       console.error("[setup] save error:", err);
