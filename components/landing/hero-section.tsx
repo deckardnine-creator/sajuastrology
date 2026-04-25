@@ -162,30 +162,23 @@ export function HeroSection() {
               className="block text-left w-full sm:w-[420px] mt-2 group"
               aria-label={t("hero.askSoram")}
             >
-              <div className="relative overflow-hidden rounded-2xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm p-4 sm:p-5 transition-all duration-200 hover:border-amber-300/70 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)] active:scale-[0.99]">
+              {/* v6.2 — slimmer card, no avatar circle.
+                  Per chandler: "원형 그림을 그냥 없애라. 매일 무료. 소람은
+                  당신의 사주를 기억하고 도움을 드립니다. 1행으로 박스 세로 얇게."
+                  Title moved to single line. Subtitle is one-line, ellipsis if
+                  it overflows on tiny viewports. py-3 (was p-4 sm:p-5) to
+                  shrink vertical height. Gold left-edge accent bar replaces
+                  the circular avatar — keeps Soram's brand color present
+                  without the heavy graphic. */}
+              <div className="relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm pl-4 pr-4 py-3 transition-all duration-200 hover:border-amber-300/70 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)] active:scale-[0.99]">
+                {/* gold left accent bar */}
+                <span aria-hidden="true" className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
                 <div className="flex items-center gap-3">
-                  {/* Soram avatar — gold circle. We layer an <img> on
-                      top; it falls back to the moon glyph + gradient
-                      background if the avatar asset isn't found. */}
-                  <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center text-2xl sm:text-3xl shadow-md shadow-amber-500/30 shrink-0 overflow-hidden">
-                    <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center">🌙</span>
-                    <img
-                      src="/soram/soram_hero.webp"
-                      alt=""
-                      aria-hidden="true"
-                      onError={(ev) => {
-                        const el = ev.currentTarget;
-                        el.style.display = "none";
-                      }}
-                      className="absolute inset-0 w-full h-full object-cover"
-                      draggable={false}
-                    />
-                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm sm:text-base font-semibold text-amber-100 leading-snug">
+                    <p className="text-sm sm:text-base font-semibold text-amber-100 leading-tight truncate">
                       {t("hero.askSoram")}
                     </p>
-                    <p className="text-[11px] sm:text-xs text-amber-200/70 leading-relaxed mt-0.5 line-clamp-2">
+                    <p className="text-[11px] sm:text-xs text-amber-200/70 leading-tight mt-0.5 truncate">
                       {t("hero.askSoramSub")}
                     </p>
                   </div>

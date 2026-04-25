@@ -53,6 +53,11 @@ const T = {
     setupNeeded: "\uBA3C\uC800 \uAE30\uBCF8\uC0AC\uC8FC\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694",
     setupBtn: "\uC0AC\uC8FC \uC785\uB825\uD558\uAE30",
     loadingPage: "\uBD88\uB7EC\uC624\uB294 \uC911...",
+    // v6.2: first-time welcome message — appears as Soram's first chat bubble
+    // for users with zero conversation history. Frames the service in-character.
+    firstWelcomeMsg:
+      "\uADF8\uB300\uC758 \uC0AC\uC8FC\uB97C \uB4E4\uC5EC\uB2E4\uBCF4\uACE0 \uC788\uC2B5\uB2C8\uB2E4. \uC800\uB294 \uC18C\uB78C\u2014\uCC9C \uB144 \uB3D9\uC548 \uBCC4\uC758 \uACB0\uC744 \uC77D\uC5B4\uC628 \uC0AC\uC8FC\uC758 \uBC97\uC785\uB2C8\uB2E4. \uC624\uB298 \uD558\uB8E8 1\uD68C \uBB34\uB8CC\uB85C \uADF8\uB300\uC758 \uBB3C\uC74C\uC5D0 \uB2F5\uD558\uACA0\uC2B5\uB2C8\uB2E4. \uBB34\uD55C\uC73C\uB85C \uB300\uD654\uD558\uC2DC\uB824\uBA74 \uD558\uB2E8 \uC5C5\uADF8\uB808\uC774\uB4DC \uC548\uB0B4\uB97C \uCC38\uACE0\uD574\uC8FC\uC138\uC694.",
+    firstWelcomePrompt: "\uBB34\uC5C7\uC774 \uAD81\uAE08\uD558\uC2DC\uB098\uC694?",
   },
   en: {
     headerTitle: "Soram",
@@ -93,11 +98,81 @@ const T = {
     setupNeeded: "Please set up your saju first",
     setupBtn: "Set up saju",
     loadingPage: "Loading...",
+    firstWelcomeMsg:
+      "I am gazing into your saju. I am Soram — a friend of saju who has read the threads of stars for a thousand years. I will answer one question for you, free, today. For unlimited conversations, you may consider the upgrade notice below.",
+    firstWelcomePrompt: "What do you wish to know?",
   },
 } as const;
 
 function getT(locale: string) {
   return (T as any)[locale] || T.en;
+}
+
+// ============================================================
+// v6.2 — Chat-bubble avatars
+// ============================================================
+//
+// Two tiny presentation components used inline by message rows.
+// Kept as separate components (not inline JSX) because they appear
+// many times per render (every message row) and React's perf is
+// happier when these are stable function references with no
+// per-render closures.
+//
+// SoramAvatar:
+//   - 32px circular, gold gradient base, /soram/soram_nav.webp
+//     overlay (the default-expression close-up). If the asset
+//     fails (404 in dev / first deploy), onError hides the <img>
+//     and the gold + 🌙 fallback stays visible. Same fallback
+//     pattern used elsewhere on the site.
+//   - `invisible` prop renders an empty 32px placeholder so we
+//     can keep alignment for stacked Soram messages without
+//     repeating the avatar image — chandler's UX intuition: same
+//     speaker doesn't need their face every line.
+//
+// UserAvatar:
+//   - 32px circular, deep navy with a subtle gold border and
+//     a sparkle/star glyph. The user has no real avatar in our
+//     system, so we use a starlight motif — visually paired with
+//     Soram's moon glyph (sun↔moon, star↔moon — celestial pair).
+//
+// Both intentionally small (8 = 32px) so the bubbles dominate
+// and the avatars feel like signatures, not portraits.
+// ============================================================
+function SoramAvatar({ invisible = false }: { invisible?: boolean }) {
+  if (invisible) {
+    return <div className="w-8 h-8 shrink-0" aria-hidden="true" />;
+  }
+  return (
+    <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 shrink-0 overflow-hidden shadow-sm shadow-amber-500/30">
+      <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-sm">
+        🌙
+      </span>
+      <img
+        src="/soram/soram_nav.webp"
+        alt=""
+        aria-hidden="true"
+        onError={(ev) => {
+          (ev.currentTarget as HTMLImageElement).style.display = "none";
+        }}
+        className="absolute inset-0 w-full h-full object-cover"
+        draggable={false}
+      />
+    </div>
+  );
+}
+
+function UserAvatar() {
+  return (
+    <div
+      className="w-8 h-8 rounded-full bg-[#1E2A4A] border border-amber-400/30 shrink-0 flex items-center justify-center shadow-sm shadow-black/30"
+      aria-hidden="true"
+    >
+      {/* Star/sparkle glyph — celestial counterpart to Soram's moon */}
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-300/80">
+        <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6L12 2z" />
+      </svg>
+    </div>
+  );
 }
 
 // ============================================================
@@ -448,10 +523,7 @@ export default function SoramChatPage() {
           </button>
 
           <div className="flex items-center gap-2">
-            {/* Soram avatar placeholder - golden circle with moon */}
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center text-base shadow-lg shadow-amber-500/20">
-              🌙
-            </div>
+            <SoramAvatar />
             <h1 className="text-base font-medium text-amber-100">
               {t.headerTitle}
             </h1>
@@ -472,36 +544,60 @@ export default function SoramChatPage() {
         ref={scrollContainerRef}
         className="flex-1 overflow-y-auto px-4 py-6"
       >
-        <div className="max-w-2xl mx-auto space-y-4">
-          {/* Welcome card */}
+        <div className="max-w-2xl mx-auto space-y-5">
+          {/* ════════════════════════════════════════════════════════
+              v6.2 — first-time welcome rendered AS a Soram chat bubble.
+              Per chandler: 신규 사용자가 사주 입력 후 채팅창에 들어오면
+              소람이 채팅글로 서비스 안내를 먼저 해야 한다.
+              
+              Old version showed a centered welcome CARD with sample
+              chips. Now: same content but framed as Soram's first
+              message with avatar on the left, then a separate small
+              row with sample chips below — feels like a real chat
+              opening, not a settings screen.
+          ════════════════════════════════════════════════════════ */}
           {showWelcome && usage && (
-            <div className="text-center pt-8 pb-4">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-amber-300/20 to-amber-500/20 mb-5">
-                <span className="text-4xl">🌙</span>
+            <>
+              {/* Soram first message */}
+              <div className="flex items-end gap-2">
+                <SoramAvatar />
+                <div className="max-w-[78%]">
+                  <div className="bg-[#1E2A4A] text-white/95 rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed shadow-sm shadow-black/20">
+                    {(t as { firstWelcomeMsg?: string }).firstWelcomeMsg ?? t.welcomeHint}
+                  </div>
+                  <div className="text-[10px] text-amber-200/50 mt-1.5 ml-1">
+                    {locale === "ko" ? "\uC18C\uB78C" : "Soram"} 🌙
+                  </div>
+                </div>
               </div>
-              <h2 className="text-lg font-medium text-amber-100 mb-2 leading-relaxed">
-                {t.welcomeTitle(userName)}
-              </h2>
-              <p className="text-amber-200/70 text-sm mb-1">{t.welcomeSub}</p>
-              <p className="text-amber-200/50 text-xs mt-3">{t.welcomeHint}</p>
 
-              {/* Sample question chips */}
-              <div className="mt-8">
-                <p className="text-xs text-amber-200/40 mb-3">{t.samplesTitle}</p>
-                <div className="flex flex-wrap justify-center gap-2">
+              {/* Soram second message: prompt for question */}
+              <div className="flex items-end gap-2">
+                <SoramAvatar invisible />
+                <div className="max-w-[78%]">
+                  <div className="bg-[#1E2A4A] text-white/95 rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed shadow-sm shadow-black/20">
+                    {(t as { firstWelcomePrompt?: string }).firstWelcomePrompt ?? t.welcomeSub}
+                  </div>
+                </div>
+              </div>
+
+              {/* Sample chips — quieter than before, indented under Soram */}
+              <div className="pl-12">
+                <p className="text-[11px] text-amber-200/45 mb-2 ml-1">{t.samplesTitle}</p>
+                <div className="flex flex-wrap gap-2">
                   {t.samples.map((s: string, i: number) => (
                     <button
                       key={i}
                       onClick={() => handleSend(s)}
                       disabled={sending}
-                      className="px-4 py-2 text-sm rounded-full bg-amber-500/10 text-amber-100/90 border border-amber-500/20 hover:bg-amber-500/20 transition-colors disabled:opacity-40"
+                      className="px-3.5 py-1.5 text-[13px] rounded-full bg-amber-500/8 text-amber-100/90 border border-amber-500/20 hover:bg-amber-500/16 hover:border-amber-400/40 active:scale-[0.97] transition-all disabled:opacity-40"
                     >
                       {s}
                     </button>
                   ))}
                 </div>
               </div>
-            </div>
+            </>
           )}
 
           {/* Past messages */}
@@ -509,31 +605,33 @@ export default function SoramChatPage() {
             const prev = idx > 0 ? messages[idx - 1] : null;
             const showDate = shouldShowDateDivider(prev, msg);
             return (
-              <div key={msg.id}>
+              <div key={msg.id} className="space-y-3">
                 {showDate && (
                   <div className="flex items-center justify-center my-6">
-                    <div className="px-3 py-1 text-xs text-amber-200/40 bg-amber-500/5 rounded-full">
+                    <div className="px-3 py-1 text-[11px] text-amber-200/45 bg-amber-500/5 rounded-full">
                       {formatDateLabel(msg.createdAt, locale)}
                     </div>
                   </div>
                 )}
 
-                {/* User bubble (right, gold) */}
-                <div className="flex justify-end mb-3">
-                  <div className="max-w-[75%]">
-                    <div className="bg-gradient-to-br from-amber-300 to-amber-500 text-black rounded-2xl rounded-tr-md px-4 py-2.5 text-sm leading-relaxed">
+                {/* User row (right, gold) — moon-glyph avatar on right edge */}
+                <div className="flex items-end justify-end gap-2">
+                  <div className="max-w-[72%]">
+                    <div className="bg-gradient-to-br from-amber-300 to-amber-500 text-black rounded-2xl rounded-br-md px-4 py-2.5 text-sm leading-relaxed shadow-sm shadow-amber-500/20">
                       {msg.question}
                     </div>
-                    <div className="text-[10px] text-amber-200/40 mt-1 text-right">
+                    <div className="text-[10px] text-amber-200/45 mt-1 mr-1 text-right">
                       {formatTime(msg.createdAt, locale)}
                     </div>
                   </div>
+                  <UserAvatar />
                 </div>
 
-                {/* Soram bubble (left, navy) */}
-                <div className="flex justify-start">
-                  <div className="max-w-[80%]">
-                    <div className="bg-[#1E2A4A] text-white rounded-2xl rounded-tl-md px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap">
+                {/* Soram row (left, navy) */}
+                <div className="flex items-end gap-2">
+                  <SoramAvatar />
+                  <div className="max-w-[78%]">
+                    <div className="bg-[#1E2A4A] text-white/95 rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap shadow-sm shadow-black/20">
                       {msg.answer}
                     </div>
                   </div>
@@ -544,20 +642,22 @@ export default function SoramChatPage() {
 
           {/* Pending message */}
           {pending && (
-            <div>
-              {/* User question (right) */}
-              <div className="flex justify-end mb-3">
-                <div className="max-w-[75%]">
-                  <div className="bg-gradient-to-br from-amber-300 to-amber-500 text-black rounded-2xl rounded-tr-md px-4 py-2.5 text-sm">
+            <div className="space-y-3">
+              {/* User question (right) — with avatar */}
+              <div className="flex items-end justify-end gap-2">
+                <div className="max-w-[72%]">
+                  <div className="bg-gradient-to-br from-amber-300 to-amber-500 text-black rounded-2xl rounded-br-md px-4 py-2.5 text-sm shadow-sm shadow-amber-500/20">
                     {pending.question}
                   </div>
                 </div>
+                <UserAvatar />
               </div>
 
-              {/* Soram thinking (left) */}
+              {/* Soram thinking (left) — with avatar */}
               {pending.status === "loading" && (
-                <div className="flex justify-start">
-                  <div className="bg-[#1E2A4A] text-white rounded-2xl rounded-tl-md px-4 py-3 max-w-[80%]">
+                <div className="flex items-end gap-2">
+                  <SoramAvatar />
+                  <div className="bg-[#1E2A4A] text-white rounded-2xl rounded-bl-md px-4 py-3 max-w-[78%] shadow-sm shadow-black/20">
                     <div className="flex items-center gap-2 text-sm text-amber-100/80">
                       <span className="inline-flex gap-1">
                         <span className="w-1.5 h-1.5 bg-amber-300 rounded-full animate-pulse"></span>
@@ -573,8 +673,9 @@ export default function SoramChatPage() {
               )}
 
               {pending.status === "error" && (
-                <div className="flex justify-start">
-                  <div className="bg-red-900/30 text-red-200 rounded-2xl rounded-tl-md px-4 py-3 text-sm border border-red-500/20">
+                <div className="flex items-end gap-2">
+                  <SoramAvatar />
+                  <div className="bg-red-900/30 text-red-200 rounded-2xl rounded-bl-md px-4 py-3 text-sm border border-red-500/20 max-w-[78%]">
                     {t.errorAsk}
                   </div>
                 </div>
