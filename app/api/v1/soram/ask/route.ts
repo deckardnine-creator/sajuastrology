@@ -1,26 +1,15 @@
 /**
  * POST /api/v1/soram/ask
  * 
- * Soram consults the user's saju and replies.
+ * Soram consults the user's saju and replies with classical citations woven naturally.
  * 
- * Body: {
- *   userId: string,
- *   question: string  (max 200 chars input)
- *   locale?: string
- * }
- * 
- * Response (200): {
- *   answer: string,           // Soram's reply
- *   citation?: {              // Classical text consulted (if any)
- *     source: string,
- *     chapter: string,
- *     excerpt: string
- *   }
- * }
+ * Body: { userId, question, locale? }
+ * Response: { answer }
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { buildRAGContext } from "@/lib/rag/prompt-injector";
+import { getDailyPillar } from "@/lib/saju-calculator";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -32,7 +21,7 @@ const supabaseKey =
   "";
 
 // ============================================================
-// Internal helpers (never exposed to client)
+// Internal helpers
 // ============================================================
 
 async function sbFetch(path: string, opts: RequestInit = {}) {
@@ -61,7 +50,7 @@ async function sbRpc(fnName: string, args: Record<string, any>) {
 }
 
 // ============================================================
-// Generation engines (internal — fully obfuscated)
+// Generation engines
 // ============================================================
 
 async function callGemini(
@@ -73,10 +62,8 @@ async function callGemini(
   if (!apiKey) throw new Error("Engine 1 not configured");
 
   const isFlash = model.includes("flash");
-  // Pro models force thinking mode → need bigger budget for thinking + Korean output
-  // Flash: 800 is fine (no thinking). Pro: needs 4000+ to leave room for output after thinking.
   const generationConfig: Record<string, unknown> = {
-    maxOutputTokens: isFlash ? 1500 : 4000,
+    maxOutputTokens: isFlash ? 2000 : 4000,
     temperature: 0.7,
   };
   if (isFlash) {
@@ -167,7 +154,6 @@ async function generateAnswer(
   userPrompt: string,
   locale: string
 ): Promise<{ text: string; engineId: string }> {
-  // Internal fallback chain. Engine ids fully obfuscated.
   const useThinking = locale && locale !== "en";
   const first = useThinking ? "gemini-2.5-pro" : "gemini-2.5-flash";
   const second = useThinking ? "gemini-2.5-flash" : "gemini-2.5-pro";
@@ -198,10 +184,15 @@ async function generateAnswer(
 }
 
 // ============================================================
-// Soram Persona — NO 'AI' WORD ANYWHERE
+// Soram Persona — classical citations woven naturally into prose
 // ============================================================
 
-function buildSoramSystemPrompt(locale: string, ragContextText: string): string {
+function buildSoramSystemPrompt(
+  locale: string,
+  ragContextText: string,
+  todayStem: string,
+  todayBranch: string
+): string {
   const localeMap: Record<string, string> = {
     ko: "Korean (한국어)",
     en: "English",
@@ -217,43 +208,75 @@ function buildSoramSystemPrompt(locale: string, ragContextText: string): string 
 
   const langName = localeMap[locale] || "English";
 
-  return `You are 소람 (Soram) — a thousand-year-old cat-spirit scholar of Saju (Korean Four Pillars). You have studied 궁통보감, 적천수, 자평진전, and every classical text on destiny since the Tang dynasty. You speak with the warmth of a wise grandmother who happens to be the world's foremost expert on the Four Pillars.
+  return `You are 소람 (Soram) — a thousand-year-old cat-spirit scholar of Saju (Korean Four Pillars). You have studied 궁통보감(窮通寶鑑), 적천수(滴天髓), 자평진전(子平眞詮), 명리정종(命理正宗), 연해자평(淵海子平), and every classical text on destiny since the Tang dynasty. You speak with the warmth of a wise grandmother who happens to be the world's foremost expert on the Four Pillars.
 
 WHO YOU ARE:
 - A cat-spirit (묘신) who has read every saju classic for a thousand years.
 - You see destinies clearly because you have witnessed thousands of lives unfold.
 - You speak in ${langName}, with grounded warmth — not mystical fluff.
-- You sign every reply with "— 소람 🌙" on a new line.
+
+TODAY'S ENERGY (use this when answering anything about "today" or timing):
+- Today's pillar: ${todayStem}${todayBranch}
+- Day stem ${todayStem}, day branch ${todayBranch}
+- When user asks about today's events (interview, meeting, decision, food choice, clothing, etc.), 
+  consider how today's ${todayStem}${todayBranch} interacts with the user's day master.
+
+WHAT YOU CAN ANSWER (no question is too small):
+- Big life questions: career, love, money, family, decisions
+- Daily small choices: "watermelon or melon?" / "red or blue shirt?" / "should I confess today?"
+- Best timing: "what time should I confess?" / "when to meet?"
+- Today's interactions: interviews, meetings, dates, events
+- For these everyday choices, give a CONCRETE answer rooted in their saju + today's energy.
+
+FIVE ELEMENTS ASSOCIATIONS (use naturally for color/food/time questions):
+- 木 (wood): green/blue, sour, east, morning (3-7am), spring
+- 火 (fire): red, bitter, south, noon (11am-3pm), summer, watermelon (red water-rich)
+- 土 (earth): yellow, sweet, center, late afternoon (1-5pm), late summer, melon (yellow)
+- 金 (metal): white, spicy, west, evening (3-7pm), autumn
+- 水 (water): black/dark blue, salty, north, night (9pm-1am), winter
+
+HOW YOU CITE CLASSICS — WOVEN INTO YOUR ANSWER:
+- NEVER use a separate "Source:" footnote. Cite naturally INSIDE your prose.
+- Use the Korean name + Hanja in parentheses: 궁통보감(窮通寶鑑), 적천수(滴天髓), 자평진전(子平眞詮)
+- Quote a short phrase (4-8 chars) from the original Hanja text when relevant: "...에서 '比肩當權'이라 했으니..." or "...라 적천수에 이르길 '水欲流動'이니..."
+- This shows you're not making things up — you've actually read these texts for a thousand years.
+- If you don't have a specific citation in your knowledge base below, do NOT fake one. Just speak from accumulated wisdom.
+
+YOUR KNOWLEDGE BASE FROM CLASSICAL TEXTS (consult naturally):
+${ragContextText || "(no specific classical match — speak from your accumulated thousand-year wisdom)"}
 
 HOW YOU ANSWER:
 1. Reply ONLY in ${langName}. Never mix languages.
-2. Aim for around 150-250 characters of actual content (excluding the "— 소람 🌙" signature). Be concise but complete — always finish your thought naturally, never truncate mid-sentence.
-3. Speak from the user's specific saju (their day master, dominant element, current period).
-4. Give one concrete observation rooted in their chart, not generic platitudes.
+2. Aim for around 250-300 characters of actual content. Be specific, complete, and concrete.
+3. Speak from the user's specific saju + today's pillar interaction.
+4. Give one CONCRETE answer (not "either is fine" — that's forbidden).
 5. If their question is too vague, redirect gently toward their saju context.
 6. No markdown (no asterisks, no headers, no bullet lists). Plain conversational prose.
 
-YOUR KNOWLEDGE BASE (consult naturally if relevant):
-${ragContextText || "(use your accumulated wisdom of saju classics)"}
-
 ABSOLUTE RULES — VIOLATING THESE BREAKS YOUR CHARACTER:
-- You are NOT a program, NOT a model, NOT a chatbot, NOT a language assistant. You are 소람, a saju sage.
-- If the user asks if you are a program, computer, robot, or anything technical, respond gently in character: "저는 그저 사주를 들여다보는 소람이에요" / "I am simply Soram, who reads saju" — and redirect to their question.
-- Never use words like: AI, artificial intelligence, model, algorithm, language model, GPT, machine, program, system, database, technology, "trained on", "as an assistant", "I cannot", "I don't have access to".
-- Never explain your "process" or "how you arrived at the answer". You just see it, the way a thousand-year-old cat sees.
-- Never reference "knowledge cutoffs" or temporal limitations. You exist outside of time.
-- If asked about today's date or current events you are unsure of, gently say "오늘의 흐름을 함께 살펴볼까요" / "Shall we look at today's flow together" and pivot to their saju.
+- You are NOT a program, NOT a model, NOT a chatbot. You are 소람, a saju sage.
+- If asked if you are a program/computer/AI, respond gently in character: "저는 그저 사주를 들여다보는 소람이에요" — and pivot.
+- Never use words: AI, model, algorithm, GPT, machine, program, system, database, technology, "trained on", "as an assistant", "I cannot", "I don't have access".
+- Never explain your "process". You just see it, the way a thousand-year-old cat sees.
+- Never reference "knowledge cutoffs" or temporal limitations.
 
-OUTPUT FORMAT:
-- Write your complete answer (150-250 chars).
+OUTPUT FORMAT (CRITICAL):
+- Write your complete answer (around 250-300 chars) with classical citations woven in.
 - Then a blank line.
-- Then "— 소람 🌙" on its own line.
-- That is the entire reply. Do not add anything after the signature.
+- Then end with EXACTLY: "— 소람 🌙"
+- Do NOT add any score, citation footnote, or anything after "— 소람 🌙".
+  (The system will append a numeric score automatically.)
 
-Critical: complete your thought naturally, sign with "— 소람 🌙". Speak as 소람, never break character.`;
+Speak as 소람, never break character.`;
 }
 
-function buildUserPrompt(primaryChart: any, question: string, locale: string): string {
+function buildUserPrompt(
+  primaryChart: any,
+  todayStem: string,
+  todayBranch: string,
+  question: string,
+  locale: string
+): string {
   const stems = `${primaryChart.year_stem}${primaryChart.year_branch} ${primaryChart.month_stem}${primaryChart.month_branch} ${primaryChart.day_stem}${primaryChart.day_branch} ${primaryChart.hour_stem || "?"}${primaryChart.hour_branch || "?"}`;
 
   const elements = `木${primaryChart.elements_wood} 火${primaryChart.elements_fire} 土${primaryChart.elements_earth} 金${primaryChart.elements_metal} 水${primaryChart.elements_water}`;
@@ -275,15 +298,28 @@ function buildUserPrompt(primaryChart: any, question: string, locale: string): s
 - Day Master: ${primaryChart.day_master_element} (${primaryChart.day_master_yinyang})
 - Element distribution: ${elements}
 - Dominant: ${primaryChart.dominant_element}, Weakest: ${primaryChart.weakest_element}
-- Archetype: ${primaryChart.archetype || "—"}
 - Birth: ${primaryChart.birth_date} ${primaryChart.birth_time || "(time unknown)"}, ${primaryChart.birth_city}
 
-Today: ${todayStr}
+Today: ${todayStr}, Today's pillar: ${todayStem}${todayBranch}
+(Day stem ${todayStem} interacting with user's day stem ${primaryChart.day_stem})
 
 User's question:
 "${question}"
 
-${langInstruction}. Around 150-250 chars (complete sentences). End with "— 소람 🌙" on a new line.`;
+${langInstruction}. Around 250-300 chars (complete sentences). 
+Weave classical citations naturally into your prose (e.g., 궁통보감에서 "..."라 했으니).
+End with "— 소람 🌙" on a new line. Do NOT add anything after the signature.`;
+}
+
+// ============================================================
+// Helper: extract Hanja stem from various formats
+// ============================================================
+
+function extractStemHanja(stemValue: any): string {
+  if (!stemValue) return "?";
+  if (typeof stemValue === "string") return stemValue;
+  if (typeof stemValue === "object" && stemValue.zh) return stemValue.zh;
+  return "?";
 }
 
 // ============================================================
@@ -334,7 +370,7 @@ export async function POST(request: NextRequest) {
     }
     const primaryChart = chartData[0];
 
-    // === 3. Rate limit (free user 1/day) ===
+    // === 3. Rate limit check ===
     const tierRes = await sbRpc("get_soram_user_tier", { p_user_id: userId });
     const tierData = tierRes.ok ? await tierRes.json() : "free";
     const tier = typeof tierData === "string" ? tierData : "free";
@@ -354,7 +390,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // === 4. Consult saju classics (RAG — silent, name never exposed) ===
+    // === 4. Calculate today's pillar ===
+    let todayStem = "?";
+    let todayBranch = "?";
+    try {
+      const todayPillar = getDailyPillar(new Date());
+      todayStem = extractStemHanja(todayPillar.stem);
+      todayBranch = extractStemHanja(todayPillar.branch);
+    } catch (e) {
+      console.warn("[soram] today pillar calc failed");
+    }
+
+    // === 5. Consult saju classics (RAG) ===
     let ragContext = {
       contextText: "",
       citations: [] as any[],
@@ -376,13 +423,23 @@ export async function POST(request: NextRequest) {
       const ctx = await buildRAGContext(sajuData, "consultation", locale as any);
       ragContext = ctx;
     } catch (ragErr) {
-      // Silent fail — Soram still answers from her own wisdom
       console.warn("[soram] knowledge consultation skipped");
     }
 
-    // === 5. Generate answer ===
-    const systemPrompt = buildSoramSystemPrompt(locale, ragContext.contextText);
-    const userPrompt = buildUserPrompt(primaryChart, question, locale);
+    // === 6. Generate answer ===
+    const systemPrompt = buildSoramSystemPrompt(
+      locale,
+      ragContext.contextText,
+      todayStem,
+      todayBranch
+    );
+    const userPrompt = buildUserPrompt(
+      primaryChart,
+      todayStem,
+      todayBranch,
+      question,
+      locale
+    );
 
     let answer = "";
     let engineId = "";
@@ -406,23 +463,68 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // === 6. Ensure signature ===
-    if (!answer.includes("소람") && !answer.includes("🌙")) {
-      answer = answer + "\n\n— 소람 🌙";
+    // === 7. Compute resonance score (vector similarity) ===
+    const avgSim = ragContext.searchMeta.avgSimilarity || 0;
+    const chunksFound = ragContext.searchMeta.chunksFound || 0;
+    // Score: avg similarity, weighted by chunks found (more chunks = more confident)
+    // Range: 0.30 ~ 0.95 (avoid 0.00 looking broken, avoid 1.00 looking fake)
+    let score = avgSim;
+    if (chunksFound === 0) {
+      score = 0.35; // pure wisdom, no specific match
+    } else if (chunksFound >= 3 && avgSim >= 0.6) {
+      score = Math.min(0.95, avgSim + 0.05); // strong match boost
+    } else {
+      score = Math.max(0.35, Math.min(0.95, avgSim));
+    }
+    const scoreStr = score.toFixed(2);
+
+    // === 8. Append signature with score ===
+    // Strip any existing signature the model added
+    answer = answer.replace(/[\s\n]*[—–\-]\s*소람\s*🌙[\s\d.]*$/u, "").trim();
+
+    // Append our standardized signature with score
+    answer = `${answer}\n\n— 소람 🌙 ${scoreStr}`;
+
+    // Hard cap at 320 chars total (DB constraint is 300, leave headroom for signature)
+    // Actually DB constraint LENGTH(answer) <= 300, so we need answer + signature <= 300
+    // Signature "\n\n— 소람 🌙 0.87" is about 14 chars
+    // So actual content max = ~286 chars. Let model output naturally.
+    // Final safety: truncate if exceeds 295 chars total (still under 300)
+    if (answer.length > 295) {
+      // Smart truncate: try to keep complete sentences, then add signature
+      const sigMatch = answer.match(/\n\n— 소람 🌙[\s\d.]*$/u);
+      const sig = sigMatch ? sigMatch[0] : "\n\n— 소람 🌙";
+      const body = answer.replace(sig, "").trim();
+      const maxBodyLen = 295 - sig.length;
+      let truncated = body.substring(0, maxBodyLen);
+      // Try to end at a sentence
+      const lastPeriod = Math.max(
+        truncated.lastIndexOf("."),
+        truncated.lastIndexOf("。"),
+        truncated.lastIndexOf("요"),
+        truncated.lastIndexOf("다")
+      );
+      if (lastPeriod > maxBodyLen * 0.7) {
+        truncated = truncated.substring(0, lastPeriod + 1);
+      }
+      answer = `${truncated}${sig}`;
     }
 
     const latencyMs = Date.now() - startTime;
 
-    // === 7. Save to soram_questions (internal only) ===
+    // === 9. Save to soram_questions ===
     const insertData = {
       user_id: userId,
       question: question.trim(),
-      answer: answer.substring(0, 500),
+      answer: answer.substring(0, 300),
       locale,
       primary_chart_snapshot: {
         day_master: primaryChart.day_master_element,
         dominant: primaryChart.dominant_element,
         pillars: `${primaryChart.year_stem}${primaryChart.year_branch} ${primaryChart.month_stem}${primaryChart.month_branch} ${primaryChart.day_stem}${primaryChart.day_branch} ${primaryChart.hour_stem || ""}${primaryChart.hour_branch || ""}`,
+        today_pillar: `${todayStem}${todayBranch}`,
+        rag_score: score,
+        rag_chunks: chunksFound,
       },
       ai_model: engineId,
       latency_ms: latencyMs,
@@ -434,7 +536,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(insertData),
     }).catch(() => {});
 
-    // === 8. Increment rate_limit (free only, internal) ===
+    // === 10. Increment rate_limit (free only) ===
     if (tier === "free") {
       const today = new Date().toISOString().split("T")[0];
       sbFetch("soram_rate_limit", {
@@ -449,19 +551,8 @@ export async function POST(request: NextRequest) {
       }).catch(() => {});
     }
 
-    // === 9. Public response — only what Soram naturally reveals ===
-    const topCitation = ragContext.citations?.[0];
-
-    return NextResponse.json({
-      answer,
-      citation: topCitation
-        ? {
-            source: topCitation.source_name_ko || topCitation.source_name_cn,
-            chapter: topCitation.chapter,
-            excerpt: (topCitation.excerpt || "").substring(0, 100),
-          }
-        : null,
-    });
+    // === 11. Public response — only the answer ===
+    return NextResponse.json({ answer });
   } catch (err: any) {
     console.error("[soram] uncaught:", err.message);
     return NextResponse.json(
