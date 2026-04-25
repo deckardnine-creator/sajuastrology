@@ -227,6 +227,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await claimReadings(session.user.id);
         await claimPendingCompat(session.user.id);
         setClaimTrigger(prev => prev + 1);
+
+        // ════════════════════════════════════════════════════════════
+        // v1.3 Sprint 2-B follow-up: post-signin-intent redirect.
+        // ════════════════════════════════════════════════════════════
+        // When a logged-out user clicked the "Talk to Soram" card (or
+        // any other gated entry), we stored their intent in localStorage
+        // BEFORE opening the sign-in modal. After successful sign-in,
+        // honour that intent here so the user lands exactly where they
+        // were trying to go — not back on the home page wondering "did
+        // it work?".
+        //
+        // Implementation notes:
+        //   - We use full-page navigation (window.location.href) rather
+        //     than router.push/replace because we are inside the auth
+        //     context's onAuthStateChange callback, which has no access
+        //     to a Next.js router. A hard reload also guarantees the
+        //     destination route initializes with fresh context (loaded
+        //     primary chart, fresh usage call), which is exactly what
+        //     /soram needs to render correctly on first paint.
+        //   - We remove the intent BEFORE navigating so a back-button
+        //     trip to / doesn't loop us back onto /soram.
+        //   - The intent is intentionally a same-origin path string
+        //     (e.g. "/soram"); we reject anything else as a safety net
+        //     against open-redirect.
+        try {
+          const intent = safeGet("post-signin-intent");
+          if (intent && typeof intent === "string" && intent.startsWith("/")) {
+            safeRemove("post-signin-intent");
+            // Append ?app=true preservation if currently in native shell.
+            const dest = isNativeApp() && !intent.includes("?")
+              ? `${intent}?app=true`
+              : intent;
+            window.location.href = dest;
+            return;
+          }
+        } catch {}
       } else if (event === "SIGNED_OUT") {
         // Don't set user to null if signing out — the redirect will handle it
         // This prevents the flash of logged-out UI before redirect
@@ -347,6 +383,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     safeRemove("return-to-consultation");
     safeRemove("auth-return-url");
     safeRemove("dashboard-stale");
+    safeRemove("post-signin-intent");
 
     // Force full page reload to clear all React state.
     // Preserve ?app=true so Flutter shell stays in app mode and

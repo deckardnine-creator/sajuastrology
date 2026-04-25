@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { safeSet } from "@/lib/safe-storage";
 
 // ============================================================
 // i18n texts - centralized to prevent encoding issues
@@ -175,7 +176,7 @@ function shouldShowDateDivider(
 export default function SoramChatPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, openSignInModal } = useAuth();
   const { locale } = useLanguage();
   const t = getT(locale);
 
@@ -193,18 +194,35 @@ export default function SoramChatPage() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // ===== Auth check =====
+  // ════════════════════════════════════════════════════════════════
+  // Auth gate (v1.3 Sprint 2-B follow-up)
+  // ════════════════════════════════════════════════════════════════
+  // Previously: hard router.replace('/?signin=1&from=soram') which
+  // caused a visible URL flicker and made the post-signin destination
+  // ambiguous (the home page kept the ?from=soram param but never
+  // acted on it after sign-in).
+  //
+  // Now: stay on /soram, store the post-signin intent, open the
+  // sign-in modal in place. The modal lives in app/layout.tsx (global)
+  // so it overlays this page seamlessly. After sign-in, auth-context
+  // reads post-signin-intent and full-redirects back here, where this
+  // effect re-runs with `user` populated and the gate falls through
+  // to the normal usage/history load below.
+  //
+  // While not signed in, pageState stays at "loading" and the render
+  // path returns a friendly placeholder (see render section below).
+  // ════════════════════════════════════════════════════════════════
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
-      const params = new URLSearchParams();
-      params.set("signin", "1");
-      params.set("from", "soram");
-      if (locale && locale !== "en") params.set("lang", locale);
-      router.replace(`/?${params.toString()}`);
+      try { safeSet("post-signin-intent", "/soram"); } catch {}
+      openSignInModal();
+      // No router.replace — we want the user to see they're on /soram
+      // (URL bar reads /soram, page chrome shows the Soram header) so
+      // there's a clear "I am about to enter Soram" mental model.
       return;
     }
-  }, [authLoading, user, locale, router]);
+  }, [authLoading, user, openSignInModal]);
 
   // ===== Initial load: usage + history =====
   useEffect(() => {

@@ -6,7 +6,10 @@ import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/lib/language-context"
 import { useNativeApp } from "@/lib/native-app"
+import { useAuth } from "@/lib/auth-context"
+import { safeSet } from "@/lib/safe-storage"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.rimfactory.sajuastrology"
 const APP_STORE_URL = "https://apps.apple.com/us/app/sajuastrology/id6761590704"
@@ -33,6 +36,37 @@ export function HeroSection() {
   }, [])
   const { t, locale } = useLanguage()
   const isNativeApp = useNativeApp()
+  const { user, openSignInModal } = useAuth()
+  const router = useRouter()
+
+  // ════════════════════════════════════════════════════════════════
+  // Soram entry handler — bridges the "Talk to Soram" card click
+  // through every possible auth state into the right destination.
+  //
+  // States covered:
+  //   1. Not signed in        → store intent + open modal (stay on home).
+  //                             auth-context picks up the intent post-signin
+  //                             and full-redirects to /soram.
+  //   2. Signed in            → router.push to /soram. The /soram page
+  //                             itself handles the "no primary chart yet"
+  //                             redirect to /setup-primary-chart?next=/soram,
+  //                             so we don't duplicate that branch here.
+  //
+  // We deliberately DON'T render this as a plain <Link> because the
+  // logged-out branch must NOT navigate to /soram (which would briefly
+  // mount the chat page, fail its auth gate, and bounce back via
+  // router.replace — visible flicker). Click handler with preventDefault
+  // keeps the user on the home page until the modal closes.
+  // ════════════════════════════════════════════════════════════════
+  const handleSoramClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (user) {
+      router.push("/soram")
+      return
+    }
+    try { safeSet("post-signin-intent", "/soram") } catch {}
+    openSignInModal()
+  }
 
   return (
     <section className="relative overflow-hidden min-h-[80vh] lg:min-h-screen pt-page pb-8 sm:pb-12 flex items-center">
@@ -94,23 +128,44 @@ export function HeroSection() {
             </p>
 
             {/* ════════════════════════════════════════════════════════
-                v1.3 Sprint 2-B: NEW — Talk to Soram entry card
-                Placed ABOVE the existing CTA buttons because Soram is the
-                v1.3 product centerpiece (per chandler's "Ask Soram" vision).
-                Gold-gradient border + moon glyph echo the chat page palette
-                so the visual language carries through from this hero into
-                /soram itself.
+                v1.3 Sprint 2-B: Talk to Soram entry card
+                Centerpiece of the v1.3 product — placed above the
+                primary CTA stack. Click handler routes through
+                auth-aware logic in handleSoramClick (see top of
+                component) so logged-out users see the sign-in
+                modal in place instead of bouncing through /soram.
+                
+                Avatar: tries to load /soram/soram_avatar.webp (a
+                160px circular crop of the Soram cat-scholar). If
+                that file is missing in production, the onError
+                handler hides the <img> and the parent's gold
+                background + 🌙 stays visible — graceful fallback,
+                no broken-image icon.
             ════════════════════════════════════════════════════════ */}
-            <Link
-              href="/soram"
-              className="block w-full sm:w-[420px] mt-2 group"
+            <button
+              type="button"
+              onClick={handleSoramClick}
+              className="block text-left w-full sm:w-[420px] mt-2 group"
               aria-label={t("hero.askSoram")}
             >
               <div className="relative overflow-hidden rounded-2xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm p-4 sm:p-5 transition-all duration-200 hover:border-amber-300/70 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)] active:scale-[0.99]">
                 <div className="flex items-center gap-3">
-                  {/* Soram avatar — gold circle with moon */}
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center text-2xl sm:text-3xl shadow-md shadow-amber-500/30 shrink-0">
-                    <span aria-hidden="true">🌙</span>
+                  {/* Soram avatar — gold circle. We layer an <img> on
+                      top; it falls back to the moon glyph + gradient
+                      background if the avatar asset isn't found. */}
+                  <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center text-2xl sm:text-3xl shadow-md shadow-amber-500/30 shrink-0 overflow-hidden">
+                    <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center">🌙</span>
+                    <img
+                      src="/soram/soram_avatar.webp"
+                      alt=""
+                      aria-hidden="true"
+                      onError={(ev) => {
+                        const el = ev.currentTarget;
+                        el.style.display = "none";
+                      }}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      draggable={false}
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm sm:text-base font-semibold text-amber-100 leading-snug">
@@ -123,7 +178,7 @@ export function HeroSection() {
                   <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
                 </div>
               </div>
-            </Link>
+            </button>
 
             {/* CTA buttons — 2 rows, always vertical stack, equal fixed width (280px) */}
             <div className="flex flex-col items-center sm:items-start gap-3 mt-2">
