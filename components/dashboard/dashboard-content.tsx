@@ -137,6 +137,10 @@ function DashboardInner() {
   const [soramUsage, setSoramUsage] = useState<SoramUsage | null>(null);
   const [soramHistory, setSoramHistory] = useState<SoramHistoryItem[]>([]);
   const [soramHistoryLoaded, setSoramHistoryLoaded] = useState(false);
+  // v1.3 Sprint 2-B follow-up: dashboard surfaces 5 by default, expands
+  // to 10 on tap. We fetch 10 up front so "Show more" is instantaneous
+  // (no extra request, no loading flicker).
+  const [soramHistoryExpanded, setSoramHistoryExpanded] = useState(false);
   const [consultCredits, setConsultCredits] = useState<number | null>(null);
 
   const todayLocal = new Intl.DateTimeFormat("en-CA", {
@@ -232,13 +236,14 @@ function DashboardInner() {
       } catch {}
     })();
 
-    // Soram conversation history (most recent 5 for dashboard preview)
+    // Soram conversation history (most recent 10 — dashboard shows 5
+    // initially and expands to 10 on "Show more" tap, no second request).
     (async () => {
       try {
         const res = await fetch("/api/v1/soram/history", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user.id, limit: 5 }),
+          body: JSON.stringify({ userId: user.id, limit: 10 }),
         });
         if (!res.ok) {
           if (!cancelled) setSoramHistoryLoaded(true);
@@ -792,11 +797,11 @@ function DashboardInner() {
 
       {/* ════════════════════════════════════════════════════════════
           v1.3 Sprint 2-B: NEW — Soram conversation backup
-          Shows the most recent 5 Q&A. Tapping a row deep-links to
-          /soram (the chat page itself manages full history scroll).
-          Hidden if user has zero conversations — empty state is
-          covered by the Soram CTA card at the top of the dashboard,
-          so we don't need a duplicate empty card here.
+          Surfaces 5 most recent Q&A by default; tapping "Show more"
+          expands to 10 (the limit fetched in the load effect above).
+          For full history beyond 10, the "View all conversations"
+          link at the top right deep-links to /soram which renders
+          the entire chat scroll.
       ════════════════════════════════════════════════════════════ */}
       {soramHistoryLoaded && soramHistory.length > 0 && (
         <motion.section
@@ -819,36 +824,80 @@ function DashboardInner() {
             </Link>
           </div>
           <div className="space-y-2">
-            {soramHistory.slice().reverse().slice(0, 5).map((msg) => {
-              const dateStr = new Date(msg.createdAt).toLocaleDateString(
-                toBCP47(locale),
-                { month: "short", day: "numeric" }
-              );
+            {(() => {
+              // history arrives oldest→newest from /api (the API reverses to
+              // chat-scroll order). For dashboard we want newest first, so
+              // reverse once. Then slice the visible window.
+              const newestFirst = soramHistory.slice().reverse();
+              const visibleCount = soramHistoryExpanded ? 10 : 5;
+              const visible = newestFirst.slice(0, visibleCount);
+              const hasMore = newestFirst.length > visibleCount;
+
               return (
-                <Link
-                  key={msg.id}
-                  href="/soram"
-                  className="block bg-card/50 border border-amber-500/15 rounded-xl p-3.5 sm:p-4 hover:border-amber-400/35 transition-colors"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-300/90 to-amber-500/90 flex items-center justify-center text-sm shadow-sm shrink-0">
-                      <span aria-hidden="true">🌙</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-amber-100/95 leading-snug line-clamp-1">
-                        {msg.question}
-                      </p>
-                      <p className="text-xs text-muted-foreground/85 leading-relaxed mt-1 line-clamp-2">
-                        {msg.answer}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground/50 mt-1.5">
-                        {dateStr}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
+                <>
+                  {visible.map((msg) => {
+                    const dateStr = new Date(msg.createdAt).toLocaleDateString(
+                      toBCP47(locale),
+                      { month: "short", day: "numeric" }
+                    );
+                    const timeStr = new Date(msg.createdAt).toLocaleTimeString(
+                      toBCP47(locale),
+                      { hour: "2-digit", minute: "2-digit" }
+                    );
+                    return (
+                      <Link
+                        key={msg.id}
+                        href="/soram"
+                        className="block bg-card/50 border border-amber-500/15 rounded-xl p-3.5 sm:p-4 hover:border-amber-400/35 transition-colors"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-300/90 to-amber-500/90 flex items-center justify-center text-sm shadow-sm shrink-0">
+                            <span aria-hidden="true">🌙</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-amber-100/95 leading-snug line-clamp-1">
+                              {msg.question}
+                            </p>
+                            <p className="text-xs text-muted-foreground/85 leading-relaxed mt-1 line-clamp-2">
+                              {msg.answer}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground/50 mt-1.5">
+                              {dateStr} · {timeStr}
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+
+                  {/* Show-more button — appears only when there are
+                      more rows to reveal. Tapping does NOT trigger a
+                      network round-trip (data is already loaded). */}
+                  {hasMore && !soramHistoryExpanded && (
+                    <button
+                      onClick={() => setSoramHistoryExpanded(true)}
+                      className="w-full py-2.5 text-sm text-amber-300/90 hover:text-amber-200 transition-colors border border-amber-500/15 rounded-xl hover:border-amber-400/35"
+                    >
+                      {tf("dash.soramHistoryShowMore", locale, {
+                        count: Math.min(newestFirst.length, 10) - 5,
+                      })}
+                    </button>
+                  )}
+
+                  {/* Once expanded, show a small hint that the rest
+                      lives on the chat page itself. Only render when
+                      the user explicitly expanded. */}
+                  {soramHistoryExpanded && (
+                    <Link
+                      href="/soram"
+                      className="block w-full py-2.5 text-sm text-center text-amber-300/90 hover:text-amber-200 transition-colors border border-amber-500/15 rounded-xl hover:border-amber-400/35"
+                    >
+                      {t("dash.soramHistoryAll", locale)} →
+                    </Link>
+                  )}
+                </>
               );
-            })}
+            })()}
           </div>
         </motion.section>
       )}

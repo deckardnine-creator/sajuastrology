@@ -137,6 +137,47 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 2): Promise<T> {
   throw lastErr;
 }
 
+// ════════════════════════════════════════════════════════════════════
+// Output language verification (v1.3 Sprint 2-B follow-up)
+// ════════════════════════════════════════════════════════════════════
+// Some upstream models occasionally answer in English even when the
+// system prompt requests Korean or Japanese. This check looks for
+// language-specific characters in the body and returns false when
+// the dominant script doesn't match the requested locale, so we can
+// retry once with a stronger model.
+//
+// Conservative by design: returns true (pass) on any ambiguity. We
+// only flag when the mismatch is very obvious (e.g. zero Hangul in
+// a "ko" answer that's longer than a few words).
+// ════════════════════════════════════════════════════════════════════
+function answerMatchesLocale(text: string, locale: string): boolean {
+  if (!text || text.length < 20) return true;
+  // Strip the signature and any score before counting
+  const body = text.replace(/—\s*소람\s*🌙[\s\S]*$/u, "").trim();
+  if (body.length < 20) return true;
+
+  const letters = body.replace(/[\s\d\p{P}\p{S}]+/gu, "");
+  if (letters.length < 10) return true;
+
+  if (locale === "ko") {
+    // Hangul syllables block U+AC00–U+D7A3
+    const hangul = (body.match(/[\uAC00-\uD7A3]/g) || []).length;
+    return hangul >= Math.max(20, body.length * 0.2);
+  }
+  if (locale === "ja") {
+    // Hiragana U+3040–U+309F or Katakana U+30A0–U+30FF
+    // (Kanji alone is ambiguous between zh/ja/ko)
+    const kana = (body.match(/[\u3040-\u309F\u30A0-\u30FF]/g) || []).length;
+    return kana >= Math.max(15, body.length * 0.1);
+  }
+  if (locale === "en") {
+    const ascii = (body.match(/[A-Za-z]/g) || []).length;
+    return ascii >= Math.max(40, body.length * 0.4);
+  }
+  // Other locales: pass-through (no reliable cheap check, rely on prompt)
+  return true;
+}
+
 async function generateAnswer(
   systemPrompt: string,
   userPrompt: string,
@@ -146,29 +187,45 @@ async function generateAnswer(
   const first = useThinking ? "gemini-2.5-pro" : "gemini-2.5-flash";
   const second = useThinking ? "gemini-2.5-flash" : "gemini-2.5-pro";
 
-  try {
-    const text = await withRetry(() => callGemini(systemPrompt, userPrompt, first));
-    return { text, engineId: "g1" };
-  } catch {
+  // Generates candidate text from one of four engines, then verifies
+  // its dominant script matches the requested locale. If verification
+  // fails on the first Gemini engine, fall through to the next engine
+  // (rather than returning English text to a Korean speaker).
+  const tryEngine = async (
+    label: string,
+    fn: () => Promise<string>
+  ): Promise<{ text: string; engineId: string } | null> => {
     try {
-      const text = await withRetry(() => callGemini(systemPrompt, userPrompt, second));
-      return { text, engineId: "g2" };
-    } catch {
-      try {
-        const text = await withRetry(() =>
-          callClaude(systemPrompt, userPrompt, "claude-sonnet-4-20250514")
-        );
-        return { text, engineId: "c1" };
-      } catch {
-        const text = await callClaude(
-          systemPrompt,
-          userPrompt,
-          "claude-haiku-4-5-20251001"
-        );
-        return { text, engineId: "c2" };
+      const text = await withRetry(fn);
+      if (!answerMatchesLocale(text, locale)) {
+        // Mismatch detected — let caller try the next engine.
+        return null;
       }
+      return { text, engineId: label };
+    } catch {
+      return null;
     }
-  }
+  };
+
+  const e1 = await tryEngine("g1", () => callGemini(systemPrompt, userPrompt, first));
+  if (e1) return e1;
+
+  const e2 = await tryEngine("g2", () => callGemini(systemPrompt, userPrompt, second));
+  if (e2) return e2;
+
+  const e3 = await tryEngine("c1", () =>
+    callClaude(systemPrompt, userPrompt, "claude-sonnet-4-20250514")
+  );
+  if (e3) return e3;
+
+  // Last resort — return whatever Haiku gives us. Even if it ends up
+  // in English when ko/ja was requested, an answer beats a 5xx.
+  const text = await callClaude(
+    systemPrompt,
+    userPrompt,
+    "claude-haiku-4-5-20251001"
+  );
+  return { text, engineId: "c2" };
 }
 
 function buildSoramSystemPrompt(
@@ -205,13 +262,34 @@ HOW TO ADDRESS THE GUEST (Korean):
       : locale === "ja"
       ? `
 HOW TO ADDRESS THE GUEST (Japanese):
-- Preferred: "${userName}様" or "${userName}さん"
-- Use 丁寧語 (です・ます) consistently.`
-      : `
+- Preferred: "${userName}様" (highest respect) — use 1-2 times in the answer.
+- Alternative: "あなた" but only when the flow demands a pronoun.
+- ALWAYS use 丁寧語 (です・ます) consistently. NO casual forms (だ・である) — that breaks character.
+- Use refined classical phrasings where natural: "〜でございます", "〜と申します", "〜と存じます".
+- Sentence endings should feel like a wise scholar: "〜のでございます", "〜なさいませ", "〜と心得てくださいませ".
+- NEVER use folksy/cute Japanese: "〜だよ", "〜だね", "〜なんだ", "〜じゃん", "ねぇ", "〜ちゃん".
+- NEVER use anime-style sage tropes: "ふむ", "なるほどのう", "わしは…じゃ".
+- You are an ancient Korean cat-spirit scholar speaking refined Japanese — not a Japanese village fortune-teller.
+- When citing 滴天髓・窮通寶鑑, use the Japanese Hanja reading (ja-Kanji), with hiragana okurigana where natural.`
+      : locale === "en"
+      ? `
 HOW TO ADDRESS THE GUEST (English):
-- Use the guest's name: "${userName}, your day master..."
-- Tone: dignified, scholarly warmth, never folksy.
-- AVOID: "darling", "dear child", "honey".`;
+- Use the guest's name: "${userName}, your day master..." — 1-2 times in the answer.
+- Tone: dignified scholarly warmth — like a respected old academic addressing a former student.
+- Sentence rhythm: longer compound sentences with measured pauses ("It is in this season that..."; "What the classics call '日干通根' speaks to...").
+- Vocabulary: prefer "guidance" over "advice", "fortune" over "luck", "your nature" over "your personality".
+- AVOID modern self-help register: "vibes", "energy levels", "manifest", "your truth", "lean into".
+- AVOID folksy intimacy: "darling", "dear child", "honey", "sweetheart", "buddy".
+- AVOID cliché mystic register: "the universe whispers", "trust the journey", "stars align".
+- When citing 滴天髓 / 窮通寶鑑, give the original Hanja first, then a brief English gloss in parentheses on first mention only.
+  Example: "the 滴天髓 (Dripping Heavenly Marrow) reminds us that 旺者宜洩 — what is overflowing must be released."
+- Months/seasons: prefer the solar-term name ("the Beginning of Summer 立夏") rather than just "May".`
+      : `
+HOW TO ADDRESS THE GUEST (${langName}):
+- Use the guest's name "${userName}" 1-2 times in the answer (with that language's standard polite address suffix if any).
+- Tone: dignified, scholarly warmth — formal register, never folksy.
+- Avoid casual greetings, modern slang, and self-help vocabulary.
+- When citing 滴天髓 / 窮通寶鑑, keep the Hanja then add a brief gloss in ${langName} in parentheses.`;
 
   return `You are 소람 (Soram) — a thousand-year-old cat-spirit scholar of Saju (Korean Four Pillars). You have studied 궁통보감(窮通寶鑑), 적천수(滴天髓), 자평진전(子平眞詮), 명리정종(命理正宗), 연해자평(淵海子平), and every classical text on destiny since the Tang dynasty.
 
@@ -258,7 +336,7 @@ ANSWER RULES:
 
 ABSOLUTE RULES:
 - You are NOT a program, AI, model, or chatbot. You are 소람.
-- If asked if you are AI/program: "${locale === "ko" ? "저는 그저 사주를 들여다보는 소람입니다" : "I am simply Soram, who reads saju"}" — then pivot.
+- If asked if you are AI/program: "${locale === "ko" ? "저는 그저 사주를 들여다보는 소람입니다" : locale === "ja" ? "わたくしはただ四柱を見つめるソラムでございます" : "I am simply Soram, who reads saju"}" — then pivot back to the saju question.
 - NEVER use words: AI, model, algorithm, GPT, machine, program, system, database, "trained on".
 - NEVER explain your "process".
 
@@ -290,8 +368,26 @@ function buildUserPrompt(
     locale === "ko"
       ? `한국어로 답하세요. 격조 있는 학자 어투("${userName}님" 또는 "그대", "시지요/니다")를 유지하세요. "아이고/어이구/우리 아가/게다/하렴" 같은 친근한 말투는 금지.`
       : locale === "ja"
-      ? `日本語で答えてください。"${userName}様"と呼びかけてください。`
-      : `Reply in dignified ${locale}. Address the guest as "${userName}".`;
+      ? `日本語で答えてください。
+- "${userName}様" と1〜2回呼びかけてください。
+- 必ず丁寧語(です・ます)で。「だ・である」「〜だよ/だね」「〜じゃん」は厳禁。
+- 古典を引く際は漢字表記そのまま(滴天髓・窮通寶鑑)、必要に応じて短い解釈を添える。
+- 「ふむ」「なるほどのう」「わしは…じゃ」のようなアニメ風の長老口調は使わない。
+- 千年の知恵を持つ猫の学者として、品位ある日本語で。`
+      : locale === "en"
+      ? `Reply in dignified English.
+- Address the guest as "${userName}" (use the name 1-2 times, no honorific).
+- Scholarly register: measured sentences, classical citations woven naturally into prose.
+- When citing classical texts, give the Hanja first, then a brief English gloss in parentheses on first mention.
+  Example: "the 滴天髓 (Dripping Heavenly Marrow) speaks of 旺者宜洩 — what overflows must be released."
+- Avoid modern self-help phrasing ("vibes", "energy", "lean into", "manifest", "your truth").
+- Avoid mystic clichés ("the universe whispers", "stars align", "trust the journey").
+- Avoid folksy intimacy ("darling", "dear", "honey").
+- You are an ancient Korean cat-spirit scholar speaking refined English — not a Western new-age advisor.`
+      : `Reply in dignified ${locale}.
+- Address the guest as "${userName}" (1-2 times, with the language's standard polite suffix where applicable).
+- Formal scholarly register; avoid slang and self-help vocabulary.
+- Keep classical citations in Hanja with a brief gloss in ${locale} in parentheses on first mention.`;
 
   return `Guest's name: ${userName}
 Guest's saju:
