@@ -140,64 +140,62 @@ export default function SetupPrimaryChartPage() {
     return (
       <div className="relative">
         {/* ════════════════════════════════════════════════════════
-            v1.3 Sprint 2-B v6: Soram-narrated lock notice
+            v6.5: Soram-narrated lock notice — INLINE above BirthDataForm
             ════════════════════════════════════════════════════════
-            Replaces the previous "정확하게 입력해주세요... info@..." 
-            text-only banner with a Soram-narrated card:
-              - left: circular Soram avatar (default expression, 56px)
-              - right: two-line notice
-                  · "본인 사주는 최초 한번만 입력 가능합니다."
-                  · "잘못 입력 시에 고객센터로 문의해주세요."
-            
-            The card is still absolutely positioned at the top of the
-            form so it floats above BirthDataForm without altering
-            that component's internal layout. pointer-events-none on
-            the wrapper + pointer-events-auto on the inner card lets
-            users still tap the form fields beneath it.
-            
-            Avatar uses /soram/soram_nav.webp (the default expression
-            close-up) so this card visually echoes the bottom-nav
-            Soram tab — same character vibe — without duplicating the
-            constellation hero image used on the home page card.
-            
-            If the avatar asset is missing in production, the onError
-            handler hides the <img> and the gold-gradient circle
-            stays as a fallback.
+            v6 had this floating absolutely at the top, which on mobile
+            covered the "당신의 운명을 발견하세요" hero copy. Now it
+            sits inline above BirthDataForm with the same max-width as
+            the form so it aligns naturally:
+              • Mobile: form stacks below hero copy → notice appears
+                right above the name input, exactly where chandler
+                wants it.
+              • Desktop: BirthDataForm has a left hero column + right
+                form column, but the form column is positioned
+                top-aligned inside the same container. The notice
+                sits above the entire form block — visually above the
+                right-side name input on desktop without absolute.
+
+            Visual upgrade for "더 쿨하게":
+              • Subtle gold→transparent gradient background (was solid 8% gold)
+              • Left gold accent bar replaces full border emphasis
+              • Tighter padding (px-4 py-2.5) — more compact, less heavy
+              • Smaller avatar (40px → 36px)
+              • Single line on mobile when possible via clean copy
         ════════════════════════════════════════════════════════ */}
-        <div className="absolute top-0 left-0 right-0 z-30 pointer-events-none">
-          <div className="max-w-3xl mx-auto pt-6 px-4">
-            <div className="pointer-events-auto bg-[rgba(242,202,80,0.08)] border border-[rgba(242,202,80,0.25)] rounded-2xl px-4 py-3 backdrop-blur-md">
-              <div className="flex items-start gap-3">
-                {/* Soram avatar */}
-                <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 shrink-0 overflow-hidden shadow-md shadow-amber-500/25">
-                  <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-xl">🌙</span>
-                  <img
-                    src="/soram/soram_nav.webp"
-                    alt=""
-                    aria-hidden="true"
-                    onError={(ev) => {
-                      const el = ev.currentTarget;
-                      el.style.display = "none";
-                    }}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    draggable={false}
-                  />
-                </div>
-                {/* Notice text — two short lines, Soram speaking */}
-                <div className="flex-1 min-w-0 pt-0.5">
-                  <p className="text-[12px] sm:text-sm text-[#F2CA50]/95 leading-snug font-medium">
-                    {locale === "ko" && "본인 사주는 최초 한 번만 입력 가능합니다."}
-                    {locale === "ja" && "ご自身の四柱は初回一度だけ入力可能です。"}
-                    {locale === "en" && "You can enter your own saju only once."}
-                    {!["ko","ja","en"].includes(locale) && "You can enter your own saju only once."}
-                  </p>
-                  <p className="text-[11px] sm:text-xs text-[#F2CA50]/75 leading-snug mt-1">
-                    {locale === "ko" && "잘못 입력 시에는 info@rimfactory.io로 문의해주세요."}
-                    {locale === "ja" && "誤りがあれば info@rimfactory.io までご連絡ください。"}
-                    {locale === "en" && "If incorrect, contact info@rimfactory.io."}
-                    {!["ko","ja","en"].includes(locale) && "If incorrect, contact info@rimfactory.io."}
-                  </p>
-                </div>
+        <div className="max-w-3xl mx-auto px-4 pt-4 sm:pt-6">
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-400/25 backdrop-blur-md px-3 sm:px-4 py-2.5 sm:py-3">
+            {/* gold left accent bar */}
+            <span aria-hidden="true" className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500/60" />
+            <div className="flex items-center gap-2.5 sm:gap-3 pl-2">
+              {/* Soram avatar — 36px, smaller than v6 */}
+              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 shrink-0 overflow-hidden shadow-md shadow-amber-500/25">
+                <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-base">🌙</span>
+                <img
+                  src="/soram/soram_nav.webp"
+                  alt=""
+                  aria-hidden="true"
+                  onError={(ev) => {
+                    const el = ev.currentTarget;
+                    el.style.display = "none";
+                  }}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  draggable={false}
+                />
+              </div>
+              {/* Notice text — two compact lines */}
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] sm:text-sm text-amber-100/95 leading-snug font-medium">
+                  {locale === "ko" && "본인 사주는 최초 한 번만 입력 가능합니다."}
+                  {locale === "ja" && "ご自身の四柱は初回一度だけ入力可能です。"}
+                  {locale === "en" && "You can enter your own saju only once."}
+                  {!["ko","ja","en"].includes(locale) && "You can enter your own saju only once."}
+                </p>
+                <p className="text-[10px] sm:text-[11px] text-amber-200/60 leading-snug mt-0.5">
+                  {locale === "ko" && "잘못 입력 시 info@rimfactory.io"}
+                  {locale === "ja" && "誤りがあれば info@rimfactory.io"}
+                  {locale === "en" && "If incorrect: info@rimfactory.io"}
+                  {!["ko","ja","en"].includes(locale) && "If incorrect: info@rimfactory.io"}
+                </p>
               </div>
             </div>
           </div>

@@ -138,17 +138,109 @@ function getT(locale: string) {
 // Both intentionally small (8 = 32px) so the bubbles dominate
 // and the avatars feel like signatures, not portraits.
 // ============================================================
-function SoramAvatar({ invisible = false }: { invisible?: boolean }) {
+// ============================================================
+// v6.5: 16-expression rotation + hero variant
+// ============================================================
+//
+// EXPRESSION_ROTATION lists all 16 expression slugs that exist
+// under /public/soram/expressions/. Soram message bubbles cycle
+// through this list by passing an `index` prop — typically the
+// message index from messages.map. The first welcome bubble
+// uses index 8 (smile, happy mood) intentionally; subsequent
+// real answers rotate through default/contemplation/etc.
+//
+// Grouping rationale (chandler "내용과 매칭은 가능할 런지"):
+//   • "answering" expressions (mostly thoughtful or warm)
+//     dominate the rotation — no laughing-face on a serious
+//     answer about, say, a breakup.
+//   • Loading state always shows contemplation (paw-on-chin).
+//   • Rate-limited / used-up state shows exhausted or void.
+//
+// Rather than try to infer mood from the answer text (which
+// requires per-message NLP and is fragile), we just rotate
+// through the curated "answer-appropriate" subset. This gives
+// visual variety without ever showing a wildly wrong face.
+//
+// variant="hero" forces the constellation-bg close-up
+// (soram_hero.webp). Used in the chat header where chandler
+// wants a different image than the bubble avatars.
+// ============================================================
+
+const ANSWER_EXPRESSIONS = [
+  "default",          // neutral baseline
+  "smile",            // warm, friendly
+  "soft_smile",       // subtle warmth
+  "wink_happy",       // playful but kind
+  "hidden_joy",       // knowing smile
+  "contemplation",    // thoughtful
+  "concern",          // serious / careful
+  "cheeky",           // mildly playful
+] as const;
+
+function pickExpression(messageIndex: number): string {
+  return ANSWER_EXPRESSIONS[messageIndex % ANSWER_EXPRESSIONS.length];
+}
+
+type SoramAvatarProps = {
+  invisible?: boolean;
+  /** Message index for expression rotation (Soram bubbles only) */
+  index?: number;
+  /** "nav" = small bubble avatar; "hero" = constellation-bg close-up for header */
+  variant?: "nav" | "hero";
+  /** Larger size for header — defaults 32px, "lg" = 40px */
+  size?: "sm" | "lg";
+  /** Override expression by name (e.g. "contemplation" during loading) */
+  expression?: string;
+};
+
+function SoramAvatar({
+  invisible = false,
+  index = 0,
+  variant = "nav",
+  size = "sm",
+  expression,
+}: SoramAvatarProps) {
+  const sizeClass = size === "lg" ? "w-10 h-10" : "w-8 h-8";
+
   if (invisible) {
-    return <div className="w-8 h-8 shrink-0" aria-hidden="true" />;
+    return <div className={`${sizeClass} shrink-0`} aria-hidden="true" />;
   }
+
+  // Hero variant for chat header — uses constellation background
+  // close-up (the "first" image chandler made for the home CTA).
+  // Not part of the rotation pool.
+  if (variant === "hero") {
+    return (
+      <div className={`relative ${sizeClass} rounded-full bg-gradient-to-br from-indigo-900 to-slate-900 shrink-0 overflow-hidden shadow-md shadow-amber-500/20 ring-1 ring-amber-400/30`}>
+        <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-sm">
+          🌙
+        </span>
+        <img
+          src="/soram/soram_hero.webp"
+          alt=""
+          aria-hidden="true"
+          onError={(ev) => {
+            (ev.currentTarget as HTMLImageElement).style.display = "none";
+          }}
+          className="absolute inset-0 w-full h-full object-cover"
+          draggable={false}
+        />
+      </div>
+    );
+  }
+
+  // Nav variant — bubble avatar with rotating expression.
+  // Pick by name override, else by index rotation.
+  const expr = expression ?? pickExpression(index);
+  const src = `/soram/expressions/${expr}.webp`;
+
   return (
-    <div className="relative w-8 h-8 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 shrink-0 overflow-hidden shadow-sm shadow-amber-500/30">
+    <div className={`relative ${sizeClass} rounded-full bg-gradient-to-br from-amber-300 to-amber-500 shrink-0 overflow-hidden shadow-sm shadow-amber-500/30`}>
       <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-sm">
         🌙
       </span>
       <img
-        src="/soram/soram_nav.webp"
+        src={src}
         alt=""
         aria-hidden="true"
         onError={(ev) => {
@@ -523,7 +615,7 @@ export default function SoramChatPage() {
           </button>
 
           <div className="flex items-center gap-2">
-            <SoramAvatar />
+            <SoramAvatar variant="hero" size="lg" />
             <h1 className="text-base font-medium text-amber-100">
               {t.headerTitle}
             </h1>
@@ -558,9 +650,9 @@ export default function SoramChatPage() {
           ════════════════════════════════════════════════════════ */}
           {showWelcome && usage && (
             <>
-              {/* Soram first message */}
+              {/* Soram first message — warm welcome smile */}
               <div className="flex items-end gap-2">
-                <SoramAvatar />
+                <SoramAvatar expression="smile" />
                 <div className="max-w-[78%]">
                   <div className="bg-[#1E2A4A] text-white/95 rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed shadow-sm shadow-black/20">
                     {(t as { firstWelcomeMsg?: string }).firstWelcomeMsg ?? t.welcomeHint}
@@ -627,9 +719,9 @@ export default function SoramChatPage() {
                   <UserAvatar />
                 </div>
 
-                {/* Soram row (left, navy) */}
+                {/* Soram row (left, navy) — expression rotates by index */}
                 <div className="flex items-end gap-2">
-                  <SoramAvatar />
+                  <SoramAvatar index={idx} />
                   <div className="max-w-[78%]">
                     <div className="bg-[#1E2A4A] text-white/95 rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap shadow-sm shadow-black/20">
                       {msg.answer}
@@ -653,10 +745,10 @@ export default function SoramChatPage() {
                 <UserAvatar />
               </div>
 
-              {/* Soram thinking (left) — with avatar */}
+              {/* Soram thinking (left) — contemplation expression while loading */}
               {pending.status === "loading" && (
                 <div className="flex items-end gap-2">
-                  <SoramAvatar />
+                  <SoramAvatar expression="contemplation" />
                   <div className="bg-[#1E2A4A] text-white rounded-2xl rounded-bl-md px-4 py-3 max-w-[78%] shadow-sm shadow-black/20">
                     <div className="flex items-center gap-2 text-sm text-amber-100/80">
                       <span className="inline-flex gap-1">
@@ -674,7 +766,7 @@ export default function SoramChatPage() {
 
               {pending.status === "error" && (
                 <div className="flex items-end gap-2">
-                  <SoramAvatar />
+                  <SoramAvatar expression="concern" />
                   <div className="bg-red-900/30 text-red-200 rounded-2xl rounded-bl-md px-4 py-3 text-sm border border-red-500/20 max-w-[78%]">
                     {t.errorAsk}
                   </div>
