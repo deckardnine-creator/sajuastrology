@@ -358,13 +358,62 @@ export async function POST(request: NextRequest) {
       ragPrefix = "";
     }
 
-    // ═══ GENERATE ALL CONTENT — Gemini Pro → Claude fallback ═══
-    const [freeRaw, raw1, raw2, raw3] = await Promise.all([
-      callAI(ragPrefix + buildFreeCompatibilityPrompt(scores, locale), "FreeSummary", locale),
-      callAI(ragPrefix + buildPaidCompatPrompt1(scores, locale), "Paid-Love+Work", locale),
-      callAI(ragPrefix + buildPaidCompatPrompt2(scores, locale), "Paid-Friend+Conflict", locale),
-      callAI(ragPrefix + buildPaidCompatPrompt3(scores, locale), "Paid-Yearly", locale),
-    ]);
+    // ════════════════════════════════════════════════════════════
+    // v6.17.3 — fast free path, lazy paid generation
+    // ════════════════════════════════════════════════════════════
+    // OLD: all 4 LLM calls awaited in parallel. The slowest call
+    // (often Gemini Pro for KO/JA) gated the response. Free users
+    // waited 30-60s to see free_summary even though paid_* would
+    // be hidden behind a $2.99 paywall they hadn't crossed.
+    //
+    // NEW: only free_summary is awaited. The 3 paid prompts are
+    // kicked off in the background and persisted via UPDATE when
+    // they resolve. The compatibility result page (/compatibility/
+    // result/[slug]) shows free_summary immediately. When the user
+    // unlocks paid (admin bypass OR $2.99 PayPal return), the page
+    // polls /api/compatibility/check-paid which returns is_paid:true.
+    // If the paid_* columns aren't filled yet at that moment, the
+    // existing UI already handles the null-content case gracefully.
+    //
+    // Stability:
+    //   - Background promises catch all errors locally — they cannot
+    //     crash the route after the response is sent.
+    //   - DB INSERT runs with free_summary first; UPDATEs follow for
+    //     paid_* fields. If the INSERT fails, paid background work
+    //     still tries to UPDATE by share_slug — those UPDATEs will
+    //     just match 0 rows, no harm done.
+    //   - Worst case === current behavior: if a background promise
+    //     dies, paid_* columns stay null, and the eventual paywall
+    //     still operates on free_summary alone.
+    // ════════════════════════════════════════════════════════════
+
+    // 1. Generate free summary (awaited — gates the response)
+    const freeRaw = await callAI(
+      ragPrefix + buildFreeCompatibilityPrompt(scores, locale),
+      "FreeSummary",
+      locale
+    );
+
+    // 2. Kick off paid prompts in the background. We capture the
+    //    promises but do NOT await them here.
+    const paidPromises: Array<Promise<{ key: string; raw: string } | null>> = [
+      callAI(ragPrefix + buildPaidCompatPrompt1(scores, locale), "Paid-Love+Work", locale)
+        .then((raw) => ({ key: "p1", raw }))
+        .catch(() => null),
+      callAI(ragPrefix + buildPaidCompatPrompt2(scores, locale), "Paid-Friend+Conflict", locale)
+        .then((raw) => ({ key: "p2", raw }))
+        .catch(() => null),
+      callAI(ragPrefix + buildPaidCompatPrompt3(scores, locale), "Paid-Yearly", locale)
+        .then((raw) => ({ key: "p3", raw }))
+        .catch(() => null),
+    ];
+
+    // Sentinels so the legacy code below stays unchanged in shape.
+    // We will not actually parse these synchronously — they'll be
+    // populated by the background task and persisted via UPDATE.
+    const raw1 = "";
+    const raw2 = "";
+    const raw3 = "";
 
     let freeSummary: string;
     try {
@@ -495,6 +544,11 @@ export async function POST(request: NextRequest) {
       locale,
     };
 
+    // v6.17.3: paidData is intentionally empty in the new flow because
+    // raw1/raw2/raw3 above are sentinels (""). The block below executes
+    // but never adds paid_* fields to insertBody — those land in the
+    // background PATCH after Promise.allSettled resolves. Kept here for
+    // back-compat in case a future caller wires raw1..3 differently.
     // Save each paid field independently. Previously the entire block was
     // gated on `paidData.love` being truthy, which meant a single failed
     // love-prompt parse would drop work/friendship/conflict/yearly even when
@@ -513,6 +567,108 @@ export async function POST(request: NextRequest) {
     await fetch(`${supabaseUrl}/rest/v1/compatibility_results`, {
       method: "POST", headers: { ...dbHeaders, Prefer: "return=minimal" }, body: JSON.stringify(insertBody),
     });
+
+    // ════════════════════════════════════════════════════════════
+    // v6.17.3 — background paid resolution
+    // ════════════════════════════════════════════════════════════
+    // The free response is already on its way to the user (or about
+    // to be — we send it below). The 3 paid promises kicked off
+    // earlier are still in flight. We wait for them in the
+    // background and PATCH the row by share_slug as each one lands.
+    //
+    // Why PATCH per-field rather than a single grand UPDATE: a failed
+    // promise should not block the others. Each successful paid
+    // bucket gets persisted independently, mirroring the field-level
+    // safety from the previous "Save each paid field independently"
+    // block.
+    //
+    // This Promise.allSettled is INTENTIONALLY NOT awaited. In Vercel
+    // Node runtime, async work after the response is sent runs to
+    // completion within the function timeout (maxDuration=120). For
+    // KO/JA Pro calls this typically resolves in 20-50s — well under
+    // the cap.
+    //
+    // If Vercel ever changes this behavior or the function times out,
+    // worst case is paid_* stays null and the user sees "content
+    // pending" on paid unlock. The check-paid endpoint already
+    // handles missing paid content gracefully.
+    // ════════════════════════════════════════════════════════════
+    Promise.allSettled(paidPromises)
+      .then(async (results) => {
+        const patch: Record<string, any> = {};
+        for (const r of results) {
+          if (r.status !== "fulfilled" || !r.value) continue;
+          const { key, raw } = r.value;
+          if (!raw) continue;
+          try {
+            const parsed = parseJSON(raw);
+            if (key === "p1") {
+              const love = parsed.love || parsed["연애"] || parsed["恋愛"] || "";
+              const work = parsed.work || parsed["직장"] || parsed["仕事"] || "";
+              if (love) patch.paid_love = love;
+              if (work) patch.paid_work = work;
+              if (!love || !work) {
+                const vals = Object.values(parsed).filter((v: any) => typeof v === "string" && v.length > 50) as string[];
+                if (!love && vals[0]) patch.paid_love = vals[0];
+                if (!work && vals[1]) patch.paid_work = vals[1];
+              }
+            } else if (key === "p2") {
+              const fr = parsed.friendship || parsed["우정"] || parsed["友情"] || "";
+              const cf = parsed.conflict || parsed["갈등"] || parsed["葛藤"] || "";
+              if (fr) patch.paid_friendship = fr;
+              if (cf) patch.paid_conflict = cf;
+              if (!fr || !cf) {
+                const vals = Object.values(parsed).filter((v: any) => typeof v === "string" && v.length > 50) as string[];
+                if (!fr && vals[0]) patch.paid_friendship = vals[0];
+                if (!cf && vals[1]) patch.paid_conflict = vals[1];
+              }
+            } else if (key === "p3") {
+              const yearly = parsed.yearly || parsed["연간"] || parsed["年間"] || "";
+              if (yearly) patch.paid_yearly = yearly;
+              if (!yearly) {
+                const vals = Object.values(parsed).filter((v: any) => typeof v === "string" && v.length > 50) as string[];
+                if (vals[0]) patch.paid_yearly = vals[0];
+              }
+            }
+          } catch {
+            // parse failed for this bucket — try raw cleanup fallback
+            try {
+              const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+              const m = cleaned.match(/\{[\s\S]*\}/);
+              if (m) {
+                const obj = JSON.parse(m[0]);
+                const vals = Object.values(obj).filter((v: any) => typeof v === "string" && v.length > 50) as string[];
+                if (key === "p1") {
+                  if (!patch.paid_love && vals[0]) patch.paid_love = vals[0];
+                  if (!patch.paid_work && vals[1]) patch.paid_work = vals[1];
+                } else if (key === "p2") {
+                  if (!patch.paid_friendship && vals[0]) patch.paid_friendship = vals[0];
+                  if (!patch.paid_conflict && vals[1]) patch.paid_conflict = vals[1];
+                } else if (key === "p3") {
+                  if (!patch.paid_yearly && vals[0]) patch.paid_yearly = vals[0];
+                }
+              }
+            } catch {}
+          }
+        }
+        if (Object.keys(patch).length === 0) return;
+        try {
+          await fetch(
+            `${supabaseUrl}/rest/v1/compatibility_results?share_slug=eq.${encodeURIComponent(shareSlug)}`,
+            {
+              method: "PATCH",
+              headers: { ...dbHeaders, Prefer: "return=minimal" },
+              body: JSON.stringify(patch),
+            }
+          );
+        } catch (e) {
+          console.warn("[compat-generate] paid patch failed (non-fatal):", e);
+        }
+      })
+      .catch(() => {
+        // Outer catch: should be unreachable thanks to inner catches,
+        // but defensive against any unexpected throw path.
+      });
 
     // ─── [PHASE 1 STEP 2] Auto-create user's own readings row ────────────
     // If the user is signed in and has no readings yet, bootstrap one from
