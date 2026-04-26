@@ -37,7 +37,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">2. The Service</h2>
               <p className="mb-2">SajuAstrology provides AI-generated content based on the principles of Korean Saju (사주 — Four Pillars of Destiny), a traditional East Asian cosmological framework. The Service is available on the Website and through native mobile apps on iOS (Apple App Store) and Android (Google Play) in ten languages: English, Korean (한국어), Japanese (日本語), Spanish, French, Portuguese, Traditional Chinese (繁體中文), Russian, Hindi (हिन्दी), and Indonesian.</p>
-              <p>Offerings include free Saju readings, free compatibility analysis, a paid Full Destiny Reading, and paid Master Consultation credits (each credit grants five AI-generated analysis sessions for specific life questions; see §6 for details).</p>
+              <p>Offerings include free Saju readings, free compatibility analysis, paid Compatibility Full unlock, the paid Full Destiny Reading, paid Master 5 Pack consultations, and the Soram Companion subscription. Pricing details are in §6.</p>
             </section>
 
             <section>
@@ -58,15 +58,18 @@ export default function TermsPage() {
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">5. Accounts</h2>
               <p className="mb-2">Accounts are created exclusively via Google OAuth or Apple Sign-in. We do not operate username/password accounts. You are responsible for safeguarding access to the third-party identity provider account used to sign in. You agree to provide accurate information, including the birth data you voluntarily supply for readings. False or fraudulent use of the Service is grounds for immediate termination.</p>
-              <p>Your account syncs between Website and App when you use the same sign-in method. In the iOS App, Apple Sign-in is used; in the Android App, Google Sign-in is used. You may delete your account and all associated personal data at any time from your dashboard, or by contacting <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. Deletion will be completed within 30 days.</p>
+              <p className="mb-2">Your account syncs between Website and App when you use the same sign-in method. To prevent account confusion across platforms, the iOS App offers Apple Sign-in only and the Android App offers Google Sign-in only; the Website offers both. Choose your preferred sign-in method consistently to keep one account.</p>
+              <p>Your primary saju (the birth data registered to your account for the dashboard, daily fortune, and Soram chat) is set once at sign-up. To change your primary saju thereafter, please contact <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. You may delete your account and all associated personal data at any time from your dashboard, or by contacting <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. Deletion will be completed within 30 days.</p>
             </section>
 
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">6. Pricing</h2>
-              <p className="mb-2"><strong>Free tier:</strong> personal Saju reading (personality, Five Elements, year forecast), full compatibility analysis (love, work, friendship, conflict, yearly forecast), personalized daily fortune, and shareable result pages.</p>
+              <p className="mb-2"><strong>Free tier:</strong> personal Saju reading (personality, Five Elements, year forecast), full compatibility analysis (love, work, friendship, conflict, yearly forecast), personalized daily fortune, one Soram conversation per day, and shareable result pages.</p>
+              <p className="mb-2"><strong>Compatibility Full (US$2.99):</strong> one-time payment per pair. Unlocks the detailed paid sections of an existing compatibility result — love, work, friendship, conflict pattern analyses, and the year-by-year forecast for the two charts. Lifetime access from your account.</p>
               <p className="mb-2"><strong>Full Destiny Reading (US$9.99):</strong> one-time payment per reading. Includes career and wealth blueprint, love and relationship insights, health timing guidance, 10-year fortune cycle analysis, monthly energy calendar, and hidden-talent analysis. Permanent access to your reading page.</p>
-              <p className="mb-2"><strong>Master Consultation (US$29.99):</strong> five (5) AI-generated follow-up analysis rounds for specific life questions. Powered by our RimSaju Engine (see §8). Credits never expire and remain associated with your account indefinitely.</p>
-              <p className="text-muted-foreground">All prices are in U.S. Dollars. All purchases are one-time payments — <strong>no subscriptions, no auto-renewals, and no recurring charges</strong>. Prices are identical across the Website and the App.</p>
+              <p className="mb-2"><strong>Master 5 Pack (US$29.99):</strong> one-time payment. Includes five (5) AI-generated consultation rounds for specific life questions (career, love, timing, finances, health, etc.), each grounded in your birth chart and the RimSaju Engine&rsquo;s 562 classical passages — <strong>plus the Full Destiny Reading is included</strong>. Consultation credits never expire and remain associated with your account indefinitely.</p>
+              <p className="mb-2"><strong>Soram Companion (US$4.99 per month):</strong> a renewing monthly subscription that grants unlimited daily Soram chat conversations and includes one (1) Master-tier consultation credit per billing month. Cancel anytime; access continues through the end of the current paid period. Subscriptions auto-renew until canceled by you.</p>
+              <p className="text-muted-foreground">All prices are in U.S. Dollars. Except for Soram Companion (a monthly subscription), all purchases are one-time payments — no auto-renewals, no recurring charges. Prices are identical across the Website and the App.</p>
             </section>
 
             <section>
@@ -76,9 +79,10 @@ export default function TermsPage() {
               <ul className="list-disc pl-6 mb-2 space-y-1">
                 <li>If a technical error prevents your reading from being delivered, contact <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> within 7 days of purchase for a refund.</li>
                 <li>For in-app purchases (iOS/Android), refund requests must be submitted through Apple or Google according to their respective refund policies. We cannot process App Store refunds on your behalf.</li>
+                <li><strong>Soram Companion (subscription):</strong> you may cancel at any time through your dashboard (web) or through your Apple ID / Google Play account settings (mobile). Cancellation stops the next billing cycle; you retain access through the end of the current paid period. Already-billed monthly periods are not refunded except as required by applicable consumer-protection law or by Apple/Google policy.</li>
                 <li><strong>Korean consumers:</strong> Rights under Korea&rsquo;s Act on the Consumer Protection in Electronic Commerce (including the 7-day cooling-off right for digital content, subject to statutory exceptions for digital content the use of which has commenced) are preserved in full.</li>
                 <li><strong>EU/EEA consumers:</strong> Rights under Directive 2011/83/EU are preserved. By proceeding to purchase digital content that is delivered immediately upon payment, you acknowledge that performance begins at the moment of purchase, to the extent permitted by law.</li>
-                <li>Unused Master Consultation credits remain on your account indefinitely, subject to account deletion.</li>
+                <li>Unused Master 5 Pack consultation credits remain on your account indefinitely, subject to account deletion.</li>
               </ul>
               <p>Chargebacks initiated without first attempting resolution via <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> may result in account suspension.</p>
             </section>

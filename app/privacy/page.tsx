@@ -38,6 +38,8 @@ export default function PrivacyPage() {
               <h2 className="text-lg font-serif text-primary mb-3">2. Information We Collect</h2>
               <p className="mb-2"><strong>Account information.</strong> When you sign in via Google OAuth or Apple Sign-in, we receive your name, email address, and (when provided) profile picture. We never receive or store your password. If you use Apple&rsquo;s Hide My Email option, we use the relay address provided.</p>
               <p className="mb-2"><strong>Birth data.</strong> Name, gender, date and time of birth, and city of birth that you voluntarily enter for Saju readings, compatibility checks, and consultations. Because this combination can identify a natural person, we treat it as personal data under GDPR/PIPA and apply appropriate safeguards.</p>
+              <p className="mb-2"><strong>Soram conversation data.</strong> If you use the Soram chat feature, your questions and Soram&rsquo;s responses are stored in your account so you can review them on the dashboard and so Soram can remember context across sessions. We may also generate a periodic short summary of recurring themes from your conversations to improve continuity. You can delete this history at any time by deleting your account.</p>
+              <p className="mb-2"><strong>Subscription state (Soram Companion).</strong> If you subscribe, we store the subscription start/end dates, current status (active/canceled/expired), and the platform that processes the subscription (PayPal / Apple App Store / Google Play). We do not store your payment card.</p>
               <p className="mb-2"><strong>Usage and device data.</strong> Pages visited, features used, interactions, device type, operating system, browser type, approximate location (inferred from IP at country/city level), and performance telemetry. Collected via Google Analytics 4, Mixpanel (web), Firebase Analytics (mobile app), and Vercel Analytics.</p>
               <p className="mb-2"><strong>Purchase data.</strong> Transaction identifiers, product IDs, purchase timestamps, and platform (web / iOS / Android). Full payment-card data is never received or stored by us — it is handled by PayPal (web) or Apple / Google (mobile app).</p>
               <p><strong>Communications.</strong> Any email you send to us (including support requests).</p>
@@ -64,6 +66,11 @@ export default function PrivacyPage() {
                       <td className="py-2 pr-3">Generate Saju readings, compatibility, consultations</td>
                       <td className="py-2 pr-3">Birth data</td>
                       <td className="py-2">Performance of contract; your consent</td>
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-2 pr-3">Provide Soram chat with cross-session memory</td>
+                      <td className="py-2 pr-3">Soram conversation data + birth data</td>
+                      <td className="py-2">Performance of contract</td>
                     </tr>
                     <tr className="border-b border-border/50">
                       <td className="py-2 pr-3">Process payments, detect fraud</td>
@@ -120,7 +127,8 @@ export default function PrivacyPage() {
               <h2 className="text-lg font-serif text-primary mb-3">7. Retention</h2>
               <p className="mb-2">We keep your personal data only as long as necessary for the purposes described:</p>
               <ul className="list-disc pl-6 space-y-1">
-                <li><strong>Account and readings:</strong> until you delete your account (30 days to complete deletion).</li>
+                <li><strong>Account, readings, and Soram conversation history:</strong> until you delete your account (30 days to complete deletion).</li>
+                <li><strong>Subscription state (Soram Companion):</strong> retained while the subscription is active and for up to 5 years after termination, in line with Korean commercial and tax law, in a minimized form.</li>
                 <li><strong>Contract and payment records:</strong> up to 5 years as required by Korean commercial and tax law (Act on the Consumer Protection in Electronic Commerce, Art. 6), in a minimized form.</li>
                 <li><strong>Records of consumer complaints or disputes:</strong> up to 3 years.</li>
                 <li><strong>Analytics:</strong> up to 14 months (Google Analytics 4 default) or 12 months (Mixpanel), then deleted or aggregated.</li>
