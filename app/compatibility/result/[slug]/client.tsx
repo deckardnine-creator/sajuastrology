@@ -102,6 +102,22 @@ export default function CompatibilityResultClient() {
   const [loading, setLoading] = useState(true);
   const [linkCopied, setLinkCopied] = useState(false);
 
+  // ════════════════════════════════════════════════════════════
+  // v6.17.33 — "Scroll down to read" banner after unlock
+  // ════════════════════════════════════════════════════════════
+  // After a $2.99 unlock the page lands at the top, but the paid
+  // content sits below the score circle, free summary, and the
+  // (now-replaced) paywall block — easily 2-3 viewport heights
+  // down. Without a hint, users miss it and think the unlock
+  // didn't work.
+  //
+  // We show a one-time amber banner near the top of the result
+  // page when ?payment=success was on the URL. It auto-dismisses
+  // after the user scrolls (any scroll past 200px hides it) or
+  // after 12 seconds, whichever comes first.
+  // ════════════════════════════════════════════════════════════
+  const [showUnlockBanner, setShowUnlockBanner] = useState<boolean>(false);
+
   // ═══ v6.15 paywall state ═══
   // isPaid: whether the user has paid $2.99 to unlock detailed sections.
   // Fetched separately from the main result so we don't have to modify
@@ -124,6 +140,11 @@ export default function CompatibilityResultClient() {
     if (paymentStatus === "success") {
       setSessionToken(token);
       setUnlockerVisible(true);
+      // v6.17.33: arm the "scroll down" hint for after the unlocker
+      // finishes. The unlocker overlay covers the page during verify,
+      // so the banner only becomes visible once unlockerVisible flips
+      // back to false in the loader's onDone callback.
+      setShowUnlockBanner(true);
     }
     // ?payment=cancelled — silently let the user continue with free tier;
     // no toast because they explicitly clicked "cancel" on PayPal.
@@ -233,6 +254,35 @@ export default function CompatibilityResultClient() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPaid, slug, result?.paid_love]);
+
+  // ════════════════════════════════════════════════════════════
+  // v6.17.33 — auto-dismiss the unlock banner
+  // ════════════════════════════════════════════════════════════
+  // Two ways the banner goes away:
+  //   1. User scrolls past 200px — they've clearly seen the hint
+  //      and started reading.
+  //   2. 12 seconds elapse — even if they sit still, the banner
+  //      shouldn't camp at the top forever.
+  //
+  // Both paths set showUnlockBanner=false. The component just
+  // doesn't render the banner DOM after that, so no re-show on
+  // subsequent state changes.
+  // ════════════════════════════════════════════════════════════
+  useEffect(() => {
+    if (!showUnlockBanner) return;
+    if (typeof window === "undefined") return;
+
+    const onScroll = () => {
+      if (window.scrollY > 200) setShowUnlockBanner(false);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    const t = setTimeout(() => setShowUnlockBanner(false), 12000);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      clearTimeout(t);
+    };
+  }, [showUnlockBanner]);
 
   const handleShare = () => {
     const url = window.location.href;
@@ -345,6 +395,59 @@ export default function CompatibilityResultClient() {
               <ArrowLeft className="w-4 h-4" /> {t("cr.newCheck", locale)}
             </button>
           </motion.div>
+
+          {/* ═══ v6.17.33 Unlock banner ═══════════════════════════════
+              Shown when the user has just unlocked the full reading
+              ($2.99 IAP / PayPal). Tells them the content is ready
+              and to scroll down. Auto-dismisses on scroll>200px or
+              after 12s. Only renders for users who unlocked in this
+              session (showUnlockBanner is set from ?payment=success
+              in searchParams; not set on plain revisits to the page).
+
+              Style: amber gradient pill matching the rest of the
+              v1.3 sprint visual language (Soram CTA, dashboard
+              "enter your saju" prompt etc.). Down-arrow icon to
+              direct attention. Manual close button (×) for users
+              who want it gone immediately.
+              ════════════════════════════════════════════════════════ */}
+          {showUnlockBanner && !unlockerVisible && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4 }}
+              className="mb-6 relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/12 via-amber-400/6 to-transparent backdrop-blur-sm px-4 py-3.5"
+              role="status"
+              aria-live="polite"
+            >
+              <span aria-hidden="true" className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
+              <button
+                type="button"
+                onClick={() => setShowUnlockBanner(false)}
+                aria-label="Dismiss"
+                className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-amber-200/60 hover:text-amber-200 hover:bg-amber-500/10 transition-colors"
+              >
+                <span aria-hidden="true" className="text-base leading-none">×</span>
+              </button>
+              <div className="flex items-start gap-3 pr-6">
+                <motion.div
+                  animate={{ y: [0, 4, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="shrink-0 mt-0.5"
+                >
+                  <Sparkles className="w-5 h-5 text-amber-300" />
+                </motion.div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-amber-100 leading-snug">
+                    {t("cr.unlockedTitle", locale)}
+                  </p>
+                  <p className="text-[11px] text-amber-200/75 leading-relaxed mt-0.5">
+                    {t("cr.unlockedSub", locale)}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* ═══ Hero Card — The main event ═══ */}
           <motion.section initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="mb-10">

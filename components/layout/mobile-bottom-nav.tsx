@@ -1,26 +1,35 @@
 "use client";
 
 // ════════════════════════════════════════════════════════════════════
-// MobileBottomNav v2 — Global 5-tab bottom navigation for mobile web.
+// MobileBottomNav v3 — Global 6-tab bottom navigation for mobile web.
 // ════════════════════════════════════════════════════════════════════
-// v2 redesign rationale:
-//   The v1 raised/floating Soram tab had `-mt-3` which on some Android
-//   browsers caused the gold circle to clip under the system gesture
-//   bar or visually disappear next to the other tabs at certain
-//   viewport heights. v2 keeps everything inside the bar's bounding
-//   box (no negative margin) and instead emphasises the Soram tab
-//   through:
-//     - solid gold-gradient circular icon background (vs hollow)
-//     - subtle ring on active state
-//     - slightly bolder gold label
-//   This is robust across every Android/iOS/PWA combo.
+// v3 changes (chandler 2026-04-27):
+//   - Added Consultation as a first-class tab. Previously $29.99
+//     consultations had no nav entry; users had to use the hamburger
+//     menu, and after completing a consultation got redirected to
+//     /dashboard which felt like the consultation flow had ended at
+//     the wrong place. With a Consultation tab they can return to
+//     their session list with a single tap.
+//   - Soram no longer occupies the visual center with a raised gold
+//     circle. With 6 items the center is split between Soram and
+//     Match anyway, and chandler asked: "소람이가 센터에 없어도 되니까."
+//     The Soram tab is still distinguished — it still uses the
+//     amber-tinted gradient circle with the chat-header avatar — but
+//     it's the same physical size as the other tabs (no scale-110, no
+//     -mt offset).
+//   - Soram avatar image swapped from `/soram/soram_nav.webp` to
+//     `/soram/soram_chat_header_240.webp`. Reason: chandler wants the
+//     navbar to use the same expression as the in-chat header avatar
+//     (Soram with the dark cosmic background visible behind the cat).
+//     The 240 size variant is 17.7KB, well-suited for a small nav icon.
 //
-// Tabs (5):
+// Tabs (6):
 //   1. Home          → /
 //   2. Reading       → /calculate
-//   3. Soram   ⭐    → /soram      (center, gold, emphasised)
+//   3. Soram         → /soram
 //   4. Match         → /compatibility
-//   5. My            → /dashboard
+//   5. Consult       → /consultation
+//   6. My            → /dashboard
 //
 // Hidden routes (no bar):
 //   - /blog and /blog/*
@@ -32,7 +41,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Sparkles, Heart, User } from "lucide-react";
+import { Home, Sparkles, Heart, User, MessageSquare } from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
 import { useNativeApp } from "@/lib/native-app";
@@ -65,11 +74,14 @@ export function MobileBottomNav() {
       className="mobile-bottom-nav-web fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border z-40 md:hidden safe-area-bottom"
       aria-label="Bottom navigation"
     >
-      <div className="grid grid-cols-5 items-center h-16">
+      {/* v3: grid-cols-6 (was 5). Each tab gets 1/6 width — no longer
+          one giant Soram circle in the center. */}
+      <div className="grid grid-cols-6 items-center h-16">
         <BarTab href="/" label={t("bnav.home", locale)} active={isActive("/")} icon={<Home className="w-5 h-5" />} />
         <BarTab href="/calculate" label={t("bnav.reading", locale)} active={isActive("/calculate")} icon={<Sparkles className="w-5 h-5" />} />
         <SoramTab href="/soram" label={t("bnav.soram", locale)} active={isActive("/soram")} />
         <BarTab href="/compatibility" label={t("bnav.compatibility", locale)} active={isActive("/compatibility")} icon={<Heart className="w-5 h-5" />} />
+        <BarTab href="/consultation" label={t("bnav.consultation", locale)} active={isActive("/consultation")} icon={<MessageSquare className="w-5 h-5" />} />
         <BarTab href="/dashboard" label={t("bnav.my", locale)} active={isActive("/dashboard")} icon={<User className="w-5 h-5" />} />
       </div>
     </nav>
@@ -95,20 +107,18 @@ function BarTab({
       }`}
     >
       {icon}
-      <span className="text-[10px] font-medium leading-tight">{label}</span>
+      <span className="text-[10px] font-medium leading-tight truncate max-w-full">{label}</span>
     </Link>
   );
 }
 
 // ════════════════════════════════════════════════════════════════════
-// Soram tab — solid gold-gradient circular icon, with a moon glyph
-// and an optional avatar image layered on top. If
-// /soram/soram_nav.webp (a different cropped expression than the hero
-// card uses — chandler explicitly asked: "화면 같은 그림은 한 페이지에 쓰지 마라"
-// so hero uses constellation-bg close-up, nav uses the default expression
-// portrait). If missing it overlays the moon glyph; if
-// missing in production, onError hides the <img> and the gradient
-// + moon stays visible. Either way the tab is unmistakable.
+// Soram tab — same physical size as other tabs (no center elevation).
+// Uses /soram/soram_chat_header_240.webp — the same expression as the
+// in-chat header (cosmic-background portrait with the gold cap), at
+// the small 240-px variant for fast nav rendering.
+// Falls back to the moon glyph + amber gradient if the image is
+// missing or fails to load.
 // ════════════════════════════════════════════════════════════════════
 function SoramTab({
   href,
@@ -126,15 +136,16 @@ function SoramTab({
       aria-label={label}
     >
       <div
-        className={`relative w-8 h-8 rounded-full flex items-center justify-center text-base shadow-md overflow-hidden transition-transform ${
+        className={`relative w-7 h-7 rounded-full flex items-center justify-center text-base shadow-md overflow-hidden transition-transform ${
           active
-            ? "bg-gradient-to-br from-amber-300 to-amber-500 shadow-amber-500/40 scale-110 ring-2 ring-amber-300/50"
-            : "bg-gradient-to-br from-amber-300 to-amber-500 shadow-amber-500/25"
+            ? "bg-gradient-to-br from-amber-300/30 to-amber-500/30 ring-2 ring-amber-300/60"
+            : "bg-gradient-to-br from-amber-300/20 to-amber-500/20"
         }`}
       >
-        <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center">🌙</span>
+        {/* Fallback moon glyph — visible only if the avatar image fails */}
+        <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-sm">🌙</span>
         <img
-          src="/soram/soram_nav.webp"
+          src="/soram/soram_chat_header_240.webp"
           alt=""
           aria-hidden="true"
           onError={(ev) => {
@@ -146,8 +157,8 @@ function SoramTab({
         />
       </div>
       <span
-        className={`text-[10px] font-semibold leading-tight ${
-          active ? "text-amber-300" : "text-amber-200/85"
+        className={`text-[10px] font-medium leading-tight truncate max-w-full ${
+          active ? "text-amber-300" : "text-muted-foreground"
         }`}
       >
         {label}

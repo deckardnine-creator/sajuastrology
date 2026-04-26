@@ -546,6 +546,45 @@ const translations = {
   "cr.labelChallenge": { en: "Growth Challenge", ko: "성장의 도전", ja: "成長の挑戦", es: "Desafío de crecimiento", fr: "Défi de croissance", pt: "Desafio de crescimento", "zh-TW": "成長挑戰", ru: "Вызов роста", hi: "विकास की चुनौती", id: "Tantangan Pertumbuhan" },
   "cr.labelOpposite": { en: "Opposite Forces", ko: "반대 에너지", ja: "反対の力", es: "Fuerzas opuestas", fr: "Forces opposées", pt: "Forças opostas", "zh-TW": "對立力量", ru: "Противоположные силы", hi: "विपरीत शक्तियाँ", id: "Kekuatan Berlawanan" },
   "cr.newCheck": { en: "New Check", ko: "새로운 궁합", ja: "新しいチェック", es: "Nueva prueba", fr: "Nouveau test", pt: "Novo teste", "zh-TW": "新檢測", ru: "Новая проверка", hi: "नई जाँच", id: "Cek Baru" },
+  // ════════════════════════════════════════════════════════════
+  // v6.17.33 — Compatibility unlock banner
+  // ════════════════════════════════════════════════════════════
+  // Shown at the top of the compatibility result page right after
+  // a $2.99 unlock ($2.99 IAP / PayPal). The page lands at the
+  // top after the redirect, but the paid content sits below the
+  // hero score, free summary, and category grid — easy to miss.
+  // The banner says "your full reading is ready, scroll down" so
+  // users know to look further down rather than thinking the
+  // unlock didn't work.
+  //
+  // All 10 supported locales. Translations stay short (~max 40
+  // chars title, 50 chars subtitle) to fit on a one-line phone
+  // banner without wrapping awkwardly.
+  // ════════════════════════════════════════════════════════════
+  "cr.unlockedTitle": {
+    en: "Your full compatibility reading is ready",
+    ko: "전체 궁합 풀이가 완성되었습니다",
+    ja: "相性鑑定が完成しました",
+    es: "Tu lectura completa de compatibilidad está lista",
+    fr: "Ta lecture complète de compatibilité est prête",
+    pt: "Sua leitura completa de compatibilidade está pronta",
+    "zh-TW": "完整合盤分析已完成",
+    ru: "Полный разбор совместимости готов",
+    hi: "आपकी पूर्ण अनुकूलता रीडिंग तैयार है",
+    id: "Bacaan kompatibilitas lengkapmu siap",
+  },
+  "cr.unlockedSub": {
+    en: "Scroll down to read each category in detail.",
+    ko: "스크롤을 내려 각 항목을 자세히 확인하세요.",
+    ja: "下にスクロールして各項目をご確認ください。",
+    es: "Desplázate hacia abajo para leer cada categoría en detalle.",
+    fr: "Fais défiler vers le bas pour lire chaque catégorie en détail.",
+    pt: "Role para baixo para ler cada categoria em detalhe.",
+    "zh-TW": "請向下捲動，逐項詳細閱讀。",
+    ru: "Прокрути вниз, чтобы прочесть каждый раздел подробно.",
+    hi: "हर श्रेणी को विस्तार से पढ़ने के लिए नीचे स्क्रॉल करें।",
+    id: "Gulir ke bawah untuk membaca setiap kategori secara detail.",
+  },
   // ─── Element Labels ───
   "element.wood": { en: "Wood 木", ko: "목 木", ja: "木 木", es: "Madera 木", fr: "Bois 木", pt: "Madeira 木", "zh-TW": "木", ru: "Дерево 木", hi: "लकड़ी 木", id: "Kayu 木" },
   "element.fire": { en: "Fire 火", ko: "화 火", ja: "火 火", es: "Fuego 火", fr: "Feu 火", pt: "Fogo 火", "zh-TW": "火", ru: "Огонь 火", hi: "अग्नि 火", id: "Api 火" },
@@ -737,7 +776,7 @@ const translations = {
   "bnav.reading": { en: "Reading", ko: "사주", ja: "鑑定", es: "Lectura", fr: "Lecture", pt: "Leitura", "zh-TW": "命盤", ru: "Чтение", hi: "रीडिंग", id: "Bacaan" },
   "bnav.soram": { en: "Soram", ko: "\uc18c\ub78c", ja: "\u30bd\u30e9\u30e0", es: "Soram", fr: "Soram", pt: "Soram", "zh-TW": "Soram", ru: "Сорам", hi: "सोरम", id: "Soram" },
   "bnav.compatibility": { en: "Match", ko: "궁합", ja: "相性", es: "Match", fr: "Match", pt: "Match", "zh-TW": "Match", ru: "Match", hi: "Match", id: "Match" },
-  "bnav.consultation": { en: "Consult", ko: "상담", ja: "相談", es: "Consulta", fr: "Consult", pt: "Consulta", "zh-TW": "諮詢", ru: "Консульт", hi: "परामर्श", id: "Konsultasi" },
+  "bnav.consultation": { en: "Consult", ko: "상담", ja: "相談", es: "Consulta", fr: "Consult", pt: "Consulta", "zh-TW": "諮詢", ru: "Консульт", hi: "परामर्श", id: "Konsul" },
   "bnav.my": { en: "My", ko: "마이", ja: "マイ", es: "Mi", fr: "Mon", pt: "Meu", "zh-TW": "我的", ru: "Мой", hi: "मेरा", id: "Saya" },
 
   // ─── Hero "Talk to Soram" entry card (v1.3) ───
