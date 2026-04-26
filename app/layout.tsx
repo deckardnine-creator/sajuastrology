@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { headers } from 'next/headers'
 import { Inter, Playfair_Display, Noto_Sans_KR, Noto_Serif_KR } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/lib/auth-context'
@@ -97,11 +98,39 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = {
-  themeColor: '#0A0E1A',
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 5,
+// ═══════════════════════════════════════════════════════════════════
+// v6.17.40 — locale-aware AND platform-aware viewport export
+// ═══════════════════════════════════════════════════════════════════
+// Pinch-to-zoom must be disabled inside the native app (iOS WebKit
+// won't accept a maximum-scale=1 change applied by client-side
+// JS after first paint — it has to be in the SSR'd viewport meta
+// the page first sees). Web visitors keep the wider scale for
+// accessibility (chandler-approved trade-off).
+//
+// Detection: the Flutter shell adds 'SajuApp' to the User-Agent in
+// webview_tab.dart::_buildUserAgent(). Falling back to 'web' viewport
+// when headers() can't read it (build time, edge cases) means
+// regular web users are never accidentally locked out of zoom.
+// ═══════════════════════════════════════════════════════════════════
+export async function generateViewport(): Promise<Viewport> {
+  let isNativeApp = false;
+  try {
+    const h = await headers();
+    const ua = h.get('user-agent') || '';
+    if (ua.includes('SajuApp')) {
+      isNativeApp = true;
+    }
+  } catch {
+    // headers() throws in build-time/static contexts — safe to fall through.
+  }
+
+  return {
+    themeColor: '#0A0E1A',
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: isNativeApp ? 1 : 5,
+    userScalable: isNativeApp ? false : true,
+  };
 }
 
 // JSON-LD structured data for the website (locale-independent)
