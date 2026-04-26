@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, Heart, Briefcase, Users, Shield, Sparkles, Share2, Check, RotateCcw, Calendar } from "lucide-react";
@@ -12,6 +12,8 @@ import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { t, type Locale } from "@/lib/translations";
 import { ELEMENT_COLORS } from "@/lib/constants";
+import { CompatibilityPaywall } from "@/components/compatibility/compat-paywall";
+import { CompatibilityUnlockLoader } from "@/components/compatibility/compat-unlock-loader";
 
 interface CompatResult {
   person_a_name: string;
@@ -86,6 +88,7 @@ function renderCompatMarkdown(text: string): string {
 export default function CompatibilityResultClient() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const slug = params.slug as string;
   const { user, openSignInModal } = useAuth();
   const { locale } = useLanguage();
@@ -93,6 +96,50 @@ export default function CompatibilityResultClient() {
   const [result, setResult] = useState<CompatResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [linkCopied, setLinkCopied] = useState(false);
+
+  // ═══ v6.15 paywall state ═══
+  // isPaid: whether the user has paid $2.99 to unlock detailed sections.
+  // Fetched separately from the main result so we don't have to modify
+  // the existing /api/compatibility/get endpoint (append-only principle).
+  const [isPaid, setIsPaid] = useState<boolean>(false);
+  // unlockerVisible: shows the verify loader after PayPal returns success.
+  const [unlockerVisible, setUnlockerVisible] = useState<boolean>(false);
+  // sessionToken: PayPal order id from ?token= param, passed to verify.
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
+
+  // Detect ?payment=success or ?payment=cancelled from PayPal redirect
+  useEffect(() => {
+    if (!searchParams) return;
+    const paymentStatus = searchParams.get("payment");
+    const token = searchParams.get("token");
+    if (paymentStatus === "success") {
+      setSessionToken(token);
+      setUnlockerVisible(true);
+    }
+    // ?payment=cancelled — silently let the user continue with free tier;
+    // no toast because they explicitly clicked "cancel" on PayPal.
+  }, [searchParams]);
+
+  // Fetch is_paid status (separate small endpoint for fast polling)
+  async function refreshPaidStatus() {
+    if (!slug) return;
+    try {
+      const res = await fetch("/api/compatibility/check-paid", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareSlug: slug }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setIsPaid(!!data.is_paid);
+      }
+    } catch {}
+  }
+
+  useEffect(() => {
+    if (slug) refreshPaidStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
 
   useEffect(() => {
     async function fetchResult() {
@@ -165,6 +212,32 @@ export default function CompatibilityResultClient() {
 
   return (
     <main className="min-h-screen relative overflow-hidden">
+      {/* ═══ v6.15 Unlock loader overlay — shown after PayPal redirect ═══ */}
+      {unlockerVisible && (
+        <CompatibilityUnlockLoader
+          shareSlug={slug}
+          sessionId={sessionToken || undefined}
+          onDone={async () => {
+            // Refresh paid status & remove ?payment=success from URL
+            await refreshPaidStatus();
+            setUnlockerVisible(false);
+            // Clean up the query string so a manual reload doesn't re-trigger
+            try {
+              const url = new URL(window.location.href);
+              url.searchParams.delete("payment");
+              url.searchParams.delete("token");
+              url.searchParams.delete("PayerID");
+              window.history.replaceState(null, "", url.pathname + (url.search ? url.search : ""));
+            } catch {}
+          }}
+          onTimeout={async () => {
+            // Webhook may still arrive — try one more refresh, then give up
+            await refreshPaidStatus();
+            setUnlockerVisible(false);
+          }}
+        />
+      )}
+
       <Navbar />
 
       {/* Cosmic background */}
@@ -381,27 +454,38 @@ export default function CompatibilityResultClient() {
             </div>
           </motion.section>
 
-          {/* ═══ Detailed Category Sections ═══ */}
-          {categories.map((cat, i) => cat.content && (
-            <motion.section key={cat.key} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 + i * 0.05 }} className="mb-8">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${cat.iconColor}20` }}>
-                  <cat.icon className="w-4 h-4" style={{ color: cat.iconColor }} />
-                </div>
-                <h2 className="font-serif text-lg font-semibold">{cat.compatLabel}</h2>
-              </div>
-              <div className="rounded-2xl p-6 sm:p-8" style={{ background: "rgba(15,15,25,0.6)", border: `1px solid ${cat.iconColor}15` }}>
-                <div className="prose prose-invert prose-sm max-w-none">
-                  {cat.content.split("\n\n").map((para, j) => (
-                    <p key={j} className="text-foreground/85 leading-relaxed mb-4 last:mb-0">{para}</p>
-                  ))}
-                </div>
-              </div>
-            </motion.section>
-          ))}
+          {/* ═══ Detailed Category Sections — PAYWALL GATED (v6.15) ═══ */}
+          {/* When isPaid=true: show all 4 categories normally. */}
+          {/* When isPaid=false: show CompatibilityPaywall component instead. */}
+          {isPaid ? (
+            <>
+              {categories.map((cat, i) => cat.content && (
+                <motion.section key={cat.key} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 + i * 0.05 }} className="mb-8">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${cat.iconColor}20` }}>
+                      <cat.icon className="w-4 h-4" style={{ color: cat.iconColor }} />
+                    </div>
+                    <h2 className="font-serif text-lg font-semibold">{cat.compatLabel}</h2>
+                  </div>
+                  <div className="rounded-2xl p-6 sm:p-8" style={{ background: "rgba(15,15,25,0.6)", border: `1px solid ${cat.iconColor}15` }}>
+                    <div className="prose prose-invert prose-sm max-w-none">
+                      {cat.content.split("\n\n").map((para, j) => (
+                        <p key={j} className="text-foreground/85 leading-relaxed mb-4 last:mb-0">{para}</p>
+                      ))}
+                    </div>
+                  </div>
+                </motion.section>
+              ))}
+            </>
+          ) : (
+            <CompatibilityPaywall
+              shareSlug={result.share_slug}
+              partnerName={`${result.person_a_name} & ${result.person_b_name}`}
+            />
+          )}
 
-          {/* ═══ Yearly Forecast ═══ */}
-          {result.paid_yearly && (
+          {/* ═══ Yearly Forecast — also paywall-gated (v6.15) ═══ */}
+          {isPaid && result.paid_yearly && (
             <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }} className="mb-10">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-primary/15">
