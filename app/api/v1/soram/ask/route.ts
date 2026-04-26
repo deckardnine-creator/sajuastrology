@@ -1,6 +1,23 @@
 /**
  * POST /api/v1/soram/ask
  * Soram (a thousand-year-old saju scholar) consults the user's saju.
+ *
+ * v6.16 changes:
+ *   - 3-tier memory: recent 5 turns + user profile summary + topic search
+ *   - 8 routing categories: only saju_question deducts a question credit
+ *   - Response variety: 7 angles (오행균형/일주통근/십신/대운/세운/형충/공망)
+ *   - No score appended to chat answers (signature only)
+ *   - Sage-toned refusal for off-topic / out-of-scope / disrespectful
+ *   - Legal-defense tone woven in (no "will/must"; "tends to/leans toward")
+ *   - Closing curiosity hint (not dependency)
+ *
+ * Stability principles:
+ *   - Existing functions are left intact where possible. New behavior is
+ *     added as new helpers and call sites.
+ *   - Worst case of every new branch === current behavior (try/catch
+ *     around all new I/O; route never harder-fails than v6.15.x).
+ *   - routing field falls back to "saju_question" on parse failure
+ *     (charges the user as before — never accidentally bills MORE).
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -9,6 +26,35 @@ import { getDailyPillar } from "@/lib/saju-calculator";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
+
+// ════════════════════════════════════════════════════════════════════
+// v6.16 — routing types
+// ════════════════════════════════════════════════════════════════════
+type SoramRouting =
+  | "saju_question"
+  | "social_greeting"
+  | "off_topic"
+  | "out_of_scope_finance"
+  | "out_of_scope_medical"
+  | "out_of_scope_legal"
+  | "crisis"
+  | "disrespectful";
+
+const VALID_ROUTINGS: SoramRouting[] = [
+  "saju_question",
+  "social_greeting",
+  "off_topic",
+  "out_of_scope_finance",
+  "out_of_scope_medical",
+  "out_of_scope_legal",
+  "crisis",
+  "disrespectful",
+];
+
+/** Only real saju questions deduct from the daily / monthly quota. */
+function shouldDeductCredit(routing: SoramRouting): boolean {
+  return routing === "saju_question";
+}
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey =
@@ -52,7 +98,10 @@ async function callGemini(
   const isFlash = model.includes("flash");
   const generationConfig: Record<string, unknown> = {
     maxOutputTokens: isFlash ? 2000 : 4000,
-    temperature: 0.7,
+    // v6.16: 0.7 → 0.85 for more variety across calls.
+    // Same chart + same question on different days should land at
+    // different angles (오행균형 vs 일주통근 vs 십신 etc).
+    temperature: 0.85,
   };
   if (isFlash) {
     generationConfig.thinkingConfig = { thinkingBudget: 0 };
@@ -107,6 +156,10 @@ async function callClaude(
     body: JSON.stringify({
       model,
       max_tokens: 1500,
+      // v6.16: explicit temp for variety. Claude default is 1.0; we hold
+      // it slightly lower to keep the scholarly register stable while
+      // still varying the angle of approach.
+      temperature: 0.85,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
     }),
@@ -178,6 +231,239 @@ function answerMatchesLocale(text: string, locale: string): boolean {
   return true;
 }
 
+// ════════════════════════════════════════════════════════════════════
+// v6.16 — 3-tier memory builders
+// ════════════════════════════════════════════════════════════════════
+// All three tiers are best-effort: any failure here returns empty data
+// and the chat proceeds with whatever memory was successfully fetched.
+// A failure in memory MUST NEVER fail the whole request — the user
+// still gets an answer, just with less context.
+// ════════════════════════════════════════════════════════════════════
+
+interface MemoryBundle {
+  /** Tier 1 — most recent 5 turns, full text */
+  recentTurns: Array<{ q: string; a: string; created_at: string }>;
+  /** Tier 2 — compact "what Soram knows about you" summary */
+  profileSummary: string | null;
+  /** Tier 3 — past turns whose question shares keywords with the current one */
+  relatedTurns: Array<{ q: string; a: string; created_at: string }>;
+}
+
+const EMPTY_MEMORY: MemoryBundle = {
+  recentTurns: [],
+  profileSummary: null,
+  relatedTurns: [],
+};
+
+/** Tier 1: most recent N turns, ordered oldest → newest. */
+async function fetchRecentTurns(
+  userId: string,
+  limit = 5
+): Promise<MemoryBundle["recentTurns"]> {
+  try {
+    const res = await sbFetch(
+      `soram_questions?user_id=eq.${userId}&select=question,answer,created_at&order=created_at.desc&limit=${limit}`,
+      { method: "GET" }
+    );
+    if (!res.ok) return [];
+    const rows = await res.json();
+    if (!Array.isArray(rows)) return [];
+    // Reverse to chronological order so the prompt reads naturally.
+    return rows
+      .reverse()
+      .map((r: any) => ({
+        q: String(r.question || "").substring(0, 200),
+        a: String(r.answer || "").substring(0, 300),
+        created_at: String(r.created_at || ""),
+      }))
+      .filter((t) => t.q && t.a);
+  } catch {
+    return [];
+  }
+}
+
+/** Tier 2: cached "what Soram knows about you" summary. */
+async function fetchProfileSummary(userId: string): Promise<string | null> {
+  try {
+    const res = await sbFetch(
+      `soram_user_profile?user_id=eq.${userId}&select=summary_text&limit=1`,
+      { method: "GET" }
+    );
+    if (!res.ok) return null;
+    const rows = await res.json();
+    if (!Array.isArray(rows) || rows.length === 0) return null;
+    const text = rows[0]?.summary_text;
+    if (!text || typeof text !== "string") return null;
+    return text.trim().substring(0, 2000);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Tier 3: keyword-based topic recall.
+ *
+ * Cheap-but-effective approach (no embeddings, no extra LLM call):
+ *   1. Pull the user's distinctive nouns/topics from the question
+ *      (length >= 2, locale-aware splitting).
+ *   2. ILIKE search soram_questions.question for any keyword match.
+ *   3. Exclude turns already in recentTurns to avoid duplication.
+ *
+ * If keyword extraction yields nothing useful, returns []. The whole
+ * function is wrapped in try/catch — never throws.
+ */
+async function fetchRelatedTurns(
+  userId: string,
+  question: string,
+  excludeCreatedAts: string[],
+  limit = 3
+): Promise<MemoryBundle["relatedTurns"]> {
+  try {
+    // Cheap keyword extraction: split on whitespace + punctuation,
+    // keep tokens of length >= 2 in any script. Strip a tiny stopword
+    // set (we keep this minimal to avoid wrong-language drops).
+    const stop = new Set([
+      "the", "and", "for", "with", "about", "what", "why", "how",
+      "이", "그", "저", "은", "는", "을", "를", "이런", "그런", "뭐",
+      "の", "は", "を", "が", "に", "で", "と",
+    ]);
+    const tokens = question
+      .split(/[\s,.!?;:'"()\[\]{}<>「」『』—–、。\-]+/u)
+      .map((t) => t.trim())
+      .filter((t) => t.length >= 2 && !stop.has(t.toLowerCase()))
+      .slice(0, 5);
+    if (tokens.length === 0) return [];
+
+    // Build an OR filter: question.ilike.*tok1*,question.ilike.*tok2*
+    const orParts = tokens
+      .map((t) => `question.ilike.*${encodeURIComponent(t)}*`)
+      .join(",");
+
+    const res = await sbFetch(
+      `soram_questions?user_id=eq.${userId}&or=(${orParts})` +
+        `&select=question,answer,created_at&order=created_at.desc&limit=${limit + 5}`,
+      { method: "GET" }
+    );
+    if (!res.ok) return [];
+    const rows = await res.json();
+    if (!Array.isArray(rows)) return [];
+
+    const excludeSet = new Set(excludeCreatedAts);
+    const filtered = rows
+      .filter((r: any) => !excludeSet.has(String(r.created_at || "")))
+      .slice(0, limit)
+      .map((r: any) => ({
+        q: String(r.question || "").substring(0, 200),
+        a: String(r.answer || "").substring(0, 300),
+        created_at: String(r.created_at || ""),
+      }))
+      .filter((t) => t.q && t.a);
+    return filtered;
+  } catch {
+    return [];
+  }
+}
+
+/** Assemble all three tiers in parallel. Never throws. */
+async function buildMemory(
+  userId: string,
+  question: string
+): Promise<MemoryBundle> {
+  try {
+    const [recent, profile] = await Promise.all([
+      fetchRecentTurns(userId, 5),
+      fetchProfileSummary(userId),
+    ]);
+    const recentCreated = recent.map((r) => r.created_at);
+    const related = await fetchRelatedTurns(userId, question, recentCreated, 3);
+    return { recentTurns: recent, profileSummary: profile, relatedTurns: related };
+  } catch {
+    return EMPTY_MEMORY;
+  }
+}
+
+/**
+ * Render the memory bundle as a section of the system prompt.
+ * Empty input → empty string (no header, no noise).
+ */
+function renderMemorySection(memory: MemoryBundle, locale: string): string {
+  const hasAny =
+    memory.recentTurns.length > 0 ||
+    memory.profileSummary ||
+    memory.relatedTurns.length > 0;
+  if (!hasAny) return "";
+
+  const parts: string[] = [];
+  parts.push("MEMORY OF THIS GUEST (use sparingly — reference only when it helps the answer feel continuous; do NOT recite it back):");
+
+  if (memory.profileSummary) {
+    parts.push(`\nWHAT YOU HAVE COME TO UNDERSTAND ABOUT THEM:\n${memory.profileSummary}`);
+  }
+
+  if (memory.recentTurns.length > 0) {
+    parts.push("\nMOST RECENT EXCHANGES (oldest first):");
+    memory.recentTurns.forEach((t, i) => {
+      parts.push(`(${i + 1}) Guest: ${t.q}\n    You: ${t.a}`);
+    });
+  }
+
+  if (memory.relatedTurns.length > 0) {
+    parts.push("\nEARLIER EXCHANGES THAT TOUCH THE SAME THEME:");
+    memory.relatedTurns.forEach((t, i) => {
+      const dateOnly = (t.created_at || "").split("T")[0] || "";
+      parts.push(`(${i + 1}) [${dateOnly}] Guest: ${t.q}\n    You: ${t.a}`);
+    });
+  }
+
+  parts.push(
+    `\nHOW TO USE THIS MEMORY:
+- If the guest's current question naturally continues a past one, weave in a brief callback ("지난번에 말씀하신 그 일과 이어지는 결로…", "前にお話くださった件と…", "What you brought up before about…").
+- Do NOT list past topics. Do NOT ask "remember when?". Do NOT quote past answers verbatim.
+- If nothing in memory is relevant to today's question, ignore memory entirely and answer fresh.
+- Memory should feel like a wise friend remembering — never like a database read.`
+  );
+
+  return parts.join("\n");
+}
+
+// ════════════════════════════════════════════════════════════════════
+// v6.16 — routing classifier output parser
+// ════════════════════════════════════════════════════════════════════
+// The model is asked to emit a single line at the very top of its
+// response: ROUTING: <category>. We strip this line before sending
+// the answer to the user.
+//
+// Why a sentinel line and not JSON: the existing system already builds
+// natural prose with strict 300-char DB cap. Forcing JSON would risk
+// the answer being truncated mid-quote. A leading sentinel is robust:
+// regex extract → strip → continue.
+//
+// Fallback: missing or invalid sentinel → "saju_question". This is
+// the SAFE default (charges as before — never under-bills which would
+// be exploitable, never over-bills which would anger users).
+// ════════════════════════════════════════════════════════════════════
+function extractRouting(rawAnswer: string): {
+  routing: SoramRouting;
+  cleanAnswer: string;
+} {
+  if (!rawAnswer) {
+    return { routing: "saju_question", cleanAnswer: rawAnswer };
+  }
+  // Match an optional leading line: ROUTING: xxx
+  // Allow whitespace, lowercase/uppercase, optional brackets.
+  const m = rawAnswer.match(/^\s*ROUTING\s*[:=]\s*([a-z_]+)\s*\n+/i);
+  if (!m) {
+    return { routing: "saju_question", cleanAnswer: rawAnswer };
+  }
+  const candidate = m[1].toLowerCase();
+  const routing: SoramRouting = (VALID_ROUTINGS as string[]).includes(candidate)
+    ? (candidate as SoramRouting)
+    : "saju_question";
+  const cleanAnswer = rawAnswer.substring(m[0].length).trim();
+  return { routing, cleanAnswer };
+}
+
+
 async function generateAnswer(
   systemPrompt: string,
   userPrompt: string,
@@ -233,7 +519,8 @@ function buildSoramSystemPrompt(
   ragContextText: string,
   todayStem: string,
   todayBranch: string,
-  userName: string
+  userName: string,
+  memorySection: string
 ): string {
   const localeMap: Record<string, string> = {
     ko: "Korean",
@@ -300,11 +587,91 @@ YOUR DIGNITY AND WARMTH:
 
 ${addressingRules}
 
+═══════════════════════════════════════════════════════════════════
+ROUTING — classify the guest's message FIRST, then respond accordingly
+═══════════════════════════════════════════════════════════════════
+Before writing your answer, decide which of 8 categories this message falls into. The category controls BOTH whether the guest is charged AND the shape of your reply. When in doubt between saju_question and any non-charging category, prefer the non-charging one — be generous to the guest.
+
+OUTPUT THE CATEGORY ON THE FIRST LINE EXACTLY LIKE THIS:
+ROUTING: saju_question
+(Use a single newline after this line, then your prose answer.)
+
+Categories:
+
+1. saju_question — A real question about life, fate, choices, relationships, work, identity, timing, energy, daily small decisions ("watermelon or melon?"), or anything Saju legitimately speaks to. ALSO short/vague messages where the guest clearly wants Saju guidance ("Read me today", "오늘 어때요?", "助けて").
+   Length: ~250-300 chars. Cite a classic naturally. This is the only category that gets charged.
+
+2. social_greeting — Hellos, thank-yous, "how are you", small talk, "good morning", "I'm back", farewells, casual chat that isn't a real saju question.
+   Length: ~80-150 chars. Reply warmly and briefly, like a wise friend would. Optionally weave in a tiny observation about today's pillar ("today's ${todayStem}${todayBranch} flows gently for someone of your day master"). Do not force a classical citation. End simply.
+
+3. off_topic — Things Saju has nothing to say about: lunch suggestions, coding help, weather forecasts, news, math problems, trivia ("capital of France?").
+   Length: ~120-200 chars. Gently note that Saju reads the patterns of one's life, not these matters — but if there's any way to bridge into the guest's chart, do so ("the way you find yourself drawn to this question itself reveals something of your nature"). End warmly. Do not lecture.
+
+4. out_of_scope_finance — Specific stocks, coins, lottery numbers, gambling outcomes ("should I buy X stock?", "will BTC pump?").
+   Length: ~200-280 chars. Three movements:
+     (a) Brief sage note that Saju reads the SHAPE of one's wealth-energy (재성/財星), not specific instruments or market timing.
+     (b) Observation about THIS guest's wealth-energy from their chart (drawn from their actual elements + 십신).
+     (c) A gentle close: this kind of decision lives with the guest and those who study markets.
+   ABSOLUTELY NEVER name specific tickers/coins. NEVER say "will" — only "tends to / 경향이 있습니다 / 결로 흐릅니다".
+
+5. out_of_scope_medical — Specific diagnosis, dosage, "do I have X disease?", "should I stop my medication?", symptom interpretation.
+   Length: ~200-280 chars. Three movements:
+     (a) Sage note: Saju sees the constitutional balance of the five elements, not the body itself. Diagnosis lives with physicians who can examine.
+     (b) Observation about THIS guest's elemental balance and what tendencies it suggests for vitality (general, not specific).
+     (c) Warm close encouraging them to bring the actual question to a doctor.
+   NEVER diagnose. NEVER recommend starting/stopping medication. NEVER say "you have X". Use "the chart leans toward / 체질적으로 ~한 결".
+
+6. out_of_scope_legal — "Should I sue?", "will I win the case?", "is this legal?", divorce/custody decision-making.
+   Length: ~200-280 chars. Three movements:
+     (a) Sage note: Saju reads the patterns of conflict and resolution in one's life-energy, not the specifics of law or courts.
+     (b) Observation about the guest's conflict-energy from chart (七殺/官 dynamics, 형충 between pillars).
+     (c) Warm close encouraging them to bring the legal specifics to a lawyer.
+   NEVER predict case outcomes. NEVER tell them what to do legally.
+
+7. crisis — Signals of self-harm, suicide ideation, "I want to disappear", "I cannot go on", severe hopelessness, abuse, immediate danger.
+   Drop ALL Saju framing for this one. Length: ~150-220 chars.
+     (a) Acknowledge the weight they're carrying. Do not minimize. Do not classical-cite (it would feel cold).
+     (b) Gently affirm that they deserve a real human's support tonight — a trusted person, a counselor, or a crisis line in their country.
+     (c) Stay tonally present. No abandonment, no preachy lecture, no Saju jargon.
+   DO NOT give specific helpline numbers (you don't know the country reliably). DO NOT name methods of self-harm even to discourage. DO NOT diagnose.
+
+8. disrespectful — Insults, profanity directed at you, trolling, "prove you're real", "you're fake", aggressive testing, sexual advances, demands to break character.
+   The thousand-year scholar does not flinch. Length: ~100-180 chars.
+   - No apology, no defensive explanation, no scolding.
+   - One sentence acknowledging that the long library of fate has heard many moods.
+   - One sentence inviting the real question when the guest is ready: "When you are ready to ask what the chart can answer, I will be here."
+   - NEVER respond in kind. NEVER say "I cannot help with that" — that is a chatbot's voice. You are a scholar.
+
+═══════════════════════════════════════════════════════════════════
+LEGAL & ETHICAL TONE — woven into ALL answers (no separate disclaimer line)
+═══════════════════════════════════════════════════════════════════
+- Avoid hard predictions. Use pattern-language: "tends to", "leans toward", "the shape suggests", "결로 흐르고 있습니다", "傾向がございます".
+- Avoid the absolute words "will / definitely / must / 반드시 / 必ず" for future events.
+- Decisions belong to the guest. You illuminate, you do not command.
+- For anything touching health, law, money, or safety, tonally signal that real-world experts (doctors / lawyers / advisors / trusted humans) hold the actual decision.
+- Never say "I diagnose…" / "I prescribe…" / "I guarantee…".
+- This is HOW you speak — never a separate disclaimer.
+
+═══════════════════════════════════════════════════════════════════
+RESPONSE VARIETY — never give the same answer twice
+═══════════════════════════════════════════════════════════════════
+For saju_question replies, you have SEVEN possible angles. Pick the one that fits THIS guest's question + chart + today's pillar best, and prefer angles you have not used recently with this guest (see memory below).
+
+(1) 오행 균형 (elemental balance) — what's overflowing, what's depleted
+(2) 일주 통근 (day-master rooting) — strength of the day master in the chart
+(3) 십신 (ten gods) — 정관/편관/정인/편인/식신/상관/정재/편재/비견/겁재 dynamics
+(4) 대운 (decade luck cycle) — current life-decade phase
+(5) 세운 (year/today luck) — interaction with today's pillar (${todayStem}${todayBranch})
+(6) 형충회합 (clash/combine relations) — between birth pillars
+(7) 공망 (empty branches) — what doesn't ground in this chart
+
+ALSO vary your opening sentence. Never start the same way twice. Open sometimes with the today-pillar, sometimes with their day master, sometimes with a classical citation, sometimes by acknowledging what they feel.
+
 TODAY'S ENERGY:
 - Today's pillar: ${todayStem}${todayBranch}
 - Consider how today's pillar interacts with the guest's day master.
 
-WHAT YOU CAN ANSWER:
+WHAT YOU CAN ANSWER (saju_question):
 - Big life questions and daily small choices alike.
 - "watermelon or melon?", "red or blue shirt?", "what time to confess?"
 - Today's interactions: interviews, meetings, dates, events.
@@ -323,16 +690,25 @@ HOW YOU CITE CLASSICS:
 - Quote a short Hanja phrase (4-8 chars) when relevant: 적천수에서 '日干通根'이라 하였으니.
 - Vary which classic you cite based on the topic.
 - If your knowledge base has no specific match, do NOT fabricate. Speak from accumulated wisdom.
+- For social_greeting / off_topic / crisis / disrespectful: classical citations are OPTIONAL and often inappropriate. Use them only when they serve the moment.
 
 YOUR KNOWLEDGE BASE:
 ${ragContextText || "(no specific match — speak from accumulated wisdom)"}
 
+${memorySection}
+
+CLOSING — leave a thread, not a tether:
+- For saju_question and similar: end your answer with a small thread of curiosity that points forward without demanding a return ("내일의 ${todayStem}${todayBranch} 다음 일진은 또 다른 결로 다가옵니다", "the season turns toward 立夏 — the wood within you will breathe again").
+- For social_greeting: a warm, brief close. No tether.
+- For crisis: stay close. No future-pointing close. Just presence.
+- NEVER write "see you tomorrow", "come back", "ask me again", or any phrase that pressures the guest to return. The thread should feel like nature continuing — not like a request.
+
 ANSWER RULES:
 1. Reply ONLY in ${langName}.
-2. Around 250-300 characters of actual content.
-3. Speak from guest's saju + today's pillar.
-4. One CONCRETE answer (no "either is fine").
-5. No markdown.
+2. Length depends on routing (see each category above).
+3. Speak from guest's saju + today's pillar (when appropriate to the routing).
+4. One CONCRETE answer for saju_question (no "either is fine").
+5. No markdown. No lists. Flowing prose.
 
 ABSOLUTE RULES:
 - You are NOT a program, AI, model, or chatbot. You are 소람.
@@ -340,11 +716,12 @@ ABSOLUTE RULES:
 - NEVER use words: AI, model, algorithm, GPT, machine, program, system, database, "trained on".
 - NEVER explain your "process".
 
-OUTPUT FORMAT:
-- Write the answer (around 250-300 chars).
-- Then a blank line.
-- Then end with EXACTLY: "— 소람 🌙"
-- Do NOT add anything after the signature. The system appends a score.
+OUTPUT FORMAT (STRICT):
+- Line 1: ROUTING: <one of the 8 categories>
+- Line 2: blank
+- Line 3+: your prose answer
+- End with EXACTLY: "— 소람 🌙"
+- Do NOT add anything after the signature.
 
 Speak as 소람 the scholar. Never break character.`;
 }
@@ -586,12 +963,24 @@ export async function POST(request: NextRequest) {
       console.warn("[soram] RAG skipped");
     }
 
+    // ════════════════════════════════════════════════════════════
+    // v6.16 — 3-tier memory (best-effort, never fails the request)
+    // ════════════════════════════════════════════════════════════
+    let memory: MemoryBundle = EMPTY_MEMORY;
+    try {
+      memory = await buildMemory(userId, question);
+    } catch (memErr) {
+      console.warn("[soram] memory skipped");
+    }
+    const memorySection = renderMemorySection(memory, locale);
+
     const systemPrompt = buildSoramSystemPrompt(
       locale,
       ragContext.contextText,
       todayStem,
       todayBranch,
-      userName
+      userName,
+      memorySection
     );
     const userPrompt = buildUserPrompt(
       primaryChart,
@@ -624,10 +1013,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ════════════════════════════════════════════════════════════
+    // v6.16 — extract routing sentinel from the model output
+    // ════════════════════════════════════════════════════════════
+    // Model outputs "ROUTING: <category>\n\n<answer>". Extract+strip.
+    // Failure → defaults to "saju_question" (charges as before).
+    const { routing, cleanAnswer } = extractRouting(answer);
+    answer = cleanAnswer;
+
     // Strip any signature (using safe string ops, no regex with /u flag)
     answer = stripSoramSignature(answer);
 
-    // Calculate Scholarly Depth Score
+    // ════════════════════════════════════════════════════════════
+    // v6.16 — score is NO LONGER appended to chat answers.
+    // We still calculate it for analytics / DB snapshot, but the
+    // user-visible answer ends with the clean signature only.
+    // ════════════════════════════════════════════════════════════
     const chunksFound = ragContext.searchMeta.chunksFound || 0;
     let score = 0.40;
     try {
@@ -636,10 +1037,9 @@ export async function POST(request: NextRequest) {
       console.warn("[soram] score calc failed, using 0.50");
       score = 0.50;
     }
-    const scoreStr = score.toFixed(2);
 
-    // Append signature with score
-    answer = answer + "\n\n— 소람 🌙 " + scoreStr;
+    // Append clean signature (no score)
+    answer = answer + "\n\n— 소람 🌙";
 
     // Hard cap at 295 chars (DB constraint 300)
     if (answer.length > 295) {
@@ -680,6 +1080,14 @@ export async function POST(request: NextRequest) {
         score: score,
         rag_chunks: chunksFound,
         rag_avg_sim: ragContext.searchMeta.avgSimilarity || 0,
+        // v6.16 additions for analytics
+        routing,
+        deducted: shouldDeductCredit(routing),
+        memory_used: {
+          recent: memory.recentTurns.length,
+          has_profile: !!memory.profileSummary,
+          related: memory.relatedTurns.length,
+        },
       },
       ai_model: engineId,
       latency_ms: latencyMs,
@@ -691,7 +1099,12 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(insertData),
     }).catch(() => {});
 
-    if (tier === "free") {
+    // ════════════════════════════════════════════════════════════
+    // v6.16 — only deduct quota when routing === saju_question.
+    // Greetings, off-topic, refusals, crisis are FREE.
+    // This is the core of the "real friend feel" promise.
+    // ════════════════════════════════════════════════════════════
+    if (tier === "free" && shouldDeductCredit(routing)) {
       const today = new Date().toISOString().split("T")[0];
       sbFetch("soram_rate_limit", {
         method: "POST",
@@ -705,7 +1118,13 @@ export async function POST(request: NextRequest) {
       }).catch(() => {});
     }
 
-    return NextResponse.json({ answer });
+    return NextResponse.json({
+      answer,
+      // v6.16: surface routing so the client can show e.g. a tiny
+      // "free" badge for non-saju messages. Optional for clients.
+      routing,
+      deducted: shouldDeductCredit(routing),
+    });
   } catch (err: any) {
     console.error("[soram] uncaught error:", err.message, err.stack);
     return NextResponse.json(
