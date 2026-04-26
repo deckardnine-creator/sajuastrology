@@ -385,18 +385,39 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[55] bg-background/98 backdrop-blur-sm md:hidden overflow-y-auto"
+            // ════════════════════════════════════════════════════════
+            // v6.17.20 — overlay sits BETWEEN the navbar (top) and the
+            // global MobileBottomNav (bottom), not over them.
+            // ────────────────────────────────────────────────────────
+            // Why: chandler caught that the prior "fixed inset-0
+            // z-[55]" recipe covered the entire viewport — including
+            // the bottom Home/Reading/Soram/Match/My tab bar — so
+            // tapping anywhere outside a menu item gave no fallback
+            // navigation. It also covered the navbar bar itself, so
+            // the X button only stayed visible because of an
+            // explicit z-[60] on the hamburger button; one stray
+            // backdrop-blur or another sibling could break that.
+            //
+            // Layout:
+            //   • top-16    → starts beneath the navbar (h-16 = 64px,
+            //                 same height the navbar uses on mobile),
+            //                 so the X stays inside the navbar bar
+            //                 in its natural slot, not floating.
+            //   • bottom-16 → ends above the BottomNav (h-16 = 64px
+            //                 in mobile-bottom-nav.tsx). On pages
+            //                 where BottomNav is hidden (blog,
+            //                 reading, soram, setup-primary-chart,
+            //                 etc.) this leaves a small empty strip
+            //                 — harmless, the menu list is top-
+            //                 aligned and never reaches it.
+            //   • z-[45]    → above BottomNav (z-40) so menu items
+            //                 paint on top of any peek-through, but
+            //                 below navbar (z-50) so the X button
+            //                 keeps its existing stacking context.
+            // ════════════════════════════════════════════════════════
+            className="fixed top-16 right-0 left-0 bottom-16 z-[45] bg-background/98 backdrop-blur-sm md:hidden overflow-y-auto"
           >
-            {/* v6.17.19 — menu layout improved per chandler ("화면을
-                가득 채운다"). Previous: min-h-screen + justify-center
-                + gap-6 + py-20 spread 8 items across the entire
-                viewport, leaving the navbar X-button area indistinct
-                and the items themselves looking sparse. New: tight
-                top-aligned list with normal gap, leaving the navbar
-                bar (h-16, z-50) untouched — the X button sits in
-                exactly the same screen position the hamburger did,
-                and the menu list scrolls underneath if it overflows. */}
-            <div className="flex flex-col items-center pt-20 pb-10 px-6 gap-3">
+            <div className="flex flex-col items-center pt-6 pb-10 px-6 gap-3">
               <Link href={homeHref} className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.home")}</Link>
               <Link href="/what-is-saju" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.whatIsSaju")}</Link>
               <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>
