@@ -409,7 +409,13 @@ export default function SoramChatPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
-      try { safeSet("post-signin-intent", "/soram"); } catch {}
+      // v6.13: JSON envelope with 5-min TTL (auth-context reader honors it)
+      try {
+        safeSet(
+          "post-signin-intent",
+          JSON.stringify({ path: "/soram", expires: Date.now() + 5 * 60 * 1000 })
+        );
+      } catch {}
       openSignInModal();
       // No router.replace — we want the user to see they're on /soram
       // (URL bar reads /soram, page chrome shows the Soram header) so

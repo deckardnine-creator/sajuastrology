@@ -375,127 +375,43 @@ function DashboardInner() {
   // (chandler #4: today's-fortune section deleted from dashboard)
   // Saves the 52KB lazy-imported fortune data on dashboard route too.
 
-  // Empty state - only show after readings have been checked
-  if (!sajuData.chart) {
-    if (!readingsLoaded) {
-      return (
-        <div className="max-w-4xl mx-auto flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        </div>
-      );
-    }
+  // ════════════════════════════════════════════════════════════════
+  // v6.13: Empty-saju state no longer hijacks the entire dashboard.
+  //
+  // Old behavior: when sajuData.chart was null, the whole dashboard
+  // body was replaced with a single "Welcome, generate a reading"
+  // CTA, leaving the user with no Soram entry, no consultation
+  // history, no soram history, no plan card. This was confusing for
+  // users who, say, only used Soram (no full reading yet) but had
+  // already paid for Companion — they'd see a page telling them to
+  // "generate a reading" with no way to access what they actually
+  // paid for.
+  //
+  // New behavior: keep the rest of the dashboard intact and replace
+  // ONLY the four-pillars chart visualization area with a small
+  // "no reading yet" card. Soram CTA, plan card, consultation
+  // history, soram history, footer/account-delete row all remain.
+  // The full-page CTA was a hard-coded path that didn't degrade.
+  //
+  // We still spin while we're waiting for the readings list to
+  // resolve — that gates avoiding a flash of "no reading" right
+  // before a saved reading appears in state. After readings have
+  // resolved, fall through to the normal render even if chart
+  // is still null.
+  // ════════════════════════════════════════════════════════════════
+  if (!sajuData.chart && !readingsLoaded) {
     return (
-      <div className="max-w-4xl mx-auto text-center min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <Sparkles className="w-16 h-16 text-primary mx-auto mb-6" />
-          <h1 className="text-2xl sm:text-3xl font-serif text-primary mb-4">{t("dash.welcome")} {user?.name?.split(" ")[0]}</h1>
-          <p className="text-muted-foreground mb-8 max-w-md mx-auto text-sm sm:text-base">
-            {t("dash.emptyDesc")}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
-            <Link href="/calculate">
-              <Button className="gold-gradient text-primary-foreground h-12 px-6">
-                <Sparkles className="w-4 h-4 mr-2" /> {t("dash.generateReading")}
-              </Button>
-            </Link>
-            <Link href="/compatibility">
-              <Button variant="outline" className="h-12 px-6">
-                <Heart className="w-4 h-4 mr-2" /> {t("dash.viewCompat", locale)}
-              </Button>
-            </Link>
-          </div>
-        </motion.div>
-        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-auto pt-8 pb-4 text-[11px] text-muted-foreground/50">
-          <Link href="/privacy" className="hover:text-muted-foreground transition-colors">
-            {t("common.privacy", locale)}
-          </Link>
-          <span>·</span>
-          <Link href="/terms" className="hover:text-muted-foreground transition-colors">
-            {t("common.terms", locale)}
-          </Link>
-          <span>·</span>
-          <a href="mailto:info@rimfactory.io" className="hover:text-muted-foreground transition-colors">
-            {t("common.contact", locale)}
-          </a>
-          <span>·</span>
-          <button
-            onClick={async () => {
-              if (deleteConfirmStep === 0) {
-                setDeleteConfirmStep(1);
-                setTimeout(() => setDeleteConfirmStep(0), 5000);
-                return;
-              }
-              if (deleteConfirmStep === 1) {
-                setDeleteConfirmStep(2);
-                try {
-                  let token = "";
-                  // Method 1: getSession()
-                  try {
-                    const { data: { session } } = await supabase.auth.getSession();
-                    if (session) token = session.access_token;
-                  } catch {}
-                  // Method 2: localStorage sb-* keys (Supabase v2 format)
-                  if (!token) {
-                    for (let i = 0; i < localStorage.length; i++) {
-                      const k = localStorage.key(i);
-                      if (k && k.startsWith("sb-") && k.includes("auth-token")) {
-                        try { const d = JSON.parse(localStorage.getItem(k) || ""); token = d.access_token || ""; } catch {}
-                      }
-                    }
-                  }
-                  // Method 3: scan all localStorage for any Supabase session shape
-                  if (!token) {
-                    for (let i = 0; i < localStorage.length; i++) {
-                      const k = localStorage.key(i);
-                      if (!k) continue;
-                      try {
-                        const raw = localStorage.getItem(k) || "";
-                        if (raw.includes("access_token") && raw.includes("refresh_token")) {
-                          const d = JSON.parse(raw);
-                          if (d.access_token && typeof d.access_token === "string" && d.access_token.length > 20) {
-                            token = d.access_token;
-                            break;
-                          }
-                        }
-                      } catch {}
-                    }
-                  }
-                  // Method 4: try refreshing session first, then get token
-                  if (!token) {
-                    try {
-                      const { data } = await supabase.auth.refreshSession();
-                      if (data.session) token = data.session.access_token;
-                    } catch {}
-                  }
-                  if (!token) { setDeleteConfirmStep(0); return; }
-                  const res = await fetch("/api/account/delete", {
-                    method: "POST",
-                    headers: { "Authorization": `Bearer ${token}` },
-                  });
-                  if (res.ok) { try { await signOut(); } catch {} window.location.href = isNative ? "/?app=true" : "/"; }
-                  else { setDeleteConfirmStep(0); }
-                } catch { setDeleteConfirmStep(0); }
-              }
-            }}
-            className={deleteConfirmStep === 1 ? "text-red-400 font-medium animate-pulse transition-colors" : deleteConfirmStep === 2 ? "text-red-400/30 pointer-events-none" : "text-red-400/50 hover:text-red-400 transition-colors"}
-          >
-            {deleteConfirmStep === 2
-              ? t("dash.deleting", locale)
-              : deleteConfirmStep === 1
-              ? t("dash.tapToConfirmDelete", locale)
-              : t("dash.deleteAccount", locale)}
-          </button>
-        </div>
-        {deleteConfirmStep === 1 && (
-          <p className="text-[11px] text-red-400/80 text-center mt-2 animate-in fade-in duration-200">
-            {t("dash.deleteWarning", locale)}
-          </p>
-        )}
+      <div className="max-w-4xl mx-auto flex items-center justify-center py-12">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  const dayMasterElement = (sajuData.chart.dayMaster.element || "water") as Element;
+  // chart-null safe element/color computation. Falls back to "water"
+  // (deep blue tint) when there's no reading yet — used only by the
+  // chart-visualization region which itself renders conditionally
+  // below, but having a real value here keeps the block JS-error-free.
+  const dayMasterElement = (sajuData.chart?.dayMaster.element || "water") as Element;
   const dayMasterColor = ELEMENTS[dayMasterElement]?.color || "#F2CA50";
 
   return (
@@ -518,6 +434,31 @@ function DashboardInner() {
           </button>
         )}
       </motion.div>
+
+      {/* ════════════════════════════════════════════════════════════
+          v6.13: Top "enter your saju" notice — chart-null case only.
+          Chandler explicitly requested:
+            "탑에 본인사주 정확하게 입력하라고 하고"
+          A clear top-of-page prompt sets the user's expectation that
+          the placeholder cards below are intentional, not a bug —
+          they will fill in once a saju reading exists. Gold accent
+          ties it into the rest of the v1.3 sprint visual language.
+      ════════════════════════════════════════════════════════════ */}
+      {!sajuData.chart && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-5 sm:mb-6 relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/12 via-amber-400/6 to-transparent backdrop-blur-sm px-4 py-3.5"
+        >
+          <span aria-hidden="true" className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
+          <p className="text-sm font-semibold text-amber-100 leading-snug">
+            {t("dash.enterSajuTitle", locale)}
+          </p>
+          <p className="text-[11px] text-amber-200/75 leading-relaxed mt-1">
+            {t("dash.enterSajuSub", locale)}
+          </p>
+        </motion.div>
+      )}
 
       {/* ════════════════════════════════════════════════════════════
           v1.3 Sprint 2-B: NEW — Soram entry + Plan / remaining row
@@ -620,107 +561,216 @@ function DashboardInner() {
       </div>
       )}
 
-      {/* Today's Energy + Day Master row */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-5">
-        {/* Energy Score */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">{t("dash.todayEnergy")}</p>
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="relative">
-              <svg className="w-14 h-14 sm:w-16 sm:h-16 -rotate-90">
-                <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-muted" />
-                <motion.circle cx="32" cy="32" r="28" fill="none"
-                  stroke={dailyScore >= 70 ? "#59DE9B" : dailyScore >= 50 ? "#F2CA50" : "#EF4444"}
-                  strokeWidth="4" strokeLinecap="round"
-                  strokeDasharray={`${(dailyScore / 100) * 176} 176`}
-                  initial={{ strokeDasharray: "0 176" }}
-                  animate={{ strokeDasharray: `${(dailyScore / 100) * 176} 176` }}
-                  transition={{ duration: 1, delay: 0.5 }} />
-              </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-base sm:text-lg font-bold">
-                {mounted ? dailyScore : "--"}
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm text-muted-foreground flex-1 hidden sm:block">
-              {dailyScore >= 70 ? t("common.excellent") : dailyScore >= 50 ? t("common.balanced") : t("common.beGentle")}
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Day Master */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">{ t("dash.dayMaster") }</p>
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center text-lg sm:text-xl font-serif"
-              style={{ backgroundColor: `${dayMasterColor}20`, color: dayMasterColor }}>
-              {sajuData.chart.dayMaster.zh}
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">{sajuData.chart.dayMaster.en}</p>
-              <p className="text-xs text-muted-foreground">{sajuData.chart.archetype}</p>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Lucky Items card removed in v1.3 Sprint 2-B (chandler #4: today's-fortune section deleted) */}
-      </div>
-
-      {/* Daily Fortune Card removed in v1.3 Sprint 2-B (chandler #4: today's-fortune section deleted) */}
-
-      {/* Four Pillars */}
-      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6 sm:mb-8">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm tracking-wider text-muted-foreground uppercase">{t("dash.fourPillars")}</h2>
-          {primaryReadingId && savedReadings.length > 0 && (
-            <Link href={`/reading/${savedReadings.find((r) => r.id === primaryReadingId)?.share_slug || ""}`}
-              className="text-sm text-primary hover:underline flex items-center gap-1">
-              {t("dash.fullReading")} <ArrowRight className="w-3 h-3" />
-            </Link>
-          )}
-        </div>
-        <div className="grid grid-cols-4 gap-2 sm:gap-3">
-          {(["hour", "day", "month", "year"] as const).map((pn) => {
-            const p = sajuData.chart!.pillars[pn];
-            const isDay = pn === "day";
-            return (
-              <div key={pn} className={`bg-card/50 border rounded-lg p-2.5 sm:p-3 text-center ${isDay ? "border-primary ring-1 ring-primary/20" : "border-border"}`}>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 capitalize">{pn}</p>
-                <div className="text-xl sm:text-2xl font-serif" style={{ color: getElementColor(p.stem.element) }}>{p.stem.zh}</div>
-                <div className="text-base sm:text-lg text-muted-foreground">{p.branch.zh}</div>
+      {/* ════════════════════════════════════════════════════════════
+          v6.13: chart visualization region — saju-required.
+          
+          When sajuData.chart is null (user signed in but never
+          generated a reading), we keep the same regional structure
+          (so the dashboard layout stays familiar) but render dim
+          placeholder cards + a single "Generate my saju" CTA below.
+          
+          Chandler explicitly directed this design:
+            "남은 사주서비스 영역을 아직 풀이하지 않은 상태로
+             항목 띄우고 그밑에 버튼 넣어서 누르면 사주보는
+             페이지로 이동하게 하면 되잖아"
+          
+          Design intent:
+            - Empty cards with "—" instead of numbers signal "this
+              fills in once you have a reading" — not a broken state.
+            - One single CTA below all three placeholder regions
+              (not one per region) avoids button-spam.
+            - Top notice + bottom CTA + dim cards together communicate
+              one clear next step.
+      ════════════════════════════════════════════════════════════ */}
+      {sajuData.chart ? (
+        <>
+          {/* Today's Energy + Day Master row */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-5">
+            {/* Energy Score */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+              className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">{t("dash.todayEnergy")}</p>
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="relative">
+                  <svg className="w-14 h-14 sm:w-16 sm:h-16 -rotate-90">
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-muted" />
+                    <motion.circle cx="32" cy="32" r="28" fill="none"
+                      stroke={dailyScore >= 70 ? "#59DE9B" : dailyScore >= 50 ? "#F2CA50" : "#EF4444"}
+                      strokeWidth="4" strokeLinecap="round"
+                      strokeDasharray={`${(dailyScore / 100) * 176} 176`}
+                      initial={{ strokeDasharray: "0 176" }}
+                      animate={{ strokeDasharray: `${(dailyScore / 100) * 176} 176` }}
+                      transition={{ duration: 1, delay: 0.5 }} />
+                  </svg>
+                  <span className="absolute inset-0 flex items-center justify-center text-base sm:text-lg font-bold">
+                    {mounted ? dailyScore : "--"}
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-muted-foreground flex-1 hidden sm:block">
+                  {dailyScore >= 70 ? t("common.excellent") : dailyScore >= 50 ? t("common.balanced") : t("common.beGentle")}
+                </p>
               </div>
-            );
-          })}
-        </div>
-      </motion.section>
+            </motion.div>
 
-      {/* Weekly */}
-      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="mb-6 sm:mb-8">
-        <h2 className="text-sm tracking-wider text-muted-foreground uppercase mb-3">{t("dash.thisWeek")}</h2>
-        <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
-          {weekDays.map((d, i) => {
-            const sc = d.score >= 70 ? "#59DE9B" : d.score >= 50 ? "#F2CA50" : "#EF4444";
-            return (
-              <div key={i} className={`bg-card/50 border rounded-lg p-1.5 sm:p-2.5 text-center ${i === 0 ? "border-primary" : "border-border"}`}>
-                <p className="text-[10px] sm:text-xs text-muted-foreground">{d.day}</p>
-                <p className="text-sm sm:text-base font-medium">{d.dateNum}</p>
-                {mounted && (
-                  <div className="mt-1">
-                    <div className="mx-auto w-5 h-10 sm:w-6 sm:h-12 bg-muted/20 rounded-full relative overflow-hidden">
-                      <div
-                        className="absolute bottom-0 left-0 right-0 rounded-full transition-all duration-700"
-                        style={{ height: `${d.score}%`, backgroundColor: sc }}
-                      />
-                    </div>
-                    <p className="text-[11px] sm:text-sm font-bold mt-0.5" style={{ color: sc }}>{d.score}</p>
+            {/* Day Master */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+              className="bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">{ t("dash.dayMaster") }</p>
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center text-lg sm:text-xl font-serif"
+                  style={{ backgroundColor: `${dayMasterColor}20`, color: dayMasterColor }}>
+                  {sajuData.chart.dayMaster.zh}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{sajuData.chart.dayMaster.en}</p>
+                  <p className="text-xs text-muted-foreground">{sajuData.chart.archetype}</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Lucky Items card removed in v1.3 Sprint 2-B (chandler #4: today's-fortune section deleted) */}
+          </div>
+
+          {/* Daily Fortune Card removed in v1.3 Sprint 2-B (chandler #4: today's-fortune section deleted) */}
+
+          {/* Four Pillars */}
+          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6 sm:mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm tracking-wider text-muted-foreground uppercase">{t("dash.fourPillars")}</h2>
+              {primaryReadingId && savedReadings.length > 0 && (
+                <Link href={`/reading/${savedReadings.find((r) => r.id === primaryReadingId)?.share_slug || ""}`}
+                  className="text-sm text-primary hover:underline flex items-center gap-1">
+                  {t("dash.fullReading")} <ArrowRight className="w-3 h-3" />
+                </Link>
+              )}
+            </div>
+            <div className="grid grid-cols-4 gap-2 sm:gap-3">
+              {(["hour", "day", "month", "year"] as const).map((pn) => {
+                const p = sajuData.chart!.pillars[pn];
+                const isDay = pn === "day";
+                return (
+                  <div key={pn} className={`bg-card/50 border rounded-lg p-2.5 sm:p-3 text-center ${isDay ? "border-primary ring-1 ring-primary/20" : "border-border"}`}>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 capitalize">{pn}</p>
+                    <div className="text-xl sm:text-2xl font-serif" style={{ color: getElementColor(p.stem.element) }}>{p.stem.zh}</div>
+                    <div className="text-base sm:text-lg text-muted-foreground">{p.branch.zh}</div>
                   </div>
-                )}
+                );
+              })}
+            </div>
+          </motion.section>
+
+          {/* Weekly */}
+          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="mb-6 sm:mb-8">
+            <h2 className="text-sm tracking-wider text-muted-foreground uppercase mb-3">{t("dash.thisWeek")}</h2>
+            <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+              {weekDays.map((d, i) => {
+                const sc = d.score >= 70 ? "#59DE9B" : d.score >= 50 ? "#F2CA50" : "#EF4444";
+                return (
+                  <div key={i} className={`bg-card/50 border rounded-lg p-1.5 sm:p-2.5 text-center ${i === 0 ? "border-primary" : "border-border"}`}>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">{d.day}</p>
+                    <p className="text-sm sm:text-base font-medium">{d.dateNum}</p>
+                    {mounted && (
+                      <div className="mt-1">
+                        <div className="mx-auto w-5 h-10 sm:w-6 sm:h-12 bg-muted/20 rounded-full relative overflow-hidden">
+                          <div
+                            className="absolute bottom-0 left-0 right-0 rounded-full transition-all duration-700"
+                            style={{ height: `${d.score}%`, backgroundColor: sc }}
+                          />
+                        </div>
+                        <p className="text-[11px] sm:text-sm font-bold mt-0.5" style={{ color: sc }}>{d.score}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </motion.section>
+        </>
+      ) : (
+        <>
+          {/* ─── Empty placeholders (saju not yet generated) ─── */}
+
+          {/* Today's Energy + Day Master row — placeholder */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-5">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+              className="bg-card/30 border border-dashed border-border/60 rounded-xl p-4 sm:p-5"
+              aria-disabled="true"
+            >
+              <p className="text-xs text-muted-foreground/70 uppercase tracking-wider mb-3">{t("dash.todayEnergy")}</p>
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-muted/40 flex items-center justify-center text-base sm:text-lg font-bold text-muted-foreground/50">
+                  —
+                </div>
+                <p className="text-xs text-muted-foreground/60 flex-1 hidden sm:block">
+                  {t("dash.placeholderHint", locale)}
+                </p>
               </div>
-            );
-          })}
-        </div>
-      </motion.section>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+              className="bg-card/30 border border-dashed border-border/60 rounded-xl p-4 sm:p-5"
+              aria-disabled="true"
+            >
+              <p className="text-xs text-muted-foreground/70 uppercase tracking-wider mb-3">{t("dash.dayMaster")}</p>
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center text-lg sm:text-xl font-serif bg-muted/20 text-muted-foreground/50">
+                  ?
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-muted-foreground/60">—</p>
+                  <p className="text-xs text-muted-foreground/40">{t("dash.placeholderArchetype", locale)}</p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Four Pillars — placeholder */}
+          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6 sm:mb-8">
+            <h2 className="text-sm tracking-wider text-muted-foreground/70 uppercase mb-3">{t("dash.fourPillars")}</h2>
+            <div className="grid grid-cols-4 gap-2 sm:gap-3">
+              {(["hour", "day", "month", "year"] as const).map((pn) => (
+                <div key={pn} className="bg-card/30 border border-dashed border-border/60 rounded-lg p-2.5 sm:p-3 text-center" aria-disabled="true">
+                  <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1 capitalize">{pn}</p>
+                  <div className="text-xl sm:text-2xl font-serif text-muted-foreground/40">—</div>
+                  <div className="text-base sm:text-lg text-muted-foreground/30">—</div>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* Weekly — placeholder */}
+          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="mb-6 sm:mb-8">
+            <h2 className="text-sm tracking-wider text-muted-foreground/70 uppercase mb-3">{t("dash.thisWeek")}</h2>
+            <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+              {weekDays.map((d, i) => (
+                <div key={i} className="bg-card/30 border border-dashed border-border/60 rounded-lg p-1.5 sm:p-2.5 text-center" aria-disabled="true">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground/60">{d.day}</p>
+                  <p className="text-sm sm:text-base font-medium text-muted-foreground/50">{d.dateNum}</p>
+                  <div className="mt-1">
+                    <div className="mx-auto w-5 h-10 sm:w-6 sm:h-12 bg-muted/15 rounded-full" />
+                    <p className="text-[11px] sm:text-sm font-bold mt-0.5 text-muted-foreground/30">—</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* Single CTA under all three placeholder regions */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}
+            className="flex justify-center mb-8 sm:mb-10"
+          >
+            <Link href="/calculate">
+              <Button className="gold-gradient text-primary-foreground h-12 px-7 text-sm font-semibold">
+                <Sparkles className="w-4 h-4 mr-2" />
+                {t("dash.generateReading")}
+              </Button>
+            </Link>
+          </motion.div>
+        </>
+      )}
 
       {/* Readings */}
       {(!readingsLoaded || savedReadings.length > 0) && (

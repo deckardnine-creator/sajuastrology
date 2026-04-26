@@ -64,7 +64,15 @@ export function HeroSection() {
       router.push("/soram")
       return
     }
-    try { safeSet("post-signin-intent", "/soram") } catch {}
+    // v6.13: write intent as JSON envelope with 5-min TTL so a stale
+    // intent from an abandoned signin can't redirect a future signin
+    // back to /soram. See auth-context.tsx for the matching reader.
+    try {
+      safeSet(
+        "post-signin-intent",
+        JSON.stringify({ path: "/soram", expires: Date.now() + 5 * 60 * 1000 })
+      )
+    } catch {}
     openSignInModal()
   }
 

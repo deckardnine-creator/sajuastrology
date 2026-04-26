@@ -323,7 +323,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 window.sessionStorage.setItem("post-signin-reloaded", "1");
               } catch {}
 
-              const intent = safeGet("post-signin-intent");
+              const intentRaw = safeGet("post-signin-intent");
+              // ════════════════════════════════════════════════════════
+              // v6.13: time-bounded post-signin-intent (5min TTL).
+              //
+              // The intent value can be either a plain path ("/soram")
+              // for backward compatibility with older code paths that
+              // call `safeSet("post-signin-intent", "/soram")`, OR a
+              // JSON envelope with a `path` and `expires` field for
+              // newer write paths that want freshness guarantees.
+              //
+              // Any plain-string intent older than the page-tab session
+              // is, by definition, stale — the user who set it likely
+              // navigated away or abandoned signin minutes ago. We
+              // accept BOTH formats but tighten the JSON-format ones
+              // by checking the expiry. Plain strings remain best-effort
+              // since we can't know their age.
+              //
+              // Why this matters (chandler's report):
+              //   "로그인했더니 홈으로 가는데 채팅창이 잠깐 나왔다가
+              //    다시 다른 페이지로 가니 일반 홈이 나온다"
+              //
+              // Root cause: stale `post-signin-intent` from an older
+              // session pointed to /soram. Modern sign-in entries
+              // (hero-section.tsx) write the intent right before the
+              // OAuth round-trip, so a 5-minute TTL covers the legitimate
+              // case (OAuth round-trip averages 5–20s) while killing
+              // hour-old or day-old strays.
+              // ════════════════════════════════════════════════════════
+              let intent: string | null = null;
+              if (intentRaw && typeof intentRaw === "string") {
+                if (intentRaw.startsWith("{")) {
+                  try {
+                    const parsed = JSON.parse(intentRaw);
+                    if (
+                      parsed &&
+                      typeof parsed.path === "string" &&
+                      typeof parsed.expires === "number" &&
+                      parsed.expires > Date.now()
+                    ) {
+                      intent = parsed.path;
+                    }
+                  } catch {}
+                } else {
+                  intent = intentRaw; // plain-string legacy form
+                }
+              }
               const intentValid =
                 intent &&
                 typeof intent === "string" &&
@@ -400,9 +445,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async () => {
     setIsLoading(true);
-    if (!safeGet("auth-return-url")) {
-      safeSet("auth-return-url", window.location.href);
-    }
+    // ════════════════════════════════════════════════════════════
+    // v6.13: ALWAYS overwrite auth-return-url, never keep stale values.
+    //
+    // Old behavior: `if (!safeGet) { safeSet(...) }` skipped the write
+    // when auth-return-url already existed. That guard was meant to
+    // prevent a child component (like reading/[slug]/client.tsx) from
+    // overwriting a parent's intent, but it had a worse failure mode:
+    //
+    //   - User clicks "Sign in" on /reading/abc → auth-return-url = /reading/abc
+    //   - User cancels the sign-in modal (or closes the OAuth tab)
+    //   - auth-return-url stays in localStorage forever
+    //   - User goes to home, clicks "Sign in" again → auth-return-url
+    //     is still /reading/abc → callback sends them to a stale page
+    //
+    // Chandler reported: "로그인했더니 홈으로 가는데 채팅창이 잠깐 나왔다가
+    // 다시 다른 페이지로 가니 일반 홈이 나온다" — symptom of stale
+    // auth-return-url pointing back to /soram from a previous session.
+    //
+    // Now we always set the FRESH current URL. The "child overwriting
+    // parent" concern is moot in practice because there's no nested
+    // signIn() chain — every sign-in entry point computes its intent
+    // freshly from the current page.
+    // ════════════════════════════════════════════════════════════
+    safeSet("auth-return-url", window.location.href);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -418,9 +484,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithApple = async () => {
     setIsLoading(true);
-    if (!safeGet("auth-return-url")) {
-      safeSet("auth-return-url", window.location.href);
-    }
+    // v6.13: same overwrite-always fix as signIn() above.
+    safeSet("auth-return-url", window.location.href);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "apple",
       options: { redirectTo: `${window.location.origin}/auth/callback` },
