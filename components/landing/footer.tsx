@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useLanguage } from "@/lib/language-context"
-import { useNativeApp } from "@/lib/native-app"
 import {
   type Locale,
   LOCALE_LABELS,
@@ -136,7 +135,6 @@ function FooterLangDropdown() {
 
 export function Footer() {
   const { t, locale } = useLanguage()
-  const isNative = useNativeApp()
   const pathname = usePathname()
 
   // ═══ Minimal footer mode — ALL blog pages (/blog and /blog/*) ═══
@@ -148,48 +146,27 @@ export function Footer() {
   const isBlogArticlePage = pathname?.startsWith("/blog/") ?? false
   const isBlogPage = isBlogListPage || isBlogArticlePage
 
-  // Defense in depth: if useNativeApp() somehow returns false in the iOS app
-  // (hydration timing, deployment cache, etc), this direct check covers it.
-  // We hide the bug-bounty banner and business info if ANY native indicator
-  // is present.
-  const [directNative, setDirectNative] = useState(false)
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    const ua = navigator.userAgent.includes("SajuApp")
-    const url = new URLSearchParams(window.location.search).get("app") === "true"
-    const bridge = typeof (window as { FlutterBridge?: unknown }).FlutterBridge !== "undefined"
-    let stored = false
-    try { stored = sessionStorage.getItem("native-app") === "1" } catch {}
-    if (ua || url || bridge || stored) setDirectNative(true)
-  }, [])
-
-  const hideWebOnly = isNative || directNative
+  // v6.17.24 — directNative / hideWebOnly 제거.
+  // chandler 원칙: "앱은 web 기능 다 반영, 정책 충돌만 따로".
+  // 이전에는 native 앱에서 Bug Bounty + Business info를 hide하기
+  // 위해 useNativeApp() 외에 UA / URL / Bridge / sessionStorage 까지
+  // 다중 검사하는 directNative 안전장치를 두었지만, 이제는 footer를
+  // web/native 동일하게 표시하므로 안전장치 자체가 불필요하다.
+  // useNativeApp()의 isNative 변수 자체는 다른 곳 (예: 향후 분기)
+  // 참고용으로 남겨둔다.
 
   // ════════════════════════════════════════════════════════════════
-  // v6.17.22 — hide Footer entirely in the native app per chandler.
+  // v6.17.24 — chandler 원칙 정정: "앱은 web 기능 다 반영"
   // ────────────────────────────────────────────────────────────────
-  // Reason (chandler): "일반 웹페이지 푸터가 앱에서 보이면 안된다."
-  // Native users have the Flutter shell's bottom-tab navigation
-  // (Home/Reading/Match/Consult/My) plus the in-app hamburger menu
-  // for legal links. Showing the web Footer there leaks Pricing /
-  // Compatibility / Consultation links that the app already covers
-  // through native navigation, and the © + business-info row adds
-  // visual clutter beneath the BottomNav.
+  // v6.17.22 에서 footer 통째 hide 처리했었는데 chandler가 그것은
+  // 잘못된 해석이라 명시: 앱은 web 기능을 모두 반영해야 하고, 정책
+  // 충돌 (결제·로그인 등) 영역만 따로 처리하면 된다.
   //
-  // Previously v6.x kept the Footer's logo + main nav + legal row
-  // visible in native and only hid the bug-bounty + business-info
-  // sections (hideWebOnly check above). That partial hide isn't
-  // enough — chandler's screenshots showed Pricing / Compatibility
-  // entries reachable from inside the app, which is a hard nav
-  // boundary problem on the way to App Review.
-  //
-  // We use the SAME `hideWebOnly` predicate (not just `isNative`)
-  // because directNative covers UA / URL-param / sessionStorage
-  // detection paths that survive when the React useNativeApp hook
-  // hasn't latched yet — full belt-and-suspenders for the App
-  // Store / Play submission cycle.
+  // Footer는 web 사용자에게 가치 있는 nav + Bug Bounty + Business
+  // info를 담고 있고, 이 모든 정보가 native 사용자에게도 동등하게
+  // 가치 있다 — 특히 v1.3 launch 후 3개월간 앱 업데이트가 막혀
+  // 있는 동안 버그 신고 채널 (Bug Bounty 안내) 은 critical하다.
   // ════════════════════════════════════════════════════════════════
-  if (hideWebOnly) return null;
 
   // ═══ All blog pages (/blog and /blog/*): copyright-only minimal footer ═══
   // Logo + © line only. No nav links, no bug bounty banner, no business info.
@@ -258,8 +235,8 @@ export function Footer() {
             </div>
           </nav>
 
-          {/* Bug Bounty Banner — hidden in native app */}
-          {!hideWebOnly && (
+          {/* Bug Bounty Banner — chandler 원칙: web 기능 다 반영.
+              앱에서도 표시 (3개월 락 동안 user feedback 채널 critical). */}
           <div className="w-full max-w-lg rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-4 sm:px-5 sm:py-5 text-center">
             <span className="inline-block px-2.5 py-0.5 text-[10px] sm:text-xs font-semibold uppercase tracking-wider bg-primary/15 text-primary rounded-full mb-2.5">
               {bb.badge}
@@ -274,15 +251,14 @@ export function Footer() {
               info@rimfactory.io
             </p>
           </div>
-          )}
 
           {/* Copyright — centered */}
           <div className="flex items-center justify-center text-sm text-muted-foreground">
             <span>&copy; 2026 SajuAstrology.com</span>
           </div>
 
-          {/* Business info — hidden in native app */}
-          {!hideWebOnly && (
+          {/* Business info — chandler 원칙: web 기능 다 반영.
+              앱에서도 표시 (한국 통신판매업자 정보 표시 의무, 투명성). */}
           <div className="border-t border-border w-full pt-6">
             <div className="flex flex-col items-center gap-1.5 text-center">
               <p className="text-xs font-medium text-muted-foreground/80">Rimfactory</p>
@@ -301,7 +277,6 @@ export function Footer() {
               </p>
             </div>
           </div>
-          )}
 
         </div>
       </div>

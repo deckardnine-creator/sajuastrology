@@ -1264,30 +1264,25 @@ function DashboardInner() {
       )}
 
       {/* Footer — Privacy, Terms, Contact, Delete Account
-          v6.17.22 — Privacy/Terms/Contact hidden in native (chandler:
-          "심사 중 충돌해도 된다, 앱에서 일반 웹페이지 푸터 노출 금지").
-          The hamburger menu already carries Privacy + Terms inside
-          the app, and Contact is supplied via the support email
-          everywhere it's needed. Delete Account stays visible — Apple
-          5.1.1(v) and Google's account-deletion guideline both
-          mandate an in-app entry point for user-initiated deletion. */}
+          v6.17.24 — chandler 원칙 정정: "앱은 web 기능 다 반영".
+          v6.17.22의 native에서 Privacy/Terms/Contact hide 처리는
+          잘못된 해석이라 명시 — 앱에서도 Privacy/Terms 페이지 접근,
+          Contact 이메일 모두 가치 있는 in-app 기능. revert해서 web과
+          동일하게 노출한다. Delete Account는 Apple 5.1.1(v) + Google
+          정책상 어차피 in-app 필수이므로 그대로. */}
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-8 mb-4 text-[11px] text-muted-foreground/50">
-        {!isNative && (
-          <>
-            <Link href="/privacy" className="hover:text-muted-foreground transition-colors">
-              {t("common.privacy", locale)}
-            </Link>
-            <span>·</span>
-            <Link href="/terms" className="hover:text-muted-foreground transition-colors">
-              {t("common.terms", locale)}
-            </Link>
-            <span>·</span>
-            <a href="mailto:info@rimfactory.io" className="hover:text-muted-foreground transition-colors">
-              {t("common.contact", locale)}
-            </a>
-            <span>·</span>
-          </>
-        )}
+        <Link href="/privacy" className="hover:text-muted-foreground transition-colors">
+          {t("common.privacy", locale)}
+        </Link>
+        <span>·</span>
+        <Link href="/terms" className="hover:text-muted-foreground transition-colors">
+          {t("common.terms", locale)}
+        </Link>
+        <span>·</span>
+        <a href="mailto:info@rimfactory.io" className="hover:text-muted-foreground transition-colors">
+          {t("common.contact", locale)}
+        </a>
+        <span>·</span>
         <button
           onClick={async () => {
             if (deleteConfirmStep === 0) {

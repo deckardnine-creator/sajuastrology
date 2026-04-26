@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
-import { useNativeApp } from "@/lib/native-app"
 
 const footerLinks = [
   { label: { en: "What is Saju?", ko: "사주란?", ja: "四柱とは？" }, href: "/what-is-saju" },
@@ -15,10 +14,13 @@ const footerLinks = [
 
 export function Footer() {
   const { locale } = useLanguage()
-  const isNative = useNativeApp()
 
-  // ═══ Hide web footer inside native app — Flutter handles legal links in side menu ═══
-  if (isNative) return null
+  // v6.17.24 — chandler 원칙: "앱은 web 기능 다 반영".
+  // 이전 버전에서 `if (isNative) return null` 처리하여 앱에선 이
+  // Footer가 통째로 숨겨졌으나 chandler 정정으로 revert.
+  // 앱에서도 web과 동일한 nav + Privacy/Terms + Business info를
+  // 노출한다. /daily 페이지는 BottomNav 위 영역에 자연스럽게 footer
+  // 흐름이 표시된다.
 
   return (
     <footer className="bg-card py-12">
