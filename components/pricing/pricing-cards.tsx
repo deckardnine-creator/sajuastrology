@@ -24,8 +24,8 @@
 //   • Master 5 Pack         → /consultation (existing)
 // ════════════════════════════════════════════════════════════════════
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { Check, Sparkles, Crown, Heart, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -37,6 +37,8 @@ import { safeSet } from "@/lib/safe-storage"
 import { track, Events } from "@/lib/analytics"
 
 interface PlanDef {
+  /** v6.17.16 — stable identifier used by ?plan= deep-links. */
+  slug: "free" | "compat" | "companion" | "full" | "master"
   nameKey: TranslationKey
   price: number
   priceSuffixKey?: TranslationKey
@@ -57,6 +59,7 @@ interface PlanDef {
 
 const PLANS: PlanDef[] = [
   {
+    slug: "free",
     nameKey: "pc.free.name",
     price: 0,
     descKey: "pc.free.desc",
@@ -70,6 +73,7 @@ const PLANS: PlanDef[] = [
     icon: Sparkles,
   },
   {
+    slug: "compat",
     nameKey: "pc.compat.name",
     price: 2.99,
     descKey: "pc.compat.desc",
@@ -84,6 +88,7 @@ const PLANS: PlanDef[] = [
     comingSoon: true,
   },
   {
+    slug: "companion",
     nameKey: "pc.companion.name",
     price: 4.99,
     priceSuffixKey: "pricing.perMonth",
@@ -100,6 +105,7 @@ const PLANS: PlanDef[] = [
     comingSoon: true,
   },
   {
+    slug: "full",
     nameKey: "pc.full.name",
     price: 9.99,
     descKey: "pc.full.desc",
@@ -115,6 +121,7 @@ const PLANS: PlanDef[] = [
     noSubKey: "pc.full.noSub",
   },
   {
+    slug: "master",
     nameKey: "pc.master.name",
     price: 29.99,
     descKey: "pc.master.desc",
@@ -140,6 +147,51 @@ export function PricingCards() {
   const { user, openSignInModal } = useAuth()
   const { locale } = useLanguage()
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // ════════════════════════════════════════════════════════════════
+  // v6.17.16 — deep-link via ?plan=<slug>
+  // ────────────────────────────────────────────────────────────────
+  // chandler: dashboard "업그레이드 →" should land on /pricing with
+  // the Soram Companion card pre-selected and centered, not on the
+  // generic full-reading default. We accept any slug from PlanDef
+  // (free | compat | companion | full | master) plus a few
+  // backwards-compatible aliases (daily_pass = companion, since the
+  // dashboard previously linked /pricing?plan=daily_pass).
+  //
+  // Behavior: if the URL carries a known plan slug, set it as the
+  // selected card AND scroll the card into view on mount. Without
+  // a recognized slug, fall back to the existing default (index 3,
+  // Full Destiny Reading — the highlighted "most popular" card).
+  // ════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    const raw = searchParams?.get("plan")
+    if (!raw) return
+    const alias: Record<string, PlanDef["slug"]> = {
+      daily_pass: "companion", // legacy alias from dashboard upgrade link
+      soram: "companion",
+      soram_companion: "companion",
+      compatibility: "compat",
+      compat_full: "compat",
+      full_reading: "full",
+      destiny: "full",
+      master_5: "master",
+      master_pack: "master",
+    }
+    const wanted = alias[raw] ?? (raw as PlanDef["slug"])
+    const idx = PLANS.findIndex((p) => p.slug === wanted)
+    if (idx === -1) return
+    setSelectedPlan(idx)
+    // Scroll the matching card into view shortly after mount so the
+    // user sees the destination they came for, not a generic page.
+    const t = window.setTimeout(() => {
+      const el = document.querySelector<HTMLElement>(`[data-plan-slug="${wanted}"]`)
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" })
+      }
+    }, 250)
+    return () => window.clearTimeout(t)
+  }, [searchParams])
 
   const handlePlanClick = (plan: PlanDef) => {
     try {
@@ -174,6 +226,7 @@ export function PricingCards() {
         return (
           <motion.div
             key={index}
+            data-plan-slug={plan.slug}
             onClick={() => setSelectedPlan(index)}
             initial={{ opacity: 0, y: 20 }}
             animate={{

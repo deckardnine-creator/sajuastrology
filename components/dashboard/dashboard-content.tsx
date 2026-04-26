@@ -724,7 +724,7 @@ function DashboardInner() {
             </p>
             {soramUsage?.tier !== "subscriber" && (
               <Link
-                href="/pricing?plan=daily_pass"
+                href="/pricing?plan=companion"
                 className="text-[11px] text-amber-300/90 hover:text-amber-200 transition-colors min-h-[28px] flex items-center"
               >
                 {t("dash.upgrade", locale)} →

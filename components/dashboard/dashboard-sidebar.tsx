@@ -113,8 +113,15 @@ export function DashboardSidebar() {
           </div>
         </div>
 
-        {/* Day Master Badge — present when user has a chart */}
-        {sajuData.chart ? (
+        {/* v6.17.16 — when sajuData.chart is null, render nothing in
+            this slot. The hero card we tried in v6.17.14/15 still felt
+            "허접" to chandler. Empty space below the avatar is cleaner;
+            the dashboard's main "본인의 사주를 정확히 입력해 주세요"
+            CTA is the single source of truth for the empty-state ask,
+            and a navigation entry "+새 사주" (calculate page) already
+            sits in the primary nav below. No need for a third
+            redundant prompt in the sidebar. */}
+        {sajuData.chart && (
           <div className="space-y-2">
             <div
               className="flex items-center gap-2 px-3 py-2 rounded-lg"
@@ -135,25 +142,6 @@ export function DashboardSidebar() {
               <span className="text-sm text-primary">{sajuData.chart.archetype}</span>
             </div>
           </div>
-        ) : (
-          /* v6.17.14 → v6.17.15: hero card simplified per chandler.
-              Removed redundant "Enter my saju →" line at the bottom —
-              the whole card is already a Link (entire surface clickable),
-              and the gold border + amber gradient signal "click me"
-              clearly without the arrow. Title + subtitle alone read
-              cleaner. */
-          <Link
-            href="/calculate"
-            className="block group relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/15 via-amber-400/8 to-transparent px-3.5 py-3 transition-all hover:border-amber-400/60 hover:from-amber-500/20"
-          >
-            <span aria-hidden="true" className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
-            <p className="text-sm font-semibold text-amber-100 leading-snug pr-1">
-              {t("sidebar.heroTitle", locale)}
-            </p>
-            <p className="text-[11px] text-amber-200/75 leading-relaxed mt-1.5">
-              {t("sidebar.heroSub", locale)}
-            </p>
-          </Link>
         )}
       </div>
 

@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense } from "react"
 import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
 import { PricingCards } from "@/components/pricing/pricing-cards"
@@ -32,7 +33,13 @@ export default function PricingPage() {
               {t("pricing.subtitle", locale)}
             </p>
           </div>
-          <PricingCards />
+          {/* v6.17.16 — Suspense required because PricingCards now uses
+              useSearchParams() to deep-link via ?plan=. Next.js 14+
+              throws a build-time error if useSearchParams is used in a
+              client component that isn't wrapped in <Suspense>. */}
+          <Suspense fallback={<div className="min-h-[400px]" />}>
+            <PricingCards />
+          </Suspense>
           <PricingFAQ />
         </div>
       </section>

@@ -422,28 +422,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const local = loadSajuData();
     if (local.chart) return;
     // ════════════════════════════════════════════════════════════════
-    // v6.17.12 — sajuData.chart MUST source from my_primary_chart
+    // v6.17.16 — sajuData.chart sources from my_primary_chart.raw_chart
     // ════════════════════════════════════════════════════════════════
-    // Old behavior (BUG): when localStorage was empty, we picked the
-    // user's most recent reading from the readings table and silently
-    // installed it as their personal chart. That meant viewing a
-    // celebrity reading or a friend's chart could overwrite the user's
-    // identity in sajuData (sidebar, compatibility prefill, daily page).
-    // The dashboard's empty-state CTA in v6.17.0 hid the prompt while
-    // sajuData.chart was still populated from this auto-fill, producing
-    // the contradiction: "Please enter your saju" + 壬 Yang Water 일주
-    // displayed simultaneously.
+    // History:
+    //   v6.16 (BUG): localStorage empty → grab readings[0] → install
+    //     as user's chart. Viewing a celebrity reading silently
+    //     overwrote the user's identity (sidebar, daily, compatibility
+    //     prefill).
     //
-    // New behavior: look up my_primary_chart (the only authoritative
-    // source set by /setup-primary-chart). If a row exists, find a
-    // matching reading by 8-pillar match and use it. Otherwise leave
-    // sajuData.chart as null — the dashboard, sidebar, and other
-    // consumers will render their respective empty states. No silent
-    // identity overwrite under any condition.
+    //   v6.17.12: query my_primary_chart, then look up a matching
+    //     reading by 8 pillars to rebuild the SajuChart. But this
+    //     fails when the user saved their primary chart via
+    //     /setup-primary-chart and never generated a full reading —
+    //     my_primary_chart has the row, but there's no matching
+    //     reading to reconstruct from, so sajuData.chart stays null
+    //     and the dashboard placeholder shows EVEN THOUGH the user
+    //     just registered their saju ten seconds ago. This is the
+    //     bug chandler caught: "내사주 입력하고 왔는데 대시보드가
+    //     갱신이 안되어 있다."
+    //
+    //   v6.17.16 (this): the create endpoint already persists the
+    //     full SajuChart object as my_primary_chart.raw_chart for
+    //     exactly this purpose. We just read it back. No readings
+    //     dependency — the chart shows the moment the row exists.
+    //
+    // What hasn't changed: sajuData.chart still never auto-installs
+    // from a celebrity / friend / random reading. The only source is
+    // the user's authoritative my_primary_chart.
     // ════════════════════════════════════════════════════════════════
     (async () => {
       try {
-        // 1. Fetch the user's authoritative primary chart pillars
         const pcRes = await fetch("/api/v1/primary-chart/get", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -452,37 +460,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!pcRes.ok) return;
         const pcData = await pcRes.json();
         const pc = pcData?.chart;
-        // No primary chart → leave sajuData empty (intentional)
-        if (!pc || !pc.year_stem || !pc.day_stem) return;
+        if (!pc) return; // no primary chart yet → leave empty (intentional)
 
-        // 2. Find a reading whose 8 pillars match — this gives us the
-        // full SajuChart object (archetype, elements, etc.) we need.
-        // Match keys: year_stem, year_branch, month_stem, month_branch,
-        // day_stem, day_branch (hour skipped if birth_hour_unknown).
-        const { data } = await supabase.from("readings")
-          .select("name,gender,birth_date,birth_city,day_master_element,day_master_yinyang,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,archetype,ten_god,harmony_score,dominant_element,weakest_element,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,created_at")
-          .eq("user_id", user.id)
-          .eq("year_stem", pc.year_stem)
-          .eq("year_branch", pc.year_branch)
-          .eq("month_stem", pc.month_stem)
-          .eq("month_branch", pc.month_branch)
-          .eq("day_stem", pc.day_stem)
-          .eq("day_branch", pc.day_branch)
-          .order("created_at", { ascending: false })
-          .limit(1);
-        if (data && data.length > 0) {
-          const r = data[0];
-          const newSajuData: UserSajuData = {
-            chart: reconstructChartFromReading(r) as SajuChart,
-            birthDate: new Date(r.birth_date), birthTime: "12:00", birthCity: r.birth_city,
-            gender: r.gender as "male" | "female", readingGeneratedAt: new Date(r.created_at),
-          };
-          setSajuData(newSajuData);
-          safeSet("saju-data", JSON.stringify(newSajuData));
+        // Prefer the snapshot we stored at create-time. Fallback to
+        // reconstructing from the column values if raw_chart is null
+        // (older rows pre-v6.16 might lack it).
+        let chart: SajuChart | null = null;
+        if (pc.raw_chart && typeof pc.raw_chart === "object") {
+          chart = pc.raw_chart as SajuChart;
+        } else if (pc.day_stem && pc.year_stem) {
+          // Fallback: rebuild from column values using the same
+          // helper we use for readings rows. The column shape
+          // matches (name, gender, birth_date, birth_city,
+          // day_master_*, *_stem/*_branch, archetype, ten_god,
+          // harmony_score, elements_*).
+          chart = reconstructChartFromReading(pc) as SajuChart;
         }
-        // No matching reading yet → leave sajuData empty. The user has
-        // their primary chart registered but no reading generated for
-        // it. Once they create one, this effect runs again and matches.
+        if (!chart) return;
+
+        const newSajuData: UserSajuData = {
+          chart,
+          birthDate: new Date(pc.birth_date),
+          birthTime: pc.birth_time || "12:00",
+          birthCity: pc.birth_city,
+          gender: pc.gender as "male" | "female",
+          readingGeneratedAt: new Date(pc.created_at || Date.now()),
+        };
+        setSajuData(newSajuData);
+        safeSet("saju-data", JSON.stringify(newSajuData));
       } catch {}
     })();
   }, [user]);

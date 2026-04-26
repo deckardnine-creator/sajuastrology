@@ -188,11 +188,35 @@ export function Navbar() {
   const footerLabel = FOOTER_LABELS[locale] ?? FOOTER_LABELS.en
   const letterLabel = LETTER_LABELS[locale] ?? LETTER_LABELS.en
 
-  // v6.15.1: aggressive body-lock cleanup
-  // Symptom: hamburger stops working after using SignInModal /
-  // ReadingLoader / UnlockLoader / any modal that sets body.style.overflow
-  // The original code only cleared `overflow`, but some libraries
-  // (radix-ui, react-aria) set position/top too. We clear all of them.
+  // ════════════════════════════════════════════════════════════════
+  // v6.17.16 — body-lock cleanup hardened
+  // ────────────────────────────────────────────────────────────────
+  // chandler bug: "모바일 웹에서 햄버거 버튼이 안먹어"
+  // Reason traced: when SignInModal / ReadingLoader / UnlockLoader
+  // unmount with the user already navigated away (e.g. signed in →
+  // dashboard), the unmount cleanup runs against a stale tree and
+  // sometimes fails to clear `pointer-events: none` on body. The next
+  // page (this dashboard) inherits a body that swallows all touches,
+  // and the hamburger button — which lives on top — receives the
+  // tap event but the button itself is a child of body and is
+  // pointer-events:none. Tapping does nothing.
+  //
+  // Fix: clear pointer-events alongside overflow/position/top, and
+  // run a one-shot cleanup on every Navbar mount (not just isOpen
+  // changes) so any stale lock from the previous route is cleared
+  // before the user even reaches for the hamburger.
+  // ════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    // One-shot cleanup on mount — clears any stale lock left by a
+    // modal that closed while we were navigating away.
+    document.body.style.overflow = ""
+    document.body.style.position = ""
+    document.body.style.top = ""
+    document.body.style.pointerEvents = ""
+    document.documentElement.style.overflow = ""
+    document.documentElement.style.pointerEvents = ""
+  }, [])
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden"
@@ -200,13 +224,17 @@ export function Navbar() {
       document.body.style.overflow = ""
       document.body.style.position = ""
       document.body.style.top = ""
+      document.body.style.pointerEvents = ""
       document.documentElement.style.overflow = ""
+      document.documentElement.style.pointerEvents = ""
     }
     return () => {
       document.body.style.overflow = ""
       document.body.style.position = ""
       document.body.style.top = ""
+      document.body.style.pointerEvents = ""
       document.documentElement.style.overflow = ""
+      document.documentElement.style.pointerEvents = ""
     }
   }, [isOpen])
 
@@ -299,18 +327,20 @@ export function Navbar() {
               <LangDropdown compact />
               <button
                 onClick={() => {
-                  // v6.15.1: defensive cleanup BEFORE toggling — if body
-                  // is still locked from a stale modal/loader, this
-                  // unsticks it so the menu can render.
-                  if (!isOpen) {
-                    document.body.style.overflow = ""
-                    document.body.style.position = ""
-                    document.body.style.top = ""
-                    document.documentElement.style.overflow = ""
-                  }
+                  // v6.17.16: defensive cleanup BEFORE toggling — clears
+                  // any stale body lock (overflow / pointer-events) left
+                  // by a closed modal/loader so the menu can render and
+                  // future clicks register.
+                  document.body.style.overflow = ""
+                  document.body.style.position = ""
+                  document.body.style.top = ""
+                  document.body.style.pointerEvents = ""
+                  document.documentElement.style.overflow = ""
+                  document.documentElement.style.pointerEvents = ""
                   setIsOpen(!isOpen)
                 }}
                 className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-foreground z-[60] relative"
+                style={{ pointerEvents: "auto" }}
                 aria-label="Toggle menu"
               >
                 {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
