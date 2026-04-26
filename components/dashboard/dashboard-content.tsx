@@ -87,6 +87,46 @@ interface ConsultationCreditSummary {
   totalRemaining: number;
 }
 
+// ════════════════════════════════════════════════════════════════════
+// v6.17 — primary chart pillars (8 hanja) for star-matching logic
+// ════════════════════════════════════════════════════════════════════
+// We compare a reading against the user's primary chart by the 8 stems
+// & branches. Name and city can differ (a person reborn into a name
+// change should still see their star), but the saju itself should
+// match exactly. birth_hour_unknown readings only require 6 pillars.
+// ════════════════════════════════════════════════════════════════════
+interface PrimaryChartPillars {
+  year_stem: string;  year_branch: string;
+  month_stem: string; month_branch: string;
+  day_stem: string;   day_branch: string;
+  hour_stem: string | null;  hour_branch: string | null;
+  birth_hour_unknown: boolean;
+}
+
+/** True when a saved reading shares all 8 pillars with the primary chart. */
+function readingMatchesPrimaryChart(
+  reading: SavedReading | null | undefined,
+  pillars: PrimaryChartPillars | null
+): boolean {
+  if (!reading || !pillars) return false;
+  // Year / Month / Day must always match — these are computable without
+  // birth time. Hour matches only when both sides are known.
+  if (reading.year_stem !== pillars.year_stem) return false;
+  if (reading.year_branch !== pillars.year_branch) return false;
+  if (reading.month_stem !== pillars.month_stem) return false;
+  if (reading.month_branch !== pillars.month_branch) return false;
+  if (reading.day_stem !== pillars.day_stem) return false;
+  if (reading.day_branch !== pillars.day_branch) return false;
+  // Hour: if primary chart has unknown hour, accept any reading hour.
+  // If primary has hour, reading must match exactly. This avoids false
+  // negatives from 자시 cusp ambiguity when the user is unsure.
+  if (pillars.birth_hour_unknown) return true;
+  if (!pillars.hour_stem || !pillars.hour_branch) return true;
+  if (reading.hour_stem !== pillars.hour_stem) return false;
+  if (reading.hour_branch !== pillars.hour_branch) return false;
+  return true;
+}
+
 const READING_COLS = "id,name,gender,birth_date,birth_city,share_slug,archetype,ten_god,harmony_score,day_master_element,day_master_yinyang,dominant_element,weakest_element,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,is_paid,created_at";
 
 export function DashboardContent() {
@@ -131,6 +171,16 @@ function DashboardInner() {
   const [deleteConfirmStep, setDeleteConfirmStep] = useState(0); // 0=idle, 1=first tap, 2=deleting
   const [compatResults, setCompatResults] = useState<CompatResult[]>([]);
 
+  // ════════════════════════════════════════════════════════════════
+  // v6.17 — primary chart pillars (from my_primary_chart table).
+  // null  = not loaded yet OR user hasn't entered their chart
+  // The "loaded" flag distinguishes the two so we can show the
+  // empty-state card only when we KNOW there's no chart, not while
+  // we're still fetching.
+  // ════════════════════════════════════════════════════════════════
+  const [primaryChartPillars, setPrimaryChartPillars] = useState<PrimaryChartPillars | null>(null);
+  const [primaryChartLoaded, setPrimaryChartLoaded] = useState(false);
+
   // ─── v1.3 Sprint 2-B: Soram usage + recent conversations + credits ───
   // Loaded async after mount; UI degrades gracefully when fetch fails
   // (renders the cards with skeleton/placeholder state, never throws).
@@ -155,6 +205,48 @@ function DashboardInner() {
     if (lastChanged === todayLocal) setCanChangeToday(false);
   }, [todayLocal]);
 
+  // ════════════════════════════════════════════════════════════════
+  // v6.17 — fetch the user's primary chart (independent endpoint).
+  // Runs in parallel with the dashboard-data fetch. Failure is silent;
+  // worst case we render the "please enter your chart" empty state,
+  // which is the safe default.
+  // ════════════════════════════════════════════════════════════════
+  const fetchPrimaryChart = async () => {
+    if (!user) return;
+    try {
+      const res = await fetch("/api/v1/primary-chart/get", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id }),
+      });
+      if (!res.ok) {
+        setPrimaryChartLoaded(true);
+        return;
+      }
+      const data = await res.json();
+      const c = data?.chart;
+      if (c && c.year_stem && c.day_stem) {
+        setPrimaryChartPillars({
+          year_stem: String(c.year_stem),
+          year_branch: String(c.year_branch),
+          month_stem: String(c.month_stem),
+          month_branch: String(c.month_branch),
+          day_stem: String(c.day_stem),
+          day_branch: String(c.day_branch),
+          hour_stem: c.hour_stem ? String(c.hour_stem) : null,
+          hour_branch: c.hour_branch ? String(c.hour_branch) : null,
+          birth_hour_unknown: !!c.birth_hour_unknown,
+        });
+      } else {
+        setPrimaryChartPillars(null);
+      }
+    } catch {
+      // Silent — the empty-state card is the right UX on failure
+    } finally {
+      setPrimaryChartLoaded(true);
+    }
+  };
+
   // ═══ SERVER API FETCH — bypasses supabase client session hang ═══
   const fetchDashboardData = async (opts?: { skipCache?: boolean; claimSlugs?: string[]; claimName?: string }) => {
     if (!user) return;
@@ -176,15 +268,60 @@ function DashboardInner() {
         setReadingsLoaded(true);
         try { safeSet(`dashboard-readings-${user.id}`, JSON.stringify(readings)); } catch {}
 
+        // ════════════════════════════════════════════════════════════
+        // v6.17 — primary star MUST match user's actual primary chart
+        // ════════════════════════════════════════════════════════════
+        // OLD behavior: when a user had no primary set, we auto-picked
+        // readings[0] (whichever was most recent — could be a celebrity
+        // or a friend's chart). This silently turned that reading into
+        // "their" chart in localStorage AND copied it into auth-context
+        // sajuData, which then leaked into chat / consultation context.
+        //
+        // NEW behavior: never auto-pick. The star is reserved for a
+        // reading whose 8 pillars match what the user explicitly entered
+        // on /setup-primary-chart. If primaryChart in user context is
+        // missing, no star is shown anywhere — the dashboard's empty
+        // state ("Please enter your own saju") is the right UX.
+        // The chandler-confirmed rule: chart changes are by support
+        // only; we never silently rewrite the user's identity from a
+        // celebrity reading.
+        //
+        // Stability: existing localStorage value is honored if it still
+        // matches a current reading AND that reading's pillars match
+        // primaryChart. Otherwise it is cleared on next load.
+        // ════════════════════════════════════════════════════════════
         const currentPrimary = safeGet("primary-reading-id");
-        if (readings.length > 0) {
-          const primaryExists = readings.some((r: SavedReading) => r.id === currentPrimary);
-          if (!currentPrimary || !primaryExists) {
-            const d = readings[0];
-            setPrimaryReadingId(d.id);
-            safeSet("primary-reading-id", d.id);
-            if (!sajuData.chart) saveSajuChart(reconstructChartFromReading(d) as SajuChart);
+        const primaryStillValid =
+          !!currentPrimary &&
+          readings.some((r: SavedReading) => r.id === currentPrimary) &&
+          readingMatchesPrimaryChart(
+            readings.find((r: SavedReading) => r.id === currentPrimary),
+            primaryChartPillars
+          );
+
+        if (primaryStillValid) {
+          // Honor existing selection
+          setPrimaryReadingId(currentPrimary);
+        } else if (primaryChartPillars) {
+          // User has set their primary chart — auto-light the matching
+          // reading (if any). This is the only auto-set path now.
+          const matched = readings.find((r: SavedReading) =>
+            readingMatchesPrimaryChart(r, primaryChartPillars)
+          );
+          if (matched) {
+            setPrimaryReadingId(matched.id);
+            safeSet("primary-reading-id", matched.id);
+          } else {
+            // Primary chart exists but no matching reading on the
+            // dashboard — clear stale star, render empty state.
+            setPrimaryReadingId(null);
+            try { safeRemove("primary-reading-id"); } catch {}
           }
+        } else {
+          // No primary chart yet — never auto-pick. UI shows the
+          // "Please enter your own saju" card.
+          setPrimaryReadingId(null);
+          try { safeRemove("primary-reading-id"); } catch {}
         }
       }
 
@@ -328,26 +465,29 @@ function DashboardInner() {
       claimSlugs,
       claimName: sajuData.chart?.name || undefined,
     });
+
+    // v6.17: also fetch the user's primary chart so star-matching has
+    // a reliable source of truth. Independent fetch — does not block
+    // or fail the dashboard.
+    fetchPrimaryChart();
   }, [user, claimTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const setAsMyChart = (readingId: string) => {
-    if (primaryReadingId === readingId) return;
-    if (!canChangeToday) {
-      setSwitchMessage(t("dash.alreadySwitchedToday", locale));
-      setTimeout(() => setSwitchMessage(""), 3000);
-      return;
-    }
-    const r = savedReadings.find((rd) => rd.id === readingId);
-    if (!r) return;
-    const reconstructed = reconstructChartFromReading(r);
-    saveSajuChart(reconstructed as SajuChart);
-    setPrimaryReadingId(readingId);
-    setCanChangeToday(false);
-    safeSet("primary-reading-id", readingId);
-    safeSet("primary-changed-date", todayLocal);
-    setDailyScore(calculateDailyEnergy(reconstructed as SajuChart, new Date()));
-    setSwitchMessage(`Switched to ${r.name}'s chart!`);
-    setTimeout(() => setSwitchMessage(""), 2500);
+  // ════════════════════════════════════════════════════════════════
+  // v6.17 — clicking the star no longer switches the user's chart
+  // ════════════════════════════════════════════════════════════════
+  // Per chandler: the user's primary chart is set ONCE on signup
+  // (/setup-primary-chart). Changes go through customer support.
+  // The star is now read-only: it lights up on the reading whose
+  // 8 pillars match my_primary_chart, and clicking shows a polite
+  // notice rather than mutating chart state.
+  //
+  // We keep the function name and signature so existing call sites
+  // don't break — they will simply trigger the notice instead of
+  // performing the switch.
+  // ════════════════════════════════════════════════════════════════
+  const setAsMyChart = (_readingId: string) => {
+    setSwitchMessage(t("dash.changeViaSupport", locale));
+    setTimeout(() => setSwitchMessage(""), 4000);
   };
 
   const handleCopyLink = (slug: string) => {
@@ -444,7 +584,17 @@ function DashboardInner() {
           they will fill in once a saju reading exists. Gold accent
           ties it into the rest of the v1.3 sprint visual language.
       ════════════════════════════════════════════════════════════ */}
-      {!sajuData.chart && (
+      {/* ════════════════════════════════════════════════════════════
+          v6.17 — empty state shown when user has NOT entered their own
+          primary chart yet. The previous condition `!sajuData.chart`
+          was satisfied by any reading the user looked at (including
+          celebrity charts), so the prompt would silently disappear
+          even when the user hadn't done the formal /setup-primary-chart
+          flow. We now key off primaryChartPillars, which is loaded
+          from the my_primary_chart table — the only authoritative
+          source. While loading, we render nothing (no flicker).
+          ════════════════════════════════════════════════════════════ */}
+      {primaryChartLoaded && !primaryChartPillars && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -457,6 +607,13 @@ function DashboardInner() {
           <p className="text-[11px] text-amber-200/75 leading-relaxed mt-1">
             {t("dash.enterSajuSub", locale)}
           </p>
+          <Link
+            href="/setup-primary-chart"
+            className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-amber-100 bg-amber-500/20 hover:bg-amber-500/30 active:bg-amber-500/40 transition-colors px-3 py-1.5 rounded-lg border border-amber-400/30 min-h-[36px]"
+          >
+            {t("dash.enterSajuCta", locale)}
+            <ArrowRight className="w-3 h-3" />
+          </Link>
         </motion.div>
       )}
 
@@ -1041,6 +1198,25 @@ function DashboardInner() {
 
       {/* Restore Purchases — rendered only inside the native app (Apple 4.10). */}
       <RestorePurchasesButton />
+
+      {/* ════════════════════════════════════════════════════════════
+          v6.17 — chart-change support notice
+          Per chandler: a user's primary chart can only be changed via
+          customer support. We surface this once, quietly, near the
+          existing footer so users know where to go without making it
+          feel like a barrier.
+          ════════════════════════════════════════════════════════════ */}
+      {primaryChartLoaded && primaryChartPillars && (
+        <p className="text-center text-[11px] text-muted-foreground/40 mt-6 px-4 leading-relaxed">
+          {t("dash.changeViaSupportHint", locale)}{" "}
+          <a
+            href="mailto:info@rimfactory.io"
+            className="text-muted-foreground/60 hover:text-muted-foreground underline-offset-2 hover:underline transition-colors"
+          >
+            info@rimfactory.io
+          </a>
+        </p>
+      )}
 
       {/* Footer — Privacy, Terms, Contact, Delete Account */}
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-8 mb-4 text-[11px] text-muted-foreground/50">
