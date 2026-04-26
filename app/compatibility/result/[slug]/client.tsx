@@ -91,6 +91,11 @@ export default function CompatibilityResultClient() {
   const searchParams = useSearchParams();
   const slug = params.slug as string;
   const { user, openSignInModal } = useAuth();
+  // v6.15.5 admin bypass — rimfacai@gmail.com skips the $2.99 paywall.
+  // Same lowercased-email pattern used in reading/[slug]/client.tsx and
+  // consultation-client.tsx. Defined as a const (not state) so it stays
+  // truthy on every render once the auth context resolves.
+  const isAdmin = (user?.email || "").trim().toLowerCase() === "rimfacai@gmail.com";
   const { locale } = useLanguage();
 
   const [result, setResult] = useState<CompatResult | null>(null);
@@ -101,7 +106,11 @@ export default function CompatibilityResultClient() {
   // isPaid: whether the user has paid $2.99 to unlock detailed sections.
   // Fetched separately from the main result so we don't have to modify
   // the existing /api/compatibility/get endpoint (append-only principle).
-  const [isPaid, setIsPaid] = useState<boolean>(false);
+  // v6.15.5: initialize with isAdmin so the paywall never flashes for the
+  // admin account before refreshPaidStatus() returns. Auth context may
+  // resolve after first render; the second useEffect below also forces
+  // setIsPaid(true) once user.email becomes available.
+  const [isPaid, setIsPaid] = useState<boolean>(isAdmin);
   // unlockerVisible: shows the verify loader after PayPal returns success.
   const [unlockerVisible, setUnlockerVisible] = useState<boolean>(false);
   // sessionToken: PayPal order id from ?token= param, passed to verify.
@@ -123,11 +132,21 @@ export default function CompatibilityResultClient() {
   // Fetch is_paid status (separate small endpoint for fast polling)
   async function refreshPaidStatus() {
     if (!slug) return;
+    // v6.15.5 admin bypass — skip the network call entirely. The server
+    // route ALSO bypasses (defense in depth) but doing it here avoids a
+    // round-trip and any network-failure flash of the paywall.
+    if (isAdmin) {
+      setIsPaid(true);
+      return;
+    }
     try {
       const res = await fetch("/api/compatibility/check-paid", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shareSlug: slug }),
+        // v6.15.5: forward user email so the server-side admin bypass
+        // can short-circuit. Non-admin users get the same treatment as
+        // before (server ignores the field for non-admin emails).
+        body: JSON.stringify({ shareSlug: slug, userEmail: user?.email || null }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -140,6 +159,14 @@ export default function CompatibilityResultClient() {
     if (slug) refreshPaidStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
+
+  // v6.15.5: re-run when the auth context resolves the user email. On the
+  // first render user may be null (still loading); once it becomes the
+  // admin we want isPaid to flip to true immediately.
+  useEffect(() => {
+    if (isAdmin) setIsPaid(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdmin]);
 
   useEffect(() => {
     async function fetchResult() {
