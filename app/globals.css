@@ -337,3 +337,19 @@ html.native-app .pt-page {
 html.native-app .pt-page-lg {
   padding-top: 1.5rem !important;
 }
+
+/* ?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿
+   v6.12 hard-hide web bottom-nav inside Flutter shell.
+   The useNativeApp() React hook detects native correctly *most* of the time,
+   but there's a race condition where SSR HTML ships the bar, and on slow
+   client hydration the bar stays painted next to Flutter's own native
+   BottomNav (visible in chandler's screenshots from his home browser /
+   real Flutter build). CSS doesn't suffer hydration races: as soon as
+   detectNative() adds .native-app to <html>, the bar is gone. The class
+   is added in lib/native-app.ts (already present) on every detection
+   path (FlutterBridge / SajuApp UA / ?app=true / sessionStorage flag),
+   so this rule fires reliably regardless of which detection signal hit.
+   ?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿?곥뙿 */
+html.native-app .mobile-bottom-nav-web {
+  display: none !important;
+}

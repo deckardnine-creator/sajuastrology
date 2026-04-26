@@ -62,7 +62,7 @@ export function MobileBottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border z-40 md:hidden safe-area-bottom"
+      className="mobile-bottom-nav-web fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border z-40 md:hidden safe-area-bottom"
       aria-label="Bottom navigation"
     >
       <div className="grid grid-cols-5 items-center h-16">
