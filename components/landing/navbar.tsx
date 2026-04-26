@@ -385,9 +385,18 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[55] bg-background/98 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-[55] bg-background/98 backdrop-blur-sm md:hidden overflow-y-auto"
           >
-            <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6 overflow-y-auto py-20">
+            {/* v6.17.19 — menu layout improved per chandler ("화면을
+                가득 채운다"). Previous: min-h-screen + justify-center
+                + gap-6 + py-20 spread 8 items across the entire
+                viewport, leaving the navbar X-button area indistinct
+                and the items themselves looking sparse. New: tight
+                top-aligned list with normal gap, leaving the navbar
+                bar (h-16, z-50) untouched — the X button sits in
+                exactly the same screen position the hamburger did,
+                and the menu list scrolls underneath if it overflows. */}
+            <div className="flex flex-col items-center pt-20 pb-10 px-6 gap-3">
               <Link href={homeHref} className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.home")}</Link>
               <Link href="/what-is-saju" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.whatIsSaju")}</Link>
               <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>
@@ -395,7 +404,7 @@ export function Navbar() {
               <Link href="/consultation" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.consultation")}</Link>
               <Link href="/letter" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{letterLabel}</Link>
 
-              <div className="w-16 h-px bg-border/50" />
+              <div className="w-16 h-px bg-border/50 my-2" />
 
               {(isLoading || isSigningOut) ? (
                 <div className="h-[44px] w-24 bg-muted/30 rounded-lg animate-pulse" />
