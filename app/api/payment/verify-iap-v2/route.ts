@@ -37,6 +37,10 @@ const PRODUCT_FULL_READING_V2 = "full_destiny_reading_v2"; // iOS Consumable rep
 const PRODUCT_MASTER_CONSULT = "master_consultation_5";
 const PRODUCT_COMPAT_FULL = "compat_full";
 const PRODUCT_SORAM_COMPANION = "soram_companion_monthly";
+// v1.3.5: iOS Soram 구독은 'soram_monthly'로 등록됨 (이전 'soram_companion_monthly'
+// ID는 메타데이터 누락 후 삭제되어 90일간 잠김 → 새 ID 사용).
+// Android는 PRODUCT_SORAM_COMPANION 그대로 사용.
+const PRODUCT_SORAM_MONTHLY_IOS = "soram_monthly";
 const ANDROID_PACKAGE_NAME = "com.rimfactory.sajuastrology";
 
 /** Returns true if the product ID is any variant of the full reading product */
@@ -46,7 +50,7 @@ function isFullReadingProduct(pid: string): boolean {
 
 /** Returns true if this product is an auto-renewable subscription */
 function isSubscriptionProduct(pid: string): boolean {
-  return pid === PRODUCT_SORAM_COMPANION;
+  return pid === PRODUCT_SORAM_COMPANION || pid === PRODUCT_SORAM_MONTHLY_IOS;
 }
 
 /** Returns true if this is a known/handled product */
@@ -246,7 +250,10 @@ export async function POST(request: NextRequest) {
         authenticatedUserEmail,
         transactionId
       );
-    } else if (productId === PRODUCT_SORAM_COMPANION) {
+    } else if (isSubscriptionProduct(productId)) {
+      // v1.3.5: matches both 'soram_companion_monthly' (Android) and
+      // 'soram_monthly' (iOS). activateSoramSubscription writes the
+      // platform-aware row regardless of which ID came in.
       deliver = await activateSoramSubscription(
         authenticatedUserId,
         authenticatedUserEmail,
