@@ -974,11 +974,15 @@ function DashboardInner() {
             </Link>
           </div>
 
-          {savedReadings.length > 1 && (
-            <p className="text-xs text-muted-foreground/60 mb-2 flex items-center gap-1.5">
-              <Star className="w-3 h-3" /> {t("dash.setPrimaryHint")}
-            </p>
-          )}
+          {/* v6.17.15 — removed legacy "tap ★ to set primary chart"
+              hint. Per v6.17.0, the star is read-only: it lights up
+              on the reading whose 8 pillars match my_primary_chart,
+              and tapping it shows the support-contact toast rather
+              than mutating chart state. The old hint contradicted
+              that behavior and conflicted with chandler's once-at-
+              signup chart policy ("하루 1회" was a stale rule). The
+              sidebar footer and dashboard footer both already carry
+              the change-via-support reminder. */}
 
           {switchMessage && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
