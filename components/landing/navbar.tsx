@@ -188,10 +188,26 @@ export function Navbar() {
   const footerLabel = FOOTER_LABELS[locale] ?? FOOTER_LABELS.en
   const letterLabel = LETTER_LABELS[locale] ?? LETTER_LABELS.en
 
+  // v6.15.1: aggressive body-lock cleanup
+  // Symptom: hamburger stops working after using SignInModal /
+  // ReadingLoader / UnlockLoader / any modal that sets body.style.overflow
+  // The original code only cleared `overflow`, but some libraries
+  // (radix-ui, react-aria) set position/top too. We clear all of them.
   useEffect(() => {
-    if (isOpen) document.body.style.overflow = "hidden"
-    else document.body.style.overflow = ""
-    return () => { document.body.style.overflow = "" }
+    if (isOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+      document.body.style.position = ""
+      document.body.style.top = ""
+      document.documentElement.style.overflow = ""
+    }
+    return () => {
+      document.body.style.overflow = ""
+      document.body.style.position = ""
+      document.body.style.top = ""
+      document.documentElement.style.overflow = ""
+    }
   }, [isOpen])
 
   // v6.12: auto-close hamburger when user becomes authenticated.
@@ -282,8 +298,19 @@ export function Navbar() {
             <div className="flex md:hidden items-center gap-1">
               <LangDropdown compact />
               <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-foreground z-50"
+                onClick={() => {
+                  // v6.15.1: defensive cleanup BEFORE toggling — if body
+                  // is still locked from a stale modal/loader, this
+                  // unsticks it so the menu can render.
+                  if (!isOpen) {
+                    document.body.style.overflow = ""
+                    document.body.style.position = ""
+                    document.body.style.top = ""
+                    document.documentElement.style.overflow = ""
+                  }
+                  setIsOpen(!isOpen)
+                }}
+                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-foreground z-[60] relative"
                 aria-label="Toggle menu"
               >
                 {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -299,7 +326,7 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[45] bg-background/98 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-[55] bg-background/98 backdrop-blur-sm md:hidden"
           >
             <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6 overflow-y-auto py-20">
               <Link href={homeHref} className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.home")}</Link>

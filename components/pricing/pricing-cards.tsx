@@ -118,7 +118,12 @@ const PLANS: PlanDef[] = [
     nameKey: "pc.master.name",
     price: 29.99,
     descKey: "pc.master.desc",
-    featureKeys: ["pc.master.includesFull", "pc.consult.f1", "pc.consult.f3", "pc.consult.f4", "pc.consult.f5", "pc.consult.f6"],
+    // v6.15.1: removed "pc.master.includesFull" (was misleading — full
+    // reading is NOT bundled with this purchase). Added value points
+    // that emphasize the per-session economy: $29.99 / 5 = $6 vs the
+    // standalone consultation rate. The bundle saves the user from
+    // five separate $9-ish purchases and groups them in one dashboard.
+    featureKeys: ["pc.master.savings", "pc.consult.f1", "pc.consult.f3", "pc.consult.f4", "pc.consult.f5", "pc.consult.f6"],
     priceNoteKey: "pc.consult.perSession",
     ctaKey: "pc.master.cta",
     href: "/consultation",
