@@ -333,10 +333,32 @@ function DashboardInner() {
   };
 
   // Re-fetch when tab regains focus
+  // ════════════════════════════════════════════════════════════════
+  // v6.17 — focus/visibility re-fetch honors stale flag
+  // ════════════════════════════════════════════════════════════════
+  // Reading-completion path sets `dashboard-stale=true` in localStorage
+  // (see reading/[slug] paid-generation finally block). When the user
+  // tabs back to the dashboard, we MUST honor that flag, otherwise
+  // they see cached pre-payment data and have to manually refresh.
+  // Also re-fetch the primary chart in case it was updated through
+  // support since the user last visited.
+  // ════════════════════════════════════════════════════════════════
   useEffect(() => {
     if (!user) return;
-    const handleFocus = () => fetchDashboardData();
-    const handleVisibility = () => { if (document.visibilityState === "visible") fetchDashboardData(); };
+    const triggerRefresh = () => {
+      const isStale = safeGet("dashboard-stale") === "true";
+      if (isStale) {
+        safeRemove("dashboard-stale");
+        safeRemove(`dashboard-readings-${user.id}`);
+        safeRemove(`dashboard-compat-${user.id}`);
+        fetchDashboardData({ skipCache: true });
+        fetchPrimaryChart();
+      } else {
+        fetchDashboardData();
+      }
+    };
+    const handleFocus = () => triggerRefresh();
+    const handleVisibility = () => { if (document.visibilityState === "visible") triggerRefresh(); };
     window.addEventListener("focus", handleFocus);
     document.addEventListener("visibilitychange", handleVisibility);
     return () => {
@@ -566,7 +588,28 @@ function DashboardInner() {
         </div>
         {!isNative && (
           <button
-            onClick={async () => { try { await signOut(); } catch {} }}
+            onClick={async () => {
+              // ════════════════════════════════════════════════════════
+              // v6.17 — defensive logout
+              // ════════════════════════════════════════════════════════
+              // Earlier reports of "logout button doesn't work". Most
+              // likely cause is signOut() hanging on a flaky network
+              // (Supabase RPC, even with scope:"local"). We add a
+              // 3-second escape hatch: if signOut hasn't redirected by
+              // then, force a hard navigation. signOut already ends
+              // with `window.location.href = '/'` so the timeout fires
+              // only when something blocked before that line.
+              //
+              // We also race against signOut, so a normal-speed signOut
+              // wins (its location.href happens at ~30-50ms typically).
+              // ════════════════════════════════════════════════════════
+              const fallback = setTimeout(() => {
+                console.warn("[dashboard] Logout fallback: forcing redirect");
+                window.location.href = isNative ? "/?app=true" : "/";
+              }, 3000);
+              try { await signOut(); } catch {}
+              clearTimeout(fallback);
+            }}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted/50 transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />

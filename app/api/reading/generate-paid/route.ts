@@ -284,6 +284,33 @@ async function generatePart(
     const hasKeys = expectedKeys.every((k) => parsed[k] && typeof parsed[k] === "string" && parsed[k].length > 50);
     if (hasKeys) {
       if (checkContentLanguage(parsed, locale)) return parsed;
+      // ════════════════════════════════════════════════════════════
+      // v6.17 — Attempt 3 for non-EN locales when Sonnet also drifts
+      // to English. Haiku has different prompt-following characteristics
+      // and sometimes recovers when Sonnet refuses to obey language
+      // instructions. Only triggered for ko/ja/zh-TW/ru/hi where wrong
+      // language is the most painful UX (paid users seeing English).
+      // ════════════════════════════════════════════════════════════
+      if (locale !== "en") {
+        console.warn(`[${label}] Sonnet also wrong language, trying Haiku as last resort`);
+        await new Promise((r) => setTimeout(r, 1500));
+        try {
+          const raw3 = await callClaude(promptFn(), label + "-retry-haiku", "claude-haiku-4-5-20251001");
+          const parsed3 = parseJSON(raw3);
+          const hasKeys3 = expectedKeys.every((k) => parsed3[k] && typeof parsed3[k] === "string" && parsed3[k].length > 50);
+          if (hasKeys3 && checkContentLanguage(parsed3, locale)) {
+            console.log(`[${label}] Haiku recovery succeeded`);
+            return parsed3;
+          }
+          // Haiku also failed — fall through to accept Sonnet's English
+          // output rather than show the user a blank section. We log
+          // loudly so the issue can be caught in monitoring.
+          console.error(`[${label}] All language retries failed for locale=${locale}. Accepting English fallback.`);
+        } catch (haikuErr) {
+          console.warn(`[${label}] Haiku attempt failed:`, haikuErr instanceof Error ? haikuErr.message : haikuErr);
+          console.error(`[${label}] All language retries failed for locale=${locale}. Accepting English fallback.`);
+        }
+      }
       console.warn(`[${label}] retry also produced wrong language; accepting anyway to avoid empty result`);
       return parsed;
     }

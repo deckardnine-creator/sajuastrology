@@ -560,6 +560,35 @@ export default function ReadingPageClient() {
     return () => clearTimeout(safety);
   }, [loading, reading, error]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ════════════════════════════════════════════════════════════════
+  // v6.17 — payment-return black-screen safety net
+  // ════════════════════════════════════════════════════════════════
+  // The 856-line render branch (`if (loading && isPaymentReturn)`)
+  // is intended to show a verify-spinner only briefly. But edge
+  // cases can leave it stuck:
+  //   1) The 564-line useEffect bails early (no paymentSessionId)
+  //      → setPaidContentLoading(true) never runs → forever spinner.
+  //   2) verify-payment hangs on a flaky network.
+  //   3) PayPal redirected without token (rare but seen in support).
+  //
+  // After 12 seconds in this exact state, force-reload to /reading/
+  // {slug} without ?payment=success. The reading page renders normally
+  // because by then the server-side paid_* fields exist (verify
+  // succeeded server-side even if the client never heard back) or
+  // the user can retry. Net worst case === the user navigates to
+  // their reading manually instead of waiting on a black screen.
+  // ════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    if (!isPaymentReturn || !loading || reading || error) return;
+    const blackScreenSafety = setTimeout(() => {
+      if (typeof window !== "undefined" && loading && !reading && !error && slug) {
+        console.warn("[reading-client] Payment-return safety 12s — reloading without payment params");
+        window.location.replace(`/reading/${slug}`);
+      }
+    }, 12000);
+    return () => clearTimeout(blackScreenSafety);
+  }, [isPaymentReturn, loading, reading, error, slug]);
+
   // ═══ PAYMENT RETURN FLOW — sequential pipeline + progressive polling ═══
   useEffect(() => {
     if (!isPaymentReturn || !slug || !paymentSessionId) return;

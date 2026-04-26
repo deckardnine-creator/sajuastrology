@@ -168,23 +168,71 @@ export default function CompatibilityResultClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin]);
 
-  useEffect(() => {
-    async function fetchResult() {
-      try {
-        const res = await fetch("/api/compatibility/get", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ shareSlug: slug }),
-        });
-        if (!res.ok) { setLoading(false); return; }
-        const json = await res.json();
-        if (!json.result) { setLoading(false); return; }
-        setResult(json.result as CompatResult);
-      } catch {}
+  // ════════════════════════════════════════════════════════════════
+  // v6.17.4 — refetch result after unlock + poll until paid_* arrive
+  // ════════════════════════════════════════════════════════════════
+  // v6.17.3 made paid_* generation lazy (background after free is sent).
+  // If a user pays for unlock within seconds of viewing the free result,
+  // paid_* may still be NULL when isPaid flips to true. Without this
+  // refresh, the unlocked sections render blank.
+  //
+  // Strategy: extract fetchResult so we can call it after unlock too.
+  // After unlock, if paid_love is still NULL, poll every 3s up to 8
+  // attempts (~24s). Background generation typically completes in
+  // 20-50s so most users either already have paid_* OR will see them
+  // appear within one or two polls. After the cap, we stop polling
+  // to avoid hammering the server — the next page reload will catch
+  // up regardless.
+  // ════════════════════════════════════════════════════════════════
+  const fetchResult = async () => {
+    try {
+      const res = await fetch("/api/compatibility/get", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareSlug: slug }),
+      });
+      if (!res.ok) { setLoading(false); return null; }
+      const json = await res.json();
+      if (!json.result) { setLoading(false); return null; }
+      setResult(json.result as CompatResult);
       setLoading(false);
+      return json.result as CompatResult;
+    } catch {
+      setLoading(false);
+      return null;
     }
+  };
+
+  useEffect(() => {
     if (slug) fetchResult();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
+
+  // Poll for paid_* once isPaid flips true but paid_love is still missing.
+  // Unconditional cleanup ensures no leak on tab close mid-poll.
+  useEffect(() => {
+    if (!isPaid || !slug) return;
+    if (result && result.paid_love) return; // Already populated — no need to poll
+    let cancelled = false;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 8;
+    const INTERVAL_MS = 3000;
+    const tick = async () => {
+      if (cancelled) return;
+      attempts += 1;
+      const fresh = await fetchResult();
+      if (cancelled) return;
+      if (fresh && fresh.paid_love) return; // Done — useEffect will not retrigger because result has paid_love now
+      if (attempts >= MAX_ATTEMPTS) return; // Give up; user can refresh
+      setTimeout(tick, INTERVAL_MS);
+    };
+    const handle = setTimeout(tick, INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPaid, slug, result?.paid_love]);
 
   const handleShare = () => {
     const url = window.location.href;
@@ -245,8 +293,11 @@ export default function CompatibilityResultClient() {
           shareSlug={slug}
           sessionId={sessionToken || undefined}
           onDone={async () => {
-            // Refresh paid status & remove ?payment=success from URL
+            // v6.17.4: refresh BOTH paid status AND result so paid_*
+            // sections render with content. The polling effect above
+            // takes over if paid_* are still NULL at this moment.
             await refreshPaidStatus();
+            await fetchResult();
             setUnlockerVisible(false);
             // Clean up the query string so a manual reload doesn't re-trigger
             try {
@@ -260,6 +311,7 @@ export default function CompatibilityResultClient() {
           onTimeout={async () => {
             // Webhook may still arrive — try one more refresh, then give up
             await refreshPaidStatus();
+            await fetchResult();
             setUnlockerVisible(false);
           }}
         />
