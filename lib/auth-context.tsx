@@ -421,11 +421,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     const local = loadSajuData();
     if (local.chart) return;
+    // ════════════════════════════════════════════════════════════════
+    // v6.17.12 — sajuData.chart MUST source from my_primary_chart
+    // ════════════════════════════════════════════════════════════════
+    // Old behavior (BUG): when localStorage was empty, we picked the
+    // user's most recent reading from the readings table and silently
+    // installed it as their personal chart. That meant viewing a
+    // celebrity reading or a friend's chart could overwrite the user's
+    // identity in sajuData (sidebar, compatibility prefill, daily page).
+    // The dashboard's empty-state CTA in v6.17.0 hid the prompt while
+    // sajuData.chart was still populated from this auto-fill, producing
+    // the contradiction: "Please enter your saju" + 壬 Yang Water 일주
+    // displayed simultaneously.
+    //
+    // New behavior: look up my_primary_chart (the only authoritative
+    // source set by /setup-primary-chart). If a row exists, find a
+    // matching reading by 8-pillar match and use it. Otherwise leave
+    // sajuData.chart as null — the dashboard, sidebar, and other
+    // consumers will render their respective empty states. No silent
+    // identity overwrite under any condition.
+    // ════════════════════════════════════════════════════════════════
     (async () => {
       try {
+        // 1. Fetch the user's authoritative primary chart pillars
+        const pcRes = await fetch("/api/v1/primary-chart/get", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id }),
+        });
+        if (!pcRes.ok) return;
+        const pcData = await pcRes.json();
+        const pc = pcData?.chart;
+        // No primary chart → leave sajuData empty (intentional)
+        if (!pc || !pc.year_stem || !pc.day_stem) return;
+
+        // 2. Find a reading whose 8 pillars match — this gives us the
+        // full SajuChart object (archetype, elements, etc.) we need.
+        // Match keys: year_stem, year_branch, month_stem, month_branch,
+        // day_stem, day_branch (hour skipped if birth_hour_unknown).
         const { data } = await supabase.from("readings")
           .select("name,gender,birth_date,birth_city,day_master_element,day_master_yinyang,year_stem,year_branch,month_stem,month_branch,day_stem,day_branch,hour_stem,hour_branch,archetype,ten_god,harmony_score,dominant_element,weakest_element,elements_wood,elements_fire,elements_earth,elements_metal,elements_water,created_at")
-          .eq("user_id", user.id).order("created_at", { ascending: false }).limit(1);
+          .eq("user_id", user.id)
+          .eq("year_stem", pc.year_stem)
+          .eq("year_branch", pc.year_branch)
+          .eq("month_stem", pc.month_stem)
+          .eq("month_branch", pc.month_branch)
+          .eq("day_stem", pc.day_stem)
+          .eq("day_branch", pc.day_branch)
+          .order("created_at", { ascending: false })
+          .limit(1);
         if (data && data.length > 0) {
           const r = data[0];
           const newSajuData: UserSajuData = {
@@ -436,6 +480,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setSajuData(newSajuData);
           safeSet("saju-data", JSON.stringify(newSajuData));
         }
+        // No matching reading yet → leave sajuData empty. The user has
+        // their primary chart registered but no reading generated for
+        // it. Once they create one, this effect runs again and matches.
       } catch {}
     })();
   }, [user]);
