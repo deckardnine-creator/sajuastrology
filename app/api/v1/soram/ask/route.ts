@@ -79,6 +79,41 @@ function getEngineDownMessage(locale: string): string {
   return ENGINE_DOWN_MESSAGE[locale] || ENGINE_DOWN_MESSAGE.en;
 }
 
+// ════════════════════════════════════════════════════════════════════
+// v6.17.37 — locale-aware Soram signature
+// ════════════════════════════════════════════════════════════════════
+// Soram's name renders differently per language to match the in-character
+// transliteration already used elsewhere (e.g. ENGINE_DOWN_MESSAGE).
+// The 🌙 glyph is universal. The em-dash + name + moon pattern is
+// preserved across all locales so the client-side score parser
+// (/([0-9]\.[0-9]{2})\s*$/) and the strip helpers below still work.
+// ════════════════════════════════════════════════════════════════════
+const SORAM_NAME_BY_LOCALE: Record<string, string> = {
+  ko: "소람",
+  ja: "ソラム",
+  "zh-TW": "索藍",
+  ru: "Сорам",
+  hi: "सोरम",
+  // en/es/fr/pt/id and any other latin-script locale fall through to "Soram"
+};
+function getSoramName(locale: string): string {
+  return SORAM_NAME_BY_LOCALE[locale] || "Soram";
+}
+function getSoramSignature(locale: string): string {
+  return `— ${getSoramName(locale)} 🌙`;
+}
+// All known names — used by stripSoramSignature/answerMatchesLocale to
+// recognise a signature regardless of the locale the model actually
+// produced (defensive: model occasionally drops the wrong one).
+const ALL_SORAM_NAMES: string[] = [
+  "소람",
+  "ソラム",
+  "索藍",
+  "Сорам",
+  "सोरम",
+  "Soram",
+];
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
@@ -253,8 +288,11 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 2): Promise<T> {
 // ════════════════════════════════════════════════════════════════════
 function answerMatchesLocale(text: string, locale: string): boolean {
   if (!text || text.length < 20) return true;
-  // Strip the signature and any score before counting
-  const body = text.replace(/—\s*소람\s*🌙[\s\S]*$/u, "").trim();
+  // Strip the signature and any score before counting.
+  // v6.17.37: handle all locale name variants, not only Korean. We use
+  // stripSoramSignature instead of a regex so the body works regardless
+  // of which name (소람/ソラム/索藍/Сорам/सोरम/Soram) the model produced.
+  const body = stripSoramSignature(text).replace(/\s*[0-9]\.[0-9]{2}\s*$/u, "").trim();
   if (body.length < 20) return true;
 
   const letters = body.replace(/[\s\d\p{P}\p{S}]+/gu, "");
@@ -770,7 +808,7 @@ ANSWER RULES:
 5. No markdown. No lists. Flowing prose.
 
 ABSOLUTE RULES:
-- You are NOT a program, AI, model, or chatbot. You are 소람.
+- You are NOT a program, AI, model, or chatbot. You are ${getSoramName(locale)}.
 - If asked if you are AI/program: "${locale === "ko" ? "저는 그저 사주를 들여다보는 소람입니다" : locale === "ja" ? "わたくしはただ四柱を見つめるソラムでございます" : "I am simply Soram, who reads saju"}" — then pivot back to the saju question.
 - NEVER use words: AI, model, algorithm, GPT, machine, program, system, database, "trained on".
 - NEVER explain your "process".
@@ -779,10 +817,10 @@ OUTPUT FORMAT (STRICT):
 - Line 1: ROUTING: <one of the 8 categories>
 - Line 2: blank
 - Line 3+: your prose answer
-- End with EXACTLY: "— 소람 🌙"
+- End with EXACTLY: "${getSoramSignature(locale)}"
 - Do NOT add anything after the signature.
 
-Speak as 소람 the scholar. Never break character.`;
+Speak as ${getSoramName(locale)} the scholar. Never break character.`;
 }
 
 function buildUserPrompt(
@@ -840,7 +878,7 @@ Guest's question:
 
 ${langInstruction}
 Around 250-300 chars. Weave classical citations naturally.
-End with "— 소람 🌙" on a new line. Do NOT add anything after.`;
+End with "${getSoramSignature(locale)}" on a new line. Do NOT add anything after.`;
 }
 
 function extractStemHanja(stemValue: any): string {
@@ -914,16 +952,21 @@ function calculateScholarlyDepth(answer: string, ragChunks: number): number {
 
 /**
  * Strip Soram signature using simple string operations (no regex with /u flag).
+ * v6.17.37: recognises all locale variants of the name, not just Korean.
  */
 function stripSoramSignature(text: string): string {
-  // Find last "—" or "-" or "–"
-  const lastDashIdx = Math.max(
-    text.lastIndexOf("— 소람"),
-    text.lastIndexOf("- 소람"),
-    text.lastIndexOf("– 소람")
-  );
-  if (lastDashIdx === -1) return text.trim();
-  return text.substring(0, lastDashIdx).trim();
+  // Find the latest signature occurrence across all known locale variants.
+  // Try each combination of dash style ("—", "-", "–") + every known name.
+  const dashes = ["— ", "- ", "– "];
+  let lastIdx = -1;
+  for (const name of ALL_SORAM_NAMES) {
+    for (const dash of dashes) {
+      const idx = text.lastIndexOf(dash + name);
+      if (idx > lastIdx) lastIdx = idx;
+    }
+  }
+  if (lastIdx === -1) return text.trim();
+  return text.substring(0, lastIdx).trim();
 }
 
 export async function POST(request: NextRequest) {
@@ -1091,7 +1134,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "engines_unavailable",
-          answer: getEngineDownMessage(locale) + "\n\n— 소람 🌙",
+          answer: getEngineDownMessage(locale) + "\n\n" + getSoramSignature(locale),
           routing: "saju_question",
           deducted: false,
         },
@@ -1103,7 +1146,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "empty_response",
-          answer: getEngineDownMessage(locale) + "\n\n— 소람 🌙",
+          answer: getEngineDownMessage(locale) + "\n\n" + getSoramSignature(locale),
           routing: "saju_question",
           deducted: false,
         },
@@ -1137,11 +1180,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Append clean signature (no score)
-    answer = answer + "\n\n— 소람 🌙";
+    // v6.17.37: locale-aware signature (소람/ソラム/索藍/Сорам/सोरम/Soram)
+    const sigForLocale = getSoramSignature(locale);
+    answer = answer + "\n\n" + sigForLocale;
 
     // Hard cap at 295 chars (DB constraint 300)
     if (answer.length > 295) {
-      const sigStart = answer.lastIndexOf("\n\n— 소람");
+      const sigStart = answer.lastIndexOf("\n\n" + sigForLocale);
       if (sigStart > 0) {
         const sig = answer.substring(sigStart);
         const bodyPart = answer.substring(0, sigStart).trim();
@@ -1243,7 +1288,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: "server_error",
-        answer: getEngineDownMessage(safeLocale) + "\n\n— 소람 🌙",
+        answer: getEngineDownMessage(safeLocale) + "\n\n" + getSoramSignature(safeLocale),
         routing: "saju_question",
         deducted: false,
       },
