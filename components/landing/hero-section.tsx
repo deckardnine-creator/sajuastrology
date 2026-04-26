@@ -176,31 +176,33 @@ export function HeroSection() {
             ════════════════════════════════════════════════════════ */}
             <div className="flex flex-col items-center sm:items-start gap-3 mt-2">
 
-              {/* Soram entry — gold-accent card, hidden in native shell */}
-              {!isNativeApp && (
-                <button
-                  type="button"
-                  onClick={handleSoramClick}
-                  className="block text-left w-[280px] lg:w-auto group"
-                  aria-label={t("hero.askSoram")}
-                >
-                  <div className="relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm pl-3.5 pr-3 py-2.5 transition-all duration-200 hover:border-amber-300/70 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)] active:scale-[0.99]">
-                    {/* gold left accent bar */}
-                    <span aria-hidden="true" className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-amber-100 leading-tight">
-                          {t("hero.askSoram")}
-                        </p>
-                        <p className="text-[10px] text-amber-200/70 leading-snug mt-0.5 line-clamp-2">
-                          {t("hero.askSoramSub")}
-                        </p>
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
+              {/* Soram entry — gold-accent card.
+                  v6.17.25 — Previously native에서 hide 처리됐었지만
+                  (메모 #19에 "polish 중" flag 사유), v1.3 출시 시점에는
+                  Soram이 핵심 기능이고 chandler 명시 지시 "홈에 소람에게
+                  묻기 카드 노출". native/web 동일하게 표시. */}
+              <button
+                type="button"
+                onClick={handleSoramClick}
+                className="block text-left w-[280px] lg:w-auto group"
+                aria-label={t("hero.askSoram")}
+              >
+                <div className="relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm pl-3.5 pr-3 py-2.5 transition-all duration-200 hover:border-amber-300/70 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)] active:scale-[0.99]">
+                  {/* gold left accent bar */}
+                  <span aria-hidden="true" className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-amber-100 leading-tight">
+                        {t("hero.askSoram")}
+                      </p>
+                      <p className="text-[10px] text-amber-200/70 leading-snug mt-0.5 line-clamp-2">
+                        {t("hero.askSoramSub")}
+                      </p>
                     </div>
+                    <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
                   </div>
-                </button>
-              )}
+                </div>
+              </button>
 
               {/* Primary: Free saju reading */}
               <Link href="/calculate" className="block w-[280px] lg:w-auto">

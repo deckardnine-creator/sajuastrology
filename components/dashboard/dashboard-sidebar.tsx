@@ -195,35 +195,36 @@ export function DashboardSidebar() {
       </div>
 
       {/* v6.17.14 — Footer: legal links + change-saju reminder
-          v6.17.24 — chandler 원칙 정정: "앱은 web 기능 다 반영".
-          v6.17.23에서 native에서 sidebar footer hide 처리했으나
-          chandler 정정으로 revert. sidebar 자체는 desktop only
-          (md+)이라 모바일 native에선 어차피 안 보이고, tablet
-          native에서는 footer link도 정상 노출되어야 한다. */}
-      <div className="px-4 py-3 border-t border-border/50">
-        {/* Saju change reminder — only when chart exists; new users
-            don't need it yet, the hero card already drives them. */}
-        {sajuData.chart && (
-          <p className="text-[10px] text-muted-foreground/50 leading-relaxed mb-2 px-1">
-            {t("dash.changeViaSupportHint", locale)}{" "}
-            <a
-              href="mailto:info@rimfactory.io"
-              className="text-muted-foreground/70 hover:text-primary transition-colors"
-            >
-              info@rimfactory.io
-            </a>
-          </p>
-        )}
-        <div className="flex items-center gap-3 text-[11px] text-muted-foreground/60">
-          <Link href="/privacy" className="hover:text-foreground transition-colors">
-            {t("footer.privacy", locale)}
-          </Link>
-          <span aria-hidden="true">·</span>
-          <Link href="/terms" className="hover:text-foreground transition-colors">
-            {t("footer.terms", locale)}
-          </Link>
+          v6.17.25 — re-add native hide (chandler "심사 통과 못한다").
+          sidebar 자체가 desktop only (md+)이라 모바일 native에선
+          영향 없지만, tablet native 또는 향후 확장 가능성 고려해서
+          명시적 hide. */}
+      {!isNative && (
+        <div className="px-4 py-3 border-t border-border/50">
+          {/* Saju change reminder — only when chart exists; new users
+              don't need it yet, the hero card already drives them. */}
+          {sajuData.chart && (
+            <p className="text-[10px] text-muted-foreground/50 leading-relaxed mb-2 px-1">
+              {t("dash.changeViaSupportHint", locale)}{" "}
+              <a
+                href="mailto:info@rimfactory.io"
+                className="text-muted-foreground/70 hover:text-primary transition-colors"
+              >
+                info@rimfactory.io
+              </a>
+            </p>
+          )}
+          <div className="flex items-center gap-3 text-[11px] text-muted-foreground/60">
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
+              {t("footer.privacy", locale)}
+            </Link>
+            <span aria-hidden="true">·</span>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              {t("footer.terms", locale)}
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </aside>
   );
 }

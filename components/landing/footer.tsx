@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useLanguage } from "@/lib/language-context"
+import { useNativeApp } from "@/lib/native-app"
 import {
   type Locale,
   LOCALE_LABELS,
@@ -135,6 +136,7 @@ function FooterLangDropdown() {
 
 export function Footer() {
   const { t, locale } = useLanguage()
+  const isNative = useNativeApp()
   const pathname = usePathname()
 
   // ═══ Minimal footer mode — ALL blog pages (/blog and /blog/*) ═══
@@ -146,34 +148,44 @@ export function Footer() {
   const isBlogArticlePage = pathname?.startsWith("/blog/") ?? false
   const isBlogPage = isBlogListPage || isBlogArticlePage
 
-  // v6.17.24 — directNative / hideWebOnly 제거.
-  // chandler 원칙: "앱은 web 기능 다 반영, 정책 충돌만 따로".
-  // 이전에는 native 앱에서 Bug Bounty + Business info를 hide하기
-  // 위해 useNativeApp() 외에 UA / URL / Bridge / sessionStorage 까지
-  // 다중 검사하는 directNative 안전장치를 두었지만, 이제는 footer를
-  // web/native 동일하게 표시하므로 안전장치 자체가 불필요하다.
-  // useNativeApp()의 isNative 변수 자체는 다른 곳 (예: 향후 분기)
-  // 참고용으로 남겨둔다.
-
   // ════════════════════════════════════════════════════════════════
-  // v6.17.24 — chandler 원칙 정정: "앱은 web 기능 다 반영"
+  // v6.17.25 — Footer hide in native (App Store / Play 심사 통과 critical)
   // ────────────────────────────────────────────────────────────────
-  // v6.17.22 에서 footer 통째 hide 처리했었는데 chandler가 그것은
-  // 잘못된 해석이라 명시: 앱은 web 기능을 모두 반영해야 하고, 정책
-  // 충돌 (결제·로그인 등) 영역만 따로 처리하면 된다.
+  // chandler 명시 지시: "앱 하단 footer 정보 가려라. 심사 통과 못한다".
+  // Apple/Google 정책상 앱 안에서 외부 web 링크 (사주란/요금제/궁합/상담/
+  // Letter/Privacy/Terms 등) 노출되면 reject 위험. v1.3 출시 critical
+  // path니까 정책 안전 우선.
   //
-  // Footer는 web 사용자에게 가치 있는 nav + Bug Bounty + Business
-  // info를 담고 있고, 이 모든 정보가 native 사용자에게도 동등하게
-  // 가치 있다 — 특히 v1.3 launch 후 3개월간 앱 업데이트가 막혀
-  // 있는 동안 버그 신고 채널 (Bug Bounty 안내) 은 critical하다.
+  // Defense in depth — useNativeApp() hook 외에 직접 검사도 추가.
+  // SSR + hydration 사이의 0.2초 flash 방지를 위해 layout.tsx의 inline
+  // script가 <html>에 .native-app 클래스를 추가하고, 그 클래스가 있을
+  // 때 CSS로 footer를 hide한다 (globals.css). 그래도 React가 markup
+  // 자체를 안 만들도록 hook + direct check 둘 다 사용.
+  //
+  // SSR 단계에선 isNative=false (window 없음) → footer markup 생성 →
+  // HTML에 포함. client paint 시 globals.css의 .native-app 클래스 hide
+  // 가 즉시 적용되어 보이지 않음. hydration 후 isNative=true가 되면
+  // React는 null을 반환하여 markup 자체 제거.
   // ════════════════════════════════════════════════════════════════
+  const [directNative, setDirectNative] = useState(false)
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const ua = navigator.userAgent.includes("SajuApp")
+    const url = new URLSearchParams(window.location.search).get("app") === "true"
+    const bridge = typeof (window as { FlutterBridge?: unknown }).FlutterBridge !== "undefined"
+    let stored = false
+    try { stored = sessionStorage.getItem("native-app") === "1" } catch {}
+    if (ua || url || bridge || stored) setDirectNative(true)
+  }, [])
+
+  if (isNative || directNative) return null;
 
   // ═══ All blog pages (/blog and /blog/*): copyright-only minimal footer ═══
   // Logo + © line only. No nav links, no bug bounty banner, no business info.
   // Mirrors the minimal Navbar across the blog section.
   if (isBlogPage) {
     return (
-      <footer className="bg-card py-8 sm:py-10">
+      <footer className="web-footer bg-card py-8 sm:py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center gap-4">
             <Link href="/" className="flex items-center">
@@ -205,7 +217,7 @@ export function Footer() {
   ]
 
   return (
-    <footer className="bg-card py-10 sm:py-12">
+    <footer className="web-footer bg-card py-10 sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center gap-6 sm:gap-8">
 

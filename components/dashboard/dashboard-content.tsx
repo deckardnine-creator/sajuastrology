@@ -1264,25 +1264,29 @@ function DashboardInner() {
       )}
 
       {/* Footer — Privacy, Terms, Contact, Delete Account
-          v6.17.24 — chandler 원칙 정정: "앱은 web 기능 다 반영".
-          v6.17.22의 native에서 Privacy/Terms/Contact hide 처리는
-          잘못된 해석이라 명시 — 앱에서도 Privacy/Terms 페이지 접근,
-          Contact 이메일 모두 가치 있는 in-app 기능. revert해서 web과
-          동일하게 노출한다. Delete Account는 Apple 5.1.1(v) + Google
-          정책상 어차피 in-app 필수이므로 그대로. */}
+          v6.17.25 — chandler 명시 지시 "앱 푸터 가려라, 심사 통과 못한다".
+          App Store/Play 정책상 앱 안에서 외부 web link (Privacy/Terms/
+          Contact 페이지) 직접 노출은 reject 위험. Privacy/Terms는 햄버거
+          메뉴를 통해 접근 가능하므로 dashboard footer에서는 hide.
+          Delete Account만 표시 — Apple 5.1.1(v) + Google 정책상 in-app
+          필수. */}
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-8 mb-4 text-[11px] text-muted-foreground/50">
-        <Link href="/privacy" className="hover:text-muted-foreground transition-colors">
-          {t("common.privacy", locale)}
-        </Link>
-        <span>·</span>
-        <Link href="/terms" className="hover:text-muted-foreground transition-colors">
-          {t("common.terms", locale)}
-        </Link>
-        <span>·</span>
-        <a href="mailto:info@rimfactory.io" className="hover:text-muted-foreground transition-colors">
-          {t("common.contact", locale)}
-        </a>
-        <span>·</span>
+        {!isNative && (
+          <>
+            <Link href="/privacy" className="hover:text-muted-foreground transition-colors">
+              {t("common.privacy", locale)}
+            </Link>
+            <span>·</span>
+            <Link href="/terms" className="hover:text-muted-foreground transition-colors">
+              {t("common.terms", locale)}
+            </Link>
+            <span>·</span>
+            <a href="mailto:info@rimfactory.io" className="hover:text-muted-foreground transition-colors">
+              {t("common.contact", locale)}
+            </a>
+            <span>·</span>
+          </>
+        )}
         <button
           onClick={async () => {
             if (deleteConfirmStep === 0) {

@@ -147,6 +147,53 @@ export default async function RootLayout({
         <meta name="google-site-verification" content="6n564Wp8VQofMr5VKAQgu-QCBYX7g4I21U9ZiMZuSpI" />
         <meta name="naver-site-verification" content="733a4d2564be68587c86084a7c2f4f3d55251117" />
         <meta name="yandex-verification" content="6131fe3c389007d3" />
+        {/* ════════════════════════════════════════════════════════════
+            v6.17.25 — Pre-paint native-app detection
+            ────────────────────────────────────────────────────────────
+            Synchronous inline script that adds `.native-app` to <html>
+            BEFORE any CSS rules paint. This eliminates the 0.2s flash
+            where the web Footer briefly appears in the Flutter WebView
+            during navigation (chandler 명시: "0.2초정도 footer flash
+            깔끔하게 처리해라").
+            
+            How: SSR sends static HTML with the Footer markup included
+            (server can't know it's a native client). On the client, a
+            React useState lazy initializer or useEffect runs AFTER the
+            first paint, so the Footer briefly renders before JS hides
+            it. By contrast, this inline script runs synchronously
+            during HTML parsing — before the browser layouts/paints
+            anything. globals.css has `.native-app .web-footer
+            { display: none !important; }` so once the class is set,
+            the footer never paints in the first frame.
+            
+            Detection criteria (matches lib/native-app.ts):
+              • UA contains "SajuApp"
+              • URL has ?app=true
+              • sessionStorage native-app flag from prior detection
+            (FlutterBridge check is unreliable here because the script
+            runs before WebView's addJavaScriptChannel injects it.)
+            
+            try/catch wrap because any exception (e.g. blocked
+            sessionStorage in incognito) must NOT prevent rendering.
+        ════════════════════════════════════════════════════════════ */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function () {
+                try {
+                  var ua = (navigator && navigator.userAgent) || '';
+                  var url = (window.location && window.location.search) || '';
+                  var stored = false;
+                  try { stored = sessionStorage.getItem('native-app') === '1'; } catch (e) {}
+                  if (ua.indexOf('SajuApp') !== -1 || url.indexOf('app=true') !== -1 || stored) {
+                    document.documentElement.classList.add('native-app');
+                    try { sessionStorage.setItem('native-app', '1'); } catch (e) {}
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className={`${inter.variable} ${playfair.variable} ${notoSansKR.variable} ${notoSerifKR.variable} font-sans antialiased`}>

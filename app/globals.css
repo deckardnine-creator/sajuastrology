@@ -353,3 +353,22 @@ html.native-app .pt-page-lg {
 html.native-app .mobile-bottom-nav-web {
   display: none !important;
 }
+
+
+/* ════════════════════════════════════════════════════════════════
+   v6.17.25 — Pre-paint native chrome hide
+   ────────────────────────────────────────────────────────────────
+   Layout.tsx의 inline script가 SSR HTML 첫 paint 전에 .native-app
+   클래스를 <html>에 추가. 이 CSS rule이 그 클래스가 있는 동안
+   web Footer 통째 hide. React가 isNative=true를 detect하기 전
+   (0.2초)의 flash를 제거.
+   
+   .web-footer 클래스는 components/landing/footer.tsx 와
+   components/footer.tsx 의 <footer> wrapper 모두에 적용됨.
+   
+   !important 사용 이유: 내부에 다른 우선순위 높은 selector가
+   영향 없도록 강제 hide (Tailwind utility classes 등).
+   ════════════════════════════════════════════════════════════════ */
+.native-app .web-footer {
+  display: none !important;
+}
