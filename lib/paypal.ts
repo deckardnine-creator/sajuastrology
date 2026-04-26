@@ -153,3 +153,193 @@ export async function getPayPalOrderDetails(orderId: string): Promise<any> {
   if (!res.ok) return null;
   return res.json();
 }
+
+
+// ════════════════════════════════════════════════════════════════════
+// v6.14 PATCH — APPEND TO lib/paypal.ts (existing file)
+// ════════════════════════════════════════════════════════════════════
+// This file contains ONLY new code to be appended to the bottom of
+// the existing /lib/paypal.ts. The existing exports (getPayPalAccessToken,
+// getPayPalBaseUrl, createPayPalOrder, capturePayPalOrder) are used as-is
+// — we never modify them per chandler's "append only, never modify
+// existing" principle.
+//
+// New exports added by this patch:
+//   - createSubscription({planId, customId, returnUrl, cancelUrl})
+//   - cancelSubscription(subscriptionId, reason?)
+//   - getSubscriptionDetails(subscriptionId)
+//
+// All three follow the same fetch+token pattern as the existing helpers.
+// ════════════════════════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════════════════════════
+// createSubscription — start a recurring billing for the given plan.
+// ════════════════════════════════════════════════════════════════════
+// PayPal Subscription API flow:
+//   1. POST /v1/billing/subscriptions with plan_id + return_url
+//   2. Response includes a redirect href (rel: "approve") — user must
+//      visit this to consent to recurring billing.
+//   3. After user approves, PayPal redirects to return_url with
+//      ?subscription_id=I-XXXXX&ba_token=BA-XXXXX&token=XXXXX
+//   4. Subscription status starts as APPROVAL_PENDING, becomes ACTIVE
+//      once PayPal processes the first payment (usually instant).
+//   5. Webhook BILLING.SUBSCRIPTION.ACTIVATED fires when ACTIVE.
+//
+// custom_id is encoded as JSON so the webhook can route by user_id
+// + subscription type (mirroring the one-time order pattern).
+//
+// IMPORTANT: PayPal does NOT charge the user during this approval flow.
+// First charge happens when subscription becomes ACTIVE. So we must
+// NOT mark the user's account as paid until the webhook arrives.
+export async function createSubscription(opts: {
+  planId: string;
+  customId: string; // JSON string with payment_type + user_id
+  returnUrl: string;
+  cancelUrl: string;
+  subscriberEmail?: string;
+  subscriberName?: { given_name?: string; surname?: string };
+}): Promise<{ subscriptionId: string; approvalUrl: string }> {
+  const token = await getPayPalAccessToken();
+  const base = getPayPalBaseUrl();
+
+  const body: Record<string, unknown> = {
+    plan_id: opts.planId,
+    custom_id: opts.customId,
+    application_context: {
+      brand_name: "SajuAstrology",
+      locale: "en-US",
+      shipping_preference: "NO_SHIPPING",
+      user_action: "SUBSCRIBE_NOW",
+      payment_method: {
+        payer_selected: "PAYPAL",
+        payee_preferred: "IMMEDIATE_PAYMENT_REQUIRED",
+      },
+      return_url: opts.returnUrl,
+      cancel_url: opts.cancelUrl,
+    },
+  };
+
+  if (opts.subscriberEmail || opts.subscriberName) {
+    body.subscriber = {
+      ...(opts.subscriberEmail ? { email_address: opts.subscriberEmail } : {}),
+      ...(opts.subscriberName ? { name: opts.subscriberName } : {}),
+    };
+  }
+
+  const res = await fetch(`${base}/v1/billing/subscriptions`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      // PayPal-Request-Id makes the call idempotent — retries with the
+      // same ID won't create duplicate subscriptions. Use a per-call
+      // random ID since each call is a fresh user-initiated subscription.
+      "PayPal-Request-Id": `sub-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`PayPal createSubscription failed (${res.status}): ${errText}`);
+  }
+
+  const data = await res.json();
+  const subscriptionId = data.id as string;
+
+  // Find the approval link (rel="approve")
+  type Link = { rel: string; href: string };
+  const links = (data.links || []) as Link[];
+  const approveLink = links.find((l) => l.rel === "approve");
+  if (!approveLink) {
+    throw new Error("PayPal createSubscription: no approval link in response");
+  }
+
+  return { subscriptionId, approvalUrl: approveLink.href };
+}
+
+// ════════════════════════════════════════════════════════════════════
+// cancelSubscription — terminate an active subscription.
+// ════════════════════════════════════════════════════════════════════
+// Per PayPal docs, sending POST /v1/billing/subscriptions/{id}/cancel
+// returns 204 No Content on success. After this, the user retains
+// access until the end of the current billing cycle (PayPal handles
+// this automatically — subsequent charges are skipped).
+//
+// We don't manually expire the row in soram_subscriptions here; the
+// BILLING.SUBSCRIPTION.CANCELLED webhook handles that, keeping the
+// state machine consistent regardless of whether cancellation came
+// from us or from the user clicking "Cancel" inside PayPal directly.
+export async function cancelSubscription(
+  subscriptionId: string,
+  reason: string = "User requested cancellation"
+): Promise<{ success: boolean; alreadyCancelled?: boolean }> {
+  const token = await getPayPalAccessToken();
+  const base = getPayPalBaseUrl();
+
+  const res = await fetch(
+    `${base}/v1/billing/subscriptions/${encodeURIComponent(subscriptionId)}/cancel`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ reason }),
+    }
+  );
+
+  if (res.status === 204) {
+    return { success: true };
+  }
+  if (res.status === 422) {
+    // Already cancelled / expired — treat as success for idempotency.
+    return { success: true, alreadyCancelled: true };
+  }
+  const errText = await res.text();
+  throw new Error(`PayPal cancelSubscription failed (${res.status}): ${errText}`);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// getSubscriptionDetails — fetch current state of a subscription.
+// ════════════════════════════════════════════════════════════════════
+// Used by the verify endpoint to confirm a subscription is ACTIVE
+// before granting entitlements (defense in depth: webhook is the
+// primary signal but a synchronous check on the redirect callback
+// gives the user faster feedback than waiting for the webhook to
+// arrive — webhooks can lag 5–30 seconds in our experience).
+//
+// Returns the raw PayPal response. Caller picks the fields it needs.
+// Common fields:
+//   id, status (APPROVAL_PENDING | APPROVED | ACTIVE | SUSPENDED |
+//               CANCELLED | EXPIRED), plan_id, start_time,
+//   billing_info.next_billing_time, subscriber.email_address,
+//   custom_id
+export async function getSubscriptionDetails(subscriptionId: string): Promise<{
+  id: string;
+  status: string;
+  plan_id?: string;
+  start_time?: string;
+  custom_id?: string;
+  subscriber?: { email_address?: string };
+  billing_info?: { next_billing_time?: string };
+  // Allow extra fields without typing every one
+  [key: string]: unknown;
+}> {
+  const token = await getPayPalAccessToken();
+  const base = getPayPalBaseUrl();
+
+  const res = await fetch(
+    `${base}/v1/billing/subscriptions/${encodeURIComponent(subscriptionId)}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`PayPal getSubscriptionDetails failed (${res.status}): ${errText}`);
+  }
+
+  return res.json();
+}
