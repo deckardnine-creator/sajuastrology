@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -283,6 +283,34 @@ export default function CompatibilityResultClient() {
       clearTimeout(t);
     };
   }, [showUnlockBanner]);
+
+  // ════════════════════════════════════════════════════════════
+  // v6.17.34 — Trigger unlock banner on isPaid: false → true
+  // ════════════════════════════════════════════════════════════
+  // The ?payment=success URL trigger only fires for PayPal (web).
+  // IAP (Apple/Google) doesn't add that query param — the Flutter
+  // shell calls verify-iap-v2 and then reloads the page. After
+  // reload, isPaid flips false→true via refreshPaidStatus.
+  //
+  // We arm the banner whenever isPaid transitions to true AFTER
+  // the page has been mounted long enough (1500ms) that the
+  // initial "user revisits already-paid result" case can't be
+  // mistaken for a fresh unlock. Without that guard, every
+  // already-paying user revisiting their result would see the
+  // banner on every visit.
+  //
+  // The previousIsPaid ref tracks the prior render's value so we
+  // detect the rising edge (false → true) cleanly.
+  // ════════════════════════════════════════════════════════════
+  const previousIsPaidRef = useRef<boolean>(isPaid);
+  const mountedAtRef = useRef<number>(Date.now());
+  useEffect(() => {
+    const wasPaid = previousIsPaidRef.current;
+    previousIsPaidRef.current = isPaid;
+    if (wasPaid || !isPaid) return;
+    if (Date.now() - mountedAtRef.current < 1500) return;
+    setShowUnlockBanner(true);
+  }, [isPaid]);
 
   const handleShare = () => {
     const url = window.location.href;
