@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { useNativeApp } from "@/lib/native-app";
 import { t } from "@/lib/translations";
 import { ELEMENTS, type Element } from "@/lib/saju-calculator";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const { user, sajuData, isPremium } = useAuth();
   const { locale } = useLanguage();
+  const isNative = useNativeApp();
 
   const navItems = [
     { href: "/dashboard", label: t("dash.dashboard", locale), icon: LayoutDashboard },
