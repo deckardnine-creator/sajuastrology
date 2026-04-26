@@ -958,10 +958,34 @@ export async function POST(request: NextRequest) {
     }
     const chartData = await chartRes.json();
     if (!Array.isArray(chartData) || chartData.length === 0) {
+      // ════════════════════════════════════════════════════════════
+      // v6.17 — guide the user to /setup-primary-chart in their own
+      // language. Without this, KO/JA users see raw English on the
+      // chat screen and bounce. The 10 users discovered on 2026-04-26
+      // who signed up but never entered their own saju are the
+      // primary motivation here.
+      // ════════════════════════════════════════════════════════════
+      const NO_CHART_MESSAGES: Record<string, string> = {
+        ko: "먼저 본인 사주를 입력해 주세요.",
+        ja: "まずご自身の四柱を入力してください。",
+        en: "Please enter your own saju first.",
+        es: "Por favor, ingresa tu propio saju primero.",
+        fr: "Veuillez d'abord saisir votre propre saju.",
+        pt: "Por favor, insira seu próprio saju primeiro.",
+        "zh-TW": "請先輸入您自己的四柱。",
+        ru: "Пожалуйста, сначала введите свой саджу.",
+        hi: "कृपया पहले अपना साजू दर्ज करें।",
+        id: "Silakan masukkan saju Anda terlebih dahulu.",
+      };
+      const localizedMessage = NO_CHART_MESSAGES[locale] || NO_CHART_MESSAGES.en;
       return NextResponse.json(
         {
-          error: "No primary chart",
-          message: "Setup your primary chart first.",
+          error: "no_primary_chart",
+          message: localizedMessage,
+          // v6.17: client-side hint — tells the chat UI to redirect
+          // the user to the setup page rather than just showing an
+          // unhelpful error toast.
+          redirectTo: "/setup-primary-chart?next=/soram",
         },
         { status: 403 }
       );
