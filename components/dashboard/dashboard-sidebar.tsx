@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { useNativeApp } from "@/lib/native-app";
 import { t } from "@/lib/translations";
 import { ELEMENTS, type Element } from "@/lib/saju-calculator";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const { user, sajuData, isPremium } = useAuth();
   const { locale } = useLanguage();
+  const isNative = useNativeApp();
 
   const navItems = [
     { href: "/dashboard", label: t("dash.dashboard", locale), icon: LayoutDashboard },
@@ -194,7 +196,14 @@ export function DashboardSidebar() {
         </Link>
       </div>
 
-      {/* v6.17.14 — Footer: legal links + change-saju reminder */}
+      {/* v6.17.14 — Footer: legal links + change-saju reminder
+          v6.17.23 — entire sidebar footer hidden in native app.
+          Native users have legal pages in the hamburger menu and the
+          dashboard's main footer already keeps Delete Account
+          per Apple/Google policy — duplicating Privacy/Terms here
+          inside the WebView creates the same chrome leak chandler
+          flagged ("앱에서 일반 웹페이지 푸터 보이면 안 된다"). */}
+      {!isNative && (
       <div className="px-4 py-3 border-t border-border/50">
         {/* Saju change reminder — only when chart exists; new users
             don't need it yet, the hero card already drives them. */}
@@ -219,6 +228,7 @@ export function DashboardSidebar() {
           </Link>
         </div>
       </div>
+      )}
     </aside>
   );
 }

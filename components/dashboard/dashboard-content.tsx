@@ -586,9 +586,12 @@ function DashboardInner() {
           </h1>
           <p className="text-sm text-muted-foreground">{formattedDate}</p>
         </div>
-        {!isNative && (
-          <button
-            onClick={async () => {
+        {/* v6.17.22 — logout button now also visible in native app
+            (chandler: "막아둔 거 다 풀어라"). signOut redirects to
+            "/?app=true" in native so the WebView returns home, where
+            the user is logged out and sees the public landing. */}
+        <button
+          onClick={async () => {
               // ════════════════════════════════════════════════════════
               // v6.17 — defensive logout
               // ════════════════════════════════════════════════════════
@@ -615,7 +618,6 @@ function DashboardInner() {
             <LogOut className="w-3.5 h-3.5" />
             {t("nav.signOut")}
           </button>
-        )}
       </motion.div>
 
       {/* ════════════════════════════════════════════════════════════
@@ -678,8 +680,14 @@ function DashboardInner() {
           plan info while the actual entry is hidden would just cause
           confusion. When Soram is ready, removing the !isNative wrap
           (or shipping a new app build) restores the row.
+
+          v6.17.22 (chandler "막아둔 거 다 풀어라"): the !isNative
+          wrap is now removed. Soram entry + Plan/remaining card are
+          visible to native users too. The /soram page renders
+          fine inside the WebView and the IAP check on Daily Pass
+          purchase already routes through the native Apple/Google
+          flow via verify-iap-v2.
       ════════════════════════════════════════════════════════════ */}
-      {!isNative && (
       <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-5">
 
         {/* Soram entry card — primary CTA, 3/5 width on desktop */}
@@ -759,7 +767,6 @@ function DashboardInner() {
         </div>
 
       </div>
-      )}
 
       {/* ════════════════════════════════════════════════════════════
           v6.13: chart visualization region — saju-required.
@@ -1134,7 +1141,8 @@ function DashboardInner() {
           surface ZERO Soram UI in the native shell during this
           window so app users don't hit a half-finished flow.
       ════════════════════════════════════════════════════════════ */}
-      {!isNative && soramHistoryLoaded && soramHistory.length > 0 && (
+      {/* v6.17.22 — !isNative removed (chandler 지시 "막아둔 거 다 풀어라"). */}
+      {soramHistoryLoaded && soramHistory.length > 0 && (
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1255,20 +1263,31 @@ function DashboardInner() {
         </p>
       )}
 
-      {/* Footer — Privacy, Terms, Contact, Delete Account */}
+      {/* Footer — Privacy, Terms, Contact, Delete Account
+          v6.17.22 — Privacy/Terms/Contact hidden in native (chandler:
+          "심사 중 충돌해도 된다, 앱에서 일반 웹페이지 푸터 노출 금지").
+          The hamburger menu already carries Privacy + Terms inside
+          the app, and Contact is supplied via the support email
+          everywhere it's needed. Delete Account stays visible — Apple
+          5.1.1(v) and Google's account-deletion guideline both
+          mandate an in-app entry point for user-initiated deletion. */}
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-8 mb-4 text-[11px] text-muted-foreground/50">
-        <Link href="/privacy" className="hover:text-muted-foreground transition-colors">
-          {t("common.privacy", locale)}
-        </Link>
-        <span>·</span>
-        <Link href="/terms" className="hover:text-muted-foreground transition-colors">
-          {t("common.terms", locale)}
-        </Link>
-        <span>·</span>
-        <a href="mailto:info@rimfactory.io" className="hover:text-muted-foreground transition-colors">
-          {t("common.contact", locale)}
-        </a>
-        <span>·</span>
+        {!isNative && (
+          <>
+            <Link href="/privacy" className="hover:text-muted-foreground transition-colors">
+              {t("common.privacy", locale)}
+            </Link>
+            <span>·</span>
+            <Link href="/terms" className="hover:text-muted-foreground transition-colors">
+              {t("common.terms", locale)}
+            </Link>
+            <span>·</span>
+            <a href="mailto:info@rimfactory.io" className="hover:text-muted-foreground transition-colors">
+              {t("common.contact", locale)}
+            </a>
+            <span>·</span>
+          </>
+        )}
         <button
           onClick={async () => {
             if (deleteConfirmStep === 0) {

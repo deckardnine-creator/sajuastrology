@@ -165,6 +165,32 @@ export function Footer() {
 
   const hideWebOnly = isNative || directNative
 
+  // ════════════════════════════════════════════════════════════════
+  // v6.17.22 — hide Footer entirely in the native app per chandler.
+  // ────────────────────────────────────────────────────────────────
+  // Reason (chandler): "일반 웹페이지 푸터가 앱에서 보이면 안된다."
+  // Native users have the Flutter shell's bottom-tab navigation
+  // (Home/Reading/Match/Consult/My) plus the in-app hamburger menu
+  // for legal links. Showing the web Footer there leaks Pricing /
+  // Compatibility / Consultation links that the app already covers
+  // through native navigation, and the © + business-info row adds
+  // visual clutter beneath the BottomNav.
+  //
+  // Previously v6.x kept the Footer's logo + main nav + legal row
+  // visible in native and only hid the bug-bounty + business-info
+  // sections (hideWebOnly check above). That partial hide isn't
+  // enough — chandler's screenshots showed Pricing / Compatibility
+  // entries reachable from inside the app, which is a hard nav
+  // boundary problem on the way to App Review.
+  //
+  // We use the SAME `hideWebOnly` predicate (not just `isNative`)
+  // because directNative covers UA / URL-param / sessionStorage
+  // detection paths that survive when the React useNativeApp hook
+  // hasn't latched yet — full belt-and-suspenders for the App
+  // Store / Play submission cycle.
+  // ════════════════════════════════════════════════════════════════
+  if (hideWebOnly) return null;
+
   // ═══ All blog pages (/blog and /blog/*): copyright-only minimal footer ═══
   // Logo + © line only. No nav links, no bug bounty banner, no business info.
   // Mirrors the minimal Navbar across the blog section.
