@@ -23,7 +23,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Lock, Sparkles, Heart, Briefcase, Users, Shield, Calendar, Check, ArrowRight, Loader2 } from "lucide-react";
+import { Lock, Sparkles, Heart, Briefcase, Users, Shield, Check, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
@@ -226,13 +226,16 @@ export function CompatibilityPaywall({ shareSlug, partnerName }: Props) {
 
   // ──────────────────────────────────────────────────────────────────
   // Lock-icon items showing what's behind the paywall.
+  // v6.17.28: reduced from 5 to 4 cards (removed Calendar/yearly) and
+  // shortened card height (aspect-square → 1:1 instead of 4:5 portrait)
+  // so the paywall doesn't dominate the scroll between free summary
+  // and the CTA card.
   // ──────────────────────────────────────────────────────────────────
   const lockedItems = [
     { icon: Heart, label: tt("paywall.compat.love", locale), color: "#EC4899" },
     { icon: Briefcase, label: tt("paywall.compat.work", locale), color: "#3B82F6" },
     { icon: Users, label: tt("paywall.compat.friendship", locale), color: "#10B981" },
     { icon: Shield, label: tt("paywall.compat.conflict", locale), color: "#F59E0B" },
-    { icon: Calendar, label: tt("paywall.compat.yearly", locale), color: "#A78BFA" },
   ];
 
   return (
@@ -243,14 +246,17 @@ export function CompatibilityPaywall({ shareSlug, partnerName }: Props) {
       className="mb-10"
     >
       {/* ═══ Locked-content blur preview cards ═══ */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 mb-6">
+      {/* v6.17.28: grid-cols-4 (was 2/sm:5), aspect-square (was aspect-[4/5])
+          → cards are noticeably shorter so the user reaches the $2.99 CTA
+          quickly without long scrolling between free summary and unlock. */}
+      <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-6">
         {lockedItems.map((item, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 + i * 0.05 }}
-            className="relative aspect-[4/5] rounded-xl overflow-hidden"
+            className="relative aspect-square rounded-xl overflow-hidden"
             style={{
               background: `linear-gradient(160deg, ${item.color}15, rgba(15,15,25,0.85))`,
               border: `1px solid ${item.color}30`,

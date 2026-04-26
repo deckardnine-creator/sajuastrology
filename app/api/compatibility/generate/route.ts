@@ -132,6 +132,93 @@ async function callClaudeFallback(prompt: string, label: string): Promise<string
   throw new Error(`${label}: all Claude models exhausted`);
 }
 
+// ════════════════════════════════════════════════════════════════════
+// v6.17.28 — Per-locale language verification
+// ════════════════════════════════════════════════════════════════════
+// Detects whether a generated text matches the requested locale. Used
+// for paid_* fields (love/work/friendship/conflict/yearly) AND extends
+// to English (the original implementation only checked KO/JA/ES, which
+// allowed the LLM to leak Chinese characters from RAG passages into
+// English responses — which is exactly what happened to chandler's
+// c-kcd55vza row).
+//
+// For each locale we sample the first 300 chars and apply a heuristic:
+//   - en: must NOT contain CJK ideographs (excluding the brief 甲乙
+//     stem/branch tokens which appear in any locale via classical refs).
+//     We allow up to 30 CJK chars in 300 (i.e., scattered classical
+//     citations are OK, but a paragraph in Chinese is not).
+//   - ko: must contain Hangul.
+//   - ja: must contain hiragana or katakana.
+//   - es: Spanish-specific stopwords or accented chars, no English
+//     stopwords. Mirrors the existing free_summary check.
+//   - fr/pt/ru/hi/id/zh-TW: best-effort detection. zh-TW must contain
+//     CJK; ru must contain Cyrillic; hi must contain Devanagari; id/fr/pt
+//     fall back to "non-English wins" (must NOT match >30% English
+//     stopwords if the requested locale is non-English).
+//
+// Returns true if the text matches the locale, false if it should be
+// re-generated via Claude.
+// ════════════════════════════════════════════════════════════════════
+function isLocaleMatch(text: string, locale: string): boolean {
+  if (!text || text.length < 50) return true; // too short to judge
+  const sample = text.substring(0, 300);
+
+  // CJK ideograph regex (covers Chinese + Japanese kanji + Korean hanja)
+  const cjkRegex = /[\u4E00-\u9FFF]/g;
+  const cjkCount = (sample.match(cjkRegex) || []).length;
+
+  if (locale === "en") {
+    // English must not be dominated by CJK. Allow up to 30 CJK chars
+    // (scattered classical references like 甲木, 寅 are OK).
+    if (cjkCount > 30) return false;
+    // Must contain ASCII letters
+    if (!/[a-zA-Z]/.test(sample)) return false;
+    return true;
+  }
+  if (locale === "ko") {
+    return /[\uAC00-\uD7AF]/.test(sample);
+  }
+  if (locale === "ja") {
+    return /[\u3040-\u309F\u30A0-\u30FF]/.test(sample);
+  }
+  if (locale === "es") {
+    const hasSpanishChars = /[ñÑ¿¡áéíóúÁÉÍÓÚ]/.test(sample);
+    const hasSpanishStopwords = /\b(el|la|los|las|que|en|un|una|es|eres|son|pero|tu|tú|con|para|por|como|del|al|se|su|este|esta|más|porque|cuando)\b/i.test(sample);
+    const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
+    return (hasSpanishChars || hasSpanishStopwords) && !(hasEnglishStopwords && !hasSpanishStopwords);
+  }
+  if (locale === "zh-TW") {
+    // Chinese must have CJK, and must not be predominantly English
+    if (cjkCount < 30) return false;
+    return true;
+  }
+  if (locale === "ru") {
+    return /[\u0400-\u04FF]/.test(sample);
+  }
+  if (locale === "hi") {
+    return /[\u0900-\u097F]/.test(sample);
+  }
+  if (locale === "fr") {
+    const hasFrenchChars = /[àâçéèêëîïôœùûüÿÀÂÇÉÈÊËÎÏÔŒÙÛÜŸ]/.test(sample);
+    const hasFrenchStopwords = /\b(le|la|les|un|une|des|de|du|et|est|sont|votre|votre|vous|nous|ce|cette|ces|qui|que|avec|pour|dans|sur|par|mais|où|quand)\b/i.test(sample);
+    const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
+    return (hasFrenchChars || hasFrenchStopwords) && !(hasEnglishStopwords && !hasFrenchStopwords);
+  }
+  if (locale === "pt") {
+    const hasPortugueseChars = /[ãõâêôáéíóúçÃÕÂÊÔÁÉÍÓÚÇ]/.test(sample);
+    const hasPortugueseStopwords = /\b(o|a|os|as|um|uma|de|do|da|dos|das|e|é|são|você|seu|sua|este|esta|esses|essas|com|para|por|que|quando|onde|porque|mas|também)\b/i.test(sample);
+    const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
+    return (hasPortugueseChars || hasPortugueseStopwords) && !(hasEnglishStopwords && !hasPortugueseStopwords);
+  }
+  if (locale === "id") {
+    const hasIndonesianStopwords = /\b(yang|dan|atau|dengan|dari|untuk|pada|dalam|adalah|akan|tidak|saya|kamu|anda|kita|mereka|ini|itu|ada|bisa|sudah)\b/i.test(sample);
+    const hasEnglishStopwords = /\b(the|and|your|you are|this|that|with|from|what|when|which|their|these|those)\b/i.test(sample);
+    return hasIndonesianStopwords && !(hasEnglishStopwords && !hasIndonesianStopwords);
+  }
+  // Unknown locale — accept (don't block valid output)
+  return true;
+}
+
 async function callAI(prompt: string, label: string, locale = "en"): Promise<string> {
   // KO/JA: Gemini Pro first (Flash often ignores language instructions)
   // EN: Gemini Flash → Pro → Claude
@@ -263,9 +350,13 @@ export async function POST(request: NextRequest) {
     // empty dashboard.
     if (userId) {
     try {
+      // v6.17.28: locale must match — otherwise an English requester could
+      // hit a Korean cached row (or vice versa) and see content in the wrong
+      // language. The previous match was birthdate+hour only.
       const cacheRes = await fetch(`${supabaseUrl}/rest/v1/compatibility_results?${new URLSearchParams({
         person_a_birth_date: `eq.${bdStrA}`, person_a_birth_hour: `eq.${hourA}`,
         person_b_birth_date: `eq.${bdStrB}`, person_b_birth_hour: `eq.${hourB}`,
+        locale: `eq.${locale}`,
         select: "share_slug,free_summary,paid_love", limit: "1",
       })}`, { headers: dbHeaders });
       if (cacheRes.ok) {
@@ -280,10 +371,11 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ success: true, shareSlug: cached[0].share_slug, cached: true });
         }
       }
-      // Reverse check
+      // Reverse check (also locale-scoped — see forward note above)
       const revRes = await fetch(`${supabaseUrl}/rest/v1/compatibility_results?${new URLSearchParams({
         person_a_birth_date: `eq.${bdStrB}`, person_a_birth_hour: `eq.${hourB}`,
         person_b_birth_date: `eq.${bdStrA}`, person_b_birth_hour: `eq.${hourA}`,
+        locale: `eq.${locale}`,
         select: "share_slug,free_summary", limit: "1",
       })}`, { headers: dbHeaders });
       if (revRes.ok) {
@@ -651,6 +743,96 @@ export async function POST(request: NextRequest) {
             } catch {}
           }
         }
+
+        // ════════════════════════════════════════════════════════════
+        // v6.17.28 — Language verification for paid_* fields
+        // ════════════════════════════════════════════════════════════
+        // The free_summary already has a language check (above), but
+        // paid_* (love/work/friendship/conflict/yearly) had no
+        // verification at all — letting Gemini occasionally leak
+        // Chinese (from RAG passages) into English/other-locale
+        // responses. This caused chandler's c-kcd55vza row to render
+        // Chinese paid_* in the English UI.
+        //
+        // For each field that didn't match the requested locale, we
+        // re-call Claude with the exact same prompt that produced the
+        // bucket. If Claude also fails or also returns wrong language,
+        // we keep the original (worst case === current behavior).
+        //
+        // This runs in the background after the response, so any
+        // latency added here doesn't affect the user-perceived
+        // response time. Polling on result_client.tsx (every 3s, up
+        // to 8 attempts) catches the corrected content.
+        // ════════════════════════════════════════════════════════════
+        const langFixTargets: Array<{ field: string; promptBuilder: (s: any, l: string) => string; jsonKey: string; altKeys: string[] }> = [
+          { field: "paid_love",       promptBuilder: buildPaidCompatPrompt1, jsonKey: "love",       altKeys: ["연애", "恋愛"] },
+          { field: "paid_work",       promptBuilder: buildPaidCompatPrompt1, jsonKey: "work",       altKeys: ["직장", "仕事"] },
+          { field: "paid_friendship", promptBuilder: buildPaidCompatPrompt2, jsonKey: "friendship", altKeys: ["우정", "友情"] },
+          { field: "paid_conflict",   promptBuilder: buildPaidCompatPrompt2, jsonKey: "conflict",   altKeys: ["갈등", "葛藤"] },
+          { field: "paid_yearly",     promptBuilder: buildPaidCompatPrompt3, jsonKey: "yearly",     altKeys: ["연간", "年間"] },
+        ];
+
+        // Group by promptBuilder so we don't make the same Claude call
+        // 2-3 times for love+work (which share the same prompt).
+        const prompts = new Map<string, string>();
+        for (const t of langFixTargets) {
+          if (!patch[t.field]) continue; // not generated yet; nothing to verify
+          if (isLocaleMatch(patch[t.field], locale)) continue; // language OK
+          // mark the bucket as needing re-generation
+          const promptKey = t.promptBuilder === buildPaidCompatPrompt1 ? "p1" :
+                            t.promptBuilder === buildPaidCompatPrompt2 ? "p2" : "p3";
+          if (!prompts.has(promptKey)) {
+            prompts.set(promptKey, ragPrefix + t.promptBuilder(scores, locale));
+          }
+        }
+
+        if (prompts.size > 0) {
+          console.log(`[compat-generate] LangFix triggered for locale=${locale}, buckets=${Array.from(prompts.keys()).join(",")}`);
+          const fixResults = await Promise.allSettled(
+            Array.from(prompts.entries()).map(async ([key, prompt]) => ({
+              key,
+              raw: await callClaudeFallback(prompt, `LangFix-${key}`),
+            }))
+          );
+          for (const fr of fixResults) {
+            if (fr.status !== "fulfilled" || !fr.value?.raw) continue;
+            const { key, raw } = fr.value;
+            try {
+              const parsed = parseJSON(raw);
+              if (key === "p1") {
+                const love = parsed.love || parsed["연애"] || parsed["恋愛"] || "";
+                const work = parsed.work || parsed["직장"] || parsed["仕事"] || "";
+                if (love && isLocaleMatch(love, locale)) patch.paid_love = love;
+                if (work && isLocaleMatch(work, locale)) patch.paid_work = work;
+                if (!love || !work) {
+                  const vals = Object.values(parsed).filter((v: any) => typeof v === "string" && v.length > 50) as string[];
+                  if (!love && vals[0] && isLocaleMatch(vals[0], locale)) patch.paid_love = vals[0];
+                  if (!work && vals[1] && isLocaleMatch(vals[1], locale)) patch.paid_work = vals[1];
+                }
+              } else if (key === "p2") {
+                const fr2 = parsed.friendship || parsed["우정"] || parsed["友情"] || "";
+                const cf = parsed.conflict || parsed["갈등"] || parsed["葛藤"] || "";
+                if (fr2 && isLocaleMatch(fr2, locale)) patch.paid_friendship = fr2;
+                if (cf && isLocaleMatch(cf, locale)) patch.paid_conflict = cf;
+                if (!fr2 || !cf) {
+                  const vals = Object.values(parsed).filter((v: any) => typeof v === "string" && v.length > 50) as string[];
+                  if (!fr2 && vals[0] && isLocaleMatch(vals[0], locale)) patch.paid_friendship = vals[0];
+                  if (!cf && vals[1] && isLocaleMatch(vals[1], locale)) patch.paid_conflict = vals[1];
+                }
+              } else if (key === "p3") {
+                const yearly = parsed.yearly || parsed["연간"] || parsed["年間"] || "";
+                if (yearly && isLocaleMatch(yearly, locale)) patch.paid_yearly = yearly;
+                if (!yearly) {
+                  const vals = Object.values(parsed).filter((v: any) => typeof v === "string" && v.length > 50) as string[];
+                  if (vals[0] && isLocaleMatch(vals[0], locale)) patch.paid_yearly = vals[0];
+                }
+              }
+            } catch {
+              // parse failed — keep original Gemini output (worst case === current behavior)
+            }
+          }
+        }
+
         if (Object.keys(patch).length === 0) return;
         try {
           await fetch(

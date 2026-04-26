@@ -912,13 +912,12 @@ export default function SoramChatPage() {
                 {t.todayOneLeft}
               </span>
             ) : (
-              <button
-                type="button"
-                onClick={() => router.push("/pricing?plan=companion")}
-                className="text-xs text-amber-200/60 hover:text-amber-200 underline-offset-4 hover:underline truncate transition-colors"
-              >
+              // v6.17.28: chandler 명시 — 헤더에서 pricing으로 가는 링크 제거.
+              // 결제 안내는 채팅 안 paywall 카드로 충분히 표시되므로 헤더는
+              // 단순 상태 텍스트만 보여주도록 button → span으로 변경.
+              <span className="text-xs text-amber-200/60 truncate">
                 {t.todayUsed}
-              </button>
+              </span>
             )}
           </div>
         </div>
