@@ -7,6 +7,9 @@ import { createSign } from "crypto";
  *
  * STRICT MODE — Stage 1.4 hardened version (audit fixes B-2, B-3, B-4 applied).
  *
+ * v6.17.27: extended to handle compat_full (one-time, $2.99) and
+ * soram_companion_monthly (auto-renewable subscription, $4.99/mo).
+ *
  * Auth:
  * - Requires Authorization: Bearer {supabase_access_token}
  * - Server resolves user.id from token. The body's userId is IGNORED.
@@ -14,7 +17,8 @@ import { createSign } from "crypto";
  * Receipt verification:
  * - Apple: requires APPLE_SHARED_SECRET. No soft-accept fallback.
  * - Google: requires GOOGLE_SERVICE_ACCOUNT_KEY. Calls Google Play Developer
- *   API to verify the purchase token.
+ *   API to verify the purchase token. Subscriptions use the
+ *   purchases.subscriptionsv2 endpoint; one-time uses purchases.products.
  *
  * Idempotency: enforced via iap_transactions(platform, transaction_id) UNIQUE.
  * Failed transactions are auto-retried (failed row is replaced).
@@ -31,11 +35,28 @@ const supabase = createClient(
 const PRODUCT_FULL_READING = "full_destiny_reading";
 const PRODUCT_FULL_READING_V2 = "full_destiny_reading_v2"; // iOS Consumable replacement
 const PRODUCT_MASTER_CONSULT = "master_consultation_5";
+const PRODUCT_COMPAT_FULL = "compat_full";
+const PRODUCT_SORAM_COMPANION = "soram_companion_monthly";
 const ANDROID_PACKAGE_NAME = "com.rimfactory.sajuastrology";
 
 /** Returns true if the product ID is any variant of the full reading product */
 function isFullReadingProduct(pid: string): boolean {
   return pid === PRODUCT_FULL_READING || pid === PRODUCT_FULL_READING_V2;
+}
+
+/** Returns true if this product is an auto-renewable subscription */
+function isSubscriptionProduct(pid: string): boolean {
+  return pid === PRODUCT_SORAM_COMPANION;
+}
+
+/** Returns true if this is a known/handled product */
+function isKnownProduct(pid: string): boolean {
+  return (
+    isFullReadingProduct(pid) ||
+    pid === PRODUCT_MASTER_CONSULT ||
+    pid === PRODUCT_COMPAT_FULL ||
+    isSubscriptionProduct(pid)
+  );
 }
 
 interface VerifyRequest {
@@ -63,6 +84,7 @@ export async function POST(request: NextRequest) {
       return jsonError("Invalid or expired token", 401);
     }
     const authenticatedUserId = authData.user.id;
+    const authenticatedUserEmail = authData.user.email || null;
 
     // ── 2. Parse and validate body ──
     const body: VerifyRequest = await request.json();
@@ -74,11 +96,15 @@ export async function POST(request: NextRequest) {
     if (!receipt || typeof receipt !== "string" || receipt.length < 10) {
       return jsonError("Missing or invalid receipt", 400);
     }
-    if (!isFullReadingProduct(productId) && productId !== PRODUCT_MASTER_CONSULT) {
+    if (!isKnownProduct(productId)) {
       return jsonError("Unknown product", 400);
     }
-    if (isFullReadingProduct(productId) && !shareSlug) {
-      return jsonError("Missing shareSlug for reading purchase", 400);
+    // Reading and compat products require shareSlug to know which row to unlock
+    if (
+      (isFullReadingProduct(productId) || productId === PRODUCT_COMPAT_FULL) &&
+      !shareSlug
+    ) {
+      return jsonError("Missing shareSlug for per-reading purchase", 400);
     }
 
     // ── 3. Verify the receipt with the platform ──
@@ -125,6 +151,19 @@ export async function POST(request: NextRequest) {
       // Already processed. If a different user is now claiming it, refuse.
       if (existing.user_id && existing.user_id !== authenticatedUserId) {
         return jsonError("Transaction already claimed by another user", 409);
+      }
+      // For subscriptions, "already processed" is the normal state for
+      // restored events (renewals). Refresh the period_end based on the
+      // current subscription state from the store, then return success.
+      if (isSubscriptionProduct(productId)) {
+        await activateSoramSubscription(
+          authenticatedUserId,
+          authenticatedUserEmail,
+          platform,
+          transactionId,
+          verify.subscriptionPeriodEnd,
+          verify.subscriptionPeriodStart
+        );
       }
       return NextResponse.json({ success: true, already_processed: true });
     }
@@ -194,10 +233,31 @@ export async function POST(request: NextRequest) {
     }
 
     // ── 6. Deliver content ──
-    const deliver =
-      isFullReadingProduct(productId)
-        ? await unlockReading(shareSlug!, platform, authenticatedUserId)
-        : await addConsultationCredits(authenticatedUserId, transactionId);
+    let deliver: { ok: boolean; error?: string };
+    if (isFullReadingProduct(productId)) {
+      deliver = await unlockReading(shareSlug!, platform, authenticatedUserId);
+    } else if (productId === PRODUCT_MASTER_CONSULT) {
+      deliver = await addConsultationCredits(authenticatedUserId, transactionId);
+    } else if (productId === PRODUCT_COMPAT_FULL) {
+      deliver = await unlockCompatibility(
+        shareSlug!,
+        platform,
+        authenticatedUserId,
+        authenticatedUserEmail,
+        transactionId
+      );
+    } else if (productId === PRODUCT_SORAM_COMPANION) {
+      deliver = await activateSoramSubscription(
+        authenticatedUserId,
+        authenticatedUserEmail,
+        platform,
+        transactionId,
+        verify.subscriptionPeriodEnd,
+        verify.subscriptionPeriodStart
+      );
+    } else {
+      deliver = { ok: false, error: "No delivery handler for product" };
+    }
 
     if (!deliver.ok) {
       await supabase
@@ -241,6 +301,9 @@ interface VerifyResult {
   ok: boolean;
   transactionId?: string;
   error?: string;
+  // Subscription-specific (only set for subscription products)
+  subscriptionPeriodStart?: string;
+  subscriptionPeriodEnd?: string;
 }
 
 async function verifyApple(
@@ -283,6 +346,7 @@ interface AppleSK2Payload {
   bundleId: string;
   productId: string;
   purchaseDate?: number;
+  expirationDate?: number;
   environment?: "Sandbox" | "Production";
   inAppOwnershipType?: string;
   type?: string;
@@ -332,7 +396,22 @@ function verifyAppleStoreKit2(
   if (payload.revocationDate) {
     return { ok: false, error: "Purchase was refunded or revoked" };
   }
-  return { ok: true, transactionId: `apple_${payload.transactionId}` };
+
+  const result: VerifyResult = {
+    ok: true,
+    transactionId: `apple_${payload.transactionId}`,
+  };
+
+  // For subscriptions, surface period bounds for activateSoramSubscription.
+  if (isSubscriptionProduct(expectedProductId)) {
+    if (payload.purchaseDate) {
+      result.subscriptionPeriodStart = new Date(payload.purchaseDate).toISOString();
+    }
+    if (payload.expirationDate) {
+      result.subscriptionPeriodEnd = new Date(payload.expirationDate).toISOString();
+    }
+  }
+  return result;
 }
 
 /**
@@ -403,7 +482,25 @@ async function verifyAppleLegacy(
         if (matching.cancellation_date) {
           return { ok: false, error: "Purchase was refunded" };
         }
-        return { ok: true, transactionId: `apple_${txn}` };
+
+        const result: VerifyResult = {
+          ok: true,
+          transactionId: `apple_${txn}`,
+        };
+
+        // Subscription period bounds for legacy receipts come from
+        // purchase_date_ms and expires_date_ms (subscription-only fields).
+        if (isSubscriptionProduct(expectedProductId)) {
+          const startMs = parseInt(matching.purchase_date_ms || "0", 10);
+          const endMs = parseInt(matching.expires_date_ms || "0", 10);
+          if (startMs > 0) {
+            result.subscriptionPeriodStart = new Date(startMs).toISOString();
+          }
+          if (endMs > 0) {
+            result.subscriptionPeriodEnd = new Date(endMs).toISOString();
+          }
+        }
+        return result;
       }
 
       if (data.status === 21007) continue;
@@ -508,6 +605,35 @@ async function verifyGoogle(
     return { ok: false, error: "Google authentication failed" };
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // v6.17.27: Subscriptions and one-time products use different APIs.
+  // Subscriptions: purchases.subscriptionsv2.get
+  // One-time:      purchases.products.get
+  // ─────────────────────────────────────────────────────────────
+  if (isSubscriptionProduct(productId)) {
+    return verifyGoogleSubscription(
+      packageName,
+      purchaseToken,
+      accessToken,
+      orderIdFromReceipt
+    );
+  }
+  return verifyGoogleProduct(
+    packageName,
+    productId,
+    purchaseToken,
+    accessToken,
+    orderIdFromReceipt
+  );
+}
+
+async function verifyGoogleProduct(
+  packageName: string,
+  productId: string,
+  purchaseToken: string,
+  accessToken: string,
+  orderIdFromReceipt: string | undefined
+): Promise<VerifyResult> {
   const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${encodeURIComponent(packageName)}/purchases/products/${encodeURIComponent(productId)}/tokens/${encodeURIComponent(purchaseToken)}`;
 
   let res: Response;
@@ -516,13 +642,13 @@ async function verifyGoogle(
       headers: { Authorization: `Bearer ${accessToken}` },
     });
   } catch (err: any) {
-    console.error("[verify-iap-v2] Google API fetch error:", err?.message || err);
+    console.error("[verify-iap-v2] Google products API fetch error:", err?.message || err);
     return { ok: false, error: "Google verification request failed" };
   }
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    console.error(`[verify-iap-v2] Google API ${res.status}: ${text}`);
+    console.error(`[verify-iap-v2] Google products API ${res.status}: ${text}`);
     return {
       ok: false,
       error: `Google verification failed: ${res.status}`,
@@ -541,6 +667,98 @@ async function verifyGoogle(
 
   const txnId = `google_${data.orderId || orderIdFromReceipt || hashString(purchaseToken)}`;
   return { ok: true, transactionId: txnId };
+}
+
+/**
+ * Verify a Google Play subscription via the subscriptionsv2 API.
+ *
+ * The v2 endpoint is the modern (Aug 2022+) replacement for the deprecated
+ * `purchases.subscriptions.get`. It returns SubscriptionPurchaseV2 with
+ * lineItems[] (each item carries productId + expiryTime). For our single-
+ * product subscriptions (Soram Companion only), there's exactly one
+ * lineItem and we derive the period from its expiryTime.
+ *
+ * Docs:
+ * https://developers.google.com/android-publisher/api-ref/rest/v3/purchases.subscriptionsv2/get
+ */
+async function verifyGoogleSubscription(
+  packageName: string,
+  purchaseToken: string,
+  accessToken: string,
+  orderIdFromReceipt: string | undefined
+): Promise<VerifyResult> {
+  const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${encodeURIComponent(packageName)}/purchases/subscriptionsv2/tokens/${encodeURIComponent(purchaseToken)}`;
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  } catch (err: any) {
+    console.error("[verify-iap-v2] Google subs API fetch error:", err?.message || err);
+    return { ok: false, error: "Google subscription verification request failed" };
+  }
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    console.error(`[verify-iap-v2] Google subs API ${res.status}: ${text}`);
+    return {
+      ok: false,
+      error: `Google subscription verification failed: ${res.status}`,
+    };
+  }
+
+  const data: any = await res.json();
+  // subscriptionState values:
+  //   SUBSCRIPTION_STATE_UNSPECIFIED, SUBSCRIPTION_STATE_PENDING,
+  //   SUBSCRIPTION_STATE_ACTIVE, SUBSCRIPTION_STATE_PAUSED,
+  //   SUBSCRIPTION_STATE_IN_GRACE_PERIOD, SUBSCRIPTION_STATE_ON_HOLD,
+  //   SUBSCRIPTION_STATE_CANCELED, SUBSCRIPTION_STATE_EXPIRED
+  const state = data.subscriptionState as string | undefined;
+  const acceptableStates = new Set([
+    "SUBSCRIPTION_STATE_ACTIVE",
+    "SUBSCRIPTION_STATE_IN_GRACE_PERIOD",
+    // CANCELED with a future expiry is OK — user has access until expiry.
+    "SUBSCRIPTION_STATE_CANCELED",
+  ]);
+  if (!state || !acceptableStates.has(state)) {
+    return {
+      ok: false,
+      error: `Subscription state not active (state: ${state || "unknown"})`,
+    };
+  }
+
+  const lineItems: any[] = Array.isArray(data.lineItems) ? data.lineItems : [];
+  const item = lineItems[0];
+  if (!item) {
+    return { ok: false, error: "Subscription has no line items" };
+  }
+
+  // For canceled state, only honor if expiryTime is in the future.
+  const expiryTime: string | undefined = item.expiryTime;
+  if (state === "SUBSCRIPTION_STATE_CANCELED") {
+    if (!expiryTime || new Date(expiryTime).getTime() <= Date.now()) {
+      return { ok: false, error: "Subscription has been canceled and expired" };
+    }
+  }
+
+  // latestOrderId is the most recent order in the subscription chain.
+  // We use it as the transaction_id so renewals each get their own
+  // iap_transactions row. If absent, fall back to a hash of the token.
+  const latestOrderId =
+    data.latestOrderId || orderIdFromReceipt || hashString(purchaseToken);
+  const txnId = `google_${latestOrderId}`;
+
+  // Period start: prefer startTime from the response (the original purchase),
+  // fall back to "now" minus 1 month for safety.
+  const startTime: string | undefined = data.startTime;
+
+  return {
+    ok: true,
+    transactionId: txnId,
+    subscriptionPeriodStart: startTime || new Date().toISOString(),
+    subscriptionPeriodEnd: expiryTime,
+  };
 }
 
 // ── Google OAuth via JWT Bearer ──
@@ -673,5 +891,141 @@ async function addConsultationCredits(
     console.error("addConsultationCredits error:", error);
     return { ok: false, error: `Failed to add credits: ${error.message}` };
   }
+  return { ok: true };
+}
+
+/**
+ * v6.17.27: Unlock a compatibility result row after IAP payment.
+ * Mirrors PayPal's verify-compatibility flow but uses the iap_<platform>
+ * transaction id for paypal_order_id (existing schema; the column name
+ * is historical — it stores any payment provider's order id).
+ */
+async function unlockCompatibility(
+  shareSlug: string,
+  platform: string,
+  userId: string,
+  userEmail: string | null,
+  transactionId: string
+): Promise<{ ok: boolean; error?: string }> {
+  // Existence check
+  const { data: existing, error: fetchErr } = await supabase
+    .from("compatibility_results")
+    .select("is_paid, user_id")
+    .eq("share_slug", shareSlug)
+    .maybeSingle();
+
+  if (fetchErr) {
+    console.error("unlockCompatibility fetch error:", fetchErr);
+    return { ok: false, error: `Failed to fetch compatibility: ${fetchErr.message}` };
+  }
+  if (!existing) {
+    return { ok: false, error: "Compatibility result not found" };
+  }
+  if (existing.is_paid === true) {
+    // Already unlocked — return ok so the client UI can proceed.
+    return { ok: true };
+  }
+
+  const update: Record<string, unknown> = {
+    is_paid: true,
+    customer_email: userEmail || "",
+    paypal_order_id: transactionId, // schema-compatible: stores iap txn id
+  };
+  // Claim ownership only if currently anonymous, mirroring readings pattern.
+  if (!existing.user_id) {
+    update.user_id = userId;
+  }
+
+  const { error } = await supabase
+    .from("compatibility_results")
+    .update(update)
+    .eq("share_slug", shareSlug);
+
+  if (error) {
+    console.error("unlockCompatibility update error:", error);
+    return { ok: false, error: `Failed to unlock compatibility: ${error.message}` };
+  }
+  return { ok: true };
+}
+
+/**
+ * v6.17.27: Activate (or refresh) a Soram Companion subscription row in
+ * soram_subscriptions for the IAP user. Matches PayPal verify-companion
+ * upsert pattern: PATCH by paypal_subscription_id, fall back to INSERT.
+ *
+ * Schema reuse decision (chandler "기존 함수 수정 금지, append만"):
+ *   - platform: "google" or "apple" (PayPal uses "paypal")
+ *   - paypal_subscription_id: the IAP transaction id (e.g., "google_GPA....")
+ *     This column historically stored the PayPal subscription id; we reuse
+ *     it as the unique-per-store-subscription identifier so the existing
+ *     /api/v1/soram/usage entitlement check (user_id + status='active')
+ *     keeps working without schema changes.
+ *   - paypal_plan_id: null for IAP (Apple/Google have no plan id concept)
+ *   - custom_id: null for IAP (no PayPal custom_id JSON)
+ */
+async function activateSoramSubscription(
+  userId: string,
+  userEmail: string | null,
+  platform: string,
+  transactionId: string,
+  periodEnd: string | undefined,
+  periodStart: string | undefined
+): Promise<{ ok: boolean; error?: string }> {
+  // Fallback period bounds if the receipt didn't carry them (defensive —
+  // ACTIVE state implies a valid period; expiryTime should always be set).
+  const startIso = periodStart || new Date().toISOString();
+  const endIso =
+    periodEnd ||
+    new Date(Date.now() + 31 * 24 * 60 * 60 * 1000).toISOString();
+
+  const upsertBody: Record<string, unknown> = {
+    user_id: userId,
+    platform, // "apple" or "google"
+    paypal_subscription_id: transactionId, // IAP txn id (column reuse)
+    paypal_plan_id: null,
+    status: "active",
+    current_period_start: startIso,
+    current_period_end: endIso,
+    subscriber_email: userEmail,
+    custom_id: null,
+  };
+
+  // Try update first by transaction id (most precise — handles renewals
+  // where Google emits the same purchase token but a new latestOrderId).
+  const { data: updated, error: updErr } = await supabase
+    .from("soram_subscriptions")
+    .update(upsertBody)
+    .eq("paypal_subscription_id", transactionId)
+    .select("id");
+
+  if (updErr) {
+    console.error("activateSoramSubscription update error:", updErr);
+    return { ok: false, error: `Failed to update subscription: ${updErr.message}` };
+  }
+
+  if (Array.isArray(updated) && updated.length > 0) {
+    return { ok: true };
+  }
+
+  // No row matched on transaction_id — insert a new row.
+  const { error: insErr } = await supabase
+    .from("soram_subscriptions")
+    .insert(upsertBody);
+
+  if (insErr) {
+    // Possible benign race: another verify call inserted the row between
+    // our update and insert. Re-check by transaction id.
+    const { data: raceRow } = await supabase
+      .from("soram_subscriptions")
+      .select("id")
+      .eq("paypal_subscription_id", transactionId)
+      .maybeSingle();
+    if (raceRow) {
+      return { ok: true };
+    }
+    console.error("activateSoramSubscription insert error:", insErr);
+    return { ok: false, error: `Failed to insert subscription: ${insErr.message}` };
+  }
+
   return { ok: true };
 }
