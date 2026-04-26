@@ -56,6 +56,29 @@ function shouldDeductCredit(routing: SoramRouting): boolean {
   return routing === "saju_question";
 }
 
+// ════════════════════════════════════════════════════════════════════
+// v6.16.1 — locale-aware "all engines down" fallback message
+// ════════════════════════════════════════════════════════════════════
+// When all 4 AI engines fail, the user must NOT see English text if
+// they're chatting in another language. This is the last line of
+// defense before showing them a generic 503.
+// ════════════════════════════════════════════════════════════════════
+const ENGINE_DOWN_MESSAGE: Record<string, string> = {
+  ko: "소람이 잠시 깊은 명상에 들었습니다. 곧 다시 찾아주시기 바랍니다.",
+  ja: "ソラムは少しの間、深い瞑想に入っております。しばらくしてから、もう一度お尋ねくださいませ。",
+  en: "Soram has retreated into deep meditation for a moment. Please return shortly.",
+  es: "Soram se ha retirado a una profunda meditación por un momento. Por favor, vuelve en breve.",
+  fr: "Soram s'est retiré en méditation profonde pour un instant. Reviens dans un moment.",
+  pt: "Soram se recolheu em meditação profunda por um momento. Por favor, retorne em breve.",
+  "zh-TW": "索藍暫入深定，請稍後再來相問。",
+  ru: "Сорам ненадолго погрузился в глубокую медитацию. Пожалуйста, вернись чуть позже.",
+  hi: "सोरम कुछ समय के लिए गहरे ध्यान में लीन है। कृपया कुछ देर बाद फिर पधारें।",
+  id: "Soram sedang dalam meditasi mendalam sejenak. Silakan kembali sebentar lagi.",
+};
+function getEngineDownMessage(locale: string): string {
+  return ENGINE_DOWN_MESSAGE[locale] || ENGINE_DOWN_MESSAGE.en;
+}
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
@@ -107,18 +130,30 @@ async function callGemini(
     generationConfig.thinkingConfig = { thinkingBudget: 0 };
   }
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: [{ parts: [{ text: userPrompt }] }],
-        generationConfig,
-      }),
-    }
-  );
+  // v6.16.1: explicit 25s per-call timeout via AbortController. The
+  // route-level maxDuration is 60s; if one engine hangs we want to
+  // bail and try the next one well before that.
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), 25000);
+
+  let res: Response;
+  try {
+    res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ parts: [{ text: userPrompt }] }],
+          generationConfig,
+        }),
+        signal: controller.signal,
+      }
+    );
+  } finally {
+    clearTimeout(t);
+  }
 
   if (!res.ok) {
     const err = await res.text();
@@ -146,24 +181,34 @@ async function callClaude(
   const apiKey = process.env.ANTHROPIC_API_KEY || "";
   if (!apiKey) throw new Error("Engine 2 not configured");
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 1500,
-      // v6.16: explicit temp for variety. Claude default is 1.0; we hold
-      // it slightly lower to keep the scholarly register stable while
-      // still varying the angle of approach.
-      temperature: 0.85,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
-    }),
-  });
+  // v6.16.1: explicit 25s per-call timeout (same rationale as Gemini).
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), 25000);
+
+  let res: Response;
+  try {
+    res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 1500,
+        // v6.16: explicit temp for variety. Claude default is 1.0; we hold
+        // it slightly lower to keep the scholarly register stable while
+        // still varying the angle of approach.
+        temperature: 0.85,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userPrompt }],
+      }),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(t);
+  }
 
   if (!res.ok) {
     const err = await res.text();
@@ -184,7 +229,10 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 2): Promise<T> {
       const msg = err instanceof Error ? err.message : String(err);
       const isTransient = /\b(429|5\d\d|529)\b/.test(msg);
       if (!isTransient || i === attempts - 1) throw err;
-      await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+      // v6.16.1: 800ms → 400ms. With 4-engine fallback we want to fail
+      // fast within an engine and let the next engine try, rather than
+      // burning seconds backing off inside one.
+      await new Promise((r) => setTimeout(r, 400 * (i + 1)));
     }
   }
   throw lastErr;
@@ -364,19 +412,30 @@ async function fetchRelatedTurns(
   }
 }
 
-/** Assemble all three tiers in parallel. Never throws. */
+/** Assemble all three tiers in parallel. Never throws.
+ *  v6.16.1: hard 2-second cap on the entire memory build. If Supabase
+ *  is slow or down, we proceed with EMPTY_MEMORY rather than make the
+ *  user wait. Chat answers without memory still work (just less
+ *  personalized) — chat answers that don't arrive are useless. */
 async function buildMemory(
   userId: string,
   question: string
 ): Promise<MemoryBundle> {
+  const MEMORY_TIMEOUT_MS = 2000;
   try {
-    const [recent, profile] = await Promise.all([
-      fetchRecentTurns(userId, 5),
-      fetchProfileSummary(userId),
-    ]);
-    const recentCreated = recent.map((r) => r.created_at);
-    const related = await fetchRelatedTurns(userId, question, recentCreated, 3);
-    return { recentTurns: recent, profileSummary: profile, relatedTurns: related };
+    const work = (async (): Promise<MemoryBundle> => {
+      const [recent, profile] = await Promise.all([
+        fetchRecentTurns(userId, 5),
+        fetchProfileSummary(userId),
+      ]);
+      const recentCreated = recent.map((r) => r.created_at);
+      const related = await fetchRelatedTurns(userId, question, recentCreated, 3);
+      return { recentTurns: recent, profileSummary: profile, relatedTurns: related };
+    })();
+    const timeout = new Promise<MemoryBundle>((resolve) =>
+      setTimeout(() => resolve(EMPTY_MEMORY), MEMORY_TIMEOUT_MS)
+    );
+    return await Promise.race([work, timeout]);
   } catch {
     return EMPTY_MEMORY;
   }
@@ -1000,15 +1059,30 @@ export async function POST(request: NextRequest) {
       engineId = result.engineId;
     } catch (err: any) {
       console.error("[soram] generation failed:", err.message);
+      // v6.16.1: localized message + return as `answer` field instead of
+      // pure error. This way the chat UI shows it as a soft "Soram is
+      // resting" reply rather than a hard error pop-up. Still 503 so
+      // callers can detect it server-side, but the user sees something
+      // graceful in their own language.
       return NextResponse.json(
-        { error: "Soram is meditating. Please try again in a moment." },
+        {
+          error: "engines_unavailable",
+          answer: getEngineDownMessage(locale) + "\n\n— 소람 🌙",
+          routing: "saju_question",
+          deducted: false,
+        },
         { status: 503 }
       );
     }
 
     if (!answer) {
       return NextResponse.json(
-        { error: "Soram is meditating. Please try again in a moment." },
+        {
+          error: "empty_response",
+          answer: getEngineDownMessage(locale) + "\n\n— 소람 🌙",
+          routing: "saju_question",
+          deducted: false,
+        },
         { status: 503 }
       );
     }
@@ -1127,10 +1201,27 @@ export async function POST(request: NextRequest) {
     });
   } catch (err: any) {
     console.error("[soram] uncaught error:", err.message, err.stack);
+    // v6.16.1: try to recover the locale even when the request body
+    // failed to parse. Default to 'ko' as the primary market.
+    let safeLocale = "ko";
+    try {
+      // request.json() can be called only once; in the catch we don't
+      // have access to body. Best-effort: peek at the URL or headers
+      // for a language hint, fall back to 'ko'.
+      const accept = request.headers.get("accept-language") || "";
+      const head = accept.split(",")[0].trim().toLowerCase();
+      const hit = ["ko", "ja", "en", "es", "fr", "pt", "ru", "hi", "id"].find(
+        (l) => head.startsWith(l)
+      );
+      if (hit) safeLocale = hit;
+      else if (head.startsWith("zh")) safeLocale = "zh-TW";
+    } catch {}
     return NextResponse.json(
       {
-        error: "Soram is meditating. Please try again in a moment.",
-        debug: err.message,  // 디버깅용 — 나중에 제거
+        error: "server_error",
+        answer: getEngineDownMessage(safeLocale) + "\n\n— 소람 🌙",
+        routing: "saju_question",
+        deducted: false,
       },
       { status: 500 }
     );
