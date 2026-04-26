@@ -294,9 +294,20 @@ export function Navbar() {
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 md:h-20 items-center justify-between">
-            <Link href={homeHref} className="flex items-center">
+            {/* v6.17.17 — constrain logo Link to its image width.
+                Symptom: hamburger taps registered nothing in mobile
+                viewports. The logo's <Link> wrapper had no max-width
+                and `flex items-center` stretches as wide as the
+                parent allows; on a 380px viewport the link was
+                covering the hamburger button area, intercepting
+                taps. Adding `flex-none` (don't grow) plus an
+                explicit max-w on the image forces the link to size
+                to its content. The hamburger group also gets
+                `shrink-0` and `relative z-[60]` so it sits above
+                any sibling that might still extend. */}
+            <Link href={homeHref} className="flex items-center flex-none">
               <Image src="/logo1.png" alt="SajuAstrology" width={150} height={44}
-                className="h-10 md:h-12 w-auto object-contain" priority />
+                className="h-10 md:h-12 w-auto max-w-[180px] object-contain" priority />
             </Link>
 
             <div className="hidden md:flex md:items-center md:gap-8">
@@ -323,7 +334,7 @@ export function Navbar() {
               )}
             </div>
 
-            <div className="flex md:hidden items-center gap-1">
+            <div className="flex md:hidden items-center gap-1 shrink-0 relative z-[60]">
               <LangDropdown compact />
               <button
                 onClick={() => {
