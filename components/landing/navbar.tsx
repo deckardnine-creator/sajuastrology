@@ -417,33 +417,50 @@ export function Navbar() {
             // ════════════════════════════════════════════════════════
             className="fixed top-16 right-0 left-0 bottom-16 z-[45] bg-background/98 backdrop-blur-sm md:hidden overflow-y-auto"
           >
-            <div className="flex flex-col items-center pt-6 pb-10 px-6 gap-3">
-              <Link href={homeHref} className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.home")}</Link>
-              <Link href="/what-is-saju" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.whatIsSaju")}</Link>
-              <Link href="/pricing" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>
-              <Link href="/compatibility" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.compatibility")}</Link>
-              <Link href="/consultation" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.consultation")}</Link>
-              <Link href="/letter" className="text-lg text-foreground font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{letterLabel}</Link>
+            {/* v6.17.21 — tighter spacing per chandler ("글자행
+                간격 더 좁히고 스크롤 내려서 밑에까지 나오지 않게"):
+                  • text-lg → text-base    (18px → 16px)
+                  • min-h-[44px] → 40px    (still meets touch target)
+                  • gap-3 → gap-0.5        (12px → 2px between items)
+                  • pt-6 pb-10 → pt-4 pb-4 (less vertical padding)
+                  • footer mt-auto removed → flows after CTA, doesn't
+                    push to BottomNav-overlap area
+                Items now fit comfortably above the BottomNav on
+                small viewports without scrolling. If the user is
+                signed in (extra dashboard + signOut entries), the
+                container scrolls cleanly inside its top-16 / bottom-16
+                bounds. */}
+            <div className="flex flex-col items-center pt-4 pb-4 px-6 gap-0.5">
+              <Link href={homeHref} className="text-base text-foreground font-medium min-h-[40px] flex items-center" onClick={closeMenu}>{t("nav.home")}</Link>
+              <Link href="/what-is-saju" className="text-base text-foreground font-medium min-h-[40px] flex items-center" onClick={closeMenu}>{t("nav.whatIsSaju")}</Link>
+              <Link href="/pricing" className="text-base text-foreground font-medium min-h-[40px] flex items-center" onClick={closeMenu}>{t("nav.pricing")}</Link>
+              <Link href="/compatibility" className="text-base text-foreground font-medium min-h-[40px] flex items-center" onClick={closeMenu}>{t("nav.compatibility")}</Link>
+              <Link href="/consultation" className="text-base text-foreground font-medium min-h-[40px] flex items-center" onClick={closeMenu}>{t("nav.consultation")}</Link>
+              <Link href="/letter" className="text-base text-foreground font-medium min-h-[40px] flex items-center" onClick={closeMenu}>{letterLabel}</Link>
 
-              <div className="w-16 h-px bg-border/50 my-2" />
+              <div className="w-12 h-px bg-border/50 my-1.5" />
 
               {(isLoading || isSigningOut) ? (
-                <div className="h-[44px] w-24 bg-muted/30 rounded-lg animate-pulse" />
+                <div className="h-[40px] w-24 bg-muted/30 rounded-lg animate-pulse" />
               ) : user ? (
                 <>
-                  <Link href="/dashboard" className="text-lg text-primary font-medium min-h-[44px] flex items-center" onClick={closeMenu}>{t("nav.dashboard")}</Link>
-                  <button onClick={handleSignOut} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signOut")}</button>
+                  <Link href="/dashboard" className="text-base text-primary font-medium min-h-[40px] flex items-center" onClick={closeMenu}>{t("nav.dashboard")}</Link>
+                  <button onClick={handleSignOut} className="text-base text-muted-foreground font-medium min-h-[40px]">{t("nav.signOut")}</button>
                 </>
               ) : (
-                <button onClick={() => { closeMenu(); openSignInModal() }} className="text-lg text-muted-foreground font-medium min-h-[44px]">{t("nav.signIn")}</button>
+                <button onClick={() => { closeMenu(); openSignInModal() }} className="text-base text-muted-foreground font-medium min-h-[40px]">{t("nav.signIn")}</button>
               )}
 
               <Link href="/calculate" onClick={closeMenu} className="mt-2 w-full max-w-xs">
-                <Button className="w-full h-12 gold-gradient text-primary-foreground font-semibold text-base">{t("nav.getReading")}</Button>
+                <Button className="w-full h-11 gold-gradient text-primary-foreground font-semibold text-sm">{t("nav.getReading")}</Button>
               </Link>
 
-              {/* Footer links — Privacy, Terms, Contact */}
-              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-auto pt-8 pb-6 text-[11px] text-muted-foreground/60">
+              {/* Footer links — Privacy, Terms, Contact.
+                  v6.17.21: removed mt-auto (used to push footer to
+                  BottomNav-overlap zone). Now flows directly under
+                  the CTA so all menu content stays inside the
+                  navbar/BottomNav frame. */}
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 pt-3 text-[11px] text-muted-foreground/60">
                 <Link href="/privacy" onClick={closeMenu} className="hover:text-muted-foreground transition-colors">
                   {footerLabel.privacy}
                 </Link>
