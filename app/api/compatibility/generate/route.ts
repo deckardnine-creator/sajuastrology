@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import { calculateSaju, type SajuChart } from "@/lib/saju-calculator";
 import { calculateCompatibility } from "@/lib/compatibility-calculator";
 import { getSystemInstruction } from "@/lib/prompt-locale";
@@ -685,7 +686,22 @@ export async function POST(request: NextRequest) {
     // pending" on paid unlock. The check-paid endpoint already
     // handles missing paid content gracefully.
     // ════════════════════════════════════════════════════════════
-    Promise.allSettled(paidPromises)
+    // ════════════════════════════════════════════════════════════
+    // v6.17.29 — waitUntil() to guarantee background paid resolution
+    // ════════════════════════════════════════════════════════════
+    // Previously this Promise.allSettled was fire-and-forget and the
+    // comment claimed Vercel Node runtime would let it run to completion.
+    // VERCEL LOGS PROVED THIS WRONG: function exits at ~8s right after
+    // the response, killing the background promise mid-flight. Result:
+    // c-9334ynf3 had paid_* all NULL despite is_paid=true.
+    //
+    // Vercel's documented solution is `waitUntil()` from @vercel/functions
+    // — it extends the lambda lifetime until the wrapped promise settles
+    // (capped at maxDuration=120 here). Without it, "fire-and-forget"
+    // simply doesn't work in serverless.
+    // ════════════════════════════════════════════════════════════
+    waitUntil(
+      Promise.allSettled(paidPromises)
       .then(async (results) => {
         const patch: Record<string, any> = {};
         for (const r of results) {
@@ -850,7 +866,8 @@ export async function POST(request: NextRequest) {
       .catch(() => {
         // Outer catch: should be unreachable thanks to inner catches,
         // but defensive against any unexpected throw path.
-      });
+      })
+    ); // closes waitUntil()
 
     // ─── [PHASE 1 STEP 2] Auto-create user's own readings row ────────────
     // If the user is signed in and has no readings yet, bootstrap one from
