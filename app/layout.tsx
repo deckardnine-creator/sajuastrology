@@ -190,10 +190,10 @@ export default async function RootLayout({
                     try { sessionStorage.setItem('native-app', '1'); } catch (e) {}
                     // v6.17.36: disable pinch-to-zoom only inside native app.
                     // Web users keep zoom for accessibility; native app users
-                    // get a stable canvas (chandler 명시: "앱화면 확대 되면 안되는데").
+                    // get a stable canvas (chandler request: app screen must not zoom).
                     // We override the viewport meta that Next.js rendered with
                     // maximum-scale=1, user-scalable=no. The selector targets
-                    // the meta Next.js outputs from the `viewport` export.
+                    // the meta Next.js outputs from the viewport export.
                     try {
                       var vp = document.querySelector('meta[name="viewport"]');
                       if (vp) {
