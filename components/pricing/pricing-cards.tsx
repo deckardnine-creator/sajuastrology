@@ -79,13 +79,15 @@ const PLANS: PlanDef[] = [
     descKey: "pc.compat.desc",
     featureKeys: ["pc.compat.f1", "pc.compat.f2", "pc.compat.f3", "pc.compat.f4", "pc.compat.f5", "pc.compat.f6"],
     ctaKey: "pc.compat.cta",
-    href: "/pricing/upgrade-compat",
+    href: "/compatibility",
     highlighted: false,
     accent: "#f472b6",
     glow: "rgba(244,114,182,0.3)",
     glowSoft: "rgba(244,114,182,0.07)",
     icon: Heart,
-    comingSoon: true,
+    // v6.17.26 — chandler 명시: comingSoon 제거.
+    // 클릭 시 /pricing/upgrade-compat placeholder가 아니라 /compatibility
+    // 입력창으로 직접 이동 (입력창에서 결과 후 paywall 표시).
   },
   {
     slug: "companion",
@@ -95,14 +97,16 @@ const PLANS: PlanDef[] = [
     descKey: "pc.companion.desc",
     featureKeys: ["pc.companion.f1", "pc.companion.f2", "pc.companion.f3", "pc.companion.f4", "pc.companion.f5"],
     ctaKey: "pc.companion.cta",
-    href: "/pricing/soram-companion",
+    href: "/soram",
     highlighted: false,
     accent: "#F2CA50",
     glow: "rgba(242,202,80,0.3)",
     glowSoft: "rgba(242,202,80,0.07)",
     icon: MessageCircle,
     priceNoteKey: "pricing.cancelAnytime",
-    comingSoon: true,
+    // v6.17.26 — chandler 명시: comingSoon 제거.
+    // 클릭 시 /pricing/soram-companion placeholder가 아니라 /soram 채팅창으로
+    // 직접 이동. 0회 남으면 채팅 안에서 결제 권유 (기존 modal 대신).
   },
   {
     slug: "full",

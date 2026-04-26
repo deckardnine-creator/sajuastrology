@@ -27,6 +27,8 @@ import { Lock, Sparkles, Heart, Briefcase, Users, Shield, Calendar, Check, Arrow
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { useNativeApp } from "@/lib/native-app";
+import { requestIAP, requestAuth, onFlutterMessage } from "@/lib/flutter-bridge";
 import { t } from "@/lib/translations";
 import { safeSet } from "@/lib/safe-storage";
 import { track, Events } from "@/lib/analytics";
@@ -112,6 +114,7 @@ interface Props {
 export function CompatibilityPaywall({ shareSlug, partnerName }: Props) {
   const { user, openSignInModal } = useAuth();
   const { locale } = useLanguage();
+  const isNative = useNativeApp();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -134,10 +137,64 @@ export function CompatibilityPaywall({ shareSlug, partnerName }: Props) {
       try {
         safeSet("auth-return-url", window.location.href);
       } catch {}
-      openSignInModal();
+      // ════════════════════════════════════════════════════════════
+      // v6.17.26 — native auth dispatch.
+      // 앱은 modal 대신 Flutter native auth sheet 사용. consultation-client.tsx
+      // line 467 패턴 동일: native에선 Google sign-in 직접 trigger.
+      // ════════════════════════════════════════════════════════════
+      if (isNative) {
+        // iOS는 App Store policy로 Apple sign-in을, Android는 Google.
+        // navigator.userAgent에 "iPhone"/"iPad" 있으면 Apple, 그 외 Google.
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        requestAuth(isIOS ? "apple" : "google");
+      } else {
+        openSignInModal();
+      }
       return;
     }
 
+    // ════════════════════════════════════════════════════════════════
+    // v6.17.26 — native IAP branch (chandler 명시: "앱은 2.99 4.99 IAP")
+    // ────────────────────────────────────────────────────────────────
+    // Compat Full $2.99 = Consumable IAP product.
+    // Product ID: "compat_full" (chandler가 App Store Connect + Google Play
+    // Console에 등록 필요. v6.17.26 코드는 ID로 호출만, 등록 전엔 "Item
+    // Unavailable" 에러 반환. 등록 즉시 활성화.)
+    //
+    // shareSlug를 IAP 메시지에 동봉해서 Flutter가 결제 성공 시 backend
+    // /api/iap/verify-iap-v2 호출 시 어떤 compat 결과에 entitlement를
+    // 부여할지 알 수 있게 함 (full_destiny_reading 패턴 동일).
+    // ════════════════════════════════════════════════════════════════
+    if (isNative) {
+      setLoading(true);
+      // Subscribe to IAP success/error before triggering
+      const unsubSuccess = onFlutterMessage("iap:success:", (payload) => {
+        // payload format: "compat_full:{shareSlug}" 또는 그냥 shareSlug
+        // verify-iap-v2가 reading is_paid를 true로 update → 페이지 reload
+        // 시 paywall 사라짐. 단순화: 결제 성공 시 페이지 reload.
+        unsubSuccess();
+        unsubError();
+        window.location.reload();
+      });
+      const unsubError = onFlutterMessage("iap:error:", (payload) => {
+        unsubSuccess();
+        unsubError();
+        setError(payload || "Payment cancelled.");
+        setLoading(false);
+      });
+      // Trigger Flutter IAP. Format: iap:compat_full:{shareSlug}
+      // (Flutter가 platform 자동 인식, iOS/Android 동일 product ID).
+      requestIAP("compat_full", shareSlug);
+      // Safety: clear loading after 60s if no response (user closed sheet etc)
+      setTimeout(() => {
+        unsubSuccess();
+        unsubError();
+        if (loading) setLoading(false);
+      }, 60000);
+      return;
+    }
+
+    // ─── Web mode: PayPal flow ───
     setLoading(true);
     try {
       const res = await fetch("/api/payment/checkout-compatibility", {

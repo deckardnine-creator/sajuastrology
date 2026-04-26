@@ -293,14 +293,23 @@ export function ConsultationClient() {
     }
   }, [authLoading, user, checkCredits, searchParams]);
 
-  // Hard failsafe: render the page within 2 seconds NO MATTER WHAT.
-  // iOS WKWebView has been observed to leave useAuth's `authLoading` stuck at
-  // true forever, which traps users on an infinite spinner. We bypass that
-  // entirely — even if auth never resolves, we render the no-credits / sign-in
-  // view so the user can act.
+  // ════════════════════════════════════════════════════════════════
+  // v6.17.26 — Hard failsafe (chandler 0.3초 flash fix)
+  // ────────────────────────────────────────────────────────────────
+  // 이전 (v1.3.1까지): 500ms 폴백으로 user 있으면 setStep("form").
+  // 문제: checkCredits가 보통 100-300ms 내에 응답하지만, 그 사이에 form
+  // 단계 화면 (사주 입력 form 영역)이 약 0.3초 보였다가 no-credits로
+  // 전환되면서 깜빡임. chandler 명시: "결제 안 했으면 결제창으로 바로
+  // 나와야 돼, 입력창 0.3초 있다가 나온다".
+  //
+  // 수정: 폴백 시간 5초로 늘림 (5초는 checkCredits abort timeout과 동일).
+  // 정상 경로에선 checkCredits가 setStep을 form 또는 no-credits로 직접
+  // 호출하므로 폴백이 발동되지 않음. 폴백은 진짜 timeout 시 (네트워크
+  // 끊김 등)에만 동작하여 무한 spinner 방지.
+  // ════════════════════════════════════════════════════════════════
   const [forceShow, setForceShow] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setForceShow(true), 500);
+    const t = setTimeout(() => setForceShow(true), 5000);
     return () => clearTimeout(t);
   }, []);
   useEffect(() => {

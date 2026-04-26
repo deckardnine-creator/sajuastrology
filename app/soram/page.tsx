@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { useNativeApp } from "@/lib/native-app";
+import { requestIAP, onFlutterMessage } from "@/lib/flutter-bridge";
 import { safeSet } from "@/lib/safe-storage";
 
 // ============================================================
@@ -70,6 +72,17 @@ const T = {
     // v6.9: how-to-use copy reframed as "공부한 5,000년의 지식으로"
     howToUseMsg:
       "\uC0AC\uC6A9\uBC29\uBC95\n\uC77C\uC0C1\uC5D0\uC11C \uACE0\uBBFC\uB418\uB294 \uBAA8\uB4E0 \uC9C8\uBB38\uC744 200\uC790 \uB0B4\uB85C \uD574\uC8FC\uC2DC\uBA74, \uC81C\uAC00 \uACF5\uBD80\uD55C 5,000\uB144\uC758 \uC9C0\uC2DD\uC73C\uB85C \uADF8\uB300\uC758 \uC0AC\uC8FC \uAD00\uC810\uC5D0\uC11C \uC870\uC5B8\uD574\uB4DC\uB824\uC694.",
+    // v6.17.26 — paywall message (얼굴 클릭 자리 → 채팅 메시지로 변경).
+    // 0회 남은 후 사용자가 메시지 보내면 Soram이 이 메시지로 응답하고 결제 카드를 동봉.
+    // 톤: 차갑지 않게, 친근하게, 약간의 유머. chandler 명시.
+    paywallMessage:
+      "\uC624\uB298\uC740 \uC5EC\uAE30\uAE4C\uC9C0! \uBCC4\uC774 \uB354 \uC774\uC57C\uAE30\ud558\uACE0 \uC2F6\uC5B4 \ud558\uC9C0\uB9CC, \uADF8\uB300\uC5D0\uAC8C \uD5C8\uB77D\ub41C \ud558\ub8e8\uCE58 \ub300\ud654\ub294 \ub2e4 \uC4F0\uC168\ub124\uc694 \uD83C\uDF19\n\n\uB0B4\uC77C \uB2E4\uC2DC \ub9CC\ub098\uAC70\ub098, \uB9E4\uC77C \ubb34\uc81c\ud55c\uC73C\ub85C \ud568\uAED8 \ubcc4\uC744 \uC77D\uACE0 \uC2F6\ub2e4\uBA74...",
+    paywallCardTitle: "\uC18C\uB78C\uB3D9\uD589\uD2F0\uCF13",
+    paywallCardPrice: "$4.99 / \uC6D4",
+    paywallCardBenefit1: "\uB9E4\uC77C \ubb34\uc81c\ud55c \ub300\ud654",
+    paywallCardBenefit2: "\ub9c8\uC2A4\ud130\uC0C1\ub2F4\uAD8C 1\ud68c \ud3EC\ud568 (\uc57d $6 \uAC00\uCE58)",
+    paywallCardCta: "\u2728 \uC2DC\uC791\ud558\uae30",
+    paywallCardFooter: "\uc5b8\uC81C\ub4E0 \ud574\uC9C0 \uAC00\ub2A5",
   },
   en: {
     headerTitle: "Soram",
@@ -119,6 +132,14 @@ const T = {
     firstWelcomePrompt: "What do you wish to know?",
     howToUseMsg:
       "How to use\nAsk me anything you wonder about in daily life, in 200 characters or less, and I'll advise you from your saju with the 5,000 years of knowledge I've studied.",
+    paywallMessage:
+      "That's all for today! The stars want to keep talking, but your daily turn with me is up \uD83C\uDF19\n\nCome back tomorrow, or join me every day for unlimited stargazing...",
+    paywallCardTitle: "Soram Companion",
+    paywallCardPrice: "$4.99 / month",
+    paywallCardBenefit1: "Unlimited daily conversations",
+    paywallCardBenefit2: "1 Master Consultation included (worth $6)",
+    paywallCardCta: "\u2728 Begin",
+    paywallCardFooter: "Cancel anytime",
   },
 } as const;
 
@@ -304,6 +325,10 @@ interface ChatMessage {
   answer: string;
   createdAt: string;
   score: number;
+  // v6.17.26 — paywall message marker. true면 answer 본문 아래에 결제 카드
+  // (native: IAP / web: PayPal) 인라인 렌더. 일반 chat 메시지와 동일하게
+  // history에 저장되지만 렌더 시 결제 카드 컴포넌트가 추가로 표시됨.
+  isPaywall?: boolean;
 }
 
 interface PendingMessage {
@@ -322,6 +347,138 @@ interface UsageState {
   subscriptionEnd: string | null;
   hasPrimaryChart: boolean;
   userName: string | null;
+}
+
+// ============================================================
+// v6.17.26 — PaywallCard
+// ────────────────────────────────────────────────────────────
+// Inline 결제 카드. isPaywall=true 인 ChatMessage 바로 아래에 렌더.
+// chandler 명시: "결제링크 주면서 채팅으로, 앱은 앱링크 웹은 페이팔
+// 바로 줘. 프라이싱 페이지 거치지 말고".
+//
+// 동작:
+//   • native (Flutter WebView): requestIAP("soram_companion_monthly")
+//     → Flutter native IAP sheet 표시. 결제 성공 시 Flutter가
+//     `iap:success:soram_companion` 메시지 → web reload하여
+//     usage state subscriber로 갱신.
+//   • web (브라우저): /api/payment/checkout-companion fetch →
+//     PayPal approval URL 받아서 window.location.href 로 redirect.
+//
+// 디자인: Soram 답변 말풍선과 시각적 일관성 유지하되 결제 가능 영역
+// 임을 명확히 (gold gradient border + amber background tint). promo
+// card 패턴과 유사하지만 가격/혜택 더 prominent.
+// ============================================================
+
+interface PaywallCardProps {
+  isNative: boolean;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  locale: string;
+  labels: {
+    title: string;
+    price: string;
+    b1: string;
+    b2: string;
+    cta: string;
+    footer: string;
+  };
+}
+
+function PaywallCard({ isNative, userId, userEmail, userName, locale, labels }: PaywallCardProps) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleClick = async () => {
+    if (!userId) return;
+    setError(null);
+    setLoading(true);
+
+    if (isNative) {
+      // ════════════════════════════════════════════════════════════
+      // Native IAP flow — Flutter Bridge.
+      // Product ID: soram_companion_monthly (Auto-renewable subscription).
+      // chandler가 App Store Connect + Google Play Console에 등록 후
+      // 활성화. 등록 전엔 Flutter IAP plugin이 "Item Unavailable"
+      // 에러 반환 → onFlutterMessage("iap:error:") 가 받아서 표시.
+      // ════════════════════════════════════════════════════════════
+      const unsubSuccess = onFlutterMessage("iap:success:", () => {
+        unsubSuccess();
+        unsubError();
+        // 결제 성공 시 페이지 reload — usage state가 subscriber로
+        // 갱신되어 다음 메시지부터 무제한 응답.
+        window.location.reload();
+      });
+      const unsubError = onFlutterMessage("iap:error:", (payload) => {
+        unsubSuccess();
+        unsubError();
+        setError(payload || "Purchase cancelled.");
+        setLoading(false);
+      });
+      requestIAP("soram_companion_monthly");
+      // Safety timeout — user closed sheet, network blip etc.
+      setTimeout(() => {
+        unsubSuccess();
+        unsubError();
+        setLoading(false);
+      }, 60000);
+      return;
+    }
+
+    // ─── Web mode: PayPal subscription approval URL ───
+    try {
+      const res = await fetch("/api/payment/checkout-companion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, userEmail, userName }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || "Payment setup failed");
+      }
+      window.location.href = data.url;
+    } catch (e: any) {
+      setError(e?.message || "Payment error. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-[78%] w-full">
+      <div className="relative overflow-hidden rounded-2xl border border-amber-400/50 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-[#1E2A4A]/40 backdrop-blur-sm p-4 shadow-md shadow-amber-500/10">
+        {/* gold accent bar (left edge) */}
+        <span aria-hidden="true" className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
+        <div className="flex items-baseline justify-between mb-3 pl-2">
+          <span className="text-sm font-semibold text-amber-100">{labels.title}</span>
+          <span className="text-amber-300 font-bold text-base">{labels.price}</span>
+        </div>
+        <div className="space-y-1.5 mb-4 pl-2">
+          <div className="flex items-start gap-2">
+            <span className="text-amber-400 text-xs mt-0.5">✓</span>
+            <span className="text-xs text-amber-100/85 leading-snug">{labels.b1}</span>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-amber-400 text-xs mt-0.5">✓</span>
+            <span className="text-xs text-amber-100/85 leading-snug">{labels.b2}</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={handleClick}
+          disabled={loading || !userId}
+          className="w-full py-2.5 rounded-xl bg-gradient-to-br from-amber-300 to-amber-500 text-black font-semibold text-sm transition-all duration-200 hover:from-amber-200 hover:to-amber-400 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {loading ? "..." : labels.cta}
+        </button>
+        <p className="text-[10px] text-amber-200/50 mt-2 text-center">
+          {labels.footer}
+        </p>
+        {error && (
+          <p className="text-[10px] text-red-400/80 mt-2 text-center">{error}</p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // ============================================================
@@ -373,6 +530,7 @@ export default function SoramChatPage() {
   const { user, isLoading: authLoading, openSignInModal } = useAuth();
   const { locale } = useLanguage();
   const t = getT(locale);
+  const isNative = useNativeApp();
 
   const [pageState, setPageState] = useState<
     "loading" | "needs_setup" | "ready" | "redirecting"
@@ -534,15 +692,41 @@ export default function SoramChatPage() {
     return () => timers.forEach(clearTimeout);
   }, [pending]);
 
+  // v6.17.26 — push paywall message helper.
+  // chandler 명시: "결제 해달라고 소람이가 채팅으로 말하게 해라. 결제링크
+  // 주면서 채팅으로, 앱은 앱링크 웹은 페이팔 바로 줘. 프라이싱 페이지 거치지 말고".
+  // 0회 남은 후 사용자 메시지 보낼 때 호출됨. 사용자 질문은 그대로 유지하고
+  // (history에 들어감), Soram의 "오늘은 여기까지" 응답을 친근한 어투로 추가
+  // + isPaywall=true 플래그로 결제 카드 인라인 렌더 트리거.
+  const pushPaywallMessage = useCallback((question: string) => {
+    const newMsg: ChatMessage = {
+      id: `paywall_${Date.now()}`,
+      question,
+      answer: t.paywallMessage,
+      createdAt: new Date().toISOString(),
+      score: 0.5,
+      isPaywall: true,
+    };
+    setMessages((prev) => [...prev, newMsg]);
+    setUsage((prev) =>
+      prev ? { ...prev, canAskToday: false, remainingToday: 0 } : prev
+    );
+  }, [t.paywallMessage]);
+
   // ===== Send question =====
   const handleSend = useCallback(
     async (questionText?: string) => {
       const q = (questionText ?? input).trim();
       if (!q || sending || !user || !usage) return;
 
-      // Check rate limit
+      // ════════════════════════════════════════════════════════════
+      // v6.17.26 — Rate limit: chat 메시지로 결제 권유 (modal 제거).
+      // chandler: "결제 해달라고 소람이가 채팅으로 말하게 해라".
+      // 사용자 질문은 input에서 비우고, paywall 메시지를 history에 push.
+      // ════════════════════════════════════════════════════════════
       if (usage.tier === "free" && !usage.canAskToday) {
-        setShowUpgrade(true);
+        setInput("");
+        pushPaywallMessage(q);
         return;
       }
 
@@ -571,12 +755,13 @@ export default function SoramChatPage() {
         });
 
         if (res.status === 429) {
-          // Rate limit
+          // ════════════════════════════════════════════════════════
+          // v6.17.26 — Backend rate limit 응답도 동일 chat paywall로.
+          // (race condition: client usage에선 canAskToday=true였지만
+          // 서버 도착 시 already exhausted 케이스)
+          // ════════════════════════════════════════════════════════
           setPending(null);
-          setUsage((prev) =>
-            prev ? { ...prev, canAskToday: false, remainingToday: 0 } : prev
-          );
-          setShowUpgrade(true);
+          pushPaywallMessage(q);
           setSending(false);
           return;
         }
@@ -698,25 +883,43 @@ export default function SoramChatPage() {
             </button>
           </div>
 
-          <button
-            onClick={() => router.push("/pricing/soram-companion")}
-            className="flex items-center gap-2 group hover:opacity-90 transition-opacity"
+          {/* v6.17.26 — chandler 명시: "얼굴클릭하면 뭔가 넘어가는 상태를 없애라".
+              이전: <button onClick={() => router.push("/pricing/soram-companion")}>
+              현재: <div> — 클릭해도 navigation 없음. SoramAvatar는 visual 만.
+              결제 진입은 채팅 메시지 (paywall message) + 우상단 plan card로만
+              유지하여 사용자가 "결제할래" 명시한 경우만 routing. */}
+          <div
+            className="flex items-center gap-2"
             aria-label={t.headerTitle}
           >
             <SoramAvatar variant="hero" size="lg" />
-            <h1 className="text-base font-medium text-amber-100 group-hover:text-amber-50 transition-colors">
+            <h1 className="text-base font-medium text-amber-100">
               {t.headerTitle}
             </h1>
-          </button>
+          </div>
 
+          {/* v6.17.26 — chandler 명시: "우상단 글자 누르면 남은 기회가
+              없으면 프라이싱 페이지 가야겠지". 단순 span을 button으로
+              변경. 무제한 사용자는 클릭 의미 없으므로 disable, 0회면
+              /pricing 으로 이동. */}
           <div className="flex justify-end">
-            <span className="text-xs text-amber-200/60 truncate">
-              {isUnlimited
-                ? t.todayUnlimited
-                : usage?.canAskToday
-                ? t.todayOneLeft
-                : t.todayUsed}
-            </span>
+            {isUnlimited ? (
+              <span className="text-xs text-amber-200/60 truncate">
+                {t.todayUnlimited}
+              </span>
+            ) : usage?.canAskToday ? (
+              <span className="text-xs text-amber-200/60 truncate">
+                {t.todayOneLeft}
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => router.push("/pricing?plan=companion")}
+                className="text-xs text-amber-200/60 hover:text-amber-200 underline-offset-4 hover:underline truncate transition-colors"
+              >
+                {t.todayUsed}
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -972,6 +1175,31 @@ export default function SoramChatPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* v6.17.26 — Paywall card inline (chandler 명시: 채팅으로
+                    결제링크 줘. 앱은 IAP, 웹은 PayPal). isPaywall=true 메시지
+                    바로 아래에 인라인 카드 렌더. SoramAvatar 폭만큼 invisible
+                    spacer로 들여쓰기하여 답변 본문과 정렬 일치. */}
+                {msg.isPaywall && (
+                  <div className="flex items-end gap-2">
+                    <SoramAvatar invisible />
+                    <PaywallCard
+                      isNative={isNative}
+                      userId={user?.id || ""}
+                      userEmail={user?.email || ""}
+                      userName={usage?.userName || ""}
+                      locale={locale}
+                      labels={{
+                        title: t.paywallCardTitle,
+                        price: t.paywallCardPrice,
+                        b1: t.paywallCardBenefit1,
+                        b2: t.paywallCardBenefit2,
+                        cta: t.paywallCardCta,
+                        footer: t.paywallCardFooter,
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             );
           })}
