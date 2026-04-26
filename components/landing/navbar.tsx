@@ -194,6 +194,15 @@ export function Navbar() {
     return () => { document.body.style.overflow = "" }
   }, [isOpen])
 
+  // v6.12: auto-close hamburger when user becomes authenticated.
+  // chandler bug: open hamburger -> tap "Sign In" -> modal opens ->
+  // log in -> hamburger menu was still open underneath the now-closed
+  // modal, with stale UI. This effect dismisses the menu the moment
+  // user becomes truthy.
+  useEffect(() => {
+    if (user && isOpen) setIsOpen(false)
+  }, [user, isOpen])
+
   // ═══ Hide web navbar inside native app — Flutter renders its own TopBar ═══
   if (isNative) return null
 

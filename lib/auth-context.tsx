@@ -288,13 +288,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Wrapped in try/catch in case sessionStorage is unavailable
             // (private mode etc.) — in that case we simply don't reload,
             // which is safer than risking the infinite loop.
+            //
+            // Hard guard #3 (v6.12): callback-completed lock.
+            // /auth/callback already runs window.location.href = returnUrl
+            // as the LAST step of OAuth completion. After that hard nav,
+            // SIGNED_IN fires AGAIN on the destination page (Supabase
+            // replays it after detectSessionInUrl), and our reload here
+            // would cause a SECOND visible page swap. The callback page
+            // sets `auth-callback-completed: "1"` immediately before its
+            // redirect, and we honor that flag here to skip the reload.
+            // We clear the flag right after reading it so subsequent
+            // signins (after a signout) reload normally.
             let alreadyReloaded = false;
+            let callbackCompleted = false;
             try {
               alreadyReloaded =
                 window.sessionStorage.getItem("post-signin-reloaded") === "1";
+              callbackCompleted =
+                window.sessionStorage.getItem("auth-callback-completed") === "1";
+              if (callbackCompleted) {
+                window.sessionStorage.removeItem("auth-callback-completed");
+                // Mark reload-done so any future SIGNED_IN replays
+                // also skip — same lock semantics, just pre-populated.
+                window.sessionStorage.setItem("post-signin-reloaded", "1");
+              }
             } catch {}
 
-            if (alreadyReloaded) {
+            if (alreadyReloaded || callbackCompleted) {
               // Skip the reload entirely. setUser() above already
               // updated React state; that's enough now that the
               // session cookie has been read once.
@@ -444,8 +464,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toRemove.forEach((k) => localStorage.removeItem(k));
     } catch {}
 
-    // Clear sessionStorage (native-app flag, etc.)
-    try { sessionStorage.clear(); } catch {}
+    // ════════════════════════════════════════════════════════════
+    // v6.12 fix: selective sessionStorage clear instead of clear-all.
+    //
+    // The previous `sessionStorage.clear()` was nuking the
+    // `native-app` flag set by detectNative() in lib/native-app.ts.
+    // Symptom: in the Flutter shell, signing out caused a brief
+    // flicker of web navbar/footer because:
+    //   1. signOut clears the flag
+    //   2. window.location.href = '/?app=true' starts a navigation
+    //   3. while React hydrates the new home page, useNativeApp()'s
+    //      lazy initializer runs detectNative() → checks
+    //      sessionStorage 'native-app' first → MISS (we just cleared
+    //      it) → falls through to URL ?app=true check → eventually
+    //      returns true, but a few frames later than ideal.
+    //
+    // Now we clear ONLY the keys we own and preserve the native
+    // detection flag. Auth-related sessionStorage keys are listed
+    // explicitly so the cleanup is auditable.
+    //
+    // Snapshot+restore is the simplest pattern: capture native flag
+    // before the loop, restore after. This is safer than enumerating
+    // delete-list keys, because if we add a new auth-only sessionStorage
+    // key in the future, .clear() naturally cleans it without us
+    // having to remember to add it to the delete list.
+    // ════════════════════════════════════════════════════════════
+    try {
+      const wasNative = sessionStorage.getItem("native-app");
+      sessionStorage.clear();
+      if (wasNative === "1") {
+        sessionStorage.setItem("native-app", "1");
+      }
+    } catch {}
 
     // Clear app-specific localStorage
     safeRemove("saju-data");
