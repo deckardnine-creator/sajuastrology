@@ -238,13 +238,31 @@ export function Navbar() {
     }
   }, [isOpen])
 
-  // v6.12: auto-close hamburger when user becomes authenticated.
-  // chandler bug: open hamburger -> tap "Sign In" -> modal opens ->
-  // log in -> hamburger menu was still open underneath the now-closed
-  // modal, with stale UI. This effect dismisses the menu the moment
-  // user becomes truthy.
+  // ════════════════════════════════════════════════════════════════
+  // v6.17.18 — auto-close hamburger ONLY on auth transition (not
+  // on every render where the user happens to be signed in).
+  // ────────────────────────────────────────────────────────────────
+  // chandler bug (visible 0.3s flash on hamburger tap when signed in):
+  //   The previous effect listed both `user` and `isOpen` in its deps:
+  //     useEffect(() => {
+  //       if (user && isOpen) setIsOpen(false)
+  //     }, [user, isOpen])
+  //   This fires every time `isOpen` flips. So tapping the hamburger
+  //   while signed in → setIsOpen(true) → effect runs → both truthy
+  //   → setIsOpen(false). The menu mounted for one frame, then
+  //   unmounted. Visually: a brief flicker, no usable menu.
+  //
+  //   The original v6.12 intent was different: when the user signs
+  //   in WHILE the menu is open, close it. That's an auth-state
+  //   transition, not an "is signed in" check. We track the
+  //   previous user with a ref and only close when user goes from
+  //   null → truthy.
+  // ════════════════════════════════════════════════════════════════
+  const prevUserRef = useRef<typeof user>(null)
   useEffect(() => {
-    if (user && isOpen) setIsOpen(false)
+    const justSignedIn = !prevUserRef.current && !!user
+    prevUserRef.current = user
+    if (justSignedIn && isOpen) setIsOpen(false)
   }, [user, isOpen])
 
   // ═══ Hide web navbar inside native app — Flutter renders its own TopBar ═══
