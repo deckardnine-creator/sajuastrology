@@ -312,6 +312,38 @@ export default function CompatibilityResultClient() {
     setShowUnlockBanner(true);
   }, [isPaid]);
 
+  // ════════════════════════════════════════════════════════════
+  // v6.17.39 — IAP unlock banner via sessionStorage handoff
+  // ════════════════════════════════════════════════════════════
+  // Companion to v6.17.34. The rising-edge detector above misses the
+  // iOS IAP unlock case: after a successful Apple/Google purchase,
+  // the paywall component reloads the page; on the new mount the
+  // very first refreshPaidStatus() lands inside the 1500ms guard
+  // window with isPaid already true, so the false→true transition
+  // never registers as a real edge.
+  //
+  // The paywall now stores `compat-just-paid:{slug}` in sessionStorage
+  // immediately before triggering reload. We pick that up here on
+  // mount, fire the banner once, and clear the flag so a manual
+  // refresh later doesn't re-show it. PayPal continues to use its
+  // own ?payment=success path (above) — this is purely the IAP
+  // companion route and never overlaps.
+  // ════════════════════════════════════════════════════════════
+  useEffect(() => {
+    if (!slug) return;
+    if (typeof window === "undefined") return;
+    try {
+      const key = `compat-just-paid:${slug}`;
+      if (sessionStorage.getItem(key) === "1") {
+        sessionStorage.removeItem(key);
+        setShowUnlockBanner(true);
+      }
+    } catch {
+      // sessionStorage can throw in private mode / certain WebViews —
+      // a missed banner is the worst case, never a crash.
+    }
+  }, [slug]);
+
   const handleShare = () => {
     const url = window.location.href;
     const text = result

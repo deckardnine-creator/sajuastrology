@@ -174,6 +174,20 @@ export function CompatibilityPaywall({ shareSlug, partnerName }: Props) {
         // 시 paywall 사라짐. 단순화: 결제 성공 시 페이지 reload.
         unsubSuccess();
         unsubError();
+        // ════════════════════════════════════════════════════════════
+        // v6.17.39 — drop a "just paid" flag for the result page to read
+        // after reload. Without this the amber unlock banner never fires
+        // on iOS WebView: the rising-edge detector in the result client
+        // can't distinguish a genuine post-purchase reload from a normal
+        // revisit because the very first refreshPaidStatus() already
+        // returns isPaid=true. The result client clears this flag the
+        // moment it consumes it (single-shot), so subsequent revisits
+        // stay silent. sessionStorage is intentional: scoped to this
+        // tab, naturally cleared on tab close, and survives the reload.
+        // ════════════════════════════════════════════════════════════
+        try {
+          sessionStorage.setItem(`compat-just-paid:${shareSlug}`, "1");
+        } catch {}
         window.location.reload();
       });
       const unsubError = onFlutterMessage("iap:error:", (payload) => {
