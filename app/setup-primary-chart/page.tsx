@@ -113,8 +113,13 @@ export default function SetupPrimaryChartPage() {
       const data = await res.json();
 
       if (res.status === 409) {
-        // 이미 있음 → next 또는 dashboard
-        router.replace(nextSafe);
+        // 이미 있음 → next 또는 dashboard. Full reload to ensure
+        // auth-context loads sajuData from my_primary_chart.
+        if (typeof window !== "undefined") {
+          window.location.href = nextSafe;
+        } else {
+          router.replace(nextSafe);
+        }
         return;
       }
 
@@ -126,9 +131,32 @@ export default function SetupPrimaryChartPage() {
 
       setPhase("success");
 
-      // 3초 후 next 또는 dashboard로 자동 이동
+      // ════════════════════════════════════════════════════════════
+      // v6.17.15 — full reload after save (was: router.replace)
+      // ────────────────────────────────────────────────────────────
+      // chandler bug: after entering saju on /setup-primary-chart and
+      // landing on /dashboard, the cards (Today's Energy, Day Master,
+      // Four Pillars) stayed empty — they only update when the auth
+      // context's `sajuData.chart` is freshly populated, which our
+      // v6.17.12 effect does on mount by querying my_primary_chart.
+      // Client-side router.replace keeps the auth-context provider
+      // alive with its stale state, so the effect never re-runs and
+      // dashboard renders against null sajuData.
+      //
+      // Full window.location reload re-bootstraps the app: the new
+      // auth-context mount triggers the my_primary_chart fetch, the
+      // dashboard's own fetchPrimaryChart() runs from scratch, and
+      // the user sees their freshly-registered chart immediately.
+      // The 1–2s reload cost is acceptable — it happens exactly once
+      // per user, right after the celebratory "당신을 평생 기억할게요"
+      // screen, where users already expect a brief transition.
+      // ════════════════════════════════════════════════════════════
       setTimeout(() => {
-        router.replace(nextSafe);
+        if (typeof window !== "undefined") {
+          window.location.href = nextSafe;
+        } else {
+          router.replace(nextSafe);
+        }
       }, 3000);
     } catch (err: any) {
       console.error("[setup] save error:", err);
@@ -302,7 +330,9 @@ function ConfirmModal({
       : locale === "ja"
       ? "時間不明"
       : "Time unknown"
-    : `${String(chart.birthHour ?? 0).padStart(2, "0")}:00`;
+    : `${String(chart.birthHour ?? 0).padStart(2, "0")}:${String(
+        (chart as SajuChart & { birthMinute?: number }).birthMinute ?? 0
+      ).padStart(2, "0")}`;
 
   const genderStr =
     chart.gender === "male"
@@ -455,14 +485,25 @@ function SuccessScreen({ locale, next }: { locale: string; next: string }) {
             (a transparent-bg full-body illustration that floated awkwardly).
             Now /soram/soram_success.webp — body-up framing on dark
             constellation background, rounded corners, larger (w-72). */}
-        <motion.img
-          src="/soram/soram_success.webp"
-          alt="Soram"
-          className="w-72 sm:w-80 h-auto mx-auto mb-6 rounded-2xl shadow-2xl shadow-amber-500/15"
+        {/* v6.17.15 — wrapped image in a dark-bg div so the rounded
+            corners cut into the dark scene cleanly. Previously the
+            <img> alone with rounded-2xl was leaving a thin pale halo
+            on top/bottom (chandler: "위아래 흰색 바") because the
+            webp's edge alpha + rounded crop revealed the page
+            backdrop transitions. Container forces a solid dark color
+            inside the rounded clip. */}
+        <motion.div
+          className="w-72 sm:w-80 mx-auto mb-6 rounded-2xl overflow-hidden bg-[#0A0E1A] shadow-2xl shadow-amber-500/15"
           initial={{ y: 20 }}
           animate={{ y: [0, -8, 0] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-        />
+        >
+          <img
+            src="/soram/soram_success.webp"
+            alt="Soram"
+            className="w-full h-auto block"
+          />
+        </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, y: 10 }}

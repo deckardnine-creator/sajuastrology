@@ -9,10 +9,6 @@ import {
   Sparkles,
   Crown,
   Plus,
-  HelpCircle,
-  CreditCard,
-  BookOpen,
-  ArrowRight,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
@@ -57,11 +53,9 @@ export function DashboardSidebar() {
     { href: "/consultation", label: t("dash.consultation", locale), icon: Crown, master: true },
   ];
 
-  const exploreItems = [
-    { href: "/pricing", label: t("nav.pricing", locale), icon: CreditCard },
-    { href: "/faq", label: t("faq.title", locale), icon: HelpCircle },
-    { href: "/blog", label: t("sidebar.blog", locale), icon: BookOpen },
-  ];
+  // v6.17.15 — exploreItems removed per chandler. Pricing/FAQ/Blog
+  // links cluttered the sidebar without driving real engagement;
+  // primary-nav + consultation CTA are enough on a fresh dashboard.
 
   const [credits, setCredits] = useState(0);
 
@@ -142,22 +136,23 @@ export function DashboardSidebar() {
             </div>
           </div>
         ) : (
-          /* v6.17.14 — Hero card when chart is missing */
+          /* v6.17.14 → v6.17.15: hero card simplified per chandler.
+              Removed redundant "Enter my saju →" line at the bottom —
+              the whole card is already a Link (entire surface clickable),
+              and the gold border + amber gradient signal "click me"
+              clearly without the arrow. Title + subtitle alone read
+              cleaner. */
           <Link
             href="/calculate"
-            className="block group relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/15 via-amber-400/8 to-transparent px-3.5 py-3.5 transition-all hover:border-amber-400/60 hover:from-amber-500/20"
+            className="block group relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/15 via-amber-400/8 to-transparent px-3.5 py-3 transition-all hover:border-amber-400/60 hover:from-amber-500/20"
           >
             <span aria-hidden="true" className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
             <p className="text-sm font-semibold text-amber-100 leading-snug pr-1">
               {t("sidebar.heroTitle", locale)}
             </p>
-            <p className="text-[11px] text-amber-200/75 leading-relaxed mt-1.5 mb-2.5">
+            <p className="text-[11px] text-amber-200/75 leading-relaxed mt-1.5">
               {t("sidebar.heroSub", locale)}
             </p>
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-100 group-hover:gap-1.5 transition-all">
-              {t("sidebar.heroCta", locale)}
-              <ArrowRight className="w-3 h-3" />
-            </span>
           </Link>
         )}
       </div>
@@ -194,34 +189,6 @@ export function DashboardSidebar() {
             );
           })}
         </ul>
-
-        {/* v6.17.14 — Explore quick-links */}
-        <div className="mt-6">
-          <p className="px-3 mb-2 text-[10px] font-semibold tracking-[0.12em] uppercase text-muted-foreground/60">
-            {t("sidebar.quickLinks", locale)}
-          </p>
-          <ul className="space-y-0.5">
-            {exploreItems.map((item) => {
-              const isActive = pathname === item.href;
-              const Icon = item.icon;
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors min-h-[36px] ${
-                      isActive
-                        ? "bg-muted/40 text-foreground"
-                        : "text-muted-foreground/80 hover:text-foreground hover:bg-muted/30"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
       </nav>
 
       {/* Consultation CTA */}

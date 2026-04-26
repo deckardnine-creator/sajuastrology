@@ -235,6 +235,14 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
         unknownTime ? undefined : { longitude: selectedCity.longitude, birthMinute: minute, timezone: selectedCity.timezone }
       );
       chart.birthHour = hour;
+      // v6.17.15 — preserve user-entered minute on the chart so the
+      // confirm screen can display the exact time the user typed
+      // (e.g. 02:15) instead of the floor-to-hour 02:00. Saju still
+      // calculates the Hour Pillar at 2-hour granularity, but losing
+      // the minute on display made users distrust the form ("did my
+      // 02:15 get saved as 02:00?"). DB schema is unchanged — minute
+      // is not persisted; this is a display-only refinement.
+      (chart as SajuChart & { birthMinute?: number }).birthMinute = minute;
       chart.birthHourUnknown = unknownTime;
       onCalculate(chart, selectedCity.name);
     } catch (err) {
