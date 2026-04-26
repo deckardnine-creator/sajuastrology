@@ -940,22 +940,12 @@ function DashboardInner() {
             </div>
           </motion.section>
 
-          {/* Weekly — placeholder */}
-          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="mb-6 sm:mb-8">
-            <h2 className="text-sm tracking-wider text-muted-foreground/70 uppercase mb-3">{t("dash.thisWeek")}</h2>
-            <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
-              {weekDays.map((d, i) => (
-                <div key={i} className="bg-card/30 border border-dashed border-border/60 rounded-lg p-1.5 sm:p-2.5 text-center" aria-disabled="true">
-                  <p className="text-[10px] sm:text-xs text-muted-foreground/60">{d.day}</p>
-                  <p className="text-sm sm:text-base font-medium text-muted-foreground/50">{d.dateNum}</p>
-                  <div className="mt-1">
-                    <div className="mx-auto w-5 h-10 sm:w-6 sm:h-12 bg-muted/15 rounded-full" />
-                    <p className="text-[11px] sm:text-sm font-bold mt-0.5 text-muted-foreground/30">—</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.section>
+          {/* v6.17.13 — Weekly placeholder REMOVED per chandler:
+              Showing 7 empty day cards on a fresh dashboard with no
+              saju yet looks cluttered and offers nothing actionable.
+              The Today's-Energy + Day-Master + Four-Pillars triad is
+              enough to communicate "fill these in" without the visual
+              repetition of a 7-day grid that has no scores anyway. */}
 
           {/* Single CTA under all three placeholder regions */}
           <motion.div
@@ -965,7 +955,7 @@ function DashboardInner() {
             <Link href="/calculate">
               <Button className="gold-gradient text-primary-foreground h-12 px-7 text-sm font-semibold">
                 <Sparkles className="w-4 h-4 mr-2" />
-                {t("dash.generateReading")}
+                {t("dash.enterMyChartCta")}
               </Button>
             </Link>
           </motion.div>

@@ -9,14 +9,42 @@ import {
   Sparkles,
   Crown,
   Plus,
+  HelpCircle,
+  CreditCard,
+  BookOpen,
+  ArrowRight,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
 import { ELEMENTS, type Element } from "@/lib/saju-calculator";
-import { getElementColor } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase-client";
+
+// ════════════════════════════════════════════════════════════════════
+// v6.17.14 — sidebar enhancement (desktop only, md+)
+// ────────────────────────────────────────────────────────────────────
+// Per chandler: "PC용 화면이지만 허접해 보이잖아."
+// Mobile menu (hamburger in <Navbar/> + global <MobileBottomNav/>) is
+// untouched — this file is mounted only inside the `hidden md:flex`
+// block of app/dashboard/page.tsx.
+//
+// Changes versus v6.16:
+//   • Hero card replaces the empty area when sajuData.chart is null
+//     (prominent gradient + CTA → /calculate). When the user has a
+//     chart, the existing Day-Master + Archetype badges render here.
+//   • New "Explore" quick-links group (Pricing, FAQ, Blog) sits
+//     between primary nav and the consultation CTA so the user has
+//     somewhere to wander on a fresh dashboard.
+//   • Footer row (Privacy / Terms) under everything, plus a one-line
+//     "사주 변경은 고객센터로" reminder in muted text. Uses existing
+//     dash.changeViaSupportHint key (already 10-language complete).
+//
+// Stability: every existing chart-state branch is preserved verbatim
+// (Day Master Badge, Archetype, isPremium pill, Consultation CTA with
+// credits). New regions only render in addition; nothing existing was
+// removed.
+// ════════════════════════════════════════════════════════════════════
 
 export function DashboardSidebar() {
   const pathname = usePathname();
@@ -28,6 +56,13 @@ export function DashboardSidebar() {
     { href: "/calculate", label: t("dash.newReading", locale), icon: Plus },
     { href: "/consultation", label: t("dash.consultation", locale), icon: Crown, master: true },
   ];
+
+  const exploreItems = [
+    { href: "/pricing", label: t("nav.pricing", locale), icon: CreditCard },
+    { href: "/faq", label: t("faq.title", locale), icon: HelpCircle },
+    { href: "/blog", label: t("sidebar.blog", locale), icon: BookOpen },
+  ];
+
   const [credits, setCredits] = useState(0);
 
   const dayMasterElement = sajuData.chart?.dayMaster.element as Element | undefined;
@@ -84,8 +119,8 @@ export function DashboardSidebar() {
           </div>
         </div>
 
-        {/* Day Master Badge */}
-        {sajuData.chart && (
+        {/* Day Master Badge — present when user has a chart */}
+        {sajuData.chart ? (
           <div className="space-y-2">
             <div
               className="flex items-center gap-2 px-3 py-2 rounded-lg"
@@ -106,6 +141,24 @@ export function DashboardSidebar() {
               <span className="text-sm text-primary">{sajuData.chart.archetype}</span>
             </div>
           </div>
+        ) : (
+          /* v6.17.14 — Hero card when chart is missing */
+          <Link
+            href="/calculate"
+            className="block group relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/15 via-amber-400/8 to-transparent px-3.5 py-3.5 transition-all hover:border-amber-400/60 hover:from-amber-500/20"
+          >
+            <span aria-hidden="true" className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
+            <p className="text-sm font-semibold text-amber-100 leading-snug pr-1">
+              {t("sidebar.heroTitle", locale)}
+            </p>
+            <p className="text-[11px] text-amber-200/75 leading-relaxed mt-1.5 mb-2.5">
+              {t("sidebar.heroSub", locale)}
+            </p>
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-100 group-hover:gap-1.5 transition-all">
+              {t("sidebar.heroCta", locale)}
+              <ArrowRight className="w-3 h-3" />
+            </span>
+          </Link>
         )}
       </div>
 
@@ -141,19 +194,75 @@ export function DashboardSidebar() {
             );
           })}
         </ul>
+
+        {/* v6.17.14 — Explore quick-links */}
+        <div className="mt-6">
+          <p className="px-3 mb-2 text-[10px] font-semibold tracking-[0.12em] uppercase text-muted-foreground/60">
+            {t("sidebar.quickLinks", locale)}
+          </p>
+          <ul className="space-y-0.5">
+            {exploreItems.map((item) => {
+              const isActive = pathname === item.href;
+              const Icon = item.icon;
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors min-h-[36px] ${
+                      isActive
+                        ? "bg-muted/40 text-foreground"
+                        : "text-muted-foreground/80 hover:text-foreground hover:bg-muted/30"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </nav>
 
       {/* Consultation CTA */}
-      <div className="p-4 border-t border-border">
+      <div className="px-4 pt-4 border-t border-border">
         <Link href="/consultation">
           <Button
             className="w-full text-white font-medium"
             style={{ background: "linear-gradient(135deg, #a78bfa, #7c3aed)" }}
           >
             <Crown className="w-4 h-4 mr-2" />
-            {credits > 0 ? t("dash.askCredits", locale).replace("{n}", String(credits)) : t("dash.getConsultation", locale)}
+            {credits > 0
+              ? t("dash.askCredits", locale).replace("{n}", String(credits))
+              : t("dash.getConsultation", locale)}
           </Button>
         </Link>
+      </div>
+
+      {/* v6.17.14 — Footer: legal links + change-saju reminder */}
+      <div className="px-4 py-3 border-t border-border/50">
+        {/* Saju change reminder — only when chart exists; new users
+            don't need it yet, the hero card already drives them. */}
+        {sajuData.chart && (
+          <p className="text-[10px] text-muted-foreground/50 leading-relaxed mb-2 px-1">
+            {t("dash.changeViaSupportHint", locale)}{" "}
+            <a
+              href="mailto:info@rimfactory.io"
+              className="text-muted-foreground/70 hover:text-primary transition-colors"
+            >
+              info@rimfactory.io
+            </a>
+          </p>
+        )}
+        <div className="flex items-center gap-3 text-[11px] text-muted-foreground/60">
+          <Link href="/privacy" className="hover:text-foreground transition-colors">
+            {t("footer.privacy", locale)}
+          </Link>
+          <span aria-hidden="true">·</span>
+          <Link href="/terms" className="hover:text-foreground transition-colors">
+            {t("footer.terms", locale)}
+          </Link>
+        </div>
       </div>
     </aside>
   );
