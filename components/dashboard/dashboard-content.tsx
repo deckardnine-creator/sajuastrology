@@ -524,14 +524,9 @@ function DashboardInner() {
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
 
-  const weekDays = useMemo(() => {
-    return Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(); d.setDate(d.getDate() + i);
-      const score = sajuData.chart ? Math.round(calculateDailyEnergy(sajuData.chart, d)) : 0;
-      const wLocale = toBCP47(locale);
-      return { day: d.toLocaleDateString(wLocale, { weekday: "short" }), dateNum: d.getDate(), score };
-    });
-  }, [sajuData.chart]);
+  // v6.17.32 — weekDays useMemo REMOVED. The weekly score grid was
+  // deleted from the dashboard JSX per chandler ("주간운세는 빼고"),
+  // so this computation is no longer needed.
 
   // Daily fortune state + effect REMOVED in v1.3 Sprint 2-B
   // (chandler #4: today's-fortune section deleted from dashboard)
@@ -789,7 +784,19 @@ function DashboardInner() {
             - Top notice + bottom CTA + dim cards together communicate
               one clear next step.
       ════════════════════════════════════════════════════════════ */}
-      {sajuData.chart ? (
+      {/* ════════════════════════════════════════════════════════════
+          v6.17.32 — gate widgets on primaryChartPillars (DB), not on
+          sajuData.chart (which can be polluted by stale localStorage
+          from v6.16's auto-install bug). primaryChartPillars is loaded
+          fresh from my_primary_chart on every dashboard mount, so it's
+          the only authoritative signal that the user has actually
+          completed /setup-primary-chart.
+          
+          While primaryChartLoaded is false (initial fetch in flight),
+          we render nothing in this section to avoid a flicker between
+          placeholder and real content.
+          ════════════════════════════════════════════════════════════ */}
+      {!primaryChartLoaded ? null : (primaryChartPillars && sajuData.chart) ? (
         <>
           {/* Today's Energy + Day Master row */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-5">
@@ -866,32 +873,15 @@ function DashboardInner() {
             </div>
           </motion.section>
 
-          {/* Weekly */}
-          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="mb-6 sm:mb-8">
-            <h2 className="text-sm tracking-wider text-muted-foreground uppercase mb-3">{t("dash.thisWeek")}</h2>
-            <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
-              {weekDays.map((d, i) => {
-                const sc = d.score >= 70 ? "#59DE9B" : d.score >= 50 ? "#F2CA50" : "#EF4444";
-                return (
-                  <div key={i} className={`bg-card/50 border rounded-lg p-1.5 sm:p-2.5 text-center ${i === 0 ? "border-primary" : "border-border"}`}>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">{d.day}</p>
-                    <p className="text-sm sm:text-base font-medium">{d.dateNum}</p>
-                    {mounted && (
-                      <div className="mt-1">
-                        <div className="mx-auto w-5 h-10 sm:w-6 sm:h-12 bg-muted/20 rounded-full relative overflow-hidden">
-                          <div
-                            className="absolute bottom-0 left-0 right-0 rounded-full transition-all duration-700"
-                            style={{ height: `${d.score}%`, backgroundColor: sc }}
-                          />
-                        </div>
-                        <p className="text-[11px] sm:text-sm font-bold mt-0.5" style={{ color: sc }}>{d.score}</p>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </motion.section>
+          {/* ════════════════════════════════════════════════════════════
+              v6.17.32 — Weekly section REMOVED per chandler.
+              "주간운세는 빼고" — the weekly score grid is intentionally
+              not part of the dashboard. Today's Energy + Day Master +
+              Four Pillars is enough; the 7-day grid was visual noise.
+              The weekDays useMemo computation above is now unused but
+              kept (cheap, no harm) in case a future revision wants the
+              data — removing the JSX is the requested change.
+              ════════════════════════════════════════════════════════════ */}
         </>
       ) : (
         <>

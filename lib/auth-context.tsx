@@ -45,9 +45,30 @@ const EMPTY_SAJU: UserSajuData = {
   chart: null, birthDate: null, birthTime: null, birthCity: null, gender: null, readingGeneratedAt: null,
 };
 
-function loadSajuData(): UserSajuData {
+function loadSajuData(userId?: string | null): UserSajuData {
+  // ════════════════════════════════════════════════════════════════
+  // v6.17.32 — strict cache scoping by userId
+  // ════════════════════════════════════════════════════════════════
+  // OLD behavior: localStorage key was "saju-data" (no scoping). When
+  // the user signed out and a different account signed in on the same
+  // device, the old account's cached saju showed up on the new
+  // account's dashboard. Worse: when v6.16's bug auto-saved
+  // readings[0] (a celebrity / friend chart) into "saju-data", that
+  // poisoned localStorage permanently — no migration cleared it.
+  //
+  // NEW: cache key is "saju-data:{userId}". If userId is missing
+  // (very early hydration before user object resolves), we return
+  // EMPTY_SAJU and let the user-effect re-run once user is known.
+  // The legacy unscoped "saju-data" key is no longer read; it will
+  // be cleared opportunistically below.
+  // ════════════════════════════════════════════════════════════════
+  if (!userId) return EMPTY_SAJU;
   try {
-    const raw = safeGet("saju-data");
+    // Opportunistic legacy cleanup — once. Doesn't affect logic.
+    safeRemove("saju-data");
+  } catch {}
+  try {
+    const raw = safeGet(`saju-data:${userId}`);
     if (!raw) return EMPTY_SAJU;
     const parsed = JSON.parse(raw);
     return {
@@ -186,7 +207,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const prevUserId = safeGet("current-user-id");
         const isFirstTimeSignIn = !prevUserId;
         if (prevUserId && prevUserId !== newUser.id) {
-          safeRemove("saju-data");
+          safeRemove("saju-data"); // legacy unscoped key
+          safeRemove(`saju-data:${prevUserId}`); // v6.17.32 scoped key
           safeRemove("primary-reading-id");
           safeRemove("primary-changed-date");
           safeRemove("dashboard-stale");
@@ -415,12 +437,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => { setSajuData(loadSajuData()); }, []);
+  // v6.17.32 — first hydration is per-user (no global "saju-data")
+  useEffect(() => {
+    if (!user?.id) {
+      // No user → empty out any stale state from previous session.
+      setSajuData(EMPTY_SAJU);
+      return;
+    }
+    setSajuData(loadSajuData(user.id));
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user) return;
-    const local = loadSajuData();
-    if (local.chart) return;
+    // v6.17.32 — ALWAYS fetch from my_primary_chart, even if cache has
+    // a chart. The cache is just a fast-paint hint; the source of truth
+    // is the DB. Without this, users who had a poisoned localStorage
+    // entry from v6.16's bug (readings[0] auto-installed as their chart)
+    // would never see their real primary chart take over even after
+    // we fixed the underlying logic.
+    //
+    // chandler 2026-04-26 reported seeing a friend's day master / four
+    // pillars on his dashboard despite the v6.17 fix. Root cause: cached
+    // saju-data from before. This pull-then-overwrite pattern means a
+    // single page load self-heals the bad cache.
     // ════════════════════════════════════════════════════════════════
     // v6.17.16 — sajuData.chart sources from my_primary_chart.raw_chart
     // ════════════════════════════════════════════════════════════════
@@ -460,7 +499,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!pcRes.ok) return;
         const pcData = await pcRes.json();
         const pc = pcData?.chart;
-        if (!pc) return; // no primary chart yet → leave empty (intentional)
+        if (!pc) {
+          // v6.17.32 — no primary chart on server → wipe any cached
+          // saju-data for this user. Without this, a stale cache
+          // from before the user signed up to a fresh account
+          // (or from v6.16's auto-install bug) would persist forever.
+          setSajuData(EMPTY_SAJU);
+          try { safeRemove(`saju-data:${user.id}`); } catch {}
+          return;
+        }
 
         // Prefer the snapshot we stored at create-time. Fallback to
         // reconstructing from the column values if raw_chart is null
@@ -487,7 +534,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           readingGeneratedAt: new Date(pc.created_at || Date.now()),
         };
         setSajuData(newSajuData);
-        safeSet("saju-data", JSON.stringify(newSajuData));
+        // v6.17.32 — per-user cache key
+        safeSet(`saju-data:${user.id}`, JSON.stringify(newSajuData));
       } catch {}
     })();
   }, [user]);
@@ -638,7 +686,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       birthCity: chart.birthCity, gender: chart.gender, readingGeneratedAt: new Date(),
     };
     setSajuData(newSajuData);
-    safeSet("saju-data", JSON.stringify(newSajuData));
+    // v6.17.32 — per-user cache key. saveSajuChart is technically unused
+    // by callers now (legacy export), but keep it consistent with the new
+    // scoping in case anything in the codebase later imports it.
+    if (user?.id) {
+      safeSet(`saju-data:${user.id}`, JSON.stringify(newSajuData));
+    }
   };
 
   const isPremium = user?.subscription === "premium" || user?.subscription === "master";
