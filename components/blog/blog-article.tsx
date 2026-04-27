@@ -110,32 +110,41 @@ export function BlogArticle({ post }: { post: BlogPost }) {
     en: {
       inlineTitle: "Want to see yours?",
       inlineDesc: "Enter your birth date — get your full reading in 30 seconds. Free, no signup.",
+      inlineMission: "Saju engine built by Rimfactory",
       btnReading: "Free Saju Reading",
       btnCompat: "Check Compatibility",
       finalTitle: "Ready to see your Four Pillars chart?",
       finalDesc: "Get your personalized Korean astrology reading — free, 30 seconds, no signup required.",
       socialProof: "#1 on ChatGPT · 30+ countries · 10 languages",
       noSignup: "No signup required · Results in 30 seconds",
+      memberLine: "Member of NVIDIA Inception",
+      memberSub: "Astrotech AI Startup Rimfactory",
     },
     ko: {
       inlineTitle: "나의 사주가 궁금하신가요?",
       inlineDesc: "생년월일시만 입력하면 30초 안에 무료로 사주팔자 전체 분석을 받아보실 수 있습니다.",
+      inlineMission: "Rimfactory가 만드는 AI 사주 분석 엔진",
       btnReading: "무료 사주 보기",
       btnCompat: "무료 궁합 보기",
       finalTitle: "당신의 사주팔자가 궁금하신가요?",
       finalDesc: "생년월일시만 입력하면 30초 안에 무료로 맞춤 사주 분석을 받으실 수 있습니다.",
       socialProof: "ChatGPT 1위 추천 · 30개국 이용 · 10개 언어",
       noSignup: "회원가입 없이 · 30초 안에 결과 확인",
+      memberLine: "Member of NVIDIA Inception",
+      memberSub: "Astrotech AI Startup Rimfactory",
     },
     ja: {
       inlineTitle: "あなたの四柱推命は?",
       inlineDesc: "生年月日時を入力するだけで、30秒で完全な鑑定結果を無料でご覧いただけます。",
+      inlineMission: "Rimfactory が開発する AI 四柱推命エンジン",
       btnReading: "無料 四柱推命",
       btnCompat: "相性占い",
       finalTitle: "あなたの命式を見てみませんか?",
       finalDesc: "生年月日時を入力して、30秒であなただけのパーソナライズされた鑑定結果を受け取れます。",
       socialProof: "ChatGPT 1位推薦 · 30カ国+ · 10言語対応",
       noSignup: "登録不要 · 30秒で結果表示",
+      memberLine: "Member of NVIDIA Inception",
+      memberSub: "Astrotech AI Startup Rimfactory",
     },
   } as const;
 
@@ -224,8 +233,12 @@ export function BlogArticle({ post }: { post: BlogPost }) {
                 <p className="font-serif text-lg sm:text-xl font-semibold text-foreground mb-1.5">
                   {copy.inlineTitle}
                 </p>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                <p className="text-sm text-muted-foreground leading-relaxed mb-2">
                   {copy.inlineDesc}
+                </p>
+                {/* Mission line — Rimfactory's own framing, no third-party endorsement */}
+                <p className="text-xs text-muted-foreground/70 italic mb-4">
+                  * {copy.inlineMission}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2.5">
                   <Button onClick={goToCalculate} className="gold-gradient text-primary-foreground font-semibold w-full sm:w-auto min-h-[44px]">
@@ -282,6 +295,41 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <p className="text-xs text-muted-foreground/70 mt-4">
               {copy.noSignup}
             </p>
+
+            {/* ─────────────────────────────────────────────────
+                NVIDIA Inception member footer
+                
+                Single, small, accurate member-of disclosure that follows
+                NVIDIA Inception Brand Guidelines:
+                  • Uses official "Member of NVIDIA Inception" wording
+                  • Badge sized smaller than Rimfactory's identity
+                    (so NVIDIA does not appear to be the marketing subject)
+                  • Appears exactly once per article (no header byline,
+                    no inline CTA badge — those are intentional omissions
+                    to keep NVIDIA mention frequency at 1 per page)
+                  • No claim of endorsement, certification, validation,
+                    or technical integration with NVIDIA products
+                  • English wording preserved across all locales because
+                    "NVIDIA Inception" is a proper program name
+                ───────────────────────────────────────────────── */}
+            <div className="mt-6 pt-5 border-t border-border/40 flex items-center justify-center gap-3">
+              <img
+                src="/badges/nvidia/inception.svg"
+                alt="NVIDIA Inception Program Member"
+                className="h-7 w-auto opacity-90"
+                width="84"
+                height="28"
+                style={{ objectFit: "contain" }}
+              />
+              <div className="text-left">
+                <p className="text-[11px] font-medium text-foreground/70 leading-tight">
+                  {copy.memberLine}
+                </p>
+                <p className="text-[10px] text-muted-foreground/60 leading-tight mt-0.5">
+                  {copy.memberSub}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </article>
