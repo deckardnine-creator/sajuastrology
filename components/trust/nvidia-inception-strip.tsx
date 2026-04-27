@@ -1,73 +1,89 @@
 "use client"
 
 // ═══════════════════════════════════════════════════════════════════
-// NVIDIA Inception Trust Strip
+// NVIDIA Inception Trust Strip — v2 (matches Soram CTA card style)
 // ─────────────────────────────────────────────────────────────────
-// Displays the official NVIDIA Inception member badge with a short
-// "Recognized AI Startup · April 2026" tagline. Lives in the hero
-// area below the headline so the user sees it before submitting
-// their birth data — the trust signal lands right in the moment of
-// hesitation.
+// Visually mirrors the Soram CTA card directly below it:
+//   • Same w-[280px] / lg:w-auto sizing
+//   • Same rounded-xl, gradient bg, left accent bar
+//   • Same horizontal layout (badge + text + arrow)
+// But uses a BLUE/CYAN palette instead of amber so it reads as a
+// trust signal, not a conversion CTA.
 //
-// Brand compliance (per NVIDIA Inception Brand Guidelines, 2026):
-// • Uses the OFFICIAL Inception member badge SVG (no NVIDIA master logo)
-// • Badge colors / proportions / text NEVER altered (rendered as <img>)
-// • Minimum digital size 30px — we render at 36–44px depending on viewport
-// • Clear space respected via px-4 py-2.5 padding on the wrapping card
-// • The Rimfactory site logo (Navbar) remains visually larger than the badge
-// • Links to the public NVIDIA Startups page so visitors can verify
+// Lives INSIDE the same flex column wrapper as the Soram + saju + 
+// compatibility CTAs — so on desktop it left-aligns with them,
+// on mobile it centers within the wrapper (items-center sm:items-start).
 //
-// Renders on both mobile and desktop. The card sits inline with
-// the rest of the hero copy.
+// Brand compliance (NVIDIA Inception Brand Guidelines):
+//   • Official Inception member badge SVG, never recolored/distorted
+//   • Badge sits inside a small white pill so the white-canvas badge
+//     reads cleanly against the dark hero bg without altering the
+//     badge artwork itself
+//   • Min digital size 30px — pill clear space + h-5 badge yields ~30px
+//   • Rimfactory navbar logo remains larger than this badge
+//   • External link to nvidia.com/startups for verification
 // ═══════════════════════════════════════════════════════════════════
 
 import { useLanguage } from "@/lib/language-context"
+import { ArrowRight } from "lucide-react"
 
 export function NvidiaInceptionStrip() {
   const { t } = useLanguage()
 
   return (
-    <div className="flex justify-center my-5 sm:my-6">
-      <a
-        href="https://www.nvidia.com/en-us/startups/"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Member of NVIDIA Inception"
+    <a
+      href="https://www.nvidia.com/en-us/startups/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Member of NVIDIA Inception"
+      className="block text-left w-[280px] lg:w-auto group"
+    >
+      <div
         className="
-          inline-flex items-center gap-3 sm:gap-4
-          px-4 sm:px-5 py-2.5 sm:py-3
-          rounded-2xl
-          bg-white/95
-          shadow-lg shadow-purple-900/30
-          border border-white/40
-          hover:bg-white hover:shadow-purple-900/40
+          relative overflow-hidden rounded-xl
+          border border-sky-400/40
+          bg-gradient-to-br from-sky-500/10 via-cyan-400/5 to-transparent
+          backdrop-blur-sm
+          pl-3.5 pr-3 py-2.5
           transition-all duration-200
-          group
-          max-w-[92vw]
+          hover:border-sky-300/70
+          hover:shadow-[0_8px_24px_rgba(56,189,248,0.25)]
+          active:scale-[0.99]
         "
       >
-        {/* Official NVIDIA Inception member badge — do not alter */}
-        <img
-          src="/badges/nvidia/inception.svg"
-          alt="NVIDIA Inception Program Member"
-          className="h-9 sm:h-10 w-auto shrink-0"
-          width="93"
-          height="40"
+        {/* Cyan/sky left accent bar — mirrors the gold bar on the Soram card */}
+        <span
+          aria-hidden="true"
+          className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-gradient-to-b from-sky-300 to-cyan-500"
         />
 
-        {/* Vertical divider — hidden on the smallest screens to save width */}
-        <div className="hidden xs:block w-px h-9 sm:h-10 bg-gray-300/80 shrink-0" />
+        <div className="flex items-center gap-2.5">
+          {/* Official NVIDIA Inception badge wrapped in a small white pill —
+              the pill is the "card surface" that prevents the white-canvas
+              badge from clashing with the dark bg. The badge itself stays
+              brand-pure (not recolored, not distorted). */}
+          <span className="shrink-0 inline-flex items-center justify-center rounded-md bg-white px-1.5 py-0.5 ring-1 ring-white/40">
+            <img
+              src="/badges/nvidia/inception.svg"
+              alt="NVIDIA Inception Program Member"
+              className="h-5 w-auto"
+              width="58"
+              height="20"
+            />
+          </span>
 
-        {/* Title + date stack */}
-        <div className="flex flex-col items-start leading-tight min-w-0">
-          <span className="text-[11px] sm:text-xs font-semibold text-gray-800 truncate">
-            {t("trust.nvidiaInception")}
-          </span>
-          <span className="text-[10px] sm:text-[11px] text-gray-500 mt-0.5">
-            {t("trust.nvidiaInceptionDate")}
-          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-sky-100 leading-tight">
+              {t("trust.nvidiaInception")}
+            </p>
+            <p className="text-[10px] text-sky-200/70 leading-snug mt-0.5">
+              {t("trust.nvidiaInceptionDate")}
+            </p>
+          </div>
+
+          <ArrowRight className="w-4 h-4 text-sky-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
         </div>
-      </a>
-    </div>
+      </div>
+    </a>
   )
 }

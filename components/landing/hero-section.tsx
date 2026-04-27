@@ -120,7 +120,7 @@ export function HeroSection() {
             transition={{ duration: 0.8 }}
             className="flex flex-col gap-5 sm:gap-4 py-6 sm:py-6 lg:py-0"
           >
-            <h1 className="font-serif text-[2rem] xs:text-[2.25rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.25] break-words">
+            <h1 className="font-serif text-[1.75rem] xs:text-[2rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.25] break-words tracking-tight">
               {t("hero.title1")}
               <br className="sm:hidden" />
               <span className="gold-gradient-text">{" "}{t("hero.title2")}</span>
@@ -135,20 +135,6 @@ export function HeroSection() {
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500/80 animate-pulse" />
               {t("hero.techLine")}
             </p>
-
-            {/* ════════════════════════════════════════════════════════
-                v6.17.41 — NVIDIA Inception trust strip
-                
-                Lands BETWEEN the credibility microcopy and the CTA
-                stack so visitors see the recognition signal in the
-                exact moment of hesitation, just before deciding to
-                hand over their birth date / time / city. Brand-
-                compliant: official Inception member badge only,
-                no NVIDIA master logo, no "endorsed by" claims.
-                Lives outside the CTA wrapper to keep the existing
-                Soram + saju + compatibility triplet visually intact.
-            ════════════════════════════════════════════════════════ */}
-            <NvidiaInceptionStrip />
 
             {/* ════════════════════════════════════════════════════════
                 v1.3 Sprint 2-B v6.9: Soram CTA + primary CTAs unified
@@ -190,6 +176,21 @@ export function HeroSection() {
                 in Flutter shell while UX polish continues).
             ════════════════════════════════════════════════════════ */}
             <div className="flex flex-col items-center sm:items-start gap-3 mt-2">
+
+              {/* ════════════════════════════════════════════════════════
+                  v6.17.41 — NVIDIA Inception trust strip
+                  
+                  Sits at the TOP of the CTA stack so visitors see the
+                  recognition signal first, before the Soram + saju +
+                  compatibility actions. Same w-[280px] / lg:w-auto
+                  sizing as the Soram card and primary CTAs so the
+                  triplet → quartet keeps a unified visual rhythm.
+                  Blue/cyan palette differentiates it from the warm
+                  gold conversion CTAs (trust signal, not a call to
+                  action), but card shape / padding / accent bar
+                  exactly mirror the Soram card.
+              ════════════════════════════════════════════════════════ */}
+              <NvidiaInceptionStrip />
 
               {/* Soram entry — gold-accent card.
                   v6.17.25 — Previously native에서 hide 처리됐었지만
