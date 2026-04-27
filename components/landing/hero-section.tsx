@@ -118,9 +118,9 @@ export function HeroSection() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="flex flex-col gap-5 sm:gap-4 py-6 sm:py-6 lg:py-0"
+            className="flex flex-col gap-3 sm:gap-4 py-4 sm:py-6 lg:py-0"
           >
-            <h1 className="font-serif text-[1.75rem] xs:text-[2rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.25] break-words tracking-tight">
+            <h1 className="font-serif text-[1.625rem] xs:text-[1.875rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.15] sm:leading-[1.25] break-words">
               {t("hero.title1")}
               <br className="sm:hidden" />
               <span className="gold-gradient-text">{" "}{t("hero.title2")}</span>
@@ -179,16 +179,7 @@ export function HeroSection() {
 
               {/* ════════════════════════════════════════════════════════
                   v6.17.41 — NVIDIA Inception trust strip
-                  
-                  Sits at the TOP of the CTA stack so visitors see the
-                  recognition signal first, before the Soram + saju +
-                  compatibility actions. Same w-[280px] / lg:w-auto
-                  sizing as the Soram card and primary CTAs so the
-                  triplet → quartet keeps a unified visual rhythm.
-                  Blue/cyan palette differentiates it from the warm
-                  gold conversion CTAs (trust signal, not a call to
-                  action), but card shape / padding / accent bar
-                  exactly mirror the Soram card.
+                  Two-row layout: badge top, text + arrow bottom.
               ════════════════════════════════════════════════════════ */}
               <NvidiaInceptionStrip />
 
