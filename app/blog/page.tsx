@@ -128,6 +128,63 @@ export default function BlogPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
+          PUBLISHER TRUST STRIP
+          
+          Sits between Hero and Blog List — caught by every reader who
+          lands on /blog (the heaviest-traffic SEO entry point) before
+          they decide whether to click into individual articles.
+          
+          Purpose: tell Google E-E-A-T signal AND tell readers who
+          publishes this content. The strip names Rimfactory once
+          (with a credible mission), then the small NVIDIA Inception
+          member badge as a single, accurate trust signal.
+          
+          Per NVIDIA Inception Brand Guidelines:
+            • "Member of NVIDIA Inception" official wording
+            • Badge sized smaller than Rimfactory's identity
+            • One mention, no endorsement claims
+            • English wording across all locales (proper program name)
+          ═══════════════════════════════════════════════════════════ */}
+      <section className="pb-2 sm:pb-4">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm px-5 py-5 sm:px-6 sm:py-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+            {/* LEFT — Publisher mission (most visual weight: Rimfactory) */}
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary/80 mb-1">
+                Published by Rimfactory
+              </p>
+              <p className="text-sm sm:text-base text-foreground/85 leading-snug">
+                An Astrotech AI startup building the world's most precise Saju engine.
+              </p>
+              <p className="text-[11px] sm:text-xs text-muted-foreground/70 leading-snug mt-1.5">
+                562 classical passages · Multi-LLM cross-validation · 10 languages
+              </p>
+            </div>
+
+            {/* RIGHT — Small NVIDIA Inception member badge (single, accurate signal) */}
+            <div className="flex items-center gap-2.5 sm:border-l sm:border-border/40 sm:pl-6 shrink-0">
+              <img
+                src="/badges/nvidia/inception.svg"
+                alt="NVIDIA Inception Program Member"
+                className="h-7 w-auto opacity-90"
+                width="84"
+                height="28"
+                style={{ objectFit: "contain" }}
+              />
+              <div className="text-left">
+                <p className="text-[11px] font-medium text-foreground/70 leading-tight">
+                  Member of NVIDIA Inception
+                </p>
+                <p className="text-[10px] text-muted-foreground/60 leading-tight mt-0.5">
+                  Astrotech AI Startup
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════
           BLOG LIST
           ═══════════════════════════════════════════════════════════ */}
       <section className="pb-16">
