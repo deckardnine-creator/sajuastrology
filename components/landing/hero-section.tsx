@@ -130,10 +130,12 @@ export function HeroSection() {
               {t("hero.desc")}
             </p>
 
-            {/* Tech credibility line */}
-            <p className="text-[11px] sm:text-xs text-muted-foreground/60 flex items-center gap-1.5 flex-wrap">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500/80 animate-pulse" />
-              {t("hero.techLine")}
+            {/* Tech credibility line — green dot stays anchored to the
+                first word so when the text wraps to multiple lines (long
+                English/etc), the dot doesn't end up alone on its own row. */}
+            <p className="text-[11px] sm:text-xs text-muted-foreground/60 leading-relaxed">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500/80 animate-pulse align-middle mr-1.5" />
+              <span className="align-middle">{t("hero.techLine")}</span>
             </p>
 
             {/* ════════════════════════════════════════════════════════
@@ -178,14 +180,12 @@ export function HeroSection() {
             <div className="flex flex-col items-center sm:items-start gap-3 mt-2">
 
               {/* ════════════════════════════════════════════════════════
-                  v6.17.41 — NVIDIA Inception trust strip
-                  Two-row layout: badge top, text + arrow bottom.
+                  v6.17.41 — NVIDIA Inception trust card
+                  Two-row layout (badge top, text+arrow bottom). Tap
+                  opens an explainer modal in the user's locale.
                   
-                  HIDDEN inside native app (Flutter WebView) — Apple's
-                  app review can flag third-party trust badges as
-                  unauthorized endorsements. The web (sajuastrology.com)
-                  is owned media so the badge is fine there. Once the
-                  App Store review clears we can revisit.
+                  HIDDEN inside the native app (Apple review) via
+                  the {!isNativeApp && ...} guard.
               ════════════════════════════════════════════════════════ */}
               {!isNativeApp && <NvidiaInceptionStrip />}
 
