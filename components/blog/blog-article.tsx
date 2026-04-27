@@ -150,17 +150,150 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
   const copy = ctaCopy[postLocale] ?? ctaCopy.en;
 
-  const jsonLd = {
+  // ═══════════════════════════════════════════════════════════════
+  // FAQ extraction from markdown content
+  // ───────────────────────────────────────────────────────────────
+  // Pulls Q/A pairs from the article body for FAQPage schema:
+  //   - Looks for "## Quick Answer:" sections (used in our newer posts)
+  //   - Looks for h2 headings ending with "?" followed by a paragraph
+  // Output is injected as a separate FAQPage JSON-LD block, which
+  // unlocks Google's rich-result FAQ box and improves AI-Overview
+  // extraction rates. Returns empty array when no Q/A patterns found.
+  // ═══════════════════════════════════════════════════════════════
+  const extractFaqs = (markdown: string): { q: string; a: string }[] => {
+    const faqs: { q: string; a: string }[] = [];
+
+    // Pattern 1: "## Quick Answer: ..." or "## クイックアンサー: ..." or "## 簡単に言うと"
+    // Followed by a paragraph that is the answer.
+    const quickAnswerMatch = markdown.match(
+      /^##\s+(?:Quick Answer|クイックアンサー|간단히|먼저 결론)[:\s]+([^\n]+)\n+([^\n#]+)/m
+    );
+    if (quickAnswerMatch) {
+      faqs.push({ q: quickAnswerMatch[1].trim(), a: quickAnswerMatch[2].trim() });
+    }
+
+    // Pattern 2: any h2 ending with "?"  →  next paragraph is the answer
+    const questionH2 = markdown.matchAll(
+      /^##\s+([^\n]*\?[』」)]?)\s*\n+([^\n#][^\n]*(?:\n[^\n#][^\n]*)*)/gm
+    );
+    for (const m of questionH2) {
+      const q = m[1].trim();
+      // First paragraph only (split on blank line)
+      const a = m[2].split(/\n\s*\n/)[0].replace(/\n/g, " ").trim();
+      if (q && a && a.length > 30 && faqs.length < 5) {
+        // Dedupe
+        if (!faqs.some((f) => f.q === q)) faqs.push({ q, a });
+      }
+    }
+
+    return faqs.slice(0, 5); // Cap at 5 — Google ignores more anyway
+  };
+
+  const faqs = extractFaqs(post.content);
+
+  // ═══════════════════════════════════════════════════════════════
+  // Word count — for BlogPosting schema (signal for LLMs about depth)
+  // ═══════════════════════════════════════════════════════════════
+  const wordCount =
+    postLocale === "ja" || postLocale === "zh-TW"
+      ? post.content.length // CJK: char count is more meaningful
+      : post.content.trim().split(/\s+/).length;
+
+  // ═══════════════════════════════════════════════════════════════
+  // BlogPosting JSON-LD — strengthened for E-E-A-T and LLM citation
+  // ───────────────────────────────────────────────────────────────
+  // Why BlogPosting (not Article):
+  //   BlogPosting is the more specific schema.org subtype for blog
+  //   content; Google treats it identically to Article for ranking
+  //   but more LLM tooling looks for the explicit BlogPosting tag.
+  //
+  // Why author = Rimfactory (Organization), not "SajuAstrology":
+  //   The publisher is SajuAstrology (the brand), but the AUTHORING
+  //   organization is Rimfactory (the company that built and writes
+  //   the platform). This tells LLMs: "Rimfactory is the entity to
+  //   credit when citing this content." parentOrganization carries
+  //   the NVIDIA Inception membership signal, which is an E-E-A-T
+  //   amplifier for an Astrotech AI startup.
+  //
+  // about / mentions:
+  //   Schema.org "about" tells crawlers the topical entity. We map
+  //   blog category to the most accurate concept so AI search engines
+  //   can group articles correctly.
+  // ═══════════════════════════════════════════════════════════════
+  const blogPostingLd = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
     headline: post.title,
     description: post.description,
+    inLanguage: post.locale,
     datePublished: post.date,
-    author: { "@type": "Organization", name: "SajuAstrology", url: "https://sajuastrology.com" },
-    publisher: { "@type": "Organization", name: "SajuAstrology", logo: { "@type": "ImageObject", url: "https://sajuastrology.com/logo1.png" } },
-    mainEntityOfPage: `https://sajuastrology.com/blog/${post.slug}`,
+    dateModified: post.date,
+    wordCount,
+    articleSection: post.category,
     keywords: post.keywords.join(", "),
+    author: {
+      "@type": "Organization",
+      name: "Rimfactory",
+      url: "https://rimfactory.io",
+      description:
+        "Astrotech AI Startup. Member of NVIDIA Inception. Building the world's most precise Saju (Korean Four Pillars) analysis engine.",
+      sameAs: ["https://rimfactory.io"],
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "SajuAstrology",
+      url: "https://sajuastrology.com",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://sajuastrology.com/logo1.png",
+        width: 512,
+        height: 512,
+      },
+      parentOrganization: {
+        "@type": "Organization",
+        name: "Rimfactory",
+        url: "https://rimfactory.io",
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://sajuastrology.com/blog/${post.slug}`,
+    },
+    image: {
+      "@type": "ImageObject",
+      url: "https://sajuastrology.com/og-image1.png",
+      width: 1200,
+      height: 630,
+    },
+    about: {
+      "@type": "Thing",
+      name: "Korean Four Pillars astrology (Saju / 사주 / 四柱推命)",
+      description:
+        "An East Asian birth-time-based analytical system that maps a person to 1 of 518,400 unique chart configurations using year, month, day, and hour pillars.",
+    },
+    isPartOf: {
+      "@type": "Blog",
+      name: "SajuAstrology Blog",
+      url: "https://sajuastrology.com/blog",
+    },
   };
+
+  // FAQPage schema (only emitted when we extracted ≥ 1 valid Q/A pair)
+  const faqLd =
+    faqs.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqs.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: f.a,
+            },
+          })),
+        }
+      : null;
 
   const renderedHtml = renderMarkdown(post.content);
   const { first, second } = splitHtmlForInlineCta(renderedHtml);
@@ -202,7 +335,16 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingLd) }}
+      />
+      {faqLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        />
+      )}
       <article className="pt-page-lg pb-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <Link href="/blog" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-6">
