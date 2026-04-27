@@ -180,8 +180,14 @@ export function HeroSection() {
               {/* ════════════════════════════════════════════════════════
                   v6.17.41 — NVIDIA Inception trust strip
                   Two-row layout: badge top, text + arrow bottom.
+                  
+                  HIDDEN inside native app (Flutter WebView) — Apple's
+                  app review can flag third-party trust badges as
+                  unauthorized endorsements. The web (sajuastrology.com)
+                  is owned media so the badge is fine there. Once the
+                  App Store review clears we can revisit.
               ════════════════════════════════════════════════════════ */}
-              <NvidiaInceptionStrip />
+              {!isNativeApp && <NvidiaInceptionStrip />}
 
               {/* Soram entry — gold-accent card.
                   v6.17.25 — Previously native에서 hide 처리됐었지만

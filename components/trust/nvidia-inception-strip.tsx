@@ -1,23 +1,32 @@
 "use client"
 
 // ═══════════════════════════════════════════════════════════════════
-// NVIDIA Inception Trust Strip — v3 (two-row layout)
+// NVIDIA Inception Trust Strip — v4
 // ─────────────────────────────────────────────────────────────────
-// Two-row card layout per chandler's spec:
-//   Row 1: NVIDIA Inception badge displayed wide and prominent
-//          on a clean white pill (badge stays brand-pure, never
-//          recolored or distorted).
+// Two-row card layout:
+//   Row 1: Official NVIDIA Inception badge displayed at ~2/3 of the
+//          card width with NO additional white wrapper. The badge
+//          SVG is already a clean white rectangle with a black
+//          stroke, NVIDIA Green eye logo, and the "Inception Program"
+//          wordmark — wrapping it in another white pill was redundant
+//          and made the badge feel small and over-protected. Now it
+//          stands on its own with proper presence.
 //   Row 2: Title + subtitle on the left, arrow on the right.
 //
-// Card lives INSIDE the same flex column wrapper as the Soram +
-// saju + compatibility CTAs — same w-[280px] / lg:w-auto sizing,
-// same rounded-xl, same accent-bar pattern. Cyan/sky palette so
-// it reads as a trust signal rather than a conversion CTA.
+// Card uses cyan/sky palette so it reads as a trust signal rather
+// than a conversion CTA. Lives inside the same flex column wrapper
+// as the Soram + saju + compatibility CTAs so the visual rhythm
+// (w-[280px] / lg:w-auto, rounded-xl, accent-bar pattern) matches.
+//
+// HIDDEN in the native app via {!isNativeApp && ...} in the parent
+// hero — see hero-section.tsx for the gating logic.
 //
 // Brand compliance (NVIDIA Inception Brand Guidelines):
-//   • Official Inception member badge SVG, never recolored
-//   • Badge sits on a white pill with respectful clear space
-//   • h-7 (28px) wide-display badge ≥ minimum 30px (with pill padding)
+//   • Official Inception member badge SVG, never recolored/distorted
+//   • Badge displayed at native aspect ratio (h-12 with w-auto on a
+//     500x216 viewBox SVG yields a comfortable wide presence ≥ 30px)
+//   • Clear space respected via the card's px-3.5 padding plus inner
+//     mb-2 spacing between the badge row and the text row
 //   • Rimfactory navbar logo remains visually larger than this badge
 //   • External link to nvidia.com/startups for verification
 // ═══════════════════════════════════════════════════════════════════
@@ -42,7 +51,7 @@ export function NvidiaInceptionStrip() {
           border border-sky-400/40
           bg-gradient-to-br from-sky-500/10 via-cyan-400/5 to-transparent
           backdrop-blur-sm
-          pl-3.5 pr-3 py-2.5
+          pl-3.5 pr-3 py-3
           transition-all duration-200
           hover:border-sky-300/70
           hover:shadow-[0_8px_24px_rgba(56,189,248,0.25)]
@@ -55,17 +64,16 @@ export function NvidiaInceptionStrip() {
           className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-gradient-to-b from-sky-300 to-cyan-500"
         />
 
-        {/* ─── Row 1: NVIDIA badge displayed wide on a white pill ─── */}
-        <div className="flex justify-center mb-2">
-          <span className="inline-flex items-center justify-center rounded-md bg-white px-2 py-1 ring-1 ring-white/40">
-            <img
-              src="/badges/nvidia/inception.svg"
-              alt="NVIDIA Inception Program Member"
-              className="h-6 w-auto"
-              width="70"
-              height="24"
-            />
-          </span>
+        {/* ─── Row 1: NVIDIA badge — sits naked on its own native white rectangle,
+            sized to occupy ~2/3 of the card width for proper presence ─── */}
+        <div className="flex justify-center mb-2.5">
+          <img
+            src="/badges/nvidia/inception.svg"
+            alt="NVIDIA Inception Program Member"
+            className="h-16 sm:h-20 w-auto"
+            width="185"
+            height="80"
+          />
         </div>
 
         {/* ─── Row 2: Title + subtitle (left) + arrow (right) ─── */}
