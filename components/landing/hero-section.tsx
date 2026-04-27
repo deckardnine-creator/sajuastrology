@@ -120,7 +120,7 @@ export function HeroSection() {
             transition={{ duration: 0.8 }}
             className="flex flex-col gap-3 sm:gap-4 py-4 sm:py-6 lg:py-0"
           >
-            <h1 className="font-serif text-[1.625rem] xs:text-[1.875rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.15] sm:leading-[1.25] break-words">
+            <h1 className="font-serif text-[1.625rem] xs:text-[1.875rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.1] break-words">
               {t("hero.title1")}
               <br className="sm:hidden" />
               <span className="gold-gradient-text">{" "}{t("hero.title2")}</span>
@@ -180,12 +180,8 @@ export function HeroSection() {
             <div className="flex flex-col items-center sm:items-start gap-3 mt-2">
 
               {/* ════════════════════════════════════════════════════════
-                  v6.17.41 — NVIDIA Inception trust card
-                  Two-row layout (badge top, text+arrow bottom). Tap
-                  opens an explainer modal in the user's locale.
-                  
-                  HIDDEN inside the native app (Apple review) via
-                  the {!isNativeApp && ...} guard.
+                  v6.17.41 — NVIDIA Inception trust card with explainer modal
+                  Hidden in native app pending Apple review.
               ════════════════════════════════════════════════════════ */}
               {!isNativeApp && <NvidiaInceptionStrip />}
 

@@ -1,103 +1,121 @@
 "use client"
 
 // ═══════════════════════════════════════════════════════════════════
-// NVIDIA Inception Trust Strip — v5 (with explainer modal)
+// NVIDIA Inception Trust Strip — v6
 // ─────────────────────────────────────────────────────────────────
-// Two-row card:
-//   Row 1: Official NVIDIA Inception badge — sized to fill ~80% of
-//          the card width with minimal horizontal padding so the
-//          badge owns the visual space (chandler's spec: less
-//          whitespace around the badge).
-//   Row 2: Title + subtitle on the left, arrow on the right.
+// Changes from v5:
+//   • The "(26.4)" date is no longer inline with the title — it has
+//     been promoted to a green "NEW · Apr 2026" pill that sits to
+//     the right of the title row. This keeps the title clean
+//     ("Selected by NVIDIA Inception") while making the recency
+//     signal louder, since chandler called it the most important bit.
+//   • The modal now repeats the "won/selected" header at the top
+//     (badge + title + NEW pill) BEFORE the explainer body, so users
+//     who tap don't lose context of what they just clicked.
 //
-// Click behavior: opens a small modal that explains what the NVIDIA
-// Inception program is, in the user's locale. Closes via X button
-// or backdrop click. The external link to nvidia.com/startups
-// lives inside the modal as a "Learn more" link, not as the card's
-// primary action — chandler explicitly asked NOT to navigate away
-// from the site directly on tap.
+// Click behavior unchanged — opens explainer modal in user's locale,
+// closes via X / backdrop / ESC.
 //
 // HIDDEN in the native app via the parent hero gating.
 //
 // Brand compliance (NVIDIA Inception Brand Guidelines):
 //   • Official Inception member badge SVG, never recolored/distorted
-//   • Native aspect ratio preserved via h-* + w-auto
-//   • Clear space respected — badge has its own white background,
-//     and the surrounding card pad gives breathing room without
-//     wrapping the badge in another shape
+//   • Native aspect ratio preserved
+//   • Clear space respected
 //   • Rimfactory navbar logo remains visually larger than this badge
-//   • Explainer text describes the program accurately (no
-//     misleading endorsement claims)
 // ═══════════════════════════════════════════════════════════════════
 
 import { useState, useEffect } from "react"
 import { useLanguage } from "@/lib/language-context"
 import { ArrowRight, X } from "lucide-react"
 
-// Program explainer text — fairly stable across markets so we keep
-// it inline rather than adding 10 more translation keys for a
-// secondary surface. Falls back to English when locale not present.
-const EXPLAINER: Record<string, { title: string; body: string; learnMore: string; close: string }> = {
+// Per-locale strings used inside the modal. Title/date come from the
+// shared translations.ts so the card and modal header stay in sync.
+const EXPLAINER: Record<string, { title: string; body: string; learnMore: string; close: string; newLabel: string }> = {
   en: {
     title: "What is NVIDIA Inception?",
-    body: "NVIDIA Inception is a global program supporting tech-driven startups in artificial intelligence, data science, and high-performance computing. Members get access to NVIDIA's technology, expertise, and partner network across product development, prototyping, and go-to-market.",
-    learnMore: "Learn more on NVIDIA's site →",
+    body: "NVIDIA Inception is a global program for startups building what's next in AI. Members access NVIDIA's latest technology, preferred pricing, partner offers, and exposure to a global ecosystem of investors — supporting product development, prototyping, and go-to-market across more than 22,000 AI startups worldwide.",
+    learnMore: "Learn more on nvidia.com →",
     close: "Close",
+    newLabel: "NEW",
   },
   ko: {
     title: "NVIDIA Inception이란?",
-    body: "NVIDIA Inception은 인공지능(AI), 데이터 과학, 고성능 컴퓨팅(HPC) 분야의 기술 기반 스타트업을 육성하고 성장을 지원하는 글로벌 프로그램입니다. 제품 개발, 프로토타이핑, 시장 진출 등 핵심 성장 단계에서 NVIDIA의 기술력과 파트너 네트워크를 제공합니다.",
+    body: "NVIDIA Inception은 AI의 미래를 만드는 스타트업을 위한 글로벌 프로그램입니다. 전 세계 22,000개 이상의 AI 스타트업이 참여하며, 멤버는 NVIDIA의 최신 기술, 우대 가격, 파트너 혜택, 그리고 글로벌 투자자 생태계 노출의 혜택을 받아 제품 개발·프로토타이핑·시장 진출 단계에서 성장을 가속합니다.",
     learnMore: "NVIDIA 공식 사이트에서 더 보기 →",
     close: "닫기",
+    newLabel: "신규",
   },
   ja: {
     title: "NVIDIA Inception とは？",
-    body: "NVIDIA Inception は、AI、データサイエンス、ハイパフォーマンスコンピューティング分野のテック系スタートアップを育成・支援するグローバルプログラムです。メンバーは製品開発、プロトタイピング、市場参入のあらゆる段階で NVIDIA の技術力とパートナーネットワークを活用できます。",
+    body: "NVIDIA Inception は、AI の次世代を切り拓くスタートアップを支援するグローバルプログラムです。世界中の22,000社以上の AI スタートアップが参加し、メンバーは NVIDIA の最新技術、優待価格、パートナー特典、そしてグローバルな投資家エコシステムへの露出といった支援を、製品開発・プロトタイピング・市場参入の各段階で受けることができます。",
     learnMore: "NVIDIA 公式サイトで詳しく見る →",
     close: "閉じる",
+    newLabel: "新規",
   },
   es: {
     title: "¿Qué es NVIDIA Inception?",
-    body: "NVIDIA Inception es un programa global que apoya a startups tecnológicas en inteligencia artificial, ciencia de datos y computación de alto rendimiento. Los miembros acceden a la tecnología, experiencia y red de socios de NVIDIA durante el desarrollo, prototipado y lanzamiento al mercado.",
-    learnMore: "Más información en NVIDIA →",
+    body: "NVIDIA Inception es un programa global para startups que están construyendo el futuro de la IA. Más de 22.000 startups acceden a la tecnología más reciente de NVIDIA, precios preferentes, ofertas de socios y exposición a un ecosistema global de inversores en cada etapa del desarrollo de producto y salida al mercado.",
+    learnMore: "Más información en nvidia.com →",
     close: "Cerrar",
+    newLabel: "NUEVO",
   },
   fr: {
     title: "Qu'est-ce que NVIDIA Inception ?",
-    body: "NVIDIA Inception est un programme mondial qui soutient les startups technologiques dans l'intelligence artificielle, la science des données et le calcul haute performance. Les membres accèdent à la technologie, à l'expertise et au réseau de partenaires de NVIDIA pour le développement, le prototypage et la mise sur le marché.",
-    learnMore: "En savoir plus sur NVIDIA →",
+    body: "NVIDIA Inception est un programme mondial pour les startups qui construisent l'avenir de l'IA. Plus de 22 000 startups accèdent aux dernières technologies NVIDIA, à des tarifs préférentiels, à des offres de partenaires et à un écosystème mondial d'investisseurs, à chaque étape du développement produit et du go-to-market.",
+    learnMore: "En savoir plus sur nvidia.com →",
     close: "Fermer",
+    newLabel: "NOUVEAU",
   },
   pt: {
     title: "O que é o NVIDIA Inception?",
-    body: "O NVIDIA Inception é um programa global que apoia startups de tecnologia em inteligência artificial, ciência de dados e computação de alto desempenho. Os membros têm acesso à tecnologia, expertise e rede de parceiros da NVIDIA em desenvolvimento de produto, prototipagem e go-to-market.",
-    learnMore: "Saiba mais no site da NVIDIA →",
+    body: "O NVIDIA Inception é um programa global para startups que constroem o futuro da IA. Mais de 22.000 startups acessam a tecnologia mais recente da NVIDIA, preços preferenciais, ofertas de parceiros e exposição a um ecossistema global de investidores em cada etapa do desenvolvimento e go-to-market.",
+    learnMore: "Saiba mais em nvidia.com →",
     close: "Fechar",
+    newLabel: "NOVO",
   },
   "zh-TW": {
     title: "什麼是 NVIDIA Inception？",
-    body: "NVIDIA Inception 是支持人工智慧、數據科學與高效能運算領域的科技新創全球計畫。成員可在產品開發、原型製作及市場推廣各階段獲得 NVIDIA 的技術、專業與合作夥伴網絡。",
-    learnMore: "前往 NVIDIA 官方網站了解更多 →",
+    body: "NVIDIA Inception 是支持打造 AI 未來的新創企業的全球計畫。全球超過 22,000 家 AI 新創公司參與其中，成員可獲得 NVIDIA 最新技術、優惠價格、合作夥伴福利，以及全球投資人生態系統的曝光，加速產品開發、原型製作及市場推廣。",
+    learnMore: "前往 nvidia.com 了解更多 →",
     close: "關閉",
+    newLabel: "最新",
   },
   ru: {
     title: "Что такое NVIDIA Inception?",
-    body: "NVIDIA Inception — глобальная программа поддержки технологических стартапов в области искусственного интеллекта, науки о данных и высокопроизводительных вычислений. Участники получают доступ к технологиям, экспертизе и партнёрской сети NVIDIA на этапах разработки, прототипирования и выхода на рынок.",
-    learnMore: "Подробнее на сайте NVIDIA →",
+    body: "NVIDIA Inception — глобальная программа для стартапов, создающих будущее ИИ. Более 22 000 стартапов получают доступ к новейшим технологиям NVIDIA, льготным ценам, партнёрским предложениям и глобальной экосистеме инвесторов на каждом этапе разработки продукта и выхода на рынок.",
+    learnMore: "Подробнее на nvidia.com →",
     close: "Закрыть",
+    newLabel: "НОВОЕ",
   },
   hi: {
     title: "NVIDIA Inception क्या है?",
-    body: "NVIDIA Inception आर्टिफिशियल इंटेलिजेंस, डेटा साइंस और हाई-परफ़ॉर्मेंस कंप्यूटिंग के क्षेत्र में टेक्नोलॉजी आधारित स्टार्टअप्स को सहायता देने वाला वैश्विक कार्यक्रम है। सदस्यों को उत्पाद विकास, प्रोटोटाइपिंग और बाज़ार में उतरने तक हर चरण में NVIDIA की तकनीक, विशेषज्ञता और पार्टनर नेटवर्क मिलता है।",
-    learnMore: "NVIDIA की वेबसाइट पर और जानें →",
+    body: "NVIDIA Inception AI का भविष्य बनाने वाले स्टार्टअप्स के लिए वैश्विक कार्यक्रम है। दुनिया भर के 22,000 से अधिक AI स्टार्टअप्स को NVIDIA की नवीनतम तकनीक, पसंदीदा मूल्य, साझेदार ऑफ़र और वैश्विक निवेशक नेटवर्क तक पहुँच मिलती है — उत्पाद विकास, प्रोटोटाइपिंग और बाज़ार में उतरने के हर चरण में।",
+    learnMore: "nvidia.com पर और जानें →",
     close: "बंद करें",
+    newLabel: "नया",
   },
   id: {
     title: "Apa itu NVIDIA Inception?",
-    body: "NVIDIA Inception adalah program global yang mendukung startup teknologi di bidang kecerdasan buatan, ilmu data, dan komputasi performa tinggi. Anggota mendapat akses ke teknologi, keahlian, dan jaringan mitra NVIDIA dalam pengembangan produk, prototipe, hingga peluncuran ke pasar.",
-    learnMore: "Pelajari lebih lanjut di situs NVIDIA →",
+    body: "NVIDIA Inception adalah program global untuk startup yang membangun masa depan AI. Lebih dari 22.000 startup di seluruh dunia mengakses teknologi terbaru NVIDIA, harga preferensial, penawaran mitra, dan paparan ke ekosistem investor global di setiap tahap pengembangan produk dan peluncuran ke pasar.",
+    learnMore: "Pelajari lebih lanjut di nvidia.com →",
     close: "Tutup",
+    newLabel: "BARU",
   },
+}
+
+// Date pill text (compact recency stamp). Kept short on purpose.
+const DATE_PILL: Record<string, string> = {
+  en: "Apr 2026",
+  ko: "2026.4",
+  ja: "2026.4",
+  es: "Abr 2026",
+  fr: "Avr 2026",
+  pt: "Abr 2026",
+  "zh-TW": "2026.4",
+  ru: "Апр 2026",
+  hi: "अप्रैल 2026",
+  id: "Apr 2026",
 }
 
 export function NvidiaInceptionStrip() {
@@ -105,15 +123,15 @@ export function NvidiaInceptionStrip() {
   const [isOpen, setIsOpen] = useState(false)
 
   const explainer = EXPLAINER[locale] ?? EXPLAINER.en
+  const datePill = DATE_PILL[locale] ?? DATE_PILL.en
 
-  // Close on Esc
+  // Close on Esc + scroll lock
   useEffect(() => {
     if (!isOpen) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsOpen(false)
     }
     window.addEventListener("keydown", onKey)
-    // Lock body scroll when modal open
     const original = document.body.style.overflow
     document.body.style.overflow = "hidden"
     return () => {
@@ -150,7 +168,7 @@ export function NvidiaInceptionStrip() {
             className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-gradient-to-b from-sky-300 to-cyan-500"
           />
 
-          {/* ─── Row 1: NVIDIA badge — fills the card horizontally ─── */}
+          {/* ─── Row 1: NVIDIA badge — fills card horizontally ─── */}
           <div className="flex justify-center mb-2.5">
             <img
               src="/badges/nvidia/inception.svg"
@@ -162,13 +180,31 @@ export function NvidiaInceptionStrip() {
             />
           </div>
 
-          {/* ─── Row 2: Title + subtitle (left) + arrow (right) ─── */}
+          {/* ─── Row 2: Title (left) + arrow (right) ─── */}
           <div className="flex items-center gap-2">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-sky-100 leading-tight">
-                {t("trust.nvidiaInception")}
-              </p>
-              <p className="text-[10px] text-sky-200/70 leading-snug mt-0.5 truncate">
+              {/* Title + NEW pill */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <p className="text-sm font-semibold text-sky-100 leading-tight">
+                  {t("trust.nvidiaInception")}
+                </p>
+                <span
+                  className="
+                    inline-flex items-center gap-1
+                    px-1.5 py-0.5 rounded-md
+                    bg-emerald-500/20
+                    border border-emerald-400/40
+                    text-[9px] font-bold tracking-wide
+                    text-emerald-300
+                    leading-none
+                    shrink-0
+                  "
+                >
+                  <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
+                  {explainer.newLabel} · {datePill}
+                </span>
+              </div>
+              <p className="text-[10px] text-sky-200/70 leading-snug mt-1 truncate">
                 {t("trust.nvidiaInceptionDate")}
               </p>
             </div>
@@ -196,6 +232,7 @@ export function NvidiaInceptionStrip() {
           <div
             className="
               relative z-10 w-full max-w-md
+              max-h-[85vh] overflow-y-auto
               rounded-2xl
               bg-gradient-to-br from-slate-900 via-sky-950/40 to-slate-900
               border border-sky-400/30
@@ -220,29 +257,57 @@ export function NvidiaInceptionStrip() {
               <X className="w-4 h-4" />
             </button>
 
-            {/* Badge */}
-            <div className="flex justify-center mb-4">
-              <img
-                src="/badges/nvidia/inception.svg"
-                alt="NVIDIA Inception Program"
-                className="h-12 w-auto"
-              />
+            {/* ─── HEADER: repeats the "what user just clicked" context ─── */}
+            <div className="mb-5 pb-5 border-b border-sky-400/15">
+              {/* Badge */}
+              <div className="flex justify-center mb-3">
+                <img
+                  src="/badges/nvidia/inception.svg"
+                  alt="NVIDIA Inception Program Member"
+                  className="h-14 w-auto"
+                />
+              </div>
+
+              {/* Title + NEW pill */}
+              <div className="flex items-center justify-center gap-2 flex-wrap mb-1">
+                <p className="text-sm sm:text-base font-semibold text-sky-100 text-center">
+                  {t("trust.nvidiaInception")}
+                </p>
+                <span
+                  className="
+                    inline-flex items-center gap-1
+                    px-2 py-0.5 rounded-md
+                    bg-emerald-500/20
+                    border border-emerald-400/40
+                    text-[10px] font-bold tracking-wide
+                    text-emerald-300
+                    leading-none
+                  "
+                >
+                  <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                  {explainer.newLabel} · {datePill}
+                </span>
+              </div>
+
+              {/* Subtitle (Astrotech AI Startup) */}
+              <p className="text-xs text-sky-200/70 text-center">
+                {t("trust.nvidiaInceptionDate")}
+              </p>
             </div>
 
-            {/* Title */}
+            {/* ─── EXPLAINER BODY ─── */}
             <h3
               id="nvidia-modal-title"
-              className="text-base sm:text-lg font-semibold text-sky-100 text-center mb-3"
+              className="text-base font-semibold text-sky-100 mb-3"
             >
               {explainer.title}
             </h3>
 
-            {/* Body */}
-            <p className="text-[13px] sm:text-sm text-sky-100/80 leading-relaxed mb-4">
+            <p className="text-[13px] sm:text-sm text-sky-100/80 leading-relaxed mb-5">
               {explainer.body}
             </p>
 
-            {/* Learn more link (subtle, text only) */}
+            {/* Learn more link */}
             <a
               href="https://www.nvidia.com/en-us/startups/"
               target="_blank"
