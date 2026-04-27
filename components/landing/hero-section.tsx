@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { NvidiaInceptionStrip } from "@/components/trust/nvidia-inception-strip"
 import { useLanguage } from "@/lib/language-context"
 import { useNativeApp } from "@/lib/native-app"
 import { useAuth } from "@/lib/auth-context"
@@ -134,6 +135,20 @@ export function HeroSection() {
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500/80 animate-pulse" />
               {t("hero.techLine")}
             </p>
+
+            {/* ════════════════════════════════════════════════════════
+                v6.17.41 — NVIDIA Inception trust strip
+                
+                Lands BETWEEN the credibility microcopy and the CTA
+                stack so visitors see the recognition signal in the
+                exact moment of hesitation, just before deciding to
+                hand over their birth date / time / city. Brand-
+                compliant: official Inception member badge only,
+                no NVIDIA master logo, no "endorsed by" claims.
+                Lives outside the CTA wrapper to keep the existing
+                Soram + saju + compatibility triplet visually intact.
+            ════════════════════════════════════════════════════════ */}
+            <NvidiaInceptionStrip />
 
             {/* ════════════════════════════════════════════════════════
                 v1.3 Sprint 2-B v6.9: Soram CTA + primary CTAs unified
