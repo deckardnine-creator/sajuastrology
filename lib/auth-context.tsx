@@ -403,12 +403,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                   ? `${intent}?app=true`
                   : intent!;
               } else {
-                // No (valid) intent — reload current page for state consistency.
-                const path =
-                  window.location.pathname +
-                  window.location.search +
-                  window.location.hash;
-                dest = path || "/";
+                // ════════════════════════════════════════════════════
+                // v6.17.52 — Sign-in gate pages reroute to home.
+                //
+                // Some pages exist primarily to trigger sign-in (e.g.
+                // /soram, which is a logged-in-only feature). When a
+                // signed-out user lands there, taps "Sign in", and
+                // returns, reloading them BACK to /soram is the wrong
+                // mental model — chandler's report:
+                //   "최초 로그인했을때 soram 채팅창으로 가는데 홈으로
+                //    가야 맞다"
+                //
+                // For those gate pages, route to home (or /?app=true
+                // for the Flutter shell) so the user sees the full
+                // dashboard / landing context first; they can return
+                // to Soram from the bottom-nav with one tap.
+                //
+                // Other paths (dashboard, reading, compatibility, etc.)
+                // still reload in place so refresh-after-signin
+                // preserves the user's location.
+                // ════════════════════════════════════════════════════
+                const currentPathOnly = window.location.pathname;
+                const SIGN_IN_GATE_PAGES = ["/soram"];
+                const isGate = SIGN_IN_GATE_PAGES.some(
+                  (g) => currentPathOnly === g || currentPathOnly.startsWith(g + "/")
+                );
+                if (isGate) {
+                  dest = isNativeApp() ? "/?app=true" : "/";
+                } else {
+                  // No (valid) intent — reload current page for state consistency.
+                  const path =
+                    window.location.pathname +
+                    window.location.search +
+                    window.location.hash;
+                  dest = path || "/";
+                }
               }
               // Defer one tick so any pending setState (claim toggles, etc.)
               // can flush before the page tears down.

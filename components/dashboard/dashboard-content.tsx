@@ -30,6 +30,42 @@ import { RestorePurchasesButton } from "@/components/dashboard/restore-purchases
 import { safeGet, safeSet, safeRemove } from "@/lib/safe-storage";
 import { track, Events } from "@/lib/analytics";
 
+// ════════════════════════════════════════════════════════════════════
+// v6.17.52 — Cache key version suffix.
+//
+// chandler's report: "로그인하고 대시보드 가면 이전레이아웃이 0.3초
+// 나오다가 현재 수정된 레이아웃으로 덜컹거리다 나온다. 앱을 삭제하고
+// 다시 설치했는데도 그렇다."
+//
+// Root cause: the dashboard reads cached readings/compat data from
+// localStorage on first paint to feel instant ("Show cached data
+// instantly" comment, Line ~466). That cache was written by older
+// code paths that produced data in a slightly different shape, OR
+// before recent component-side changes (star icon removal in
+// v6.17.45, footer redesign in v6.17.46, change-hint dedup in
+// v6.17.48). The cached snapshot renders with the old layout, then
+// the live fetch arrives ~300ms later and re-renders with the new
+// layout — that 300ms is the "덜컹거림" the user sees.
+//
+// "App reinstall did not fix it" because the WebView's localStorage
+// is *not* cleared by Flutter app reinstall on Android (it lives in
+// the WebView profile, not the app's data dir for many WebView
+// implementations).
+//
+// Fix: bump the cache key version. Old keys (`dashboard-readings-{uid}`)
+// remain in storage but are never read again — the new keys
+// (`dashboard-readings-{uid}-v6_17_52`) are empty on first visit, so
+// the dashboard renders skeletons → live data, no stale-snapshot
+// flicker. Subsequent visits cache + read with the new keys normally.
+//
+// Bump this version whenever the dashboard's reading/compat row
+// layout changes in a way the cached object can't satisfy. Cheap,
+// single-string change, no migration code needed.
+// ════════════════════════════════════════════════════════════════════
+const CACHE_VERSION = "v6_17_52";
+const READINGS_CACHE_KEY = (uid: string) => `dashboard-readings-${uid}-${CACHE_VERSION}`;
+const COMPAT_CACHE_KEY = (uid: string) => `dashboard-compat-${uid}-${CACHE_VERSION}`;
+
 interface SavedReading {
   id: string;
   name: string;
@@ -276,7 +312,7 @@ function DashboardInner() {
       if (readings) {
         setSavedReadings(readings);
         setReadingsLoaded(true);
-        try { safeSet(`dashboard-readings-${user.id}`, JSON.stringify(readings)); } catch {}
+        try { safeSet(READINGS_CACHE_KEY(user.id), JSON.stringify(readings)); } catch {}
 
         // ════════════════════════════════════════════════════════════
         // v6.17 — primary star MUST match user's actual primary chart
@@ -337,7 +373,7 @@ function DashboardInner() {
 
       if (compat) {
         setCompatResults(compat);
-        try { safeSet(`dashboard-compat-${user.id}`, JSON.stringify(compat)); } catch {}
+        try { safeSet(COMPAT_CACHE_KEY(user.id), JSON.stringify(compat)); } catch {}
       }
     } catch {}
   };
@@ -359,8 +395,8 @@ function DashboardInner() {
       const isStale = safeGet("dashboard-stale") === "true";
       if (isStale) {
         safeRemove("dashboard-stale");
-        safeRemove(`dashboard-readings-${user.id}`);
-        safeRemove(`dashboard-compat-${user.id}`);
+        safeRemove(READINGS_CACHE_KEY(user.id));
+        safeRemove(COMPAT_CACHE_KEY(user.id));
         fetchDashboardData({ skipCache: true });
         fetchPrimaryChart();
       } else {
@@ -459,21 +495,21 @@ function DashboardInner() {
     const isStale = safeGet("dashboard-stale") === "true";
     if (isStale) {
       safeRemove("dashboard-stale");
-      safeRemove(`dashboard-readings-${user.id}`);
-      safeRemove(`dashboard-compat-${user.id}`);
+      safeRemove(READINGS_CACHE_KEY(user.id));
+      safeRemove(COMPAT_CACHE_KEY(user.id));
     }
 
     // Show cached data instantly (skip if stale)
     if (!isStale) {
       try {
-        const cachedRaw = safeGet(`dashboard-readings-${user.id}`);
+        const cachedRaw = safeGet(READINGS_CACHE_KEY(user.id));
         if (cachedRaw) {
           const cached = JSON.parse(cachedRaw);
           if (cached?.length > 0) { setSavedReadings(cached); setReadingsLoaded(true); }
         }
       } catch {}
       try {
-        const cachedRaw = safeGet(`dashboard-compat-${user.id}`);
+        const cachedRaw = safeGet(COMPAT_CACHE_KEY(user.id));
         if (cachedRaw) {
           const cached = JSON.parse(cachedRaw);
           if (cached?.length > 0) setCompatResults(cached);
@@ -1397,23 +1433,14 @@ function DashboardInner() {
       <RestorePurchasesButton />
 
       {/* ════════════════════════════════════════════════════════════
-          v6.17 — chart-change support notice
-          Per chandler: a user's primary chart can only be changed via
-          customer support. We surface this once, quietly, near the
-          existing footer so users know where to go without making it
-          feel like a barrier.
+          v6.17.48 — Removed the older "chart-change support notice"
+          that previously sat here. It duplicated the v6.17.46 footer
+          change-hint two rows below ("내 사주 변경 요청은
+          info@rimfactory.io"), making the same support address show
+          up twice on the dashboard. The footer copy is the canonical
+          placement; this region is now blank so the gap below the
+          last card flows directly into the footer.
           ════════════════════════════════════════════════════════════ */}
-      {primaryChartLoaded && primaryChartPillars && (
-        <p className="text-center text-[11px] text-muted-foreground/40 mt-6 px-4 leading-relaxed">
-          {t("dash.changeViaSupportHint", locale)}{" "}
-          <a
-            href="mailto:info@rimfactory.io"
-            className="text-muted-foreground/60 hover:text-muted-foreground underline-offset-2 hover:underline transition-colors"
-          >
-            info@rimfactory.io
-          </a>
-        </p>
-      )}
 
       {/* ════════════════════════════════════════════════════════════
           v6.17.46 — Footer redesign.

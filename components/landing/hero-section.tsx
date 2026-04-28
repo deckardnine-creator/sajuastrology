@@ -89,7 +89,17 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative overflow-hidden min-h-[80vh] lg:min-h-screen pt-page pb-8 sm:pb-12 flex items-center">
+    /* v6.17.52 — Mobile vertical centering removed.
+       Previously this section used `min-h-[80vh] ... flex items-center`
+       which forced the hero text to vertical-center within 80% of the
+       viewport on mobile, leaving a large empty band between the
+       Navbar and the heading (chandler caught this on the home page:
+       "헤더와 간격이 너무 먼데 궁합페이지 정도 간격으로"). On mobile
+       we now flow normally — the content begins right under the
+       Navbar's pt-page padding. Desktop (lg+) retains
+       `lg:min-h-screen` so the split two-column layout still occupies
+       the full viewport with vertically aligned columns. */
+    <section className="relative overflow-hidden lg:min-h-screen pt-page pb-8 sm:pb-12 lg:flex lg:items-center">
 
       {/* Glow orbs */}
       <motion.div
