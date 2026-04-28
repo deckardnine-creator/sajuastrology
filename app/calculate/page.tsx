@@ -5,6 +5,7 @@ import { safeSet } from "@/lib/safe-storage";
 import { useRouter } from "next/navigation";
 import { BirthDataForm } from "@/components/calculate/birth-data-form";
 import { CalculationAnimation } from "@/components/calculate/calculation-animation";
+import { Navbar } from "@/components/landing/navbar";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { t } from "@/lib/translations";
@@ -328,8 +329,32 @@ export default function CalculatePage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] rounded-full bg-yellow-500/10 blur-[140px]" />
       </div>
 
+      {/* ════════════════════════════════════════════════════════════
+          v6.17.49 — Navbar added to input phase only.
+          
+          Why input phase only:
+          - calculating / waiting / error phases all use a
+            <div className="fixed inset-0 bg-background z-50 ..."> 
+            full-screen overlay that intentionally takes over the
+            viewport while the saju is being computed. Adding a
+            navbar to those phases would let it sit on top of the
+            overlay and break the focused, immersive UX.
+          - The input phase is the only phase where the user is
+            still navigating; this is where the missing header was
+            visible to mobile users (chandler caught it directly
+            on /calculate). Other entry pages (compatibility,
+            consultation, dashboard, pricing) all already render
+            <Navbar /> in the same position.
+          
+          Native app safety: <Navbar /> reads useNativeApp()
+          internally and hides itself inside the Flutter shell, so
+          this change does NOT introduce a duplicate header in the
+          mobile app. Same component, same behavior as the other
+          pages that already use it.
+          ════════════════════════════════════════════════════════════ */}
       {phase === "input" && (
         <>
+          <Navbar />
           <BirthDataForm onCalculate={handleCalculate} />
         </>
       )}
