@@ -8,6 +8,7 @@ import { CalculationAnimation } from "@/components/calculate/calculation-animati
 import { Navbar } from "@/components/landing/navbar";
 import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
+import { useNativeApp } from "@/lib/native-app";
 import { t } from "@/lib/translations";
 import { ELEMENT_COLORS } from "@/lib/constants";
 import type { SajuChart } from "@/lib/saju-calculator";
@@ -174,6 +175,7 @@ export default function CalculatePage() {
   const router = useRouter();
   const { user } = useAuth();
   const { locale } = useLanguage();
+  const isNative = useNativeApp();
   const [phase, setPhase] = useState<Phase>("input");
   const [sajuChart, setSajuChart] = useState<SajuChart | null>(null);
   const [birthCity, setBirthCity] = useState<string>("");
@@ -351,11 +353,26 @@ export default function CalculatePage() {
           this change does NOT introduce a duplicate header in the
           mobile app. Same component, same behavior as the other
           pages that already use it.
+          
+          v6.17.50 — Wrap BirthDataForm in a pt-page container so
+          the form heading is not occluded by the now-rendered fixed
+          Navbar. Other pages do this via their own <section
+          className="pt-page ...">; calculate has no such section
+          because BirthDataForm provides its own layout, so we add
+          the padding here at the page level instead.
+          
+          Native app: chandler explicitly required that "this change
+          should not be felt in the app." So inside the Flutter shell
+          we render NEITHER the Navbar NOR the pt-page padding —
+          isNative gates the whole wrapper. The form sits in exactly
+          the same place it did before v6.17.49 in the app.
           ════════════════════════════════════════════════════════════ */}
       {phase === "input" && (
         <>
-          <Navbar />
-          <BirthDataForm onCalculate={handleCalculate} />
+          {!isNative && <Navbar />}
+          <div className={isNative ? undefined : "pt-page"}>
+            <BirthDataForm onCalculate={handleCalculate} />
+          </div>
         </>
       )}
       {phase === "calculating" && sajuChart && (
