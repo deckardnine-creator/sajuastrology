@@ -707,9 +707,26 @@ function DashboardInner() {
                 <span aria-hidden="true">🌙</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm sm:text-base font-semibold text-amber-100 leading-snug truncate">
-                  {t("dash.soramTitle", locale)}
-                </p>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <p className="text-sm sm:text-base font-semibold text-amber-100 leading-snug truncate">
+                    {t("dash.soramTitle", locale)}
+                  </p>
+                  {/* ════════════════════════════════════════════════════════
+                      v6.17.44 — Subscriber badge on the Soram CTA card.
+                      Renders only for users on the Soram Companion
+                      subscription tier so they get visible confirmation
+                      that their monthly plan is active and unlimited
+                      conversations are unlocked. Free / used users see
+                      no badge — the soramDescUsed copy already explains
+                      their state in the line below.
+                      ════════════════════════════════════════════════════ */}
+                  {soramUsage?.tier === "subscriber" && (
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-amber-300/20 border border-amber-300/40 text-amber-200 text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap">
+                      <span aria-hidden="true">👑</span>
+                      <span>{t("dash.subscriberBadge", locale)}</span>
+                    </span>
+                  )}
+                </div>
                 <p className="text-[11px] sm:text-xs text-amber-200/70 leading-relaxed mt-0.5 line-clamp-2">
                   {soramUsage?.tier === "subscriber"
                     ? t("dash.soramDescSubscriber", locale)
@@ -951,6 +968,27 @@ function DashboardInner() {
                 </Link>
               )}
             </div>
+            {/* ════════════════════════════════════════════════════════════
+                v6.17.44 — "How to change your saju" hint.
+                Sits one line below the "My Saju — date · hour" label
+                whenever that label is visible, telling the user that
+                changes go through customer support (we deliberately
+                lock my_primary_chart at signup so people don't keep
+                rotating their identity chart). The hint disappears
+                together with the label when there's no birth_date,
+                so it never shows in isolation.
+                ════════════════════════════════════════════════════════ */}
+            {primaryChartPillars?.birth_date && (
+              <p className="text-[11px] text-muted-foreground/70 mb-3 -mt-1">
+                {t("dash.mySajuChangeHint")}{" "}
+                <a
+                  href="mailto:info@rimfactory.io"
+                  className="text-amber-300/80 hover:text-amber-200 underline-offset-2 hover:underline"
+                >
+                  info@rimfactory.io
+                </a>
+              </p>
+            )}
             <div className="grid grid-cols-4 gap-2 sm:gap-3">
               {(["hour", "day", "month", "year"] as const).map((pn) => {
                 const p = sajuData.chart!.pillars[pn];
