@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     const { approvalUrl } = await createPayPalOrder({
       amount: "9.99",
-      description: readingName || "Full Destiny Reading ??SajuAstrology",
+      description: readingName || "Full Destiny Reading — SajuAstrology",
       returnUrl: `https://sajuastrology.com/reading/${shareSlug}?payment=success`,
       cancelUrl: `https://sajuastrology.com/reading/${shareSlug}?payment=cancelled`,
       customId,
