@@ -251,9 +251,19 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row relative">
-      {/* Left: Cosmic Panel */}
-      <div className="lg:w-[42%] p-5 sm:p-6 lg:p-12 flex flex-col justify-center relative overflow-hidden">
+    <div className="lg:min-h-screen flex flex-col lg:flex-row relative">
+      {/* Left: Cosmic Panel
+          v6.17.51 — On mobile (under lg), the Cosmic Panel no longer
+          forces full viewport height and no longer vertically centers
+          its content. Previously the panel used `min-h-screen flex
+          flex-col justify-center`, which pushed the heading way down
+          to mid-screen as soon as the page-level Navbar's pt-page
+          padding shrank the viewport — chandler caught this on
+          mobile web ("너무 밑으로 갔다"). On desktop (lg+) we keep
+          the original split layout where vertical centering looks
+          correct because the right column is the form input area
+          beside it. */}
+      <div className="lg:w-[42%] p-5 sm:p-6 lg:p-12 lg:flex lg:flex-col lg:justify-center relative overflow-hidden">
         {/* Stars */}
         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
           {CONST_LINES.map(([a,b],i)=>(
