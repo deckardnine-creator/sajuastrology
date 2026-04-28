@@ -88,8 +88,8 @@ const translations = {
   "sidebar.quickLinks": { en: "Explore", ko: "더 알아보기", ja: "もっと見る", es: "Explorar", fr: "Explorer", pt: "Explorar", "zh-TW": "更多探索", ru: "Узнать больше", hi: "और देखें", id: "Jelajahi" },
   "sidebar.blog": { en: "Blog", ko: "블로그", ja: "ブログ", es: "Blog", fr: "Blog", pt: "Blog", "zh-TW": "部落格", ru: "Блог", hi: "ब्लॉग", id: "Blog" },
   // ─── Hero ───
-  "hero.title1": { en: "Your Birth Chart,", ko: "당신의 사주,", ja: "あなたの四柱、", es: "Tu carta natal,", fr: "Ta carte natale,", pt: "Seu mapa natal,", "zh-TW": "你的命盤，", ru: "Твоя натальная карта,", hi: "तुम्हारी जन्म कुंडली,", id: "Peta lahirmu," },
-  "hero.title2": { en: "Decoded by Astrotech.", ko: "아스트로테크가 해독합니다.", ja: "アストロテックが解読する。", es: "decodificada por Astrotech.", fr: "décodée par l'Astrotech.", pt: "decodificado pela Astrotech.", "zh-TW": "由 Astrotech 解碼。", ru: "расшифрована Астротехом.", hi: "Astrotech द्वारा डीकोड।", id: "didekode oleh Astrotech." },
+  "hero.title1": { en: "Your Destiny Code,", ko: "당신의 운명코드,", ja: "あなたの運命コード、", es: "Tu código de destino,", fr: "Ton code de destin,", pt: "Seu código de destino,", "zh-TW": "你的命運代碼，", ru: "Твой код судьбы,", hi: "तुम्हारा भाग्य कोड,", id: "Kode takdirmu," },
+  "hero.title2": { en: "decoded by a Saju-specialized AI engine.", ko: "사주풀이 전문 AI 엔진이 해독합니다.", ja: "四柱推命特化AIエンジンが解読する。", es: "decodificado por un motor de IA especializado en Saju.", fr: "décodé par un moteur d'IA spécialisé en Saju.", pt: "decodificado por um motor de IA especializado em Saju.", "zh-TW": "由四柱命理專屬 AI 引擎解讀。", ru: "расшифрован ИИ-движком, специализирующимся на Саджу.", hi: "सजू-विशेषज्ञ AI इंजन द्वारा डीकोड।", id: "didekode oleh mesin AI khusus Saju." },
   "hero.desc": { en: "518,400 unique birth structures. 562 classical sources. Multi-LLM cross-analysis. RimSaju Engine reads your structure — not your sign.",
     ko: "518,400가지 고유한 사주 구조. 562개 고전 원전. Multi-LLM 교차 분석. RimSaju 엔진은 별자리가 아닌 당신의 구조를 읽습니다.",
     ja: "518,400通りの固有四柱構造。562の古典原典。マルチLLM交差分析。RimSajuエンジンは星座ではなく、あなたの構造を読みます。",

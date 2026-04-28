@@ -159,6 +159,12 @@ export function HeroSection() {
               <span className="align-middle">{t("hero.techLine")}</span>
             </p>
 
+            {/* v6.17.57 — NVIDIA Inception trust strip restored.
+                Was previously imported but no longer rendered (likely
+                dropped during a hero refactor). Restored under techLine
+                so the credibility signal sits right above the CTAs. */}
+            <NvidiaInceptionStrip />
+
             {/* ════════════════════════════════════════════════════════
                 v1.3 Sprint 2-B v6.9: Soram CTA + primary CTAs unified
                 
