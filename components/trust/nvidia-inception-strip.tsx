@@ -147,7 +147,7 @@ export function NvidiaInceptionStrip() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label={explainer.title}
-        className="block text-left w-[280px] lg:w-auto group"
+        className="block text-left w-[280px] lg:w-[320px] mx-auto sm:mx-0 group"
       >
         <div
           className="
@@ -169,7 +169,7 @@ export function NvidiaInceptionStrip() {
           />
 
           {/* ─── Row 1: NVIDIA badge — fills card horizontally ─── */}
-          <div className="flex justify-center mb-2.5">
+          <div className="flex justify-center mb-1.5">
             <img
               src="/badges/nvidia/inception.svg"
               alt="NVIDIA Inception Program Member"
@@ -184,7 +184,7 @@ export function NvidiaInceptionStrip() {
           <div className="flex items-center gap-2">
             <div className="flex-1 min-w-0">
               {/* Title + NEW pill */}
-              <div className="flex items-center gap-1.5 flex-wrap">
+              <div className="flex items-center gap-1.5">
                 <p className="text-sm font-semibold text-sky-100 leading-tight">
                   {t("trust.nvidiaInception")}
                 </p>

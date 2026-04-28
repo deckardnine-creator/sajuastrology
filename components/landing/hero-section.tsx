@@ -139,7 +139,7 @@ export function HeroSection() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="flex flex-col gap-3 sm:gap-4 py-4 sm:py-6 lg:py-0"
+            className="flex flex-col gap-2.5 sm:gap-4 pt-2 pb-4 sm:py-6 lg:py-0"
           >
             <h1 className="font-serif text-[1.625rem] xs:text-[1.875rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.1] break-words">
               {t("hero.title1")}
@@ -186,12 +186,12 @@ export function HeroSection() {
                 now inside one flex column, all 280px on mobile, all
                 centered together. Reads as one cohesive triplet.
             ════════════════════════════════════════════════════════ */}
-            <div className="flex flex-col items-center sm:items-start gap-3 mt-2">
+            <div className="flex flex-col items-center sm:items-start gap-3 mt-1 sm:mt-2">
 
               {/* Soram CTA card — gold accent, always at the top of the stack */}
               <button
                 onClick={handleSoramClick}
-                className="group relative w-[280px] lg:w-auto lg:min-w-[280px] text-left rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 to-amber-700/5 p-4 hover:border-amber-300/60 hover:from-amber-500/15 hover:to-amber-700/10 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.2)] active:scale-[0.99]"
+                className="group relative w-[280px] lg:w-auto lg:min-w-[280px] text-left rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 to-amber-700/5 p-3 sm:p-4 hover:border-amber-300/60 hover:from-amber-500/15 hover:to-amber-700/10 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.2)] active:scale-[0.99]"
               >
                 <div className="absolute inset-y-0 left-0 w-1 bg-amber-400/70 rounded-l-xl" />
                 <div className="flex items-center gap-3 pl-2">
