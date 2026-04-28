@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPayPalOrder } from "@/lib/paypal";
 
-export const runtime = "edge";
-
 export async function POST(request: NextRequest) {
   try {
     const { shareSlug, readingName, userEmail } = await request.json();
@@ -38,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     const { approvalUrl } = await createPayPalOrder({
       amount: "9.99",
-      description: readingName || "Full Destiny Reading — SajuAstrology",
+      description: readingName || "Full Destiny Reading ??SajuAstrology",
       returnUrl: `https://sajuastrology.com/reading/${shareSlug}?payment=success`,
       cancelUrl: `https://sajuastrology.com/reading/${shareSlug}?payment=cancelled`,
       customId,
