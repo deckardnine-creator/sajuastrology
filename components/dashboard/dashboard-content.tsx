@@ -703,8 +703,28 @@ function DashboardInner() {
         >
           <div className="relative h-full overflow-hidden rounded-xl border border-amber-400/35 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm p-4 sm:p-5 transition-all duration-200 hover:border-amber-300/60 hover:shadow-[0_8px_24px_rgba(234,179,8,0.22)] active:scale-[0.99]">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center text-2xl sm:text-3xl shadow-md shadow-amber-500/30 shrink-0">
-                <span aria-hidden="true">🌙</span>
+              {/* ════════════════════════════════════════════════════════
+                  v6.17.45 — Soram avatar image instead of 🌙 emoji.
+                  
+                  Uses the same /soram/soram_chat_header_240.webp that
+                  the mobile bottom-nav already serves (17 KB), so the
+                  dashboard CTA card visually matches the bottom-nav
+                  Soram tab and the chat header on /soram. Keeps the
+                  gold gradient ring around the avatar so the card
+                  still reads as primary CTA.
+                  
+                  unoptimized + plain <img> avoids next/image config
+                  churn; the file is already tiny.
+                  ════════════════════════════════════════════════════ */}
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center shadow-md shadow-amber-500/30 shrink-0 overflow-hidden">
+                <img
+                  src="/soram/soram_chat_header_240.webp"
+                  alt=""
+                  aria-hidden="true"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
@@ -1154,11 +1174,24 @@ function DashboardInner() {
                     </p>
                   </div>
                   <div className="flex items-center gap-0.5 shrink-0">
-                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAsMyChart(r.id); }}
-                      className={`p-2 min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors ${isPrimary ? "text-yellow-400" : !canChangeToday ? "text-muted-foreground/15 cursor-not-allowed" : "text-muted-foreground/30 hover:text-yellow-400/60"}`}
-                      title={isPrimary ? "Primary chart" : !canChangeToday ? "Switch once per day" : "Set as my chart"}>
-                      <Star className="w-4 h-4" fill={isPrimary ? "currentColor" : "none"} />
-                    </button>
+                    {/* ════════════════════════════════════════════════════════
+                        v6.17.45 — Star button REMOVED.
+                        
+                        Why: the star looked clickable and people kept
+                        tapping it expecting to switch their primary
+                        chart, but per v6.17.0 it's been read-only —
+                        my_primary_chart is locked at signup and only
+                        changes via customer support. The visual
+                        affordance contradicted the actual behavior
+                        and caused real confusion (chandler:
+                        "혼란을 일으키니까 없애라").
+                        
+                        Identification of the user's own chart still
+                        works without the star: the row gets a yellow
+                        ring (border-primary/30 via isPrimary) and a
+                        "내 사주" pill (dash.myChart) inside the title.
+                        Both remain.
+                        ════════════════════════════════════════════════════ */}
                     <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCopyLink(r.share_slug); }}
                       className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                       title={copiedSlug === r.share_slug ? "Copied!" : "Copy link"}>
@@ -1311,8 +1344,19 @@ function DashboardInner() {
                         className="block bg-card/50 border border-amber-500/15 rounded-xl p-3.5 sm:p-4 hover:border-amber-400/35 transition-colors"
                       >
                         <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-300/90 to-amber-500/90 flex items-center justify-center text-sm shadow-sm shrink-0">
-                            <span aria-hidden="true">🌙</span>
+                          {/* v6.17.45 — match the avatar style of the
+                              top Soram CTA card so the brand identity
+                              is consistent across every Soram surface
+                              on the dashboard. */}
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-300/90 to-amber-500/90 shadow-sm shrink-0 overflow-hidden">
+                            <img
+                              src="/soram/soram_chat_header_240.webp"
+                              alt=""
+                              aria-hidden="true"
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-amber-100/95 leading-snug line-clamp-1">
