@@ -532,20 +532,21 @@ export function ConsultationClient() {
 
   return (
     <div>
-      {/* Header */}
+      {/* Header — v6.17.47: tightened spacing so the form/CTA below
+          is visible above the fold on mobile without scrolling. */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-10"
+        className="text-center mb-6"
       >
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm mb-4">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm mb-2">
           <Crown className="w-4 h-4" />
           {t("consult.badge", locale)}
         </div>
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold mb-3">
+        <h1 className="font-serif text-2xl sm:text-3xl font-bold mb-2">
           {t("consult.title1", locale)} <span className="gold-gradient-text">{t("consult.title2", locale)}</span>
         </h1>
-        <p className="text-muted-foreground max-w-lg mx-auto">
+        <p className="text-muted-foreground text-sm max-w-lg mx-auto">
           {t("consult.desc", locale)}
         </p>
       </motion.div>
@@ -1276,11 +1277,13 @@ function NoCreditsCTA({
     <div className="bg-card/50 border border-border rounded-2xl p-8 text-center">
       {!isLoggedIn ? (
         <>
-          <Crown className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-          <h2 className="font-serif text-2xl font-semibold mb-2">
+          {/* v6.17.47 — tightened spacing matching the logged-in
+              variant below for a consistent compact layout. */}
+          <Crown className="w-10 h-10 text-purple-400 mx-auto mb-3" />
+          <h2 className="font-serif text-2xl font-semibold mb-1">
             {t("consult.personalTitle", locale)}
           </h2>
-          <p className="text-muted-foreground text-sm mb-8 max-w-md mx-auto">
+          <p className="text-muted-foreground text-sm mb-5 max-w-md mx-auto">
             {t("consult.personalDesc", locale)}
           </p>
           <Button
@@ -1290,18 +1293,20 @@ function NoCreditsCTA({
           >
             {t("consult.signIn", locale)}
           </Button>
-          <p className="text-xs text-muted-foreground/50 mt-4">
+          <p className="text-xs text-muted-foreground/50 mt-3">
             {t("consult.priceTag", locale)}
           </p>
         </>
       ) : (
         <>
-          {/* Logged in, needs credits */}
-          <Crown className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-          <h2 className="font-serif text-2xl font-semibold mb-2">
+          {/* Logged in, needs credits — v6.17.47: tightened spacing
+              so the purchase button is reachable without scrolling
+              on a typical mobile viewport. */}
+          <Crown className="w-10 h-10 text-purple-400 mx-auto mb-3" />
+          <h2 className="font-serif text-2xl font-semibold mb-1">
             {t("consult.unlock", locale)}
           </h2>
-          <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
+          <p className="text-muted-foreground text-sm mb-4 max-w-md mx-auto">
             {t("consult.unlockDesc", locale)}
           </p>
 
@@ -1309,11 +1314,11 @@ function NoCreditsCTA({
             <span className="text-4xl font-bold text-primary">$29.99</span>
             <span className="text-muted-foreground text-sm">{t("pricing.oneTime", locale)}</span>
           </div>
-          <p className="text-xs text-muted-foreground/60 mb-6">
+          <p className="text-xs text-muted-foreground/60 mb-4">
             {t("consult.perSession", locale)}
           </p>
 
-          <ul className="text-sm text-muted-foreground space-y-2 mb-8 max-w-sm mx-auto text-left">
+          <ul className="text-sm text-muted-foreground space-y-1.5 mb-5 max-w-sm mx-auto text-left">
             {([
               t("consult.feat1", locale),
               t("consult.feat2", locale),

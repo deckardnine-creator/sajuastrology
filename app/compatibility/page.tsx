@@ -249,13 +249,13 @@ function CompatibilityContent() {
             </motion.div>
           )}
 
-          {/* Header */}
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-300 text-sm mb-4">
+          {/* Header — v6.17.47: tightened spacing */}
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-5">
+            <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-300 text-sm mb-3">
               <Heart className="w-4 h-4" />
               {t("compat.badge", locale)}
             </div>
-            <h1 className="font-serif text-3xl sm:text-4xl font-bold mb-2">
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold mb-1.5">
               {t("compat.title1", locale)} <span className="gold-gradient-text">{t("compat.title2", locale)}</span>
             </h1>
             <p className="text-muted-foreground text-sm">
@@ -265,7 +265,7 @@ function CompatibilityContent() {
 
           {/* Step indicator */}
           {step !== "loading" && (
-            <div className="flex items-center justify-center gap-3 mb-8">
+            <div className="flex items-center justify-center gap-3 mb-5">
               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${step === "personA" ? "bg-[rgba(242,202,80,0.22)] text-white" : "bg-[rgba(242,202,80,0.08)] text-primary/60"}`}>
                 <span className="w-5 h-5 rounded-full bg-[rgba(242,202,80,0.4)] flex items-center justify-center text-[10px] text-white">1</span>
                 {t("compat.you", locale)}

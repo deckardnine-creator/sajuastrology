@@ -253,7 +253,7 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row relative">
       {/* Left: Cosmic Panel */}
-      <div className="lg:w-[42%] p-8 lg:p-12 flex flex-col justify-center relative overflow-hidden">
+      <div className="lg:w-[42%] p-5 sm:p-6 lg:p-12 flex flex-col justify-center relative overflow-hidden">
         {/* Stars */}
         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
           {CONST_LINES.map(([a,b],i)=>(
@@ -276,30 +276,36 @@ export function BirthDataForm({ onCalculate }: BirthDataFormProps) {
         </div>
 
         <div className="relative z-10">
+          {/* v6.17.47 — tightened spacing on the top description block.
+              Previously mb-10 + space-y-6 + space-y-4 between three
+              paragraphs pushed the actual input form below the fold
+              on mobile and on the Soram first-entry flow (which uses
+              the same component). Now the three lines sit closer
+              together so the user can see the form on first paint. */}
           <motion.div initial={{ opacity:0,y:20 }} animate={{ opacity:1,y:0 }} transition={{ duration:0.7 }}>
-            <h1 className="font-serif text-3xl lg:text-5xl text-primary mb-2">{t("calc.discoverDestiny", locale)}</h1>
-            <p className="text-muted-foreground text-sm tracking-[0.22em] uppercase mb-10">{t("calc.enterDetails", locale)}</p>
+            <h1 className="font-serif text-2xl sm:text-3xl lg:text-5xl text-primary mb-1.5">{t("calc.discoverDestiny", locale)}</h1>
+            <p className="text-muted-foreground text-xs sm:text-sm tracking-[0.22em] uppercase mb-4 sm:mb-6">{t("calc.enterDetails", locale)}</p>
           </motion.div>
-          <motion.div className="space-y-6" initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.3, duration:0.7 }}>
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground leading-relaxed">
+          <motion.div className="space-y-3 sm:space-y-4" initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.3, duration:0.7 }}>
+            <div className="space-y-2 sm:space-y-2.5">
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 {t("calc.westernGivesYou", locale)}
                 <span className="text-foreground font-medium">{t("calc.oneOfTwelve", locale)}</span>
                 {t("calc.types", locale)}
               </p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 {t("calc.sajuMaps", locale)}
                 <span className="text-primary font-semibold">518,400</span>
                 {t("calc.uniqueProfiles", locale)}
               </p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 {t("calc.readyIn", locale)}
                 <span className="text-foreground font-medium">{t("calc.seconds30", locale)}</span>
                 {t("calc.readyInSuffix", locale)}
               </p>
             </div>
             {selectedCity && (
-              <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} className="flex items-center gap-3 pt-2">
+              <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} className="flex items-center gap-3 pt-1">
                 <div className="w-5 h-5 rounded-full bg-[rgba(242,202,80,0.20)] flex items-center justify-center"><Check className="w-3 h-3 text-accent" /></div>
                 <p className="text-sm text-accent">{selectedCity.name} {t("form.coordinatesLocked", locale)}</p>
               </motion.div>
