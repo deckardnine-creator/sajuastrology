@@ -356,6 +356,55 @@ export function CompatibilityPaywall({ shareSlug, partnerName }: Props) {
             ))}
           </ul>
 
+          {/* ════════════════════════════════════════════════════════
+              v6.17.53 — RimSaju Engine trust card.
+              
+              Per chandler's analysis (Phase 1 report), the saju
+              reading flow communicates technical depth via the
+              ClassicCitationCard / TechBadge / corpus banner
+              components ("562 classical passages", "Multi-LLM",
+              "RAG-powered"). The compatibility paywall did not
+              echo this signal — users saw a price and bullets but
+              no "why is this $2.99 worth it" trust anchor.
+              
+              This card surfaces the same engine credentials from
+              the reading side so the compatibility unlock feels
+              like an extension of the same platform, not a
+              separate $2.99 ask. Pure presentational; no API
+              changes, no payment flow changes — the unlock button
+              below is unchanged.
+              ════════════════════════════════════════════════════════ */}
+          <div
+            className="max-w-sm mx-auto mb-5 rounded-xl px-4 py-3"
+            style={{
+              background: "linear-gradient(135deg, rgba(167,139,250,0.08), rgba(236,72,153,0.06))",
+              border: "1px solid rgba(167,139,250,0.18)",
+            }}
+          >
+            <div className="flex items-center justify-center gap-1.5 mb-2">
+              <Sparkles className="w-3 h-3 text-pink-300/80" />
+              <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/80 font-medium">
+                RimSaju Engine
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-[11px] text-muted-foreground/85 leading-snug">
+              <span className="inline-flex items-center gap-1">
+                <span className="w-1 h-1 rounded-full bg-emerald-400/70" />
+                562 classical passages
+              </span>
+              <span className="text-muted-foreground/30">·</span>
+              <span className="inline-flex items-center gap-1">
+                <span className="w-1 h-1 rounded-full bg-pink-300/70" />
+                Multi-LLM
+              </span>
+              <span className="text-muted-foreground/30">·</span>
+              <span className="inline-flex items-center gap-1">
+                <span className="w-1 h-1 rounded-full bg-violet-300/70" />
+                10 languages
+              </span>
+            </div>
+          </div>
+
           {/* Price + CTA */}
           <div className="flex items-baseline justify-center gap-1.5 mb-4">
             <span className="text-3xl font-bold text-primary">$2.99</span>

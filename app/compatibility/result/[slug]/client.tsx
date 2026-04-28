@@ -417,6 +417,35 @@ export default function CompatibilityResultClient() {
               url.searchParams.delete("PayerID");
               window.history.replaceState(null, "", url.pathname + (url.search ? url.search : ""));
             } catch {}
+            // ════════════════════════════════════════════════════════
+            // v6.17.53 — scroll to the freshly unlocked content.
+            //
+            // chandler: "출력되면 탑으로 가지 말고 로딩후에 출력물
+            // 제대로 나오게 하고"
+            //
+            // After PayPal/IAP comes back and the loader closes, the
+            // four paid category sections appear in-place above the
+            // current scroll position. Without this scroll the user
+            // sees the same overall-score panel they were looking at
+            // before paying — the new content sits below the fold.
+            // We scroll into the #paid-content div with a small
+            // offset (scroll-mt-20 on the wrapper) so the section
+            // header lands just under the navbar.
+            //
+            // Wrapped in setTimeout so the DOM has a tick to render
+            // the newly-unlocked nodes before we measure their
+            // position. Wrapped in try/catch because scrollIntoView
+            // is widely supported but we never want a UX nicety to
+            // break the unlock flow itself.
+            // ════════════════════════════════════════════════════════
+            setTimeout(() => {
+              try {
+                const el = document.getElementById("paid-content");
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+              } catch {}
+            }, 350);
           }}
           onTimeout={async () => {
             // Webhook may still arrive — try one more refresh, then give up
@@ -699,6 +728,11 @@ export default function CompatibilityResultClient() {
           {/* ═══ Detailed Category Sections — PAYWALL GATED (v6.15) ═══ */}
           {/* When isPaid=true: show all 4 categories normally. */}
           {/* When isPaid=false: show CompatibilityPaywall component instead. */}
+          {/* v6.17.53: id="paid-content" so the unlock onDone callback
+              can scrollIntoView here instead of leaving the user at
+              the top of the page. chandler's report: "출력되면 탑으로
+              가지 말고 로딩후에 출력물 제대로 나오게 하고" */}
+          <div id="paid-content" className="scroll-mt-20">
           {isPaid ? (
             <>
               {categories.map((cat, i) => cat.content && (
@@ -725,6 +759,7 @@ export default function CompatibilityResultClient() {
               partnerName={`${result.person_a_name} & ${result.person_b_name}`}
             />
           )}
+          </div>
 
           {/* ═══ Yearly Forecast — also paywall-gated (v6.15) ═══ */}
           {isPaid && result.paid_yearly && (

@@ -231,7 +231,84 @@ function CompatibilityContent() {
   const isBValid = personB.name && personB.gender && personB.selectedCity;
 
   return (
-    <main className="min-h-screen">
+    <main className="relative min-h-screen overflow-hidden">
+      {/* ════════════════════════════════════════════════════════════
+          v6.17.53 — Cosmic background for the compatibility entry.
+          
+          chandler asked the compatibility page to feel as visually
+          rich as the saju (reading) flow. The reading side gets:
+            - calculation-animation: 30 floating particles + radial
+              gradient pulse + AnimatePresence phase reveals
+            - birth-data-form: a constellation grid with twinkling
+              stars and a shimmering 8x8 lattice
+          
+          We bring the same visual language here — paired-color
+          theme (pink for "you", purple for "partner") to echo the
+          existing step indicator chips and the result page's
+          element-color glow blobs. Pure decoration: positioned
+          absolutely, pointer-events: none, z-index: -10 so nothing
+          captures input or shifts layout. Native app safe (renders
+          identically inside Flutter shell).
+          
+          Performance note: 24 particles, 3 gradient orbs. Same
+          animation pattern as compat_client result page so users
+          get a continuous visual through the funnel.
+          ════════════════════════════════════════════════════════════ */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        {/* Glow orbs — pink + purple + amber */}
+        <motion.div
+          animate={{ x: [0, 25, 0], y: [0, -20, 0] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-32 -left-24 w-[420px] h-[420px] rounded-full blur-[140px]"
+          style={{ backgroundColor: "rgba(236,72,153,0.16)" }}
+        />
+        <motion.div
+          animate={{ x: [0, -20, 0], y: [0, 25, 0] }}
+          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute top-1/3 -right-24 w-[380px] h-[380px] rounded-full blur-[130px]"
+          style={{ backgroundColor: "rgba(167,139,250,0.16)" }}
+        />
+        <motion.div
+          animate={{ x: [0, 30, 0], y: [0, -15, 0] }}
+          transition={{ duration: 24, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+          className="absolute bottom-0 left-1/4 w-[360px] h-[360px] rounded-full blur-[120px]"
+          style={{ backgroundColor: "rgba(242,202,80,0.10)" }}
+        />
+
+        {/* Twinkling particles — small, sparse, like the reading flow */}
+        {[...Array(24)].map((_, i) => {
+          const left = (i * 37 + 11) % 100;
+          const top = (i * 53 + 17) % 100;
+          const dur = 3 + (i % 5) * 0.8;
+          const delay = (i % 7) * 0.4;
+          return (
+            <motion.div
+              key={i}
+              className="absolute w-[3px] h-[3px] rounded-full"
+              style={{
+                left: `${left}%`,
+                top: `${top}%`,
+                backgroundColor: i % 3 === 0
+                  ? "rgba(236,72,153,0.45)"
+                  : i % 3 === 1
+                  ? "rgba(167,139,250,0.45)"
+                  : "rgba(242,202,80,0.40)",
+              }}
+              animate={{
+                opacity: [0.2, 0.9, 0.2],
+                scale: [1, 1.4, 1],
+              }}
+              transition={{
+                duration: dur,
+                repeat: Infinity,
+                delay,
+                ease: "easeInOut",
+              }}
+            />
+          );
+        })}
+      </div>
+
       <Navbar />
       <div className="pt-page pb-16">
         <div className="mx-auto max-w-lg px-4 sm:px-6">
