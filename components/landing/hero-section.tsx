@@ -15,6 +15,17 @@ import { useRouter } from "next/navigation"
 const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.rimfactory.sajuastrology"
 const APP_STORE_URL = "https://apps.apple.com/us/app/sajuastrology/id6761590704"
 
+// ════════════════════════════════════════════════════════════════
+// v6.17.41: iOS App Store button temporarily disabled while v1.3.8
+// is under Apple App Review. Old v1.2.1 build on the App Store has
+// stale UI that conflicts with current website (v1.3.8) — Soram tab
+// missing, paywall card missing 3.1.2(c) disclosures, footer dupes.
+// New users downloading v1.2.1 + visiting the website would see a
+// broken hybrid experience. Re-enable once v1.3.8 ships.
+// To revert: set IOS_APP_AVAILABLE = true.
+// ════════════════════════════════════════════════════════════════
+const IOS_APP_AVAILABLE = false
+
 const pillars = [
   { chinese: "甲", english: "Wood", element: "wood", color: "text-secondary" },
   { chinese: "丙", english: "Fire", element: "fire", color: "text-fire" },
@@ -156,60 +167,27 @@ export function HeroSection() {
                 
                 Fix: move the Soram card INTO the same wrapper as
                 the primary CTAs, as the FIRST child. All three are
-                now `w-[280px]` (mobile) / `lg:w-auto` (desktop),
-                share the same `items-center sm:items-start`, and
-                read as one cohesive triplet. Spacing between them
-                stays at gap-3 (was gap-3 + a separate mt-2 — now
-                consolidated).
-                
-                Order is intentional:
-                  1. Soram (gold accent card, smallest visual weight)
-                  2. Free saju (primary gold-fill CTA, highest weight)
-                  3. Compatibility (outline, secondary CTA)
-                Soram first because it's the v1.3 hook product;
-                primary saju gets the strongest visual treatment
-                directly underneath it.
-                
-                Avatar: tap-target now ALSO 280px wide on mobile —
-                an honest button-sized affordance that finger
-                naturally hits.
-                
-                Native-app gating preserved (Soram entry hidden
-                in Flutter shell while UX polish continues).
+                now inside one flex column, all 280px on mobile, all
+                centered together. Reads as one cohesive triplet.
             ════════════════════════════════════════════════════════ */}
             <div className="flex flex-col items-center sm:items-start gap-3 mt-2">
 
-              {/* ════════════════════════════════════════════════════════
-                  v6.17.41 — NVIDIA Inception trust card with explainer modal
-                  Hidden in native app pending Apple review.
-              ════════════════════════════════════════════════════════ */}
-              {!isNativeApp && <NvidiaInceptionStrip />}
-
-              {/* Soram entry — gold-accent card.
-                  v6.17.25 — Previously native에서 hide 처리됐었지만
-                  (메모 #19에 "polish 중" flag 사유), v1.3 출시 시점에는
-                  Soram이 핵심 기능이고 chandler 명시 지시 "홈에 소람에게
-                  묻기 카드 노출". native/web 동일하게 표시. */}
+              {/* Soram CTA card — gold accent, always at the top of the stack */}
               <button
-                type="button"
                 onClick={handleSoramClick}
-                className="block text-left w-[280px] lg:w-auto group"
-                aria-label={t("hero.askSoram")}
+                className="group relative w-[280px] lg:w-auto lg:min-w-[280px] text-left rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 to-amber-700/5 p-4 hover:border-amber-300/60 hover:from-amber-500/15 hover:to-amber-700/10 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.2)] active:scale-[0.99]"
               >
-                <div className="relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm pl-3.5 pr-3 py-2.5 transition-all duration-200 hover:border-amber-300/70 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)] active:scale-[0.99]">
-                  {/* gold left accent bar */}
-                  <span aria-hidden="true" className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-gradient-to-b from-amber-300 to-amber-500" />
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-amber-100 leading-tight">
-                        {t("hero.askSoram")}
-                      </p>
-                      <p className="text-[10px] text-amber-200/70 leading-snug mt-0.5 line-clamp-2">
-                        {t("hero.askSoramSub")}
-                      </p>
+                <div className="absolute inset-y-0 left-0 w-1 bg-amber-400/70 rounded-l-xl" />
+                <div className="flex items-center gap-3 pl-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[15px] font-semibold text-amber-100">
+                      {t("hero.askSoram")}
                     </div>
-                    <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
+                    <p className="text-[12px] text-amber-200/70 mt-0.5 leading-snug">
+                      {t("hero.askSoramSub")}
+                    </p>
                   </div>
+                  <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
                 </div>
               </button>
 
@@ -255,19 +233,40 @@ export function HeroSection() {
                   <span className="text-sm text-white/90 font-medium leading-tight">{t("hero.googlePlay")}</span>
                 </a>
 
-                {/* App Store (Released) */}
-                <a
-                  href={APP_STORE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-white/5 border border-white/15 hover:border-white/30 hover:bg-white/10 transition-all group w-full sm:w-auto"
-                >
-                  <svg className="w-5 h-5 text-white/80 group-hover:text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                  </svg>
-                  <span className="text-sm text-white/90 font-medium leading-tight">{t("hero.appStore")}</span>
-                </a>
+                {/* App Store (Released) — temporarily disabled during v1.3.8 review.
+                    See IOS_APP_AVAILABLE constant at top of file. */}
+                {IOS_APP_AVAILABLE ? (
+                  <a
+                    href={APP_STORE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-white/5 border border-white/15 hover:border-white/30 hover:bg-white/10 transition-all group w-full sm:w-auto"
+                  >
+                    <svg className="w-5 h-5 text-white/80 group-hover:text-white" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                    </svg>
+                    <span className="text-sm text-white/90 font-medium leading-tight">{t("hero.appStore")}</span>
+                  </a>
+                ) : (
+                  <div
+                    aria-disabled="true"
+                    title={t("hero.iosUpdating")}
+                    className="relative flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 opacity-60 cursor-not-allowed w-full sm:w-auto"
+                  >
+                    <svg className="w-5 h-5 text-white/50" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                    </svg>
+                    <span className="text-sm text-white/60 font-medium leading-tight">{t("hero.appStore")}</span>
+                  </div>
+                )}
               </div>
+
+              {/* iOS update notice — only visible while iOS button is disabled */}
+              {!IOS_APP_AVAILABLE && (
+                <p className="text-[11px] text-amber-200/70 mt-0.5 text-center sm:text-left">
+                  ✨ {t("hero.iosUpdating")}
+                </p>
+              )}
             </div>
             )}
 
