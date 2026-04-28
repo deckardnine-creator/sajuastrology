@@ -8,9 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
  * Called by the client after sign-in when the user had previously
  * generated one or more compatibility readings as a guest.
  * This endpoint transfers ownership of those guest compat rows
- * (user_id = NULL) to the now-signed-in user, and bootstraps the
- * user's own `readings` row from Person A of the first claimed
- * compat if they don't already have one.
+ * (user_id = NULL) to the now-signed-in user.
  *
  * Request
  * -------
@@ -18,7 +16,20 @@ import { NextRequest, NextResponse } from "next/server";
  *
  * Response (always 200 unless userId missing)
  * -------------------------------------------
- *   { claimed: number, readingCreated: boolean, error?: string }
+ *   { claimed: number, readingCreated: false, error?: string }
+ *
+ * v6.17.42 NOTE
+ * -------------
+ * Previously this endpoint also bootstrapped a `readings` row for the
+ * user from Person A of the first claimed compat. That auto-bootstrap
+ * has been removed: the dashboard's "my saju" must come from the user
+ * deliberately entering their own birth data (via /calculate, Soram
+ * first-entry, or /setup-primary-chart from the dashboard CTA), NOT
+ * from whatever they typed into a casual compat form.
+ *
+ * `readingCreated` is kept in the response shape for backward
+ * compatibility with the existing client code path, but is now
+ * always `false`.
  *
  * Design Principles
  * -----------------
@@ -26,11 +37,6 @@ import { NextRequest, NextResponse } from "next/server";
  *     is still shaped so the client's auth flow can continue cleanly.
  *  2. Per-slug try/catch so one bad slug does not abort the rest.
  *  3. Caps slug count at 10 to defend against malformed/huge payloads.
- *  4. Reading auto-creation is secondary and also try/catch-isolated;
- *     it runs only if at least one compat was successfully claimed AND
- *     the user has no existing readings.
- *  5. Zero new static imports — relies only on Next.js types and the
- *     existing @/lib/auto-create-reading helper (dynamically imported).
  */
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
@@ -46,16 +52,6 @@ const dbHeaders = {
 };
 
 const MAX_SLUGS_PER_REQUEST = 10;
-
-type ClaimedCompatRow = {
-  person_a_name?: string;
-  person_a_gender?: string;
-  person_a_birth_date?: string;
-  person_a_birth_hour?: number | null;
-  person_a_birth_hour_unknown?: boolean | null;
-  person_a_birth_city?: string;
-  locale?: string | null;
-};
 
 export async function POST(request: NextRequest) {
   try {
@@ -101,19 +97,17 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // ─── 3. Claim each slug + collect first successfully-claimed row ───
-    // Why "first successfully-claimed row" only?
-    // The row is used to bootstrap the user's readings if needed. We only
-    // need one Person A, so stop collecting after the first success.
+    // ─── 3. Claim each slug ────────────────────────────────────────────
+    // Transfers user_id from NULL → userId for each guest compat row.
+    // Per-slug try/catch so one failure doesn't kill the rest.
     let claimed = 0;
-    let firstClaimedRow: ClaimedCompatRow | null = null;
 
     for (const slug of slugs) {
       try {
         const res = await fetch(
           `${supabaseUrl}/rest/v1/compatibility_results?share_slug=eq.${encodeURIComponent(
             slug
-          )}&user_id=is.null&select=person_a_name,person_a_gender,person_a_birth_date,person_a_birth_hour,person_a_birth_hour_unknown,person_a_birth_city,locale`,
+          )}&user_id=is.null&select=share_slug`,
           {
             method: "PATCH",
             headers: { ...dbHeaders, Prefer: "return=representation" },
@@ -131,70 +125,17 @@ export async function POST(request: NextRequest) {
         const rows = await res.json().catch(() => null);
         if (Array.isArray(rows) && rows.length > 0) {
           claimed += 1;
-          if (!firstClaimedRow) {
-            firstClaimedRow = rows[0] as ClaimedCompatRow;
-          }
         }
       } catch {
         // Network or JSON error for this slug — move on to the next.
       }
     }
 
-    // ─── 4. Bootstrap readings row (optional, best-effort) ─────────────
-    let readingCreated = false;
+    // ─── 4. v6.17.42 — readings bootstrap REMOVED ──────────────────────
+    // See header comment. The dashboard chart now comes ONLY from
+    // my_primary_chart, set by the user's deliberate input flows.
 
-    if (claimed > 0 && firstClaimedRow && firstClaimedRow.person_a_name) {
-      try {
-        // Validate gender before passing to the helper (which enforces
-        // "male" | "female" strictly).
-        const gender = firstClaimedRow.person_a_gender;
-        const genderSafe: "male" | "female" | null =
-          gender === "male" || gender === "female" ? gender : null;
-
-        if (
-          genderSafe &&
-          firstClaimedRow.person_a_birth_date &&
-          firstClaimedRow.person_a_birth_city
-        ) {
-          const hour =
-            typeof firstClaimedRow.person_a_birth_hour === "number"
-              ? firstClaimedRow.person_a_birth_hour
-              : 12;
-
-          const { ensureUserReading } = await import(
-            "@/lib/auto-create-reading"
-          );
-
-          const result = await Promise.race([
-            ensureUserReading({
-              userId,
-              name: firstClaimedRow.person_a_name,
-              gender: genderSafe,
-              birthDateStr: firstClaimedRow.person_a_birth_date,
-              birthHour: hour,
-              birthHourUnknown:
-                firstClaimedRow.person_a_birth_hour_unknown === true,
-              birthCity: firstClaimedRow.person_a_birth_city,
-              locale: firstClaimedRow.locale || "en",
-            }),
-            new Promise<{ shareSlug: null; created: false }>((resolve) =>
-              setTimeout(
-                () => resolve({ shareSlug: null, created: false }),
-                3000
-              )
-            ),
-          ]);
-
-          if (result && result.created) {
-            readingCreated = true;
-          }
-        }
-      } catch {
-        // Silent: reading bootstrap is best-effort.
-      }
-    }
-
-    return NextResponse.json({ claimed, readingCreated });
+    return NextResponse.json({ claimed, readingCreated: false });
   } catch (err) {
     // Outermost guard — should never be reached because every inner path
     // has its own catch. If it is reached, something truly unexpected

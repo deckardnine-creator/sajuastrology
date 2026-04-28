@@ -461,6 +461,8 @@ const translations = {
   "dash.todayLucky": { en: "Today's Lucky", ko: "오늘의 행운", ja: "今日のラッキー", es: "Suerte de hoy", fr: "Chance du jour", pt: "Sorte de hoje", "zh-TW": "今日好運", ru: "Удача сегодня", hi: "आज का भाग्य", id: "Keberuntungan Hari Ini" },
   "dash.todayFortune": { en: "Today's Fortune", ko: "오늘의 운세", ja: "今日の運勢", es: "Fortuna de hoy", fr: "Fortune du jour", pt: "Fortuna de hoje", "zh-TW": "今日運勢", ru: "Удача сегодня", hi: "आज की भविष्यवाणी", id: "Keberuntungan Hari Ini" },
   "dash.fourPillars": { en: "Your Four Pillars", ko: "나의 사주팔자", ja: "あなたの四柱", es: "Tus Cuatro Pilares", fr: "Tes Quatre Piliers", pt: "Seus Quatro Pilares", "zh-TW": "你的四柱", ru: "Твои Четыре Столпа", hi: "तुम्हारे चार स्तंभ", id: "Empat Pilarmu" },
+  "dash.mySajuLabel": { en: "My Saju", ko: "내 사주", ja: "私の四柱", es: "Mi Saju", fr: "Mon Saju", pt: "Meu Saju", "zh-TW": "我的四柱", ru: "Моя Саджу", hi: "मेरा साजू", id: "Saju Saya" },
+  "dash.mySajuHourUnknown": { en: "hour unknown", ko: "시간 모름", ja: "時刻不明", es: "hora desconocida", fr: "heure inconnue", pt: "hora desconhecida", "zh-TW": "時辰未知", ru: "время неизвестно", hi: "समय अज्ञात", id: "jam tidak diketahui" },
   "dash.thisWeek": { en: "This Week", ko: "이번 주", ja: "今週", es: "Esta semana", fr: "Cette semaine", pt: "Esta semana", "zh-TW": "本週", ru: "На этой неделе", hi: "इस सप्ताह", id: "Minggu Ini" },
   "dash.myReadings": { en: "Readings", ko: "사주", ja: "鑑定結果", es: "Lecturas", fr: "Lectures", pt: "Leituras", "zh-TW": "命盤", ru: "Чтения", hi: "रीडिंग्स", id: "Bacaan" },
   "dash.newReading": { en: "New Reading", ko: "새 사주", ja: "新規鑑定", es: "Nueva lectura", fr: "Nouvelle lecture", pt: "Nova leitura", "zh-TW": "新命盤", ru: "Новое чтение", hi: "नई रीडिंग", id: "Bacaan Baru" },

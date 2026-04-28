@@ -849,11 +849,72 @@ function DashboardInner() {
 
           {/* Four Pillars */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6 sm:mb-8">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm tracking-wider text-muted-foreground uppercase">{t("dash.fourPillars")}</h2>
+            {/* ════════════════════════════════════════════════════════════
+                v6.17.42 — "My Saju" identity label.
+                Sits next to the "Your Four Pillars" heading and shows
+                the birth date + hour of the chart that's actually
+                being rendered, so the user can verify at a glance
+                that the dashboard is showing THEIR chart, not somebody
+                else's. The label only appears when:
+                  - primaryReadingId resolved (matched against my_primary_chart)
+                  - the matched reading has a birth_date
+                If for any reason the data is missing, the label
+                silently disappears — the pillars below still render.
+                ════════════════════════════════════════════════════════ */}
+            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap min-w-0">
+                <h2 className="text-sm tracking-wider text-muted-foreground uppercase shrink-0">{t("dash.fourPillars")}</h2>
+                {(() => {
+                  // Resolve the matched reading (primaryReadingId set above).
+                  const matched = primaryReadingId
+                    ? savedReadings.find((r) => r.id === primaryReadingId)
+                    : null;
+                  if (!matched || !matched.birth_date) return null;
+
+                  // Format birth_date as YYYY.MM.DD (no locale variation —
+                  // dots read consistently across all 10 languages).
+                  // birth_date can be "1948-03-30" or "1948-03-30T00:00:00".
+                  const dateOnly = String(matched.birth_date).slice(0, 10);
+                  const dateParts = dateOnly.split("-");
+                  const datePretty = dateParts.length === 3
+                    ? `${dateParts[0]}.${dateParts[1]}.${dateParts[2]}`
+                    : dateOnly;
+
+                  // Hour: prefer numeric matched.hour_branch via primaryChartPillars,
+                  // but the readings row already carries the chart we render so we
+                  // re-use sajuData.chart hour pillar where possible. To keep the
+                  // label simple and reliable, derive hour-known from the primary
+                  // chart pillars (which is the authoritative source for unknown).
+                  const hourUnknown = primaryChartPillars?.birth_hour_unknown === true;
+                  const hourPillar = sajuData.chart?.pillars?.hour;
+                  // For display: try the numeric birth hour from the reading if we
+                  // have it. SavedReading carries hour_stem/hour_branch (zh chars),
+                  // not the original 0-23 hour; sajuData.chart is built from the
+                  // primary chart pillars, so we show "시" via the stem-branch
+                  // pair (e.g. "戊午시") which is the canonical form on this app.
+                  const hourLabel = hourUnknown
+                    ? t("dash.mySajuHourUnknown")
+                    : hourPillar
+                      ? `${hourPillar.stem.zh}${hourPillar.branch.zh}시`
+                      : null;
+
+                  return (
+                    <span
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-400/10 border border-amber-400/30 text-amber-100 text-xs font-medium whitespace-nowrap"
+                      title={`${t("dash.mySajuLabel")} — ${datePretty}${hourLabel ? ` ${hourLabel}` : ""}`}
+                    >
+                      <span className="text-amber-300">✦</span>
+                      <span>
+                        {t("dash.mySajuLabel")} — {datePretty}
+                        {hourLabel ? ` · ${hourLabel}` : ""}
+                      </span>
+                    </span>
+                  );
+                })()}
+              </div>
               {primaryReadingId && savedReadings.length > 0 && (
                 <Link href={`/reading/${savedReadings.find((r) => r.id === primaryReadingId)?.share_slug || ""}`}
-                  className="text-sm text-primary hover:underline flex items-center gap-1">
+                  className="text-sm text-primary hover:underline flex items-center gap-1 shrink-0">
                   {t("dash.fullReading")} <ArrowRight className="w-3 h-3" />
                 </Link>
               )}

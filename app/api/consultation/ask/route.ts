@@ -396,29 +396,26 @@ async function handleStart({
   });
   const [consultation] = await insertRes.json();
 
-  // ─── [PHASE 1 STEP 3] Auto-create user's own readings row ────────────
-  // If the user has no readings yet, bootstrap one from birthInput
-  // (which IS the user in consultation flows). Dynamic import keeps the
-  // top-level import list untouched. 3s timeout cap — never affects the
-  // consultation flow that the client is already waiting on.
-  try {
-    const { ensureUserReading } = await import("@/lib/auto-create-reading");
-    await Promise.race([
-      ensureUserReading({
-        userId,
-        name: birthInput.name,
-        gender: birthInput.gender,
-        birthDateStr: chartData.birthDate,
-        birthHour: birthInput.hour,
-        birthHourUnknown: false,
-        birthCity: birthInput.city,
-        locale: locale || "en",
-      }),
-      new Promise<void>((resolve) => setTimeout(resolve, 3000)),
-    ]);
-  } catch {
-    // Silent — protects the consultation flow
-  }
+  // ════════════════════════════════════════════════════════════════
+  // v6.17.42 — PHASE 1 STEP 3 (auto-bootstrap readings row) REMOVED.
+  //
+  // Previously: every consultation request would silently bootstrap
+  // a readings row using birthInput, so the dashboard would display
+  // a chart derived from whatever the user typed into the consult
+  // intake form. In practice users sometimes consulted on a friend's
+  // chart, a partner's chart, or with a casual self-test, so the
+  // dashboard ended up showing chart data the user would not actually
+  // claim as their own.
+  //
+  // New policy: the dashboard chart comes ONLY from my_primary_chart,
+  // set by these explicit paths:
+  //   1. /calculate (user typing their own birth data deliberately)
+  //   2. Soram first-entry (gated by birth-data input)
+  //   3. /setup-primary-chart from the dashboard CTA
+  //
+  // Consultation, compatibility, and free/paid reading flows do NOT
+  // touch readings or my_primary_chart anymore.
+  // ════════════════════════════════════════════════════════════════
 
   // 5. Generate report in 3 PARALLEL parts — progressive save to DB
   try {

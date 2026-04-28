@@ -869,31 +869,26 @@ export async function POST(request: NextRequest) {
       })
     ); // closes waitUntil()
 
-    // ─── [PHASE 1 STEP 2] Auto-create user's own readings row ────────────
-    // If the user is signed in and has no readings yet, bootstrap one from
-    // Person A (who is semantically "the user" in compatibility flows).
-    // Dynamic import keeps the top-level import list untouched. Wrapped in
-    // try/catch with a 3s timeout cap — never affects the compat response.
-    if (userId) {
-      try {
-        const { ensureUserReading } = await import("@/lib/auto-create-reading");
-        await Promise.race([
-          ensureUserReading({
-            userId,
-            name: personA.name,
-            gender: personA.gender,
-            birthDateStr: bdStrA,
-            birthHour: hourA,
-            birthHourUnknown: personA.birthHourUnknown === true,
-            birthCity: personA.birthCity,
-            locale,
-          }),
-          new Promise<void>((resolve) => setTimeout(resolve, 3000)),
-        ]);
-      } catch {
-        // Silent — helper never throws, but extra protection anyway
-      }
-    }
+    // ════════════════════════════════════════════════════════════════
+    // v6.17.42 — PHASE 1 STEP 2 (auto-bootstrap readings row) REMOVED.
+    //
+    // Previously: any compatibility generation would silently bootstrap
+    // a readings row using Person A's data, so the dashboard would
+    // display "the user's chart" derived from what they typed in the
+    // compat form. In practice users routinely entered casual or
+    // partial Person A data ("test", "lips", a friend's name, an
+    // initial), so the dashboard ended up showing chart data the user
+    // would not actually claim as their own.
+    //
+    // New policy: the user's chart on the dashboard is derived ONLY
+    // from my_primary_chart, which is set by these explicit paths:
+    //   1. /calculate (user typing their own birth data deliberately)
+    //   2. Soram first-entry (gated by birth-data input)
+    //   3. /setup-primary-chart from the dashboard CTA
+    //
+    // Compatibility, consultation, free reading, paid reading, and
+    // claim flows do NOT touch readings or my_primary_chart anymore.
+    // ════════════════════════════════════════════════════════════════
 
     return NextResponse.json({ success: true, shareSlug });
   } catch (err: unknown) {
