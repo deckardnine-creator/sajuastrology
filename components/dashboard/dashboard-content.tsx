@@ -101,6 +101,11 @@ interface PrimaryChartPillars {
   day_stem: string;   day_branch: string;
   hour_stem: string | null;  hour_branch: string | null;
   birth_hour_unknown: boolean;
+  // v6.17.43 — fields used by the "My Saju" label next to the
+  // Four Pillars heading. Pulled directly from my_primary_chart so
+  // we no longer depend on a matching `readings` row existing.
+  birth_date: string | null;
+  birth_hour: number | null;
 }
 
 /** True when a saved reading shares all 8 pillars with the primary chart. */
@@ -236,6 +241,11 @@ function DashboardInner() {
           hour_stem: c.hour_stem ? String(c.hour_stem) : null,
           hour_branch: c.hour_branch ? String(c.hour_branch) : null,
           birth_hour_unknown: !!c.birth_hour_unknown,
+          // v6.17.43 — fields for the "My Saju — date · hour" label.
+          // Both can be missing on legacy rows; the label logic falls
+          // back gracefully when birth_date is null.
+          birth_date: c.birth_date ? String(c.birth_date) : null,
+          birth_hour: typeof c.birth_hour === "number" ? c.birth_hour : null,
         });
       } else {
         setPrimaryChartPillars(null);
@@ -718,7 +728,25 @@ function DashboardInner() {
           </div>
         </Link>
 
-        {/* Plan + remaining card — secondary, 2/5 width on desktop */}
+        {/* ════════════════════════════════════════════════════════════
+            v6.17.43 — Plan + remaining card hidden in native app.
+            
+            Why: in native (App Store / Play Store) builds, all paid
+            upgrades must go through Apple IAP / Google Play Billing,
+            never through a web /pricing page. The "Upgrade →" link
+            on this card points to /pricing?plan=companion, which is
+            a web payment funnel, so we hide the entire card in the
+            app to keep the UX honest and IAP-policy compliant.
+            
+            On web (isNative=false), the card stays visible exactly
+            as before — Plan title, Free/Daily Pass tier, today's
+            remaining counts, and the Upgrade link to /pricing.
+            
+            The plan info itself is still useful in the app, but
+            until we wire it to native IAP routing it is safer to
+            hide than to leak users into a non-IAP payment flow.
+            ════════════════════════════════════════════════════════ */}
+        {!isNative && (
         <div className="sm:col-span-2 bg-card/50 backdrop-blur border border-border rounded-xl p-4 sm:p-5">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
@@ -760,6 +788,7 @@ function DashboardInner() {
             </div>
           </div>
         </div>
+        )}
 
       </div>
 
@@ -850,52 +879,55 @@ function DashboardInner() {
           {/* Four Pillars */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6 sm:mb-8">
             {/* ════════════════════════════════════════════════════════════
-                v6.17.42 — "My Saju" identity label.
-                Sits next to the "Your Four Pillars" heading and shows
-                the birth date + hour of the chart that's actually
-                being rendered, so the user can verify at a glance
-                that the dashboard is showing THEIR chart, not somebody
-                else's. The label only appears when:
-                  - primaryReadingId resolved (matched against my_primary_chart)
-                  - the matched reading has a birth_date
-                If for any reason the data is missing, the label
-                silently disappears — the pillars below still render.
+                v6.17.42 / v6.17.43 — "My Saju" identity label.
+                Shows the birth date + hour of the chart that's actually
+                being rendered, so the user can verify at a glance that
+                the dashboard is showing THEIR chart, not somebody else's.
+                
+                v6.17.43 fix: previously this label was only shown when
+                a matching `readings` row existed (via primaryReadingId).
+                That left users with a registered my_primary_chart but
+                no readings row (e.g. accounts created before v6.17.42,
+                or any flow that wrote my_primary_chart without also
+                inserting into readings) seeing the pillars but no label.
+                We now pull birth_date / birth_hour directly from
+                primaryChartPillars (the my_primary_chart row), so the
+                label appears whenever the user has formally registered
+                their primary chart.
+                
+                Fail-safe: if birth_date is missing, the label silently
+                disappears — the pillars below still render normally.
                 ════════════════════════════════════════════════════════ */}
             <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
               <div className="flex items-center gap-2 flex-wrap min-w-0">
                 <h2 className="text-sm tracking-wider text-muted-foreground uppercase shrink-0">{t("dash.fourPillars")}</h2>
                 {(() => {
-                  // Resolve the matched reading (primaryReadingId set above).
-                  const matched = primaryReadingId
-                    ? savedReadings.find((r) => r.id === primaryReadingId)
-                    : null;
-                  if (!matched || !matched.birth_date) return null;
+                  // v6.17.43 — pull directly from primaryChartPillars so the
+                  // label works even when there is no matching readings row.
+                  const bd = primaryChartPillars?.birth_date;
+                  if (!bd) return null;
 
-                  // Format birth_date as YYYY.MM.DD (no locale variation —
-                  // dots read consistently across all 10 languages).
-                  // birth_date can be "1948-03-30" or "1948-03-30T00:00:00".
-                  const dateOnly = String(matched.birth_date).slice(0, 10);
+                  // Format birth_date as YYYY.MM.DD (locale-neutral; dots
+                  // read consistently across all 10 supported languages).
+                  // bd can be "1948-03-30" or "1948-03-30T00:00:00".
+                  const dateOnly = String(bd).slice(0, 10);
                   const dateParts = dateOnly.split("-");
                   const datePretty = dateParts.length === 3
                     ? `${dateParts[0]}.${dateParts[1]}.${dateParts[2]}`
                     : dateOnly;
 
-                  // Hour: prefer numeric matched.hour_branch via primaryChartPillars,
-                  // but the readings row already carries the chart we render so we
-                  // re-use sajuData.chart hour pillar where possible. To keep the
-                  // label simple and reliable, derive hour-known from the primary
-                  // chart pillars (which is the authoritative source for unknown).
+                  // Hour label:
+                  //  - birth_hour_unknown=true  →  "시간 모름" / "hour unknown"
+                  //  - birth_hour numeric (0-23) → "HH시"  (24-hour, no leading zero
+                  //    for readability in CJK; matches how Korean speakers say
+                  //    times in saju context — "2시", "14시" etc.)
+                  //  - missing → omit the · suffix
                   const hourUnknown = primaryChartPillars?.birth_hour_unknown === true;
-                  const hourPillar = sajuData.chart?.pillars?.hour;
-                  // For display: try the numeric birth hour from the reading if we
-                  // have it. SavedReading carries hour_stem/hour_branch (zh chars),
-                  // not the original 0-23 hour; sajuData.chart is built from the
-                  // primary chart pillars, so we show "시" via the stem-branch
-                  // pair (e.g. "戊午시") which is the canonical form on this app.
+                  const hourNum = primaryChartPillars?.birth_hour;
                   const hourLabel = hourUnknown
                     ? t("dash.mySajuHourUnknown")
-                    : hourPillar
-                      ? `${hourPillar.stem.zh}${hourPillar.branch.zh}시`
+                    : typeof hourNum === "number"
+                      ? `${hourNum}시`
                       : null;
 
                   return (
