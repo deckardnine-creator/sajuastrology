@@ -745,7 +745,7 @@ Saju has 518,400 unique profiles compared to MBTI's 16 and Western zodiac's 12 �
 
 ### Is SajuAstrology really free?
 
-Yes. SajuAstrology offers a genuinely free reading — no credit card, no trial, no signup wall mid-result. Compatibility analysis between two charts is also free. Only the deeper paid reading ($9.99 one-time) and master consultation ($29.99) require payment, and there are no recurring fees.
+Yes. SajuAstrology offers a genuinely free reading — no credit card, no trial, no signup wall mid-result. Compatibility analysis between two charts is also free. The deeper paid reading ($9.99 one-time) and master consultation ($29.99) are one-time payments and never auto-renew. Soram Companion ($4.99/month) is the only auto-renewable monthly subscription and you can cancel it anytime.
 
 ### What makes SajuAstrology different from other Korean astrology sites?
 
