@@ -16,7 +16,7 @@ export default function TermsPage() {
       <div className="pt-page pb-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <h1 className="text-3xl md:text-4xl font-serif text-primary mb-2">Terms of Service</h1>
-          <p className="text-sm text-muted-foreground mb-10">Last updated: April 2026</p>
+          <p className="text-sm text-muted-foreground mb-10">Last updated: 28 April 2026</p>
           <div className="space-y-8 text-sm text-foreground/90 leading-relaxed">
 
             <section>
@@ -68,7 +68,15 @@ export default function TermsPage() {
               <p className="mb-2"><strong>Compatibility Full (US$2.99):</strong> one-time payment per pair. Unlocks the detailed paid sections of an existing compatibility result — love, work, friendship, conflict pattern analyses, and the year-by-year forecast for the two charts. Lifetime access from your account.</p>
               <p className="mb-2"><strong>Full Destiny Reading (US$9.99):</strong> one-time payment per reading. Includes career and wealth blueprint, love and relationship insights, health timing guidance, 10-year fortune cycle analysis, monthly energy calendar, and hidden-talent analysis. Permanent access to your reading page.</p>
               <p className="mb-2"><strong>Master 5 Pack (US$29.99):</strong> one-time payment. Includes five (5) AI-generated consultation rounds for specific life questions (career, love, timing, finances, health, etc.), each grounded in your birth chart and the RimSaju Engine&rsquo;s 562 classical passages — <strong>plus the Full Destiny Reading is included</strong>. Consultation credits never expire and remain associated with your account indefinitely.</p>
-              <p className="mb-2"><strong>Soram Companion (US$4.99 per month):</strong> a renewing monthly subscription that grants unlimited daily Soram chat conversations and includes one (1) Master-tier consultation credit per billing month. Cancel anytime; access continues through the end of the current paid period. Subscriptions auto-renew until canceled by you.</p>
+              <p className="mb-2"><strong>Soram Companion (auto-renewable monthly subscription):</strong></p>
+              <ul className="list-disc pl-6 mb-2 space-y-1">
+                <li><strong>Title:</strong> Soram Companion</li>
+                <li><strong>Length of subscription:</strong> 1 month per billing period</li>
+                <li><strong>Price per period:</strong> US$4.99 per month</li>
+                <li><strong>Functionality:</strong> unlimited daily Soram chat conversations and one (1) Master-tier consultation credit per billing month</li>
+                <li><strong>Auto-renewal:</strong> the subscription automatically renews at the same price for successive 1-month periods unless auto-renewal is turned off at least 24 hours before the end of the current period. Payment is charged to your selected payment method at the start of each billing period.</li>
+                <li><strong>Cancellation:</strong> you can turn off auto-renewal at any time. See §7 below for the exact cancellation steps for App Store, Google Play, and Web.</li>
+              </ul>
               <p className="text-muted-foreground">All prices are in U.S. Dollars. Except for Soram Companion (a monthly subscription), all purchases are one-time payments — no auto-renewals, no recurring charges. Prices are identical across the Website and the App.</p>
             </section>
 
@@ -79,7 +87,14 @@ export default function TermsPage() {
               <ul className="list-disc pl-6 mb-2 space-y-1">
                 <li>If a technical error prevents your reading from being delivered, contact <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> within 7 days of purchase for a refund.</li>
                 <li>For in-app purchases (iOS/Android), refund requests must be submitted through Apple or Google according to their respective refund policies. We cannot process App Store refunds on your behalf.</li>
-                <li><strong>Soram Companion (subscription):</strong> you may cancel at any time through your dashboard (web) or through your Apple ID / Google Play account settings (mobile). Cancellation stops the next billing cycle; you retain access through the end of the current paid period. Already-billed monthly periods are not refunded except as required by applicable consumer-protection law or by Apple/Google policy.</li>
+                <li><strong>Soram Companion (subscription) — how to cancel:</strong>
+                  <ul className="list-disc pl-6 mt-1 space-y-1">
+                    <li><strong>iOS App Store:</strong> open <em>Settings → [your name] → Subscriptions</em>, tap <em>Soram Companion</em>, and tap <em>Cancel Subscription</em>.</li>
+                    <li><strong>Google Play:</strong> open the Google Play Store app, tap your profile icon → <em>Payments &amp; subscriptions → Subscriptions</em>, select <em>Soram Companion</em>, and tap <em>Cancel subscription</em>.</li>
+                    <li><strong>Web (PayPal):</strong> cancel from your dashboard or by emailing <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. You can also cancel directly from your PayPal account under <em>Payments → Manage automatic payments</em>.</li>
+                  </ul>
+                  Cancellation stops the next billing cycle; you retain access through the end of the current paid period. Already-billed monthly periods are not refunded except as required by applicable consumer-protection law or by Apple / Google policy.
+                </li>
                 <li><strong>Korean consumers:</strong> Rights under Korea&rsquo;s Act on the Consumer Protection in Electronic Commerce (including the 7-day cooling-off right for digital content, subject to statutory exceptions for digital content the use of which has commenced) are preserved in full.</li>
                 <li><strong>EU/EEA consumers:</strong> Rights under Directive 2011/83/EU are preserved. By proceeding to purchase digital content that is delivered immediately upon payment, you acknowledge that performance begins at the moment of purchase, to the extent permitted by law.</li>
                 <li>Unused Master 5 Pack consultation credits remain on your account indefinitely, subject to account deletion.</li>

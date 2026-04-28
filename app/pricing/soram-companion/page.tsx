@@ -1,31 +1,40 @@
 "use client"
 
 // ════════════════════════════════════════════════════════════════════
-// /pricing/soram-companion — placeholder for $4.99/mo Soram Companion
+// /pricing/soram-companion — Soram Companion subscription detail page
 // ════════════════════════════════════════════════════════════════════
-// Subscription billing for Soram Companion is not yet wired up. Until
-// it ships, this page invites the user to keep using the free 1-per-day
-// Soram tier and bookmark the page for return.
+// v1.3.8 (2026-04-28) — Replaced "Coming Soon" placeholder with full
+// subscription detail page that satisfies App Store Guideline 3.1.2(c)
+// and Google Play subscription disclosure requirements:
+//
+//   • Title of subscription
+//   • Length of subscription period (1 month)
+//   • Price per period ($4.99 USD)
+//   • What is included (functional benefits)
+//   • Auto-renewal disclosure
+//   • Cancellation method
+//   • Links to Terms of Use (EULA) and Privacy Policy
+//
+// English-only by design — legal disclosure surface; consistent across
+// platforms (web / iOS / Android via WebView). The page itself remains
+// reachable from /pricing card CTA, App Store Connect description
+// links, and Apple App Review.
 // ════════════════════════════════════════════════════════════════════
 
 import { useEffect } from "react"
 import Link from "next/link"
-import { MessageCircle, ArrowRight, ArrowLeft } from "lucide-react"
+import { MessageCircle, ArrowRight, ArrowLeft, Sparkles, Infinity as InfinityIcon, Award } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
-import { useLanguage } from "@/lib/language-context"
-import { t } from "@/lib/translations"
 import { track, Events } from "@/lib/analytics"
 
 export default function SoramCompanionPage() {
-  const { locale } = useLanguage()
-
   useEffect(() => {
     try {
       track(Events.pricing_cta_clicked, {
-        plan: "soram-companion-placeholder",
-        landed_on_placeholder: true,
+        plan: "soram-companion-detail",
+        landed_on_detail: true,
       })
     } catch {}
   }, [])
@@ -39,10 +48,11 @@ export default function SoramCompanionPage() {
       <Navbar />
 
       <section className="pt-20 sm:pt-28 pb-16">
-        <div className="mx-auto max-w-md px-4 sm:px-6">
-          <div className="text-center">
-            {/* Soram avatar circle */}
-            <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 mb-6 overflow-hidden shadow-lg shadow-amber-500/30">
+        <div className="mx-auto max-w-2xl px-4 sm:px-6">
+
+          {/* ─────────── Header ─────────── */}
+          <div className="text-center mb-10">
+            <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 mb-5 overflow-hidden shadow-lg shadow-amber-500/30">
               <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-2xl">🌙</span>
               <img
                 src="/soram/soram_nav.webp"
@@ -56,35 +66,152 @@ export default function SoramCompanionPage() {
               />
             </div>
 
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold mb-3">
-              {t("pc.companion.name", locale)}
+            <h1 className="font-serif text-3xl sm:text-4xl font-bold mb-2">
+              Soram Companion
             </h1>
-            <div className="inline-block px-3 py-1 mb-5 text-xs uppercase tracking-wide bg-amber-500/15 text-amber-300/90 border border-amber-500/30 rounded-full">
-              {t("pricing.comingSoon", locale)}
-            </div>
+            <p className="text-sm text-muted-foreground">
+              Auto-renewable monthly subscription
+            </p>
+          </div>
 
-            <p className="text-sm text-muted-foreground leading-relaxed mb-8">
-              {locale === "ko" && "\uc18c\ub78c \ub3d9\ud589 \uad6c\ub3c5\uc774 \uacf3 \uc5f4\ub9bd\ub2c8\ub2e4. \uadf8 \uc804\uae4c\uc9c0\ub294 \ud558\ub8e8 1\ud68c \ubb34\ub8cc\ub85c \uc18c\ub78c\uacfc \ub300\ud654\ud574\ubcf4\uc138\uc694 \u2014 \uadf8\ub300\uc758 \uc0ac\uc8fc\ub97c \uc774\ubbf8 \uae30\uc5b5\ud558\uace0 \uc788\uc2b5\ub2c8\ub2e4."}
-              {locale === "ja" && "\u30bd\u30e9\u30e0\u540c\u884c\u306e\u30b5\u30d6\u30b9\u30af\u306f\u8fd1\u65e5\u958b\u59cb\u3055\u308c\u307e\u3059\u3002\u305d\u308c\u307e\u3067\u306f1\u65e51\u56de\u7121\u6599\u3067\u30bd\u30e9\u30e0\u3068\u4f1a\u8a71\u3092\u304a\u697d\u3057\u307f\u304f\u3060\u3055\u3044 \u2014 \u3042\u306a\u305f\u306e\u56db\u67f1\u3092\u3059\u3067\u306b\u8a18\u61b6\u3057\u3066\u3044\u307e\u3059\u3002"}
-              {locale === "en" && "Soram Companion subscription is opening soon. Until then, chat with Soram once a day for free — Soram already remembers your saju."}
-              {!["ko", "ja", "en"].includes(locale) && "Soram Companion subscription is opening soon. Until then, chat with Soram once a day for free — Soram already remembers your saju."}
+          {/* ─────────── Price card ─────────── */}
+          <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-6 mb-8">
+            <div className="flex items-baseline justify-between mb-1">
+              <span className="text-base font-semibold">Subscription</span>
+              <span className="text-2xl font-bold text-amber-300">
+                $4.99 <span className="text-sm font-normal text-amber-300/80">USD / month</span>
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4">
+              Length: 1 month · Auto-renews until canceled
             </p>
 
-            <div className="flex flex-col gap-3">
-              <Link href="/soram" className="block">
-                <Button className="w-full h-12 gold-gradient text-primary-foreground font-semibold">
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  {locale === "ko" ? "\uc18c\ub78c\uc5d0\uac8c \ubb3b\uae30 (\ubb34\ub8cc 1\ud68c)" : locale === "ja" ? "\u30bd\u30e9\u30e0\u306b\u805e\u304f (\u7121\u65991\u56de)" : "Ask Soram (1 free)"}
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-              <Link href="/pricing" className="block">
-                <Button variant="outline" className="w-full h-11 text-sm">
-                  <ArrowLeft className="w-3.5 h-3.5 mr-2" />
-                  {locale === "ko" ? "\uc694\uae08\uc81c\ub85c \ub3cc\uc544\uac00\uae30" : locale === "ja" ? "\u6599\u91d1\u30d7\u30e9\u30f3\u306b\u623b\u308b" : "Back to Pricing"}
-                </Button>
-              </Link>
+            <div className="border-t border-amber-500/20 pt-4 space-y-2.5">
+              <div className="flex items-start gap-3">
+                <InfinityIcon className="w-4 h-4 mt-0.5 text-amber-400 flex-shrink-0" />
+                <span className="text-sm">
+                  Unlimited daily conversations with Soram, your saju-aware AI companion
+                </span>
+              </div>
+              <div className="flex items-start gap-3">
+                <Award className="w-4 h-4 mt-0.5 text-amber-400 flex-shrink-0" />
+                <span className="text-sm">
+                  One Master-tier consultation credit per billing month (a $6 value)
+                </span>
+              </div>
+              <div className="flex items-start gap-3">
+                <Sparkles className="w-4 h-4 mt-0.5 text-amber-400 flex-shrink-0" />
+                <span className="text-sm">
+                  Continuity — Soram remembers your saju and prior conversations
+                </span>
+              </div>
             </div>
+          </div>
+
+          {/* ─────────── How to subscribe ─────────── */}
+          <div className="rounded-2xl border border-border bg-card/30 p-6 mb-6">
+            <h2 className="font-serif text-lg mb-3">How to subscribe</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Subscription is offered through your conversation with Soram. Open the
+              chat, ask Soram a question, and a subscription card will appear inside
+              the chat with the same disclosures shown above.
+            </p>
+            <Link href="/soram" className="block">
+              <Button className="w-full h-12 gold-gradient text-primary-foreground font-semibold">
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Open Soram
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          </div>
+
+          {/* ─────────── Subscription terms (App Store 3.1.2(c) compliant) ─────────── */}
+          <div className="rounded-2xl border border-border bg-card/20 p-6 mb-6 text-xs leading-relaxed text-muted-foreground space-y-3">
+            <h2 className="font-serif text-base text-foreground mb-1">Subscription terms</h2>
+
+            <p>
+              <strong className="text-foreground">Title:</strong> Soram Companion
+            </p>
+            <p>
+              <strong className="text-foreground">Length:</strong> 1 month per billing period
+            </p>
+            <p>
+              <strong className="text-foreground">Price:</strong> $4.99 USD per month, charged
+              at the start of each billing period
+            </p>
+            <p>
+              <strong className="text-foreground">Auto-renewal:</strong> Payment is charged to
+              your selected payment method at the start of each billing period. The
+              subscription automatically renews unless auto-renewal is turned off at
+              least 24 hours before the end of the current period. Your account will
+              be charged for renewal within 24 hours prior to the end of the current
+              period.
+            </p>
+            <p>
+              <strong className="text-foreground">How to cancel — iOS App Store:</strong> Open
+              <em> Settings → [your name] → Subscriptions</em> on your iPhone or iPad,
+              tap <em>Soram Companion</em>, and tap <em>Cancel Subscription</em>. You
+              keep access through the end of the current paid period.
+            </p>
+            <p>
+              <strong className="text-foreground">How to cancel — Google Play:</strong> Open
+              the Google Play Store app, tap your profile icon →
+              <em> Payments &amp; subscriptions → Subscriptions</em>, select <em>Soram
+              Companion</em>, and tap <em>Cancel subscription</em>.
+            </p>
+            <p>
+              <strong className="text-foreground">How to cancel — Web (PayPal):</strong> Cancel
+              from your{" "}
+              <Link href="/dashboard" className="text-primary hover:underline">
+                dashboard
+              </Link>{" "}
+              or by emailing{" "}
+              <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">
+                info@rimfactory.io
+              </a>
+              . You can also cancel directly from your PayPal account under{" "}
+              <em>Payments → Manage automatic payments</em>.
+            </p>
+            <p>
+              <strong className="text-foreground">Refunds:</strong> Already-billed monthly
+              periods are not refundable, except as required by applicable
+              consumer-protection law or by Apple / Google policy. App Store and
+              Google Play purchases are subject to their respective refund policies
+              and can be requested through those stores directly.
+            </p>
+            <p>
+              <strong className="text-foreground">Free tier:</strong> If you do not
+              subscribe, Soram remains free for one conversation per day. The free
+              tier never expires and never charges you.
+            </p>
+          </div>
+
+          {/* ─────────── Legal links ─────────── */}
+          <div className="text-center text-xs text-muted-foreground mb-6">
+            By subscribing, you agree to the{" "}
+            <Link
+              href="/terms"
+              className="text-primary hover:underline"
+            >
+              Terms of Use
+            </Link>{" "}
+            and acknowledge the{" "}
+            <Link
+              href="/privacy"
+              className="text-primary hover:underline"
+            >
+              Privacy Policy
+            </Link>
+            .
+          </div>
+
+          <div className="flex justify-center">
+            <Link href="/pricing">
+              <Button variant="outline" size="sm" className="text-xs">
+                <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
+                Back to Pricing
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

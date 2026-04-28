@@ -462,6 +462,10 @@ function PaywallCard({ isNative, userId, userEmail, userName, locale, labels }: 
             <span className="text-xs text-amber-100/85 leading-snug">{labels.b2}</span>
           </div>
         </div>
+        {/* v1.3.8 — App Store 3.1.2(c) compliance: explicit auto-renew + length disclosure (English, all platforms) */}
+        <p className="text-[10px] text-amber-200/60 mb-2 pl-2 leading-snug">
+          Auto-renewable subscription · 1 month · $4.99 USD per month
+        </p>
         <button
           type="button"
           onClick={handleClick}
@@ -470,8 +474,28 @@ function PaywallCard({ isNative, userId, userEmail, userName, locale, labels }: 
         >
           {loading ? "..." : labels.cta}
         </button>
-        <p className="text-[10px] text-amber-200/50 mt-2 text-center">
-          {labels.footer}
+        <p className="text-[10px] text-amber-200/50 mt-2 text-center leading-snug">
+          {labels.footer} · Renews until canceled in account settings
+        </p>
+        {/* v1.3.8 — App Store 3.1.2(c) compliance: EULA + Privacy links (English, all platforms) */}
+        <p className="text-[10px] text-amber-200/70 mt-2 text-center">
+          <a
+            href="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-amber-200 transition-colors"
+          >
+            Terms of Use
+          </a>
+          <span className="mx-1.5 text-amber-200/40">·</span>
+          <a
+            href="/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-amber-200 transition-colors"
+          >
+            Privacy Policy
+          </a>
         </p>
         {error && (
           <p className="text-[10px] text-red-400/80 mt-2 text-center">{error}</p>
