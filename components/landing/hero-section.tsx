@@ -159,11 +159,14 @@ export function HeroSection() {
               <span className="align-middle">{t("hero.techLine")}</span>
             </p>
 
-            {/* v6.17.57 — NVIDIA Inception trust strip restored.
-                Was previously imported but no longer rendered (likely
-                dropped during a hero refactor). Restored under techLine
-                so the credibility signal sits right above the CTAs. */}
-            <NvidiaInceptionStrip />
+            {/* v6.17.60 — CRITICAL: NVIDIA Inception strip MUST be
+                hidden inside the native app. App Store Guideline 5.2.5
+                forbids displaying third-party marks without permission,
+                and NVIDIA marketing inside the app could escalate the
+                existing 4.3(b) "saturated category" appeal. The strip
+                itself comments "HIDDEN in the native app via the parent
+                hero gating" — this is that gate. Web-only, never app. */}
+            {!isNativeApp && <NvidiaInceptionStrip />}
 
             {/* ════════════════════════════════════════════════════════
                 v1.3 Sprint 2-B v6.9: Soram CTA + primary CTAs unified
