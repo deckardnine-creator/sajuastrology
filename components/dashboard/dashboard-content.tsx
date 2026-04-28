@@ -989,26 +989,13 @@ function DashboardInner() {
               )}
             </div>
             {/* ════════════════════════════════════════════════════════════
-                v6.17.44 — "How to change your saju" hint.
-                Sits one line below the "My Saju — date · hour" label
-                whenever that label is visible, telling the user that
-                changes go through customer support (we deliberately
-                lock my_primary_chart at signup so people don't keep
-                rotating their identity chart). The hint disappears
-                together with the label when there's no birth_date,
-                so it never shows in isolation.
+                v6.17.46 — "How to change your saju" hint MOVED.
+                Previously sat right below the My Saju label here.
+                It now lives in the dashboard footer (next to
+                Privacy / Terms / Delete Account), so the support
+                reminder is in one consistent place and the
+                Four Pillars section breathes again.
                 ════════════════════════════════════════════════════════ */}
-            {primaryChartPillars?.birth_date && (
-              <p className="text-[11px] text-muted-foreground/70 mb-3 -mt-1">
-                {t("dash.mySajuChangeHint")}{" "}
-                <a
-                  href="mailto:info@rimfactory.io"
-                  className="text-amber-300/80 hover:text-amber-200 underline-offset-2 hover:underline"
-                >
-                  info@rimfactory.io
-                </a>
-              </p>
-            )}
             <div className="grid grid-cols-4 gap-2 sm:gap-3">
               {(["hour", "day", "month", "year"] as const).map((pn) => {
                 const p = sajuData.chart!.pillars[pn];
@@ -1428,30 +1415,57 @@ function DashboardInner() {
         </p>
       )}
 
-      {/* Footer — Privacy, Terms, Contact, Delete Account
-          v6.17.25 — chandler 명시 지시 "앱 푸터 가려라, 심사 통과 못한다".
-          App Store/Play 정책상 앱 안에서 외부 web link (Privacy/Terms/
-          Contact 페이지) 직접 노출은 reject 위험. Privacy/Terms는 햄버거
-          메뉴를 통해 접근 가능하므로 dashboard footer에서는 hide.
-          Delete Account만 표시 — Apple 5.1.1(v) + Google 정책상 in-app
-          필수. */}
-      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-8 mb-4 text-[11px] text-muted-foreground/50">
-        {!isNative && (
-          <>
-            <Link href="/privacy" className="hover:text-muted-foreground transition-colors">
-              {t("common.privacy", locale)}
-            </Link>
-            <span>·</span>
-            <Link href="/terms" className="hover:text-muted-foreground transition-colors">
-              {t("common.terms", locale)}
-            </Link>
-            <span>·</span>
-            <a href="mailto:info@rimfactory.io" className="hover:text-muted-foreground transition-colors">
-              {t("common.contact", locale)}
-            </a>
-            <span>·</span>
-          </>
-        )}
+      {/* ════════════════════════════════════════════════════════════
+          v6.17.46 — Footer redesign.
+          
+          Two changes:
+          
+          1. Privacy / Terms / Contact are now ALWAYS visible (web + app).
+             The previous v6.17.25 decision to hide them in native was
+             based on a misreading of Apple's policy — Apple actually
+             REQUIRES an in-app EULA link (Guideline 3.1.2(c) was the
+             v1.3.7 reject reason on this very app: "EULA link missing").
+             Hiding the links made Privacy/Terms hard to find and gave
+             reviewers nothing visible to confirm. Showing them in the
+             footer satisfies both Apple and Google review while also
+             improving real user UX.
+          
+          2. The "내 사주 변경 요청은 info@rimfactory.io" hint that
+             previously sat under the My Saju label now lives here in
+             the footer, sharing space with the policy links. One row,
+             one mental model: support + policy links live together.
+          
+          Layout: change-hint on its own line (when applicable),
+          then the action row [Privacy · Terms · Contact · Delete
+          Account]. On narrow screens flex-wrap allows graceful
+          stacking — Delete Account always stays visually distinct
+          via red color, regardless of whether it ends up alone on
+          a line or sharing one with the policy links.
+          ════════════════════════════════════════════════════════════ */}
+      {primaryChartPillars?.birth_date && (
+        <p className="text-[11px] text-muted-foreground/60 text-center mt-8 mb-2">
+          {t("dash.mySajuChangeHint")}{" "}
+          <a
+            href="mailto:info@rimfactory.io"
+            className="text-amber-300/70 hover:text-amber-200 underline-offset-2 hover:underline"
+          >
+            info@rimfactory.io
+          </a>
+        </p>
+      )}
+      <div className={`flex flex-wrap items-center justify-center gap-x-3 gap-y-1 ${primaryChartPillars?.birth_date ? "mt-2" : "mt-8"} mb-4 text-[11px] text-muted-foreground/50`}>
+        <Link href="/privacy" className="hover:text-muted-foreground transition-colors">
+          {t("common.privacy", locale)}
+        </Link>
+        <span>·</span>
+        <Link href="/terms" className="hover:text-muted-foreground transition-colors">
+          {t("common.terms", locale)}
+        </Link>
+        <span>·</span>
+        <a href="mailto:info@rimfactory.io" className="hover:text-muted-foreground transition-colors">
+          {t("common.contact", locale)}
+        </a>
+        <span>·</span>
         <button
           onClick={async () => {
             if (deleteConfirmStep === 0) {
