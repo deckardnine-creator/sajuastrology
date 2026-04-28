@@ -139,7 +139,7 @@ export function HeroSection() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="flex flex-col gap-2.5 sm:gap-4 pt-2 pb-4 sm:py-6 lg:py-0"
+            className="flex flex-col gap-2.5 sm:gap-4 pt-1 pb-4 sm:py-6 lg:py-0"
           >
             <h1 className="font-serif text-[1.625rem] xs:text-[1.875rem] sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.1] break-words">
               {t("hero.title1")}

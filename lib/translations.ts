@@ -89,7 +89,7 @@ const translations = {
   "sidebar.blog": { en: "Blog", ko: "블로그", ja: "ブログ", es: "Blog", fr: "Blog", pt: "Blog", "zh-TW": "部落格", ru: "Блог", hi: "ब्लॉग", id: "Blog" },
   // ─── Hero ───
   "hero.title1": { en: "Your Destiny Code,", ko: "당신의 운명코드,", ja: "あなたの運命コード、", es: "Tu código de destino,", fr: "Ton code de destin,", pt: "Seu código de destino,", "zh-TW": "你的命運代碼，", ru: "Твой код судьбы,", hi: "तुम्हारा भाग्य कोड,", id: "Kode takdirmu," },
-  "hero.title2": { en: "decoded by a Saju-specialized AI engine.", ko: "사주풀이 전문 AI 엔진이 해독합니다.", ja: "四柱推命特化AIエンジンが解読する。", es: "decodificado por un motor de IA especializado en Saju.", fr: "décodé par un moteur d'IA spécialisé en Saju.", pt: "decodificado por um motor de IA especializado em Saju.", "zh-TW": "由四柱命理專屬 AI 引擎解讀。", ru: "расшифрован ИИ-движком, специализирующимся на Саджу.", hi: "सजू-विशेषज्ञ AI इंजन द्वारा डीकोड।", id: "didekode oleh mesin AI khusus Saju." },
+  "hero.title2": { en: "decoded by an advanced Saju engine.", ko: "사주풀이 고도화 엔진이 해독합니다.", ja: "高度な四柱推命エンジンが解読する。", es: "decodificado por un motor avanzado de Saju.", fr: "décodé par un moteur Saju avancé.", pt: "decodificado por um motor avançado de Saju.", "zh-TW": "由進階四柱命理引擎解讀。", ru: "расшифрован продвинутым движком Саджу.", hi: "उन्नत सजू इंजन द्वारा डीकोड।", id: "didekode oleh mesin Saju canggih." },
   "hero.desc": { en: "518,400 unique birth structures. 562 classical sources. Multi-LLM cross-analysis. RimSaju Engine reads your structure — not your sign.",
     ko: "518,400가지 고유한 사주 구조. 562개 고전 원전. Multi-LLM 교차 분석. RimSaju 엔진은 별자리가 아닌 당신의 구조를 읽습니다.",
     ja: "518,400通りの固有四柱構造。562の古典原典。マルチLLM交差分析。RimSajuエンジンは星座ではなく、あなたの構造を読みます。",

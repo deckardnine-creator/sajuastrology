@@ -183,26 +183,14 @@ export function NvidiaInceptionStrip() {
           {/* ─── Row 2: Title (left) + arrow (right) ─── */}
           <div className="flex items-center gap-2">
             <div className="flex-1 min-w-0">
-              {/* Title + NEW pill */}
-              <div className="flex items-center gap-1.5">
-                <p className="text-sm font-semibold text-sky-100 leading-tight">
-                  {t("trust.nvidiaInception")}
+              {/* v6.17.59 — Title now includes date inline as "(2026.4)" 
+                  to keep it on a single line on mobile (280px width).
+                  The pulsing green dot remains as the "NEW" signal. */}
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                <p className="text-[13px] sm:text-sm font-semibold text-sky-100 leading-tight truncate">
+                  {t("trust.nvidiaInception")} ({datePill})
                 </p>
-                <span
-                  className="
-                    inline-flex items-center gap-1
-                    px-1.5 py-0.5 rounded-md
-                    bg-emerald-500/20
-                    border border-emerald-400/40
-                    text-[9px] font-bold tracking-wide
-                    text-emerald-300
-                    leading-none
-                    shrink-0
-                  "
-                >
-                  <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
-                  {explainer.newLabel} · {datePill}
-                </span>
               </div>
               <p className="text-[10px] text-sky-200/70 leading-snug mt-1 truncate">
                 {t("trust.nvidiaInceptionDate")}
