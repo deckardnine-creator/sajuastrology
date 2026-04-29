@@ -1378,7 +1378,14 @@ export default function SoramChatPage() {
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-end gap-2">
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value.slice(0, 200))}
+            onChange={(e) => {
+              // v6.17.67 — count by code points (Array.from), not by
+              // UTF-16 code units. Emoji = surrogate pair (2 code units)
+              // — slice(0, 200) cuts at 100 emoji which feels broken to
+              // the user. Array.from gives true character count.
+              const chars = Array.from(e.target.value);
+              setInput(chars.length > 200 ? chars.slice(0, 200).join("") : e.target.value);
+            }}
             onKeyDown={handleKeyPress}
             placeholder={
               isUnlimited ? t.inputPlaceholderUnlimited : t.inputPlaceholderFree
