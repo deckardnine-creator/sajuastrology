@@ -83,6 +83,9 @@ const T = {
     paywallCardBenefit2: "\ub9c8\uC2A4\ud130\uC0C1\ub2F4\uAD8C 1\ud68c \ud3EC\ud568 (\uc57d $6 \uAC00\uCE58)",
     paywallCardCta: "\u2728 \uC2DC\uC791\ud558\uae30",
     paywallCardFooter: "\uc5b8\uC81C\ub4E0 \ud574\uC9C0 \uAC00\ub2A5",
+    // v6.17.65 — retry button + soft post-answer hint
+    retryAsk: "\uB2E4\uC2DC \uC2DC\ub3C4",
+    afterAnswerHint: "\uC624\ub298\uC758 \ud55c \uC794. \uB0B4\uC77C \ub2E4\uC2DC \uC624\uC2DC\uAC70\ub098, \ub9E4\uC77C \ud568\uAED8\ud558\uC2DC\ub824\uBA74 \u2014 \uC18C\uB78C\uB3D9\ud589 \u2192",
   },
   en: {
     headerTitle: "Soram",
@@ -140,6 +143,9 @@ const T = {
     paywallCardBenefit2: "1 Master Consultation included (worth $6)",
     paywallCardCta: "\u2728 Begin",
     paywallCardFooter: "Cancel anytime",
+    // v6.17.65 — retry button + soft post-answer hint
+    retryAsk: "Try again",
+    afterAnswerHint: "Today's one cup. Return tomorrow, or walk with me daily \u2014 Soram Companion \u2192",
   },
 } as const;
 
@@ -724,7 +730,10 @@ export default function SoramChatPage() {
   // + isPaywall=true 플래그로 결제 카드 인라인 렌더 트리거.
   const pushPaywallMessage = useCallback((question: string) => {
     const newMsg: ChatMessage = {
-      id: `paywall_${Date.now()}`,
+      // v6.17.65 — random suffix prevents ID collision when user
+      // double-taps within the same millisecond (would otherwise
+      // produce duplicate React keys and break rendering).
+      id: `paywall_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       question,
       answer: t.paywallMessage,
       createdAt: new Date().toISOString(),
@@ -835,6 +844,10 @@ export default function SoramChatPage() {
           status: "error",
           createdAt: nowIso,
         });
+        // v6.17.65 — restore the typed question to the input box so
+        // the user can retry without re-typing. Only happens on error;
+        // success path leaves input empty as before.
+        setInput(q);
       } finally {
         setSending(false);
       }
@@ -1196,6 +1209,30 @@ export default function SoramChatPage() {
                     <div className="bg-[#1E2A4A] text-white/95 rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap shadow-sm shadow-black/20">
                       {msg.answer}
                     </div>
+                    {/* v6.17.65 — soft post-answer hint.
+                        chandler's balance: not too commercial, but the user
+                        should naturally notice that there's a daily-companion
+                        path. Shown only:
+                          • for the LAST message in the list (idx === messages.length - 1)
+                          • for free-tier users (not subscribers)
+                          • when this is not itself a paywall message
+                          • when usage has been loaded
+                        Tapping routes to /pricing/soram-companion (same dest
+                        as the avatar tap and the 999 promo card). Color
+                        intentionally muted (amber-200/40) so it reads as a
+                        scholar's footnote, not a banner ad. */}
+                    {idx === messages.length - 1 &&
+                      !msg.isPaywall &&
+                      usage &&
+                      usage.tier === "free" && (
+                        <button
+                          onClick={() => router.push("/pricing/soram-companion")}
+                          className="mt-2 ml-1 text-[12px] sm:text-[13px] text-amber-200/40 hover:text-amber-200/70 transition-colors text-left leading-snug"
+                          aria-label={t.afterAnswerHint}
+                        >
+                          {t.afterAnswerHint}
+                        </button>
+                      )}
                   </div>
                 </div>
 
@@ -1263,7 +1300,20 @@ export default function SoramChatPage() {
                 <div className="flex items-end gap-2">
                   <SoramAvatar expression="concern" />
                   <div className="bg-red-900/30 text-red-200 rounded-2xl rounded-bl-md px-4 py-3 text-sm border border-red-500/20 max-w-[78%]">
-                    {t.errorAsk}
+                    {/* v6.17.65 — error + retry button. The user's question
+                        is already restored to the input box (handleSend catch
+                        block), so tapping retry just calls handleSend again. */}
+                    <p className="mb-2">{t.errorAsk}</p>
+                    <button
+                      onClick={() => {
+                        setPending(null);
+                        handleSend();
+                      }}
+                      className="text-xs font-medium px-3 py-1.5 rounded-full bg-red-500/20 hover:bg-red-500/30 text-red-100 border border-red-400/30 transition-colors"
+                      aria-label={t.retryAsk}
+                    >
+                      {t.retryAsk}
+                    </button>
                   </div>
                 </div>
               )}
