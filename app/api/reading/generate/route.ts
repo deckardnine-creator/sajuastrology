@@ -12,11 +12,22 @@ async function callGemini(prompt: string, model = "gemini-2.5-flash", locale = "
   const apiKey = process.env.GOOGLE_AI_API_KEY || "";
   if (!apiKey) throw new Error("Gemini not configured");
 
+  const isFlash = model.includes("flash");
   const genConfig: any = {
     maxOutputTokens: 4000,
     temperature: 0.7,
-    thinkingConfig: { thinkingBudget: 0 },
   };
+  // v6.17.62 — chandler reported 22-second responses caused by repeated
+  // "Budget 0 is invalid. This model only works in thinking mode." 400
+  // errors from gemini-2.5-pro. Pro requires thinking mode; only Flash
+  // accepts thinkingBudget=0. Previously this config was sent to BOTH
+  // models, so every Pro call failed instantly and the fallback chain
+  // wasted ~22s before Claude responded. Now: Flash skips thinking
+  // (faster, cheaper); Pro uses default thinking (correct, faster than
+  // failure→fallback).
+  if (isFlash) {
+    genConfig.thinkingConfig = { thinkingBudget: 0 };
+  }
   if (locale === "en") {
     genConfig.responseMimeType = "application/json";
   }
