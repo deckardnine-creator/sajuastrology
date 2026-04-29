@@ -737,7 +737,25 @@ function DashboardInner() {
           className="sm:col-span-3 group"
           aria-label={t("dash.soramAsk")}
         >
-          <div className="relative h-full overflow-hidden rounded-xl border border-amber-400/35 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm p-4 sm:p-5 transition-all duration-200 hover:border-amber-300/60 hover:shadow-[0_8px_24px_rgba(234,179,8,0.22)] active:scale-[0.99]">
+          {/* v6.17.68 — first-time-user pulse highlight.
+              Trigger: user has registered their primary chart but has
+              NEVER used Soram (history is loaded and empty). For these
+              users we add a gentle gold pulse ring around the card so
+              they notice the entry naturally on dashboard load. The
+              pulse stops as soon as they tap through and start a
+              conversation (history will no longer be empty next visit).
+              chandler's funnel insight: users who register their chart
+              are 80% of the way to becoming a Soram regular — the only
+              missing step is the FIRST tap. This highlights that step
+              without being pushy. */}
+          <div className={`relative h-full overflow-hidden rounded-xl border bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent backdrop-blur-sm p-4 sm:p-5 transition-all duration-200 hover:shadow-[0_8px_24px_rgba(234,179,8,0.22)] active:scale-[0.99] ${
+            soramHistoryLoaded &&
+            soramHistory.length === 0 &&
+            soramUsage?.hasPrimaryChart === true &&
+            soramUsage?.tier !== "subscriber"
+              ? "border-amber-300/70 ring-2 ring-amber-300/30 hover:ring-amber-300/50 hover:border-amber-300/90 shadow-[0_0_24px_rgba(234,179,8,0.18)]"
+              : "border-amber-400/35 hover:border-amber-300/60"
+          }`}>
             <div className="flex items-center gap-3">
               {/* ════════════════════════════════════════════════════════
                   v6.17.45 — Soram avatar image instead of 🌙 emoji.
