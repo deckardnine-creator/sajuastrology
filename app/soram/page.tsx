@@ -150,7 +150,56 @@ const T = {
 } as const;
 
 function getT(locale: string) {
-  return (T as any)[locale] || T.en;
+  const base = (T as any)[locale] || T.en;
+  // v6.17.65 — locale-aware override for the two new keys (retryAsk +
+  // afterAnswerHint). The rest of T still falls back to en for non-ko/en
+  // locales (existing behaviour). chandler's principle: 10-language equal
+  // service quality. These two strings are user-visible and must not show
+  // English to JA/ES/FR/PT/zh-TW/RU/HI/ID users.
+  const newKeys: Record<string, { retryAsk: string; afterAnswerHint: string }> = {
+    ko: {
+      retryAsk: "다시 시도",
+      afterAnswerHint: "오늘의 한 잔. 내일 다시 오시거나, 매일 함께하시려면 — 소람동행 →",
+    },
+    en: {
+      retryAsk: "Try again",
+      afterAnswerHint: "Today's one cup. Return tomorrow, or walk with me daily — Soram Companion →",
+    },
+    ja: {
+      retryAsk: "もう一度",
+      afterAnswerHint: "今日の一杯。明日また来るか、毎日歩むなら — ソラム同行 →",
+    },
+    es: {
+      retryAsk: "Intentar de nuevo",
+      afterAnswerHint: "La taza de hoy. Vuelve mañana, o camina conmigo cada día — Soram Companion →",
+    },
+    fr: {
+      retryAsk: "Réessayer",
+      afterAnswerHint: "La tasse d'aujourd'hui. Reviens demain, ou marche avec moi chaque jour — Soram Companion →",
+    },
+    pt: {
+      retryAsk: "Tentar de novo",
+      afterAnswerHint: "A xícara de hoje. Volte amanhã, ou caminhe comigo todos os dias — Soram Companion →",
+    },
+    "zh-TW": {
+      retryAsk: "再試一次",
+      afterAnswerHint: "今日一盞茶。明日再來,或每日同行 — 索藍同行 →",
+    },
+    ru: {
+      retryAsk: "Попробовать снова",
+      afterAnswerHint: "Сегодняшняя чашка. Возвращайся завтра, или иди со мной каждый день — Сорам Компаньон →",
+    },
+    hi: {
+      retryAsk: "फिर कोशिश करें",
+      afterAnswerHint: "आज का एक प्याला। कल फिर आइए, या हर दिन मेरे साथ चलिए — सोरम कम्पैनियन →",
+    },
+    id: {
+      retryAsk: "Coba lagi",
+      afterAnswerHint: "Secangkir hari ini. Kembalilah besok, atau berjalanlah bersama saya setiap hari — Soram Companion →",
+    },
+  };
+  const override = newKeys[locale] || newKeys.en;
+  return { ...base, retryAsk: override.retryAsk, afterAnswerHint: override.afterAnswerHint };
 }
 
 // ============================================================
