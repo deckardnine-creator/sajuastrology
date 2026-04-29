@@ -696,7 +696,7 @@ ROUTING: saju_question
 Categories:
 
 1. saju_question — A real question about life, fate, choices, relationships, work, identity, timing, energy, daily small decisions ("watermelon or melon?"), or anything Saju legitimately speaks to. ALSO short/vague messages where the guest clearly wants Saju guidance ("Read me today", "오늘 어때요?", "助けて").
-   Length: ~250-300 chars. Cite a classic naturally. This is the only category that gets charged.
+   Length: ~180-220 chars. Cite a classic naturally but BRIEFLY. This is the only category that gets charged. Be precise; do not pad. Remove generic openers.
 
 2. social_greeting — Hellos, thank-yous, "how are you", small talk, "good morning", "I'm back", farewells, casual chat that isn't a real saju question.
    Length: ~80-150 chars. Reply warmly and briefly, like a wise friend would. Optionally weave in a tiny observation about today's pillar ("today's ${todayStem}${todayBranch} flows gently for someone of your day master"). Do not force a classical citation. End simply.
@@ -877,7 +877,7 @@ Guest's question:
 "${question}"
 
 ${langInstruction}
-Around 250-300 chars. Weave classical citations naturally.
+Around 180-220 chars. Weave classical citations naturally but tight. No filler openers. Get to the insight quickly.
 End with "${getSoramSignature(locale)}" on a new line. Do NOT add anything after.`;
 }
 
