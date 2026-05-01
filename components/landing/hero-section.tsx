@@ -181,8 +181,23 @@ export function HeroSection() {
                 Inception strip stays web-only — third-party mark must not
                 ship in the native binary. */}
             <div className="flex flex-col items-center sm:items-start gap-3">
+              {/* chandler 2026-05-01 (rev): explicitly forward current locale
+                  via ?lang= on click. The whitepaper page reads ?lang= first
+                  in detectLocale() (language-context.tsx) and persists it,
+                  so this guarantees the user lands in the same language
+                  they're already viewing the site in — no race conditions
+                  with localStorage hydration on a fresh tab. */}
               <Link
                 href="/whitepaper"
+                onClick={(e) => {
+                  try {
+                    e.preventDefault();
+                    const lang = locale || "en";
+                    window.location.href = `/whitepaper?lang=${lang}`;
+                  } catch {
+                    // fall through to default href
+                  }
+                }}
                 className="group relative w-[280px] lg:w-auto lg:min-w-[280px] block"
               >
                 {/* Glow halo */}
