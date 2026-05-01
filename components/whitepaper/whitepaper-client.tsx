@@ -517,19 +517,25 @@ function Watermark() {
 // ---------------------------------------------------------------------------
 
 function SignatureBlock() {
-  // chandler 2026-05-01: tightened to a single line + signature image.
-  // The block sits ABOVE the closing horizontal rule of the abstract, so
-  // the signature reads as the closing of the abstract rather than the
-  // opening of the next section.
+  // chandler 2026-05-01 (rev2): two-line label + signature image.
+  // Sits ABOVE the closing horizontal rule of the abstract — the signature
+  // reads as the closing of the abstract rather than the opening of the
+  // next section.
+  //   line 1: "림팩토리 대표."     (small, muted)
+  //   line 2: "Chandler Yun"       (slightly stronger)
+  //   image:  signature glyph      (h-12/14)
   return (
-    <div className="mt-10 sm:mt-12 mb-2 flex flex-col items-center sm:items-start gap-2.5">
+    <div className="mt-10 sm:mt-12 mb-2 flex flex-col items-center sm:items-start gap-1.5">
       <div className="text-sm sm:text-base text-foreground/75">
-        림팩토리 대표 Chandler
+        림팩토리 대표.
+      </div>
+      <div className="text-base sm:text-lg text-foreground/85 font-medium tracking-wide">
+        Chandler Yun
       </div>
       <img
         src="/letter/chandler-signature.webp"
-        alt="Chandler — Rimfactory"
-        className="h-12 sm:h-14 w-auto opacity-90"
+        alt="Chandler Yun — Rimfactory"
+        className="h-12 sm:h-14 w-auto opacity-90 mt-1"
         loading="lazy"
         draggable={false}
         onContextMenu={(e) => e.preventDefault()}
