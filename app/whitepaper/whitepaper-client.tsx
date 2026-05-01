@@ -648,14 +648,9 @@ export default function WhitepaperClient({
         ? whitepaperContentJa
         : whitepaperContentEn;
 
-  // The whitepaper has 3 source languages. EN/JA fall back to Korean source
-  // until the translation is published. We surface a small inline notice so
-  // a non-Korean reader understands why the body looks Korean.
-  const showFallbackNotice = wpLocale !== "ko";
-  const fallbackNotice =
-    wpLocale === "ja"
-      ? "英語版・日本語版は準備中です。現在は韓国語版を表示しています。"
-      : "The English edition is in preparation. The Korean source is shown below for now.";
+  // chandler 2026-05-01 (rev): EN and JA full translations now ship in
+  // whitepaper-content.ts. The fallback notice that announced "Korean source
+  // is shown for now" is no longer needed and has been removed.
 
   return (
     <>
@@ -683,12 +678,6 @@ export default function WhitepaperClient({
             <span className="text-foreground/30">·</span>
             <span>Rimfactory</span>
           </div>
-
-          {showFallbackNotice && (
-            <div className="mb-10 rounded-lg border border-amber-500/20 bg-amber-500/[0.04] p-4 text-sm text-foreground/70">
-              {fallbackNotice}
-            </div>
-          )}
 
           <MarkdownRenderer
             source={body}
