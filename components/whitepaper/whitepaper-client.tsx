@@ -695,7 +695,13 @@ export default function WhitepaperClient({
             signatureBlock={<SignatureBlock />}
           />
 
-          <div className="mt-20 pt-10 border-t border-amber-500/15 text-sm text-foreground/55 leading-relaxed">
+          {/* chandler 2026-05-01 (rev): added .web-footer so the
+              license block is hidden inside the native app, matching
+              the rest of the site (globals.css: `.native-app .web-footer
+              { display: none !important; }`). The native shell
+              renders its own contextual chrome — a license panel
+              inside the WebView would feel doubled and out of place. */}
+          <div className="web-footer mt-20 pt-10 border-t border-amber-500/15 text-sm text-foreground/55 leading-relaxed">
             <p>© 2026 Rimfactory. All rights reserved.</p>
             <p className="mt-2">
               본 백서의 무단 배포·복제·번역·인용을 금합니다. 학술 인용 및 보도 목적의 인용은 출처를 명시할 경우 허용됩니다. 문의:{" "}

@@ -175,35 +175,39 @@ export function HeroSection() {
                   - Spacing to NVIDIA = ~gap-3, mirroring the gap between
                     the two primary CTAs (Reading / Compatibility) below.
             ════════════════════════════════════════════════════════ */}
-            {!isNativeApp && (
-              <div className="flex flex-col items-center sm:items-start gap-3">
-                <Link
-                  href="/whitepaper"
-                  className="group relative w-[280px] lg:w-auto lg:min-w-[280px] block"
-                >
-                  {/* Glow halo */}
-                  <span
-                    aria-hidden
-                    className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-amber-500/30 via-amber-300/40 to-amber-500/30 opacity-60 blur-md group-hover:opacity-90 transition-opacity"
-                  />
-                  <span
-                    aria-hidden
-                    className="absolute inset-0 rounded-xl ring-1 ring-amber-300/50 group-hover:ring-amber-200/70 transition-colors"
-                  />
-                  <div className="relative rounded-xl bg-gradient-to-r from-amber-500/[0.08] via-amber-400/[0.12] to-amber-500/[0.08] backdrop-blur-sm px-4 py-3 flex items-center gap-3">
-                    {/* The 📄 emoji is already in hero.whitepaperLink at the
-                        translations layer — adding a second one here doubled
-                        the icon (chandler 2026-05-01). Removed. */}
-                    <span className="flex-1 min-w-0 text-[13.5px] sm:text-[14px] leading-snug font-medium text-amber-100 group-hover:text-amber-50 transition-colors">
-                      {t("hero.whitepaperLink")}
-                    </span>
-                    <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </Link>
+            {/* chandler 2026-05-01 (rev): Whitepaper button now visible on
+                APP too. The whitepaper is our own asset (not a third-party
+                mark), so Apple Guideline 5.2.5 does not gate it. NVIDIA
+                Inception strip stays web-only — third-party mark must not
+                ship in the native binary. */}
+            <div className="flex flex-col items-center sm:items-start gap-3">
+              <Link
+                href="/whitepaper"
+                className="group relative w-[280px] lg:w-auto lg:min-w-[280px] block"
+              >
+                {/* Glow halo */}
+                <span
+                  aria-hidden
+                  className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-amber-500/30 via-amber-300/40 to-amber-500/30 opacity-60 blur-md group-hover:opacity-90 transition-opacity"
+                />
+                <span
+                  aria-hidden
+                  className="absolute inset-0 rounded-xl ring-1 ring-amber-300/50 group-hover:ring-amber-200/70 transition-colors"
+                />
+                <div className="relative rounded-xl bg-gradient-to-r from-amber-500/[0.08] via-amber-400/[0.12] to-amber-500/[0.08] backdrop-blur-sm px-4 py-3 flex items-center gap-3">
+                  {/* The 📄 emoji is in hero.whitepaperLink at the
+                      translations layer. */}
+                  <span className="flex-1 min-w-0 text-[13.5px] sm:text-[14px] leading-snug font-medium text-amber-100 group-hover:text-amber-50 transition-colors">
+                    {t("hero.whitepaperLink")}
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
+                </div>
+              </Link>
 
-                <NvidiaInceptionStrip />
-              </div>
-            )}
+              {/* NVIDIA strip — web only (Apple Guideline 5.2.5: no third-
+                  party marks in the native binary). */}
+              {!isNativeApp && <NvidiaInceptionStrip />}
+            </div>
 
             {/* ════════════════════════════════════════════════════════
                 v1.3 Sprint 2-B v6.9: Soram CTA + primary CTAs unified
