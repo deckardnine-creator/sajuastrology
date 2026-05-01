@@ -671,7 +671,7 @@ export default function WhitepaperClient({
       >
         <Watermark />
 
-        <article className="relative z-10 mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <article className="relative z-10 mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-12 sm:pb-16">
           {/* meta strip — version / date / publisher */}
           <div className="mb-10 flex flex-wrap items-center gap-3 text-xs sm:text-sm text-foreground/60">
             <span className="inline-flex items-center gap-1.5">
@@ -696,7 +696,7 @@ export default function WhitepaperClient({
           />
 
           <div className="mt-20 pt-10 border-t border-amber-500/15 text-sm text-foreground/55 leading-relaxed">
-            <p>© 2026 Rimfactory · Chandler. All rights reserved.</p>
+            <p>© 2026 Rimfactory. All rights reserved.</p>
             <p className="mt-2">
               본 백서의 무단 배포·복제·번역·인용을 금합니다. 학술 인용 및 보도 목적의 인용은 출처를 명시할 경우 허용됩니다. 문의:{" "}
               <span className="text-amber-100/80">info@rimfactory.io</span>

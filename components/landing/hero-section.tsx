@@ -228,24 +228,12 @@ export function HeroSection() {
             ════════════════════════════════════════════════════════ */}
             <div className="flex flex-col items-center sm:items-start gap-3 mt-1 sm:mt-2">
 
-              {/* Soram CTA card — gold accent, always at the top of the stack */}
-              <button
-                onClick={handleSoramClick}
-                className="group relative w-[280px] lg:w-auto lg:min-w-[280px] text-left rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 to-amber-700/5 p-3 sm:p-4 hover:border-amber-300/60 hover:from-amber-500/15 hover:to-amber-700/10 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.2)] active:scale-[0.99]"
-              >
-                <div className="absolute inset-y-0 left-0 w-1 bg-amber-400/70 rounded-l-xl" />
-                <div className="flex items-center gap-3 pl-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[15px] font-semibold text-amber-100">
-                      {t("hero.askSoram")}
-                    </div>
-                    <p className="text-[12px] text-amber-200/70 mt-0.5 leading-snug">
-                      {t("hero.askSoramSub")}
-                    </p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
-                </div>
-              </button>
+              {/* chandler 2026-05-01 (rev): primary CTAs FIRST, Soram card
+                  AFTER. The hero already has the whitepaper glow button +
+                  NVIDIA strip carrying authority signals at the top — the
+                  conversion CTAs (Reading / Compatibility) deserve the prime
+                  adjacent slot. Soram is a returning-user / depth tool and
+                  lives just below, still in the same stack. */}
 
               {/* Primary: Free saju reading */}
               <Link href="/calculate" className="block w-[280px] lg:w-auto">
@@ -269,6 +257,25 @@ export function HeroSection() {
                   <ArrowRight className="ml-2 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
+
+              {/* Soram CTA card — moved BELOW the primary CTAs (chandler rev) */}
+              <button
+                onClick={handleSoramClick}
+                className="group relative w-[280px] lg:w-auto lg:min-w-[280px] text-left rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 to-amber-700/5 p-3 sm:p-4 hover:border-amber-300/60 hover:from-amber-500/15 hover:to-amber-700/10 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.2)] active:scale-[0.99]"
+              >
+                <div className="absolute inset-y-0 left-0 w-1 bg-amber-400/70 rounded-l-xl" />
+                <div className="flex items-center gap-3 pl-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[15px] font-semibold text-amber-100">
+                      {t("hero.askSoram")}
+                    </div>
+                    <p className="text-[12px] text-amber-200/70 mt-0.5 leading-snug">
+                      {t("hero.askSoramSub")}
+                    </p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
+                </div>
+              </button>
             </div>
 
             {/* App Download Buttons — hidden inside native app */}
