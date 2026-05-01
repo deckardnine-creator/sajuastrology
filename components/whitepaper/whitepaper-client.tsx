@@ -284,7 +284,11 @@ function MarkdownRenderer({
   return (
     <div className="whitepaper-prose">
       {nodes.map((n, idx) => {
-        let injectSignatureAfter: React.ReactNode = null;
+        // chandler 2026-05-01: signature now sits ABOVE the horizontal rule
+        // that closes the abstract, so the signature reads as the closing of
+        // the abstract rather than the opening of the next section. We emit
+        // it BEFORE the hr/heading that ends the abstract.
+        let injectSignatureBefore: React.ReactNode = null;
         if (
           !signatureRendered &&
           lastH3WasAbstract &&
@@ -293,7 +297,7 @@ function MarkdownRenderer({
             n.kind === "h3" ||
             n.kind === "h1")
         ) {
-          injectSignatureAfter = signatureBlock ?? null;
+          injectSignatureBefore = signatureBlock ?? null;
           signatureRendered = true;
           lastH3WasAbstract = false;
         }
@@ -472,8 +476,8 @@ function MarkdownRenderer({
 
         return (
           <span key={`f${idx}`} style={{ display: "contents" }}>
+            {injectSignatureBefore}
             {rendered}
-            {injectSignatureAfter}
           </span>
         );
       })}
@@ -513,10 +517,14 @@ function Watermark() {
 // ---------------------------------------------------------------------------
 
 function SignatureBlock() {
+  // chandler 2026-05-01: tightened to a single line + signature image.
+  // The block sits ABOVE the closing horizontal rule of the abstract, so
+  // the signature reads as the closing of the abstract rather than the
+  // opening of the next section.
   return (
-    <div className="my-12 sm:my-16 flex flex-col items-center sm:items-start gap-3">
-      <div className="text-sm sm:text-base text-foreground/70">
-        림팩토리 대표
+    <div className="mt-10 sm:mt-12 mb-2 flex flex-col items-center sm:items-start gap-2.5">
+      <div className="text-sm sm:text-base text-foreground/75">
+        림팩토리 대표 Chandler
       </div>
       <img
         src="/letter/chandler-signature.webp"
@@ -526,9 +534,6 @@ function SignatureBlock() {
         draggable={false}
         onContextMenu={(e) => e.preventDefault()}
       />
-      <div className="text-base sm:text-lg font-serif text-amber-100/90">
-        챈들러 (Chandler)
-      </div>
     </div>
   );
 }

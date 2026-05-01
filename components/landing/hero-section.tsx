@@ -191,7 +191,9 @@ export function HeroSection() {
                     className="absolute inset-0 rounded-xl ring-1 ring-amber-300/50 group-hover:ring-amber-200/70 transition-colors"
                   />
                   <div className="relative rounded-xl bg-gradient-to-r from-amber-500/[0.08] via-amber-400/[0.12] to-amber-500/[0.08] backdrop-blur-sm px-4 py-3 flex items-center gap-3">
-                    <span className="text-base">📄</span>
+                    {/* The 📄 emoji is already in hero.whitepaperLink at the
+                        translations layer — adding a second one here doubled
+                        the icon (chandler 2026-05-01). Removed. */}
                     <span className="flex-1 min-w-0 text-[13.5px] sm:text-[14px] leading-snug font-medium text-amber-100 group-hover:text-amber-50 transition-colors">
                       {t("hero.whitepaperLink")}
                     </span>
