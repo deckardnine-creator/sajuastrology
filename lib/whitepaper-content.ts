@@ -1,6 +1,6 @@
 // lib/whitepaper-content.ts
-// RimSaju v2 Whitepaper — Korean source of truth.
-// English/Japanese translations arrive in subsequent commits.
+// RimSaju v2 Whitepaper — Korean source of truth + English translation.
+// Japanese translation arrives in subsequent commits.
 
 export type WhitepaperLocale = "ko" | "en" | "ja";
 
@@ -1974,8 +1974,1894 @@ v1 → v2 → v3의 단계적 빌드는 각 단계가 *독립적 가치*를 가�
 *— 본 백서는 RimSaju v2 빌드의 진척에 따라 정기적으로 갱신된다. v0.4는 비전과 설계의 초안에 해당하며, 각 층의 빌드가 진행됨에 따라 기술 사양이 보다 정밀해질 예정이다. 갱신 이력은 GitHub 리포지토리에서 추적 가능하다.*
 `;
 
-// English placeholder — falls back to Korean until English translation ships.
-export const whitepaperContentEn = whitepaperContentKo;
+// English — full translation shipped 2026-05-01.
+// chandler 2026-05-01: every chapter, every appendix, every signature.
+// Self-verified for hallucinations: zero invented persons (Asari→Abe Taizan
+// caught), zero invented citations, zero invented institutions.
+export const whitepaperContentEn = `# RimSaju v2 Whitepaper
+
+## The Information-Systems Standardization of Saju (四柱命理學) — A Unified v1·v2·v3 Four-Year Roadmap and Design Principles
+
+---
+
+**Author**: Chandler Yun
+**Affiliation**: Rimfactory
+**Document Type**: Technical Whitepaper
+**Version**: v0.4
+**Date of Publication**: May 1, 2026
+**Inquiries**: info@rimfactory.io
+
+---
+
+### Copyright and Terms of Use
+
+The copyright of this whitepaper belongs to Rimfactory. Unauthorized distribution, reproduction, translation, and citation of this document are prohibited. Citation for academic and journalistic purposes is permitted provided that the source is clearly attributed. Any use of part or whole of this document for commercial purposes requires prior written consent from Rimfactory.
+
+The systems, algorithms, and methodologies described in this whitepaper are subject to separate patent applications and intellectual property protection. The publication of this whitepaper is limited to the purposes of academic citation and field definition. Any imitation, reproduction, or re-implementation of the contents of this whitepaper for commercial purposes will be pursued by Rimfactory as a violation of intellectual property rights.
+
+ⓒ 2026 Rimfactory. All rights reserved.
+
+---
+
+### To the Readers of This Whitepaper
+
+This whitepaper has been written for two kinds of readers.
+
+First, it guides **the general user** in understanding the principles by which the RimSaju engine is being built — as an information-systems undertaking, not as fortune-telling. Whether the reader approaches Saju as a mystery or with skepticism, this whitepaper presents the outline of the *measurable work* that lies between those two stances.
+
+Second, for **those seriously considering an early-stage investment in this company**, it presents the technical foundation and the structure of the four-year build roadmap. Equity in the company belongs 100% to the founder. This whitepaper is an important asset of Rimfactory (a member of the NVIDIA Inception program, operator of the RimSaju v1 engine, and a service that reached users in fifty countries within thirty days of launch); it has been written as the preliminary design for the upgrade of Rimfactory's Saju engine.
+
+The valuation of this company has not been set lightly. We respectfully decline contact intended merely as price discovery. Questions about the academic and technical content of this whitepaper, or serious discussions concerning collaboration or investment, are welcome at any time.
+
+Inquiries: info@rimfactory.io
+
+---
+
+### Abstract
+
+This whitepaper presents the design principles and four-year build roadmap of the work that standardizes Saju astrology (四柱命理學) as an information-systems methodology. Saju astrology is a system of destiny analysis formed in East Asia over approximately three thousand years; until now, the divergence of interpretation among schools and the absence of a verification methodology have prevented the establishment of an academic standard. This research approaches that problem through the structural similarity between this work and the methodology by which large language models (hereafter LLMs) have been built in the field of artificial intelligence.
+
+Five propositions form the core of what this research proposes. First, we map the corpus of canonical Saju texts into a high-dimensional embedding space so that the distance between schools' interpretations can be measured quantitatively. Second, we make the structure of a Saju chart explicit as a graph, joining deterministic analysis with LLM inference. Third, with an *Integrated RAG* (Retrieval-Augmented Generation) architecture we generate Saju readings in a form that is both reproducible and traceable. Fourth, we define an evaluation protocol at two levels — weak verification and intermediate verification — and publish all evaluation results. Fifth, we explicitly reject the *fragmentary scoring approach* (five-element scoring, weighted averages over the Ten Gods, reduction to a single coordinate) and adopt instead a *fragmentation-bypass strategy* grounded in latent space.
+
+This whitepaper defines the work as a three-stage build of RimSaju v1 · v2 · v3. v1 is already the industry's first RAG-based Saju engine in operation. v2 is a two-year build (Q3 2026 – Q2 2028) that completes all six layers promised in this whitepaper. v3 is an additional two-year build (Q3 2028 – Q2 2030) that extends depth and enters statistical verification. This whitepaper presents the system design and the intellectual-property protection strategy across all three stages of v1, v2, and v3.
+
+**Keywords**: Saju astrology, information-systems standardization, large language models, retrieval-augmented generation, embeddings, evaluation protocol, open benchmark, pre-registration, domain adaptation
+
+---
+
+### Table of Contents
+
+**Introduction**
+- The three questions this whitepaper attempts to answer
+- The structure of this whitepaper
+
+**Part I. The Historical Foundations of Saju Astrology**
+- Chapter 1. From Oracle Bones to Mingli — Three Thousand Years in Five Layers
+- Chapter 2. Primary Texts and Commentaries — Academic Distinctions in the Textual Lineage
+- Chapter 3. Divergence Across the Three East Asian Nations — Chinese Bazi, Japanese Suimei, and Korean Saju
+- Chapter 4. A Map of Interschool Divergence — Agreements and Disagreements Across Seven Schools
+- Chapter 5. The Analytical System of Saju Astrology — Components and Operating Principles
+
+**Part II. The Nature of Ambiguity**
+- Chapter 6. Fragmentation and Reduction — Where Ambiguity Arises
+- Chapter 7. Three Levels of Verifiability
+- Chapter 8. From a Degenerative Research Programme to a Progressive One
+
+**Part III. The Architecture of LLMs and Their Application to Saju**
+- Chapter 9. Transformers and the Attention Mechanism
+- Chapter 10. Embeddings and Latent Space
+- Chapter 11. Five Forms of Retrieval-Augmented Generation (RAG)
+- Chapter 12. The Architecture of an Integrated RAG Engine
+
+**Part IV. The Four-Year Execution Plan: RimSaju v1 → v2 → v3**
+- Chapter 13. RimSaju v1 — The Industry's First RAG-Based Saju Engine
+- Chapter 14. v1 → v2 → v3 — The Four-Year Build Roadmap and the Completeness of v2
+- Chapter 15. The Design of the Evaluation Protocol
+- Chapter 16. Open Benchmark and Leaderboard
+- Chapter 17. The Academic and Cultural Significance of This Work
+
+**Epilogue**
+
+**Appendices**
+- Appendix A. Glossary of Terms
+- Appendix B. Canon List (RimSaju v2 · v3 Corpus Plan)
+- Appendix C. Schedule for Future Public Disclosures
+- Appendix D. References
+- Appendix E. List of Items Subject to Intellectual Property Protection
+
+---
+
+# Introduction
+
+## The Three Questions This Whitepaper Attempts to Answer
+
+This whitepaper sets out to answer the following three questions.
+
+First, can Saju astrology be standardized as an academic discipline? Can a system of interpretation accumulated over approximately three thousand years now be established in the form of a standard? If so, what new conditions have been met that make this possible?
+
+Second, what is the methodology of that standardization? This research holds that the work of standardizing Saju astrology bears a deep structural similarity to the methodology by which the field of artificial intelligence has built large language models. That similarity does not remain at the level of analogy; it can be applied as actual system-design principles.
+
+Third, does Rimfactory have the capability to carry out that work? We answer this question through the actual implementation of RimSaju v1, the two-year build roadmap of v2, the additional two-year extension plan of v3, and our public commitment to the evaluation criteria.
+
+This whitepaper is neither a spiritual defense of Saju astrology nor an attempt to rescue mingli (命理) from mysticism. The aim of this research is to present design principles applicable to reconstructing the textual corpus that mingli has accumulated as a modern information system, and to build the infrastructure on top of which a verifiable standard can emerge.
+
+## The Structure of This Whitepaper
+
+This whitepaper is organized into five parts and seventeen chapters.
+
+Part I sets out the historical foundations of Saju astrology. It examines what corpus this research deals with, how that corpus was formed, how it diverged across the three East Asian nations, and where interschool disagreements arise. It also explains the basic analytical system of Saju astrology — the Ten Heavenly Stems and Twelve Earthly Branches, the Five Elements, the Ten Gods, the relations of Combination, Clash, Punishment, and Harm, the formative patterns (格局, *gyeokguk*), and the Useful God (用神, *yongsin*) — providing the conceptual basis required for the discussions of subsequent chapters.
+
+Part II analyzes where the ambiguity in Saju interpretation arises and examines the epistemological conditions necessary for converting that ambiguity into a verifiable form. It distinguishes verifiability into three levels — weak verification, intermediate verification, and strong verification — and specifies the scope of verification this research undertakes.
+
+Part III explains the operating principles of LLMs and the RAG architecture, and presents methods for applying them to Saju analysis. After examining the Transformer's attention mechanism, the concepts of embeddings and latent space, and the five forms of RAG, it describes at the design level the architecture of the integrated RAG engine that this research proposes. It also presents the *operating trace* of the integrated RAG pipeline (the concrete flow of data as a single Saju chart passes through the nine stages) and our position on the *limits of the fragmentary scoring approach*.
+
+Part IV presents the four-year execution plan of RimSaju v1 · v2 · v3. Beginning from the system components of v1 and its position within the market, it covers the two-year build roadmap of v2, the additional two-year extension of v3, the automated measurement infrastructure for the evaluation protocol (measurement-as-code), the operating plan for the open benchmark, the design principles for user-data collection, the intellectual-property protection strategy, and the academic and cultural significance of this work.
+
+The Epilogue offers a brief summary of the promises and limits of this research, and the conditions under which a standard arises.
+
+In this whitepaper, facts that have not been academically verified are clearly marked as *conjecture* or *received view*. Where opinion is divided among schools, both positions are stated. Items that Rimfactory has not yet implemented are marked as *planned*.
+
+---
+# Part I. The Historical Foundations of Saju Astrology
+
+## Chapter 1. From Oracle Bones to Mingli — Three Thousand Years in Five Layers
+
+### 1-1. Setting the Time Axis Precisely
+
+To treat Saju astrology academically, we must first state clearly when its history begins. The figure of "five thousand years" commonly used in popular books on the subject is academically inaccurate. On the other hand, the conservative scholarly position that places its beginnings only "after the Song dynasty (tenth century)" fails to account for the entire stratum of thought on which Saju astrology rests.
+
+This research views the formation of Saju astrology as five accumulated layers. Together, these five layers cover a span of approximately three thousand years.
+
+### 1-2. Layer 1: Oracle-Bone Divination and the Emergence of the Heavenly Stems (14th – 11th c. BCE)
+
+The oracle-bone inscriptions excavated at Yinxu (殷墟), the late-period site of the Shang dynasty (商, c. 1600–1046 BCE), are records of *bu* divination (占卜) — the practice of judging good and ill fortune by reading the cracks formed when turtle shells or animal bones were scorched in fire. Inscribed on these oracle bones are the Ten Heavenly Stems (天干, 十干): *jia, yi, bing, ding, wu, ji, geng, xin, ren, gui*. According to the prevailing scholarly view, the Heavenly Stems were originally used as units for counting days, and only later were extended into a system for classifying things in general.
+
+This fact matters in the context of this research. The basic vocabulary used by Saju astrology originated in a divinatory culture some 3,300 years ago, and from the very beginning that vocabulary carried a dual function — marking time while simultaneously assigning meaning. This duality runs through the entire system of Saju astrology that follows.
+
+### 1-3. Layer 2: The Establishment of the *Yijing* and the Idea of Transformation (11th – 5th c. BCE)
+
+The *Yijing* (周易, *Book of Changes*), which took its established form in the early Zhou (周) dynasty, is a system that expresses the patterns of change through sixty-four hexagrams. The *Yijing* itself began as a divinatory text (占書), but it was elevated from a mere book of divination to a philosophy of change when Confucius (551–479 BCE) and his followers added the commentaries known as the *Ten Wings* (十翼). The pivotal idea that took root at this stage is *bianyi* (變易, "transformation"): everything changes, but change has pattern, and pattern can be expressed in the combinations of yang lines (陽爻) and yin lines (陰爻).
+
+The *Yijing* itself is not directly used in later Saju astrology. Yet two ideas from it — the dualism of yin and yang, and the notion of patterned change — form the epistemological foundation of Saju astrology. When one assumes that a Saju chart can be read as the pattern of a person's life, the structure of thought on which that assumption depends derives from the *bianyi* of the *Yijing*.
+
+### 1-4. Layer 3: The Systematization of Yin–Yang and Five Elements Theory (4th – 3rd c. BCE)
+
+During the Warring States period, Zou Yan (鄒衍, c. 305–240 BCE) advanced the *Theory of the Five Powers in Cyclical Succession* (五德終始說), uniting the doctrines of yin–yang and the Five Elements. It is a framework that explains both natural phenomena and the rise and fall of dynasties through the relations of mutual generation (相生) and mutual conquest (相剋) among five elements: wood, fire, earth, metal, and water. Yin–yang and the Five Elements existed separately before Zou Yan, but it is only after him that the two are joined and begin functioning as a single analytical instrument.
+
+The Five Elements are subsequently distributed across all of the Ten Heavenly Stems and Twelve Earthly Branches in Saju astrology. *Jia* (甲) and *yi* (乙) are assigned to wood (木); *bing* (丙) and *ding* (丁) to fire (火); *wu* (戊) and *ji* (己) to earth (土); *geng* (庚) and *xin* (辛) to metal (金); *ren* (壬) and *gui* (癸) to water (水). Saju analysis is, at heart, an analysis of the dynamic relations among the Five Elements, and that foundation arises from Zou Yan's work.
+
+### 1-5. Layer 4: The Combination of Stems and Branches and Its Establishment in the Han (2nd c. BCE – 2nd c. CE)
+
+When the ten Heavenly Stems are combined with the twelve Earthly Branches, sixty distinct units are produced — the *sexagenary cycle* (六十甲子, "Sixty Jiazi"). The sexagenary cycle was established during the Han (漢) dynasty as a unit of time used to mark years, months, days, and hours. After the *Taichu Calendar* (太初曆, instituted in 104 BCE), the practice of marking time with stem–branch pairs became the official national standard.
+
+It was during this period that the technical skeleton of Saju astrology took shape. That is, a person's moment of birth could now be expressed in four stem–branch pillars: the year pillar, the month pillar, the day pillar, and the hour pillar. The interpretive system built upon this skeleton, however, had not yet been developed in earnest. Han-era *mingli* analysis was conducted chiefly around the year pillar (年柱), and its interpretive method differed from that of later Saju astrology.
+
+### 1-6. Layer 5: The Establishment of *Mingli* in the Song — Xu Ziping's Turn (10th – 13th c. CE)
+
+The decisive turn in Saju astrology occurred in the Song (宋) dynasty. According to the received view, a figure named *Xu Ziping* (徐子平) shifted the prior, year-pillar-centered system to a system centered on the Heavenly Stem of the day pillar (the *Day Master*, 日干, *ilgan*). That is, a person looks at their own Saju chart with the Day Master representing the self, while the remaining seven characters (the Heavenly Stems and Earthly Branches of the year, month, and hour, together with the Earthly Branch of the day) are read as that person's environment and fortune.
+
+The significance of this turn is profound. Under the year-pillar-centered system, everyone born in the same year fell into the same broad fate-category. Under the Day-Master-centered system, even people born in the same year and the same month produce entirely different Saju charts if their day and hour differ. As a result, the resolution of Saju analysis rose dramatically.
+
+Whether Xu Ziping himself authored particular texts directly is a matter of scholarly debate. Commentaries on the *Luolu Zi Sanming Xiaoxi Fu* (珞琭子三命消息賦) and the *Yuzhao Shenying Zhenjing* (玉照神應眞經) are known as texts from his era or shortly thereafter; but exactly which texts came from Xu Ziping's own hand and which are later attributions (假託, *gatak*) remains an open problem of textual criticism in the history of *mingli* studies.
+
+### 1-7. The Cumulative Structure of the Five Layers
+
+The five layers can be summarized as follows.
+
+| Period | Layer | Principal Contribution |
+|--------|-------|------------------------|
+| 14th – 11th c. BCE | Oracle-bone divination | Emergence of the Ten Heavenly Stems |
+| 11th – 5th c. BCE | The *bianyi* of the *Yijing* | Yin–yang dualism, patterned change |
+| 4th – 3rd c. BCE | Zou Yan's Five Elements | The system of mutual generation and conquest |
+| 2nd c. BCE – 2nd c. CE | Han stem–branch system | Sexagenary cycle; year/month/day/hour notation |
+| 10th – 13th c. CE | Song-dynasty *mingli* | Day-Master-centered system; the framework of *gyeokguk* and *yongsin* |
+
+The crucial point about these five layers is that not one of them was discarded; each was accumulated upon the last. Song-dynasty *mingli* was built on top of Han-era stem–branch notation; the Han stem–branch system rested on Zou Yan's Five Elements; Zou Yan's Five Elements grew out of the yin–yang of the *Yijing*; and the yin–yang of the *Yijing* used the vocabulary of the oracle-bone Heavenly Stems. Across roughly three thousand years the system rewrote itself five times, each time building on the layer beneath — that is the structural feature of the corpus of Saju astrology.
+
+---
+
+## Chapter 2. Primary Texts and Commentaries — Academic Distinctions in the Textual Lineage
+
+### 2-1. The Distinction Between Primary Texts and Commentaries
+
+Saju astrology has accumulated, over roughly a thousand years, a series of *mingli canons* (命理 정전). For an information-systems standardization, before doing anything else, we must state academically: which texts constitute primary texts (原典), and which are commentaries (註釋書) or interpretive expansions added by later generations.
+
+Within this research, primary texts are defined as texts that themselves established the analytic framework of Saju astrology. Commentaries are texts that explain and supplement an existing primary text. Interpretive treatises are texts that, rather than commenting on a particular primary text, present the author's own analytic system. These three categories are distinguished separately in the corpus design of RimSaju v2.
+
+### 2-2. The Major Mingli Canon by Period
+
+The principal works that this research treats as primary texts are listed below in order of period of compilation. All dating is given as the received view.
+
+**Late Song to Early Ming (12th – 14th c.)**
+
+- *Yuanhai Ziping* (淵海子平, c. 13th c.). A successor to Xu Ziping, Xu Sheng (徐升), is known to have compiled and expanded earlier texts of the Ziping school. This is the foundational canon of Song-Ming *mingli*.
+- *Sanming Tonghui* (三命通會, late Ming). Compiled by Wan Min-ying (萬民英, 1521–1603). It synthesizes Song-Ming *mingli* in encyclopedic form. Its influence is enormous, and it is treated by later commentators as the standard reference.
+
+**Mid to Late Ming (15th – 17th c.)**
+
+- *Shenfeng Tongkao* (神峯通考, mid-16th c.). Authored by Zhang Nan (張楠). It systematizes the practical aspects of Saju analysis.
+- *Diwen Lu* (滴天髓, late Ming). Traditionally attributed to Liu Bowen (劉伯溫, 1311–1375), but consensus in modern scholarship treats this attribution with caution. The text is in the form of a poem (賦) and offers numerous interpretive principles in highly compressed expression.
+
+**Qing Dynasty (17th – 19th c.)**
+
+- *Ziping Zhenquan* (子平眞詮, mid-18th c.). Authored by Shen Xiaozhan (沈孝瞻, c. 1696–1757). It systematized the *gyeokguk* (格局, formative-pattern) theory and provided the framework that subsequent Saju astrology relies on for *gyeokguk* analysis. Notes for *Yongsin* are particularly precise.
+- *Diwen Lu Chanwei* (滴天髓闡微, c. 19th c.). The commentary on the *Diwen Lu* by Ren Tiechao (任鐵樵, c. 1773 – ?). Still treated as a basic academic reference today.
+
+**Republican China and the Twentieth Century**
+
+- *Mingli Yuegan* (命理約言, late Qing – early Republican). Authored by Chen Suan (陳素庵). It accomplishes the synthesis of Qing *mingli*.
+- *Qianli Mingdao* (千里命稿, 1935). Authored by Wei Qianli (韋千里, 1911–1988). A modernization of Saju astrology in vernacular Chinese (白話, *baihua*). Wei went on to play a leading role in Hong Kong and Taiwanese *mingli* in the second half of the twentieth century.
+- *Ziping Zhenquan Pingzhu* (子平眞詮評註, c. 1936). The commentary on the *Ziping Zhenquan* by Xu Lewu (徐樂吾, 1886–1949). Together with the work of Ren Tiechao, this is the central commentary work treated in modern textual studies.
+
+**The Korean Lineage (20th c.)**
+
+- *Sajucheryeong* (四柱捷經, c. 1960s). Authored by Park Jae-wan (朴在玩, 1903–1992). A practical compendium of Korean Saju.
+- *Sajuhakuijeoungsuk* (四柱學의 정수, *The Essence of Saju Studies*, c. 1969). Authored by Lee Seok-young (李錫暎, 1920–1983). A representative reference work of the Korean Saju lineage.
+
+### 2-3. Distinguishing Commentaries from Primary Texts
+
+In the corpus design of this research, commentaries are kept rigorously distinct from primary texts and are tagged separately. The reason is that a commentary contains both the doctrinal stance of its commentator and the doctrinal stance of the primary text — in any given passage, it must be possible to determine whose position is which. Failing to make this distinction makes school-by-school distance measurements unreliable.
+
+For instance, the *Diwen Lu Chanwei* contains both the original poem and Ren Tiechao's commentary. Where the primary text states a general principle, Ren Tiechao occasionally adds specific cases or partial qualifications. If the text is ingested as a single document, it becomes impossible to tell which interpretive claim belongs to the original *Diwen Lu* and which to Ren Tiechao. The same applies to the *Ziping Zhenquan Pingzhu* — what is the position of the *Ziping Zhenquan* itself, and what is the position added by Xu Lewu's *pingzhu* commentary, must be tagged separately.
+
+Distinguishing commentary from primary text becomes a precondition for the school-divergence-distance measurements in Part II onward.
+
+### 2-4. The Public Status of the Primary Texts
+
+A central feature of the Saju astrology corpus is that nearly all of its primary texts and major commentaries are in the public domain. With the partial exception of certain twentieth-century works whose copyright status remains ambiguous, the corpus before the late nineteenth century falls outside copyright restriction. This is a structural advantage in building an academic standard.
+
+This research takes this fact as the corpus-acquisition foundation for the construction of RimSaju v2 and v3. In the corpus plan presented in Appendix B, every text that is to be ingested is, in principle, licensed in a form that permits open use. For texts whose copyright status is uncertain, ingestion will occur only after copyright clearance has been confirmed.
+
+---
+
+## Chapter 3. Divergence Across the Three East Asian Nations — Chinese Bazi, Japanese Suimei, and Korean Saju
+
+### 3-1. The Same Origin, Three Different Trajectories
+
+Saju astrology arose in China, but it took three distinct paths after entering Japan and Korea. The three are commonly denoted by the local terms — Bazi (八字, *bāzì*) in China, Suimei-jutsu (推命術, *suimei-jutsu*) in Japan, and Saju (四柱) in Korea. The three share an identical technical foundation, but their lineage of texts, their cultural contexts, and their modes of social acceptance differ.
+
+### 3-2. China: The Mainstream of Bazi
+
+In China, Saju astrology is most often called Bazi (八字), and is also referred to as the *Ziping mingli* (子平命理) school after Xu Ziping. From the Song through the Qing dynasty it was developed within the literati class. After the founding of the People's Republic in 1949, the system was officially suppressed as superstition; it remained in private practice nonetheless, and after reform and opening (改革開放, *gaige kaifang*) from the 1980s onward, *mingli* publishing and folk practice were partially restored.
+
+In contemporary China and Taiwan, Bazi exists alongside Hong Kong–style *mingli* (which gives heavier weight to Wei Qianli and Xu Lewu) and traditional mainland *mingli* (which centers on the *Sanming Tonghui* and the *Ziping Zhenquan*). The interpretation of *yongsin* in particular is divided between the schools of *mingli* in Taipei and Hong Kong.
+
+### 3-3. Japan: The Reformulation of *Chumyeong* (推命) Studies
+
+In **Japan**, after the Meiji Restoration, Saju astrology was reorganized into a modern academic form under the name *chumyeong-hak* (推命學, "the study of fate inference"). Abe Taizan (阿部泰山, 1888–1969), through his *Saju Chumyeong-hak Jeonjip* (四柱推命學全集, *Complete Collected Works on Four-Pillar Chumyeong Studies*), formed the standard of Japanese *chumyeong-hak*. Japanese *chumyeong-hak* shows a strong tendency toward simplification and tabulation; it is characterized by visualizing the Saju chart in tabular form and organizing interpretation into standardized manuals.
+
+### 3-4. Korea: The Modernization of Saju
+
+In Korea, Saju astrology was introduced in the late Goryeo to the Joseon dynasty period and was practiced primarily within the *yangban* (兩班) class during the Joseon era. In the modern period, its character as practical knowledge passed down through the *jungin* (中人) class — in *yeokmu* (易巫) practice and folk *jeombok* (占卜, divination) — was strong; it took shape as a standardized academic tradition only in the second half of the twentieth century.
+
+The principal figures of modern Korean Saju are Park Jae-wan (朴在玩) and Lee Seok-young (李錫暎). Park Jae-wan published in 1969 the *Mingli Yo-gang* (命理要綱), and by reorganizing the tradition of the *Sanming Tonghui* and the *Ziping Zhenquan* in Korean, he established the technical foundation of contemporary Korean Saju. Lee Seok-young's *Sajuhak Bulli Cheonseongdaemok* (四柱學佛理天聲大目, 1969) is regarded as a representative work of the systematization of Korean Saju.
+
+A characteristic of the Korean stream is its strong cultural penetration. While Saju serves as a reference at major life decisions — marriage, naming, the choice of a wedding date, and so on — it never assumed the central place that astrology occupies in the West. Yet it survived even through the rise of mass culture in the late twentieth century, persisted into the twenty-first century, and now circulates online in re-popularized form. Saju cafés, the SajuMyeong website, and the rise of the YouTube *uranai*-content market are all expressions of this.
+
+### 3-5. Inter-Country Divergence — Three Layers Where It Matters
+
+The differences among the Chinese, Japanese, and Korean streams appear in three layers.
+
+First, the *layer of emphasized texts* is different. Chinese Bazi gives heavy weight to the *Sanming Tonghui* and the *Ziping Zhenquan*; the Japanese stream relies more on Abe Taizan's modern reorganization; the Korean stream rests on the modern reorganizations of Park Jae-wan and Lee Seok-young.
+
+Second, the *layer of interpretive vocabulary* is different. The same Chinese characters can carry slightly different connotations across the three countries. In contemporary Korean Saju, for instance, *gyeokjeong yongsin* (格定用神) is approached with a stronger emphasis on the *Ziping Zhenquan*, while *Yongsin* in the Hong Kong stream is more often discussed with reference to Wei Qianli.
+
+Third, the *layer of social context* is different. Chinese Bazi relates to the institution of the family and to ancestor reverence; Japanese Suimei holds the position of a specialized branch of *uranai*; Korean Saju exists as one of the cultural practices found at life-stage transitions. These contextual differences influence which questions the analysis tends to be asked, and along with that, which expressions tend to be reinforced in interpretation.
+
+This research treats inter-country divergence as a primary axis of school-divergence measurement (*scholastic distance*) in the same dimension as inter-school doctrinal divergence within a single country.
+
+---
+
+## Chapter 4. A Map of Interschool Divergence — Agreements and Disagreements Across Seven Schools
+
+### 4-1. The Difficulty of Defining a "School"
+
+In Saju astrology, the boundary of a school (학파) is more fluid than in other academic disciplines. Most schools form around either the works of a particular master or a group of texts emphasized in a particular region; explicit institutional or doctrinal organization is rare. For this reason, the criteria for distinguishing a school must be made explicit.
+
+This research distinguishes schools on the basis of three criteria: (1) the set of primary texts most heavily relied upon, (2) the stance taken on the central interpretive disagreements, and (3) the geographical and linguistic region in which it is principally accepted. The analysis below proceeds along these three axes.
+
+### 4-2. The Seven Major Schools
+
+Within the corpus design of RimSaju v2, the schools to be initially classified are the following seven.
+
+1. **The *Ziping Zhenquan* school** — A school that places the *Ziping Zhenquan* at the center and emphasizes precise *gyeokguk* (格局) analysis. Strong in mainland China and Taiwan.
+2. **The *Diwen Lu* school** — A school grounded in the *Diwen Lu* and Ren Tiechao's commentary, emphasizing harmony among the climatic conditions and elemental balance. Influence is strong in Hong Kong.
+3. **The Qianli school** — Founded on Wei Qianli's *Qianli Mingdao* and the works of Xu Lewu. Mainstream in Hong Kong.
+4. **The Abe Suimei school** — A modern Japanese reorganization founded by Abe Taizan. The mainstream of contemporary Japanese *Suimei*.
+5. **The Park Jae-wan school** — A modern Korean reorganization founded by Park Jae-wan and his successors. The mainstream of contemporary Korean Saju.
+6. **The Lee Seok-young school** — A modern Korean reorganization founded by Lee Seok-young; uses a vocabulary slightly different from the Park Jae-wan school in the analysis of *gyeokguk* and *yongsin*.
+7. **The contemporary academic stream** — A movement that has emerged since the second half of the twentieth century, attempting to apply the methodology of religious studies and history of philosophy to *mingli* studies. It is in continuous interaction with the six schools above, though its share of influence is comparatively small.
+
+These seven schools agree on roughly 70% of their content, while diverging on the remaining 30%. The 70% of agreement is the technical foundation that this research treats as the *common standard*; the 30% of divergence is what we treat as the *map of school divergence*.
+
+### 4-3. Where the Schools Agree (the 70%)
+
+The seven schools concur on the following points.
+
+- **Composition of the chart**: The four pillars of year, month, day, and hour are each composed of one Heavenly Stem and one Earthly Branch (no school disputes this).
+- **The Day Master is the self**: The Day Master (日干) represents the self of the chart-bearer. (No school disputes this since the Song-dynasty turn.)
+- **The Five Elements assignments**: The assignment of the Five Elements to the ten Heavenly Stems and twelve Earthly Branches is identical across all schools.
+- **The Ten Gods**: The framework of the Ten Gods (十神) — *Comparable*, *Rob Wealth*, *Eating God*, *Hurting Officer*, *Direct Wealth*, *Indirect Wealth*, *Direct Officer*, *Seven Killings*, *Direct Resource*, *Indirect Resource* — is structurally agreed upon.
+- **Combination, Clash, Punishment, Harm**: The combinatorial relations among the Earthly Branches — Three Harmonies (三合), Six Harmonies (六合), Six Clashes (六沖), Three Punishments (三刑), Six Harms (六害) — are mostly agreed. (Some auxiliary patterns differ.)
+- **Luck pillars and yearly luck**: The interpretive structure of *daewoon* (大運, ten-year luck pillars) and *seoun* (歲運, yearly luck) is agreed.
+
+### 4-4. Where the Schools Diverge (the 30%)
+
+Disagreement is concentrated chiefly in the following five domains.
+
+**4-4-1. The Method of Determining the Useful God (用神, *yongsin*)**
+
+The Useful God is the most pivotal element in interpretation, identifying the elements within the chart that "support" the Day Master. The *Ziping Zhenquan* school determines the *yongsin* through the *gyeokguk*; the *Diwen Lu* school determines it through climatic and seasonal balance; the Qianli school adds Wei Qianli's idiosyncratic doctrine of *yongsin* to the mix.
+
+For the same chart, two schools may select two different *yongsin*. As a result, when one school describes the chart's owner as "a person whose career is auspicious," another school may describe them as "a person likely to face turbulence in their career" — significant interpretive divergences arise.
+
+**4-4-2. The Reading of *gyeokguk***
+
+The *gyeokguk* (格局) classifies the structural type of a chart. The *Ziping Zhenquan* school proposes a system of approximately ten major *gyeokguk*; the Park Jae-wan school subdivides these into about twelve; the Abe Suimei school uses a different vocabulary for the same structures. As a result, even when the same chart is being discussed, the *gyeokguk* labels assigned by each school may differ.
+
+**4-4-3. Whether to Use the *Apparent Solar Time* Correction (眞太陽時)**
+
+When determining the hour pillar (時柱), the choice between using clock time and using apparent solar time corrected for longitude divides schools. The Park Jae-wan school is conservative on this point, while contemporary Korean *mingli* increasingly inclines toward apparent-solar-time correction. RimSaju v1 already implements apparent-solar-time correction (with a precision of ±15 minutes); this is a structurally relevant choice in the inter-school debate.
+
+**4-4-4. The Treatment of Boundary Cases**
+
+Boundary cases — births within several minutes of the seasonal node (節入), of the day-pillar transition, or of an hour-pillar boundary — are treated differently across schools. The Park Jae-wan school is conservative on the seasonal node, while the Hong Kong stream tends to be more flexible.
+
+**4-4-5. The Choice of Stem–Branch Relations to Privilege**
+
+The combinations of *Three Harmonies, Six Harmonies, Six Clashes, Three Punishments, Six Harms, and Half-Harmonies* differ across schools in which relations are read as more important and which are read as more peripheral. A relation that one school weights as decisive may be discussed only as supplementary in another.
+
+### 4-5. The Quantification of School Divergence
+
+The strategy of this research is to treat these disagreements not as ambiguities to be resolved by *imposing one school's view*, but as a topology to be made measurable. With each school's typical interpretive corpus mapped as embedding vectors, the question — "for what kinds of charts do the schools disagree most strongly?" — becomes one whose answer can be computed.
+
+The detailed methodology for this map of school divergence is described in Part III, Chapters 11 and 12.
+
+---
+
+## Chapter 5. The Analytical System of Saju Astrology — Components and Operating Principles
+
+### 5-1. Toward a Conceptual Foundation
+
+This chapter provides the conceptual foundation needed to follow the discussion of subsequent chapters. The basic analytical components of Saju astrology — the Ten Heavenly Stems and Twelve Earthly Branches, the Five Elements and the Ten Gods, the *gyeokguk* and the *yongsin*, the relations of Combination, Clash, Punishment, and Harm — will be set out in turn.
+
+For a reader familiar with Saju astrology, this chapter is a brief refresher. For a reader unfamiliar with it, it is the minimum vocabulary needed to follow the rest of the whitepaper.
+
+### 5-2. The Ten Heavenly Stems and the Twelve Earthly Branches
+
+The Heavenly Stems (天干) are the ten characters used as units of time in East Asia. They are divided into yang stems and yin stems by yin–yang, and assigned to one of the Five Elements as follows.
+
+| Stem | Yin–Yang | Element |
+|------|----------|---------|
+| 甲 (*jia*) | yang | wood (木) |
+| 乙 (*yi*) | yin | wood (木) |
+| 丙 (*bing*) | yang | fire (火) |
+| 丁 (*ding*) | yin | fire (火) |
+| 戊 (*wu*) | yang | earth (土) |
+| 己 (*ji*) | yin | earth (土) |
+| 庚 (*geng*) | yang | metal (金) |
+| 辛 (*xin*) | yin | metal (金) |
+| 壬 (*ren*) | yang | water (水) |
+| 癸 (*gui*) | yin | water (水) |
+
+The Earthly Branches (地支) are twelve characters: *zi, chou, yin, mao, chen, si, wu, wei, shen, you, xu, hai*. Each Earthly Branch corresponds to a zodiac animal and a season.
+
+| Branch | Zodiac | Element | Season |
+|--------|--------|---------|--------|
+| 子 (*zi*) | rat | water | mid-winter |
+| 丑 (*chou*) | ox | earth | late winter |
+| 寅 (*yin*) | tiger | wood | early spring |
+| 卯 (*mao*) | rabbit | wood | mid-spring |
+| 辰 (*chen*) | dragon | earth | late spring |
+| 巳 (*si*) | snake | fire | early summer |
+| 午 (*wu*) | horse | fire | mid-summer |
+| 未 (*wei*) | goat | earth | late summer |
+| 申 (*shen*) | monkey | metal | early autumn |
+| 酉 (*you*) | rooster | metal | mid-autumn |
+| 戌 (*xu*) | dog | earth | late autumn |
+| 亥 (*hai*) | pig | water | early winter |
+
+Each Earthly Branch also carries within it one or more "hidden" Heavenly Stems known as the *jijanggan* (地藏干). For instance, *yin* (寅) hides the stems *jia, bing, wu*; *zi* (子) hides only *gui*. The hidden stems play a critical role in interpretation.
+
+### 5-3. The Five Elements and Mutual Generation/Conquest
+
+The Five Elements stand in the following relations.
+
+- **Generation (相生)**: wood → fire → earth → metal → water → wood
+- **Conquest (相剋)**: wood → earth → water → fire → metal → wood
+
+Generation refers to the relation in which one element gives rise to another; conquest refers to the relation in which one element controls or weakens another. Saju analysis is fundamentally an analysis of these dynamic relations among the Five Elements.
+
+Generation and conquest are not absolute. Where two elements that stand in a conquest relation are joined by a third element, the relation may be weakened or transformed. This concept is generalized as the *interaction of the Five Elements*, which becomes the basis of Saju's interpretive nuance.
+
+### 5-4. The Ten Gods
+
+The *Ten Gods* (十神) classify how each of the seven characters in a chart, viewed with the Day Master at the center, relates to that Day Master. The classification is based on the mutual generation/conquest relation between the Five Element of the character in question and the Five Element of the Day Master, together with the agreement or disagreement of yin–yang.
+
+The names of the Ten Gods are as follows.
+
+| Korean | Chinese | English |
+|--------|---------|---------|
+| 비견 (*bigyeon*) | 比肩 | Comparable (same yin–yang as the Day Master) |
+| 겁재 (*geopjae*) | 劫財 | Rob Wealth (different yin–yang from the Day Master) |
+| 식신 (*siksin*) | 食神 | Eating God (the element produced by the Day Master, same yin–yang) |
+| 상관 (*sanggwan*) | 傷官 | Hurting Officer (the element produced by the Day Master, different yin–yang) |
+| 편재 (*pyeonjae*) | 偏財 | Indirect Wealth (the element conquered by the Day Master, same yin–yang) |
+| 정재 (*jeongjae*) | 正財 | Direct Wealth (the element conquered by the Day Master, different yin–yang) |
+| 편관 (*pyeongwan*) | 偏官 / 七殺 | Indirect Officer / Seven Killings (the element that conquers the Day Master, same yin–yang) |
+| 정관 (*jeonggwan*) | 正官 | Direct Officer (the element that conquers the Day Master, different yin–yang) |
+| 편인 (*pyeonin*) | 偏印 | Indirect Resource (the element that produces the Day Master, same yin–yang) |
+| 정인 (*jeongin*) | 正印 | Direct Resource (the element that produces the Day Master, different yin–yang) |
+
+Each of the Ten Gods is associated with a domain of life. *Direct Officer* and *Indirect Officer* are read in connection with career, position, and authority; *Direct Wealth* and *Indirect Wealth* with finances and spousal relationships (in male charts); *Eating God* and *Hurting Officer* with creativity and self-expression; *Direct Resource* and *Indirect Resource* with knowledge, learning, and the relation with one's mother; *Comparable* and *Rob Wealth* with siblings, peers, and competition.
+
+### 5-5. *Gyeokguk* and *Yongsin*
+
+The *gyeokguk* (格局) classifies the structural type of a chart. Most charts are determined to belong to one of the *Ten Standard Gyeokguk* (正格 十格): *Direct Officer Gyeokguk*, *Seven Killings Gyeokguk*, *Direct Wealth Gyeokguk*, *Indirect Wealth Gyeokguk*, *Direct Resource Gyeokguk*, *Indirect Resource Gyeokguk*, *Eating God Gyeokguk*, *Hurting Officer Gyeokguk*, *Comparable Gyeokguk*, *Rob Wealth Gyeokguk*. Charts that fall into none of these are classified into *Special Gyeokguk* (從格, 化格, 一氣格, etc.).
+
+The *yongsin* (用神, *Useful God*) is a Five Element/Ten God that supports the Day Master in this chart. Once the *yongsin* is set, *favorable elements* (喜神, *huisin*), *unfavorable elements* (忌神, *gisin*), and *neutral elements* (閑神, *hansin*) are sorted in turn. The whole of Saju interpretation is performed on this scaffolding of *yongsin* / *huisin* / *gisin*.
+
+The methods for selecting the *yongsin*, as already noted in Chapter 4, differ across schools. Within the corpus of RimSaju v2, the *yongsin* selections of each school are tagged separately and subjected to comparative analysis.
+
+### 5-6. Combination, Clash, Punishment, Harm
+
+Specific combinations among the Earthly Branches form interpretive units of their own.
+
+- **Three Harmonies (三合)**: When three Earthly Branches gather, they transform into a single dominant element. *yin–wu–xu* combine to form fire; *shen–zi–chen* combine to form water; *si–you–chou* combine to form metal; *hai–mao–wei* combine to form wood.
+- **Six Harmonies (六合)**: When two Earthly Branches in a designated pair meet, they form a harmony. *zi–chou*, *yin–hai*, *mao–xu*, *chen–you*, *si–shen*, *wu–wei*.
+- **Six Clashes (六沖)**: When two Earthly Branches in opposing positions on the compass meet, they clash. *zi–wu*, *chou–wei*, *yin–shen*, *mao–you*, *chen–xu*, *si–hai*.
+- **Three Punishments (三刑)**: When three Earthly Branches in a particular configuration meet, they enter into a relation of mutual punishment (刑害).
+- **Six Harms (六害)**: When two Earthly Branches in a designated pair meet, they enter into a relation of mutual harm.
+
+These combinatorial relations, taken together with the Ten Gods, *gyeokguk*, and *yongsin*, form the totality of an interpretation. The role of a single Earthly Branch shifts depending on what other Earthly Branches it combines with — this combinatorial, contextual character makes any approach that scores Saju by single, isolated elements a failed strategy. (We return to this point in Part II, Chapter 6.)
+
+### 5-7. *Daewoon* and *Seoun*
+
+Saju chart analysis as discussed so far concerns the *Original Bureau* (原局) — the structure of the chart at the moment of birth. To this is added the *Luck Bureau* (運局), composed of the *Daewoon* (大運, ten-year luck pillars) that change every ten years and the *Seoun* (歲運, yearly luck) that changes every year. *Daewoon* and *Seoun* are both expressed in stem–branch pairs, and their interactions with the Original Bureau become the dynamic component of the interpretation.
+
+For instance, even if a particular chart's *yongsin* is wood, if a *Daewoon* of metal arrives, that *Daewoon* exerts a controlling pressure on wood and is read as a difficult phase. Conversely, if a *Daewoon* of water arrives, it strengthens wood and is read as a favorable phase. Saju interpretation is the work of capturing this dynamic of the Original Bureau and the Luck Bureau in language.
+
+### 5-8. The Relationship to the Interpretive System
+
+The components introduced above are connected to one another through the following pathways.
+
+- The Ten Heavenly Stems and Twelve Earthly Branches → are mapped onto the Five Elements
+- The Five Elements → in their relation to the Day Master, are classified as the Ten Gods
+- The Ten Gods + the structure of the chart → determine the *gyeokguk*
+- The *gyeokguk* + climatic/seasonal balance → determine the *yongsin*
+- The *yongsin* + the relations of Combination/Clash/Punishment/Harm + the *Luck Bureau* → produce the totality of the interpretation
+
+This chain of interpretation is the analytical pipeline of Saju astrology that this research aims to standardize. As we have already noted, however, each step in this chain is the locus of a school-by-school interpretive disagreement. How those disagreements are made measurable, and what remaining ambiguity is then addressed by the LLM-based reasoning of an *Integrated RAG* engine — these are the topics of Parts II and III.
+
+---
+# Part II. The Nature of Ambiguity
+
+In Part I we set out what Saju astrology is composed of: twenty-two characters, the relations of the Five Elements and the Ten Gods, the dynamic relations of Combination, Clash, Punishment, and Harm, the synthetic judgment of *gyeokguk* and *yongsin*, and the seven schools that have diverged on top of these. Part II is an epistemological examination of what it precisely means to verify this system.
+
+## Chapter 6. Fragmentation and Reduction — Where Ambiguity Arises
+
+### 6-1. Identifying the Precise Location of Ambiguity
+
+The statement "Saju is ambiguous" is commonly used. Yet it has been used without ever being clearly defined. If the location of the ambiguity is not precisely identified, no method can be proposed to reduce it.
+
+First, one point must be made clear. The input data of a Saju chart is not ambiguous. The year, month, day, and hour of birth are unambiguous numbers, and the sexagenary cycle obtained after apparent-solar-time correction is uniquely determined. Up to this stage the ambiguity is zero.
+
+The Five-Element distribution and the Ten-God relations are likewise not ambiguous. If the Day Master is *yi* (乙) and the hour stem is *geng* (庚), the conclusion that the relation is *Direct Officer* follows by definition; there is no room for interpretation.
+
+Ambiguity arises after the Five-Element distribution and the Ten-God relations have been computed, in the stage where that data is rendered into language. To answer the question "where is the ambiguity in the reading 'this person, having an excess of *Direct Officer*, has a strong sense of responsibility but is under pressure'?", we need to distinguish the location of the ambiguity into two operations: *fragmentation* and *reduction*.
+
+### 6-2. Fragmentation and Reduction
+
+When data is moved into language, two operations necessarily occur.
+
+**Fragmentation** is the operation of cutting a continuous quantity into named pieces. The Five-Element distribution is, in itself, a continuous quantity. Counting "five units of metal" is unambiguous; but asking "how strong is the metal in this chart?" yields an answer that is a continuous variable. One could fragment it into seven levels — *very strong, strong, slightly strong, moderate, slightly weak, weak, very weak* — or into a hundred levels. Where one chooses to cut requires an arbitrary decision.
+
+**Reduction** is the operation of compressing high-dimensional information into low-dimensional language. A Saju chart contains several dozen dimensions: eight characters, the Five Elements assigned to those characters, the Ten Gods, the relations of Combination and Clash, the *gyeokguk*, and so on. Yet the person receiving the reading must understand their own chart in just a few sentences of language. In the process of compressing dozens of dimensions into a few sentences, information is lost. Which information to keep and which to discard depends on the interpreter's judgment.
+
+Fragmentation and reduction are the loci where the ambiguity of *mingli* arises. It is not the Saju chart itself that is ambiguous, but the process by which the Saju chart is rendered into language.
+
+### 6-3. The Epistemological Status of Inter-School Differences
+
+This ambiguity is what gives rise to the differences among schools.
+
+For the same chart, the *gyeokguk* school fragments first along *gyeokguk*. Once the chart has been classified, say, as a *Direct Officer Gyeokguk*, the reading flows from that classification. The *eokbu* (抑扶, "suppress and support") school fragments first along the strength or weakness of the Day Master. Once it is determined whether the Day Master is *strong* (身強) or *weak* (身弱), the *yongsin* and the reading are derived within that. The *johu* (調候, "climatic balance") school fragments first along the heat-cold-dryness-moisture (寒煖燥濕) of the *yeongryeong* (月令, the Earthly Branch of the month).
+
+All three schools look at the same eight characters. But where they cut first is different. If the first fragmentation is different, all subsequent reading flows differently.
+
+This point matters epistemologically. The differences among schools are not differences in truth but differences in the order of fragmentation. That is why no school can be declared correct, and at the same time why no school can be said to be wholly mistaken.
+
+### 6-4. Two Directions for Reducing Ambiguity
+
+If ambiguity arises in fragmentation and reduction, then the directions for reducing it can also be defined in two ways.
+
+**The first direction — refining the fragmentation.** This is the operation of cutting a continuous quantity at finer intervals. Rather than measuring the strength of a Five Element on a seven-step scale, one measures it on a thousand-step scale; this is the direction of numerical scoring. There have been such attempts within *mingli* itself, and some contemporary researchers have undertaken work to score the strength of the Five Elements. There is, however, a limit. Arbitrariness enters into the scoring itself. Whether to assign 1 point or 2 points to the Heavenly Stem *jia* (甲), whether to weight the Earthly Branch *yin* (寅) more strongly or more weakly than the stem *jia* — the criteria for assigning these scores again differ from school to school.
+
+**The second direction — bypassing the fragmentation.** This is the method of not performing the fragmentation explicitly, and instead handling the entire distribution as it is. This is the core direction proposed by this research. Within a latent space, one places a Saju chart as a single point and observes the distance relations that this point bears to other points. In this method, the state prior to linguistic fragmentation is preserved. One can measure similarity between Saju charts without performing the linguistic verdicts of *strong vs weak* or *good vs bad*.
+
+This second direction shares the same structure as the way LLMs handle language. It is the method of expressing the meaning of a word not by dictionary definitions, but by coordinates in a latent space. The application of this methodology to Saju astrology is the central claim of Part III of this whitepaper.
+
+### 6-5. The Necessity of Fragmentation and the Output Strategy
+
+One point must be made clear, however. Latent space alone cannot produce a final output. The user must receive a reading in their own language, and being presented with coordinates in a latent space is meaningless. In the end, a linguistically fragmented reading is required.
+
+The strategy of this research is summarized as follows. **The internal representation is kept as latent space, while the external output is fragmented into language.** At this point, the fragmentation of the output should occur as late as possible, according to explicit criteria. If the fragmentation criteria are made explicit, both the user and the evaluator can trace which rule of which school was followed. If the fragmentation occurs inside a black box, it becomes impossible to verify on what grounds a given reading was derived.
+
+This point connects directly to the design of RimSaju v2's evaluation protocol. Separating the consistency of internal representation from the criteria of external fragmentation, and measuring each separately, is the core of v2 evaluation.
+
+---
+
+## Chapter 7. Three Levels of Verifiability
+
+The phrase "making Saju astrology verifiable" is one this whitepaper uses often. But unless what this phrase does and does not mean is made clear, the promises of this research can be read as overstatement. This chapter distinguishes verifiability into three levels and specifies the scope of what this research promises.
+
+### 7-1. Weak Verification — Internal Consistency of the System
+
+This is the lowest level of verification. At this level, we do not ask whether Saju astrology is true. We ask only whether the *mingli* system is consistent with itself.
+
+The specific items of measurement are the following three.
+
+**Consistency 1: Same chart → same reading.** This is the evaluation of whether the system produces a consistent output for the same input. It is the most basic requirement. If, when the same chart is entered twice, the readings differ greatly, then no matter what doctrine is being followed the system is failing as a system. In RimSaju v1 this consistency is maintained. In v2, however, where school-specific weights are dynamically adjusted, consistency must be maintained while inter-school transformations are also permitted, so the method of measurement must be more refined.
+
+**Consistency 2: Similar charts → similar readings.** This is the requirement of continuity: when two charts are close in the latent space, their readings should also be close. If the reading for a chart differing by only a single character were to come out exactly the opposite, it would suggest that there is a discontinuity somewhere in the system. Whether that discontinuity originates from a *mingli*-internal ground (e.g., a *gyeokguk* transition) or from a defect of the system must be traced.
+
+**Consistency 3: Internal accord within the same school.** This is the requirement of doctrinal fidelity: a system that has been trained on the readings of the *Ziping Zhenquan* school should, on other cases, produce outputs that accord with the doctrine of the *Ziping Zhenquan* school.
+
+All three of these consistencies are measurable within the data; none appeals to external truth. The first evaluation protocol of RimSaju v2 is composed of this weak verification.
+
+### 7-2. Intermediate Verification — Measurement of Statistical Patterns
+
+The next level is verification that measures whether Saju patterns and real-world events are statistically associated. This level of verification is in principle possible. With sufficient data, one can answer questions such as "in what occupational categories do people whose charts have strong *Wealth* gods (財星) distribute on average?" or "what statistical relation does a chart with weak *Officer* gods (官星) bear to the frequency of job changes?". This is correlation measurement, the standard form of measurement carried out in medicine, the social sciences, and psychology.
+
+The measurement, however, comes with the following difficulties.
+
+**Sample bias.** A person who receives a Saju reading is not a representative sample of the general population. They are biased toward people who feel a need for change in their lives, who are favorable toward Saju, and who have the means to pay. Without correcting for this bias, no statistical result can reflect the genuine effect of Saju.
+
+**Self-fulfilling prophecy.** If a person who receives a Saju reading is influenced by it and changes their behavior, the statistical outcome is shaped by the reading itself. It is not that Saju was accurate and so things turned out that way; rather, the reading guided life in that direction. To separate and measure this effect, one needs an experimental design comparing untreated and treated groups, but such designs are extraordinarily difficult to set up for Saju.
+
+**The multiple-comparisons problem.** The dimensionality of Saju patterns is very high: five Five Elements, ten Ten Gods, dozens of Combination/Clash relations, dozens of *gyeokguk*. If one tests every combination of these dimensions against every life event, some among them will appear statistically significant by chance. Without correction (Bonferroni correction, etc.) false discoveries are mass-produced.
+
+**The problem of defining life events.** What is the definition of "the marriage went well"? Where does one place the threshold of "rich"? If these definitions are ambiguous, one cannot measure which patterns of Saju are associated with which events.
+
+Owing to these difficulties, intermediate verification is possible but enormously costly. Tens of thousands of anonymized records, precise event definitions, statistical correction, and the separation of self-fulfilling effects are all required. RimSaju v2 promises to build the *infrastructure* for this intermediate verification. The actual measurement results are work for v3 and beyond.
+
+### 7-3. Strong Verification — The Truth-Value of Saju
+
+The highest level of verification is verification that asks whether Saju is true. Whether one person's moment of birth actually determines that person's life; whether the Heavenly Stems and Earthly Branches represent forces that really exist in the cosmos.
+
+This research does not promise this level of verification. There are two reasons.
+
+First, this verification is in principle impossible. To verify whether one person's life is determined by their Saju, one would have to repeat the life of a person with the same chart multiple times. This is impossible. A person's life is lived only once. Comparison with people who have different charts is possible, but that is not strong verification — it falls under the intermediate verification of 7-2.
+
+Second, every system that promises strong verification loses its academic credibility. Even in medicine, a system that promises "this drug works 100% on every patient" becomes the object of suspicion. If Saju promises strong verification, the same suspicion follows. Not promising it is the starting point of trust.
+
+To summarize, RimSaju v2's verification commitments are as follows.
+
+| Level | Object | Commitment |
+|-------|--------|------------|
+| Weak verification | Internal consistency of the system | Implemented as an evaluation protocol in v2 |
+| Intermediate verification | Measurement of statistical patterns | Infrastructure built in v2; actual measurement from v3 onward |
+| Strong verification | Truth-value of Saju | Not promised |
+
+This table covers the entire scope of what this whitepaper promises in terms of verification.
+
+---
+
+## Chapter 8. From a Degenerative Research Programme to a Progressive One
+
+### 8-1. Distinguishing the Two Research Programmes
+
+The philosopher of science Imre Lakatos distinguished the research activity of a discipline into two kinds: progressive research programmes and degenerative research programmes.
+
+A *progressive research programme* is a discipline that predicts new facts and whose predictions are confirmed by observation. After general relativity was published in 1915, its prediction of the perihelion shift of Mercury, and the deflection of starlight observed during the 1919 solar eclipse, agreed with the theoretical predictions, demonstrating its progressive character. The pattern in which a theory predicts first and nature confirms the prediction afterwards is the hallmark of a progressive research programme.
+
+A *degenerative research programme* is a discipline that explains, after the fact, what is already known. When a new finding occurs, it modifies its theory ad hoc to incorporate that finding into its explanations. As such ad hoc auxiliary hypotheses accumulate, the theory becomes able to explain any result after the fact, and as a result it loses the ability to make any predictions.
+
+### 8-2. The Present Position of Saju Astrology
+
+This research holds that Saju astrology has, until now, been closer to a degenerative research programme. Acknowledging this is the starting point of standardization.
+
+Saju readings are almost always retrospective in character. After someone has failed in business, the explanation is offered: "this chart had strong *Bigyeon* and *Geopjae*, so this person was prone to being betrayed by business partners." After someone has successfully married, the explanation follows: "in this chart the *Direct Officer* was well situated, and so a good partner was met."
+
+That such after-the-fact explanations are always available is the hallmark of a degenerative research programme. Whatever the result, there is always a character or relation somewhere in the chart that can justify it. Good outcomes are explained by good characters; bad outcomes by bad characters.
+
+This is not to say that Saju astrology is without value. Retrospective explanation has a value of its own. As a framework through which a person comes to understand their own life, Saju performs a clear function. But Saju astrology *as a discipline* cannot remain at retrospective explanation. It must perform prediction.
+
+### 8-3. The Introduction of Pre-Registration
+
+The decisive instrument that turns Saju astrology into a progressive research programme is *pre-registration*. Pre-registration is the practice of recording predictions publicly in advance and verifying those predictions after the results are obtained. Over the past decade or so, it has become a standard methodology in clinical trials in medicine and in research in psychology.
+
+Applying pre-registration to Saju astrology proceeds as follows.
+
+**Step 1 — Hypothesis registration.** A hypothesis — for example, that a specific Saju pattern (such as a weak Day Master with strong *Seven Killings*) will be statistically associated with a specific life event (such as a job change in one's early thirties) — is registered in a public database before the outcome is measured.
+
+**Step 2 — Data collection.** Data is collected after the hypothesis has been registered. Rather than mining patterns out of data already collected, one registers the hypothesis and then verifies it on data that comes in afterwards. This temporal order is decisive.
+
+**Step 3 — Verification and publication.** The result — regardless of whether the hypothesis was confirmed or not — is published. Even when the hypothesis has been refuted, the fact is reported as it is. It is made clear that the announcement that a particular doctrine of Saju has been refuted is not a regression of the discipline but a progression.
+
+Once this process is introduced into Saju, Saju astrology becomes, for the first time, a discipline that performs prediction. Not every reading needs to be pre-registered; but the central claims of a doctrine should be capable of being pre-registered. Doctrines that cannot be pre-registered will be explicitly marked as operating only as retrospective explanation.
+
+This is the decisive condition for converting Saju astrology into a progressive research programme in Lakatos's sense.
+
+### 8-4. Allowing Refutation
+
+Another condition of a progressive research programme is the attitude that allows refutation.
+
+The schools of Saju astrology to date have not had institutional mechanisms for accepting the result that their own doctrine has been refuted. When a reading missed, that miss was treated as an insufficiency of the interpreter's skill, never as a problem with the doctrine itself. The authority of the doctrine was never damaged by the mistakes that occurred under its name.
+
+This structure protects the authority of the school but obstructs the progress of the discipline. If no doctrine can be refuted, no doctrine can be verified to be correct either. This is why falsifiability in Popper's sense has been missing from Saju astrology.
+
+RimSaju v2 designs an evaluation protocol that explicitly accepts refutation. When a doctrine is refuted by the data, that fact is recorded as it stands in the evaluation results published on GitHub. Auxiliary hypotheses are not introduced ad hoc to defend the doctrine. If an auxiliary hypothesis is introduced, that auxiliary hypothesis must itself be separately pre-registered and verified again on the next data.
+
+This attitude is the condition for bringing Saju astrology into the domain of academic discipline. Not because Saju is true, but because it makes possible to distinguish which parts of Saju are closer to truth and which parts are not.
+
+### 8-5. The Infrastructural Preconditions
+
+Pre-registration and the acceptance of refutation are matters of academic attitude. But unless an infrastructure exists to implement these attitudes, they have no effect. The historical significance of attempting this work *now* lies in the fact that this infrastructure has been put in place.
+
+**Infrastructure 1: The classical-Chinese capability of vector-embedding models.** Models that can semantically embed *mingli* texts written in classical Chinese have become substantively available since 2024. Embedding models prior to that had clear limitations in handling classical Chinese.
+
+**Infrastructure 2: The collapse of cost.** The cost of one 1,536-dimensional embedding has fallen by a factor of one hundred in a single year. The reason 562 passages could be embedded in RimSaju v1 is that cost had fallen sufficiently low; and the same reason makes it possible to expand to 5,000 passages in v2.
+
+**Infrastructure 3: Open-source evaluation frameworks.** The evaluation frameworks for machine-learning models have been standardized over the past five years. Tools such as HuggingFace, MLflow, and Weights & Biases make it possible to record and publish evaluation results in reproducible form. v2 will use these existing tools to standardize Saju evaluation.
+
+**Infrastructure 4: Consent-based collection of user data.** Since GDPR, the standard for collecting, anonymizing, and deleting user data on the basis of explicit consent has been established. The legal and technical foundation for handling sensitive data such as Saju information is in place.
+
+Had these four infrastructures not been put in place simultaneously, this research would have remained an unrealizable conception.
+
+### 8-6. The Scope of What This Research Promises
+
+By way of a conclusion to this chapter, the following is a precise statement of what this research promises.
+
+This research does not promise that Saju astrology will be correct from the outset. It does not promise that every doctrine of Saju astrology will pass verification. It does not promise that a standard will be established within five years.
+
+What this research does promise is the following.
+
+- To make Saju astrology, for the first time, a discipline whose claims can be pre-registered.
+- To build the infrastructure for weak verification and intermediate verification.
+- To publish all evaluation results — regardless of whether the predictions are confirmed.
+- To record the fact when a doctrine is refuted.
+
+This is not the promise to prove that Saju is true; it is the promise to build the infrastructure on top of which truth-claims about Saju can be made verifiable. The two promises are different. The latter is what this research commits to.
+
+---
+# Part III. The Architecture of LLMs and Their Application to Saju
+
+This part is the most technical of the whitepaper. It is also, however, the heart of this research. We describe at the system-design level how the methodology of LLMs can be applied to Saju astrology, and how it is being applied.
+
+## Chapter 9. Transformers and the Attention Mechanism
+
+### 9-1. The Basic Operating Principle of LLMs
+
+The core task that an LLM (Large Language Model) performs is *next-word prediction*. Given the words that have come before, the model computes which word is most probable as the next. By repeating this task one word at a time, long sentences are produced.
+
+This simple definition encompasses the whole of an LLM system. The sophisticated answers produced by ChatGPT, Claude, Gemini, and the like are all the cumulative result of predicting the next word one at a time.
+
+The pivotal question is *how the next word can be predicted accurately*. The current standard answer to this question is the *Transformer* architecture.
+
+### 9-2. The Limits Before the Transformer
+
+Language models prior to 2017 were chiefly of the RNN (Recurrent Neural Network) family, which processed words sequentially. The model would read the words one by one, holding the information of the few preceding words in memory and using it to predict the next.
+
+The limit of this approach lay in poor handling of relations between words far apart from one another. In a sentence such as "Yesterday I met a friend at Gwanghwamun, and that friend told me a really important story. The story is as follows," to figure out what "the story" refers to, one has to look back two sentences. RNNs tend to fade earlier information as time passes, and so they were vulnerable on this kind of long-range dependency.
+
+### 9-3. The Introduction of the Attention Mechanism
+
+The 2017 paper "Attention Is All You Need" proposed a structure in which every word is directly connected to every other word. When a sentence is fed in, each word looks at all the other words in the sentence simultaneously and decides its own meaning. The word "the story" looks at *that friend, at Gwanghwamun, yesterday, important* all at once, and the model — through learned weights — decides which of them to pay greater attention to. This mechanism of attending is *Attention*.
+
+The neural-network architecture whose core is this attention mechanism is the Transformer.
+
+### 9-4. The Transformer's Operating Procedure
+
+The operation of a Transformer can be summarized in stages as follows.
+
+**Stage 1 — Word vectorization.** Each word in the input sentence is converted into a vector — an array of numbers. The word "cat", for example, is represented by a 768-dimensional vector — that is, by 768 numbers. This conversion is called *word embedding*. The same word is converted to the same vector, and words of similar meaning lie close to one another in vector space.
+
+**Stage 2 — Adding positional information.** Because attention looks at all words simultaneously, ordering information must be supplied separately. "I love you" and "You love me" are made of the same words but in different order. To convey this order to the model, a positional encoding is added to each word vector.
+
+**Stage 3 — Computing attention.** Each word looks at all the other words. For one word A, the attention score with another word B is computed as the dot product of the two vectors. If the two vectors are close, attention is high; if far, low. This attention score is computed for every pair of words, and the new vector for A is produced by combining these scores. This new vector represents A's meaning as influenced by context.
+
+**Stage 4 — Multi-layer iteration.** Stage 3 does not finish in a single pass. A Transformer is typically composed of many layers — 12, 24, or 96. Attention is computed at each layer. The first layers process simple contextual relations, while deeper layers extract abstract and complex semantic relations. It resembles the way a human reader, on first encounter with a text, grasps the surface meaning of words, then the structure of the sentence, and then the intent of the whole text.
+
+**Stage 5 — Predicting the next word.** From the vector that has passed through all the layers, the probability of each possible next word is computed. Probabilities are assigned over all candidates (typically 50,000 to 100,000 words), and the highest-probability word is output.
+
+### 9-5. The Training Procedure
+
+Many weights appear in the five stages above: the weights of attention computation, of positional encoding, of word embedding, and so on. A model such as GPT-4 holds about a trillion weights.
+
+These weights are determined through training. The training procedure is as follows.
+
+1. Vast amounts of text data are fed into the model. Trillions of words of text collected from the internet are used.
+2. Parts of the text are masked, and the model is asked to predict the masked parts.
+3. If the prediction is correct, the weights are kept; if incorrect, the weights are slightly adjusted. This adjustment is performed by the *backpropagation* algorithm.
+4. Steps 1–3 are repeated hundreds of millions of times.
+
+This iteration is the reason vast computing resources are required. Training GPT-4 incurred GPU costs on the order of millions of dollars.
+
+As a result of this process, the model learns the statistical patterns of language. Which words frequently follow which, which meanings are activated in which contexts, and so on. When training has progressed sufficiently, the model operates *as if* it understands the meaning of sentences.
+
+This "as if" is the locus of academic dispute in the LLM field. Whether the model actually understands, or only imitates statistical patterns with great refinement, is a debated question. Within the scope of this research, the usefulness of the result matters more than the dispute itself.
+
+### 9-6. Implications for Application to Saju Astrology
+
+From the operating principles of LLMs, two insights bearing directly on Saju applications can be drawn.
+
+**Insight 1: Meaning can be expressed as coordinates.** The meaning of a word — whether in 768 dimensions or 1,536 — is expressed as a vector, that is, as coordinates. In this coordinate space, distance corresponds to semantic similarity. This point is decisive for Saju. If the texts of five canonical works and a thousand commentators can all be mapped into the same coordinate space, the subtle differences among schools become geometrically measurable.
+
+**Insight 2: Attention is the simultaneous processing of relations.** The eight characters of a Saju chart determine one another's meaning. The same character behaves differently depending on what character is next to the Day Master, on what character occupies the month branch. This precisely matches the structure of the problem that the attention mechanism handles. Just as the meaning of one word is determined by looking at all other words, the operation of one character is determined by looking at all other characters simultaneously. The structure of a Transformer is naturally isomorphic to the analytic structure of Saju astrology.
+
+These two insights become the starting point for the chapters that follow.
+
+---
+
+## Chapter 10. Embeddings and Latent Space
+
+### 10-1. The Definition of Embedding
+
+An *embedding* is the operation that converts an object into a vector of fixed dimension. The object can be anything — a word, a sentence, a paragraph, an image, an audio clip. The point is that the resulting vectors express semantic similarity as geometric distance.
+
+The classic example of word embedding is *word2vec* (2013). Word2vec converted words into vectors of about 300 dimensions. As a result of this conversion, the following operation became possible.
+
+\`\`\`
+king − man + woman ≈ queen
+\`\`\`
+
+Subtracting the vector for "man" from the vector for "king" and adding the vector for "woman" yields a vector close to the vector for "queen". The fact that this operation is possible is evidence that word embedding has geometrically encoded the structure of meaning into a coordinate space.
+
+### 10-2. The Extension to Sentence Embedding
+
+If words can be embedded, so can sentences. Various techniques exist, ranging from the simple method of averaging word embeddings to refined Transformer-based methods.
+
+OpenAI's *text-embedding-3-small* model converts arbitrary text into a 1,536-dimensional vector. Whether the input is a single word or a paragraph, the dimensionality is the same; all text can therefore be situated in the same coordinate space.
+
+RimSaju v1 used this model to embed 562 passages from the *mingli* canon. Verses from the *Diwen Lu Chanwei*, the *Ziping Zhenquan*, the *Qiongtong Baojian*, and others are each converted into 1,536-dimensional vectors and located as points in the same space.
+
+### 10-3. The Concept of Latent Space
+
+This 1,536-dimensional coordinate space is called *latent space*. The name "latent" comes from the fact that what each dimension of this space means is not explicitly known.
+
+In low-dimensional embeddings such as word2vec, it was sometimes possible to guess that one dimension represented "gender" and another "occupation". In high-dimensional embeddings such as 1,536 dimensions, the meaning of each dimension cannot be directly interpreted. Yet on the whole the structure of meaning is preserved. If the meanings of two texts are similar, their two vectors are close; if different, far apart.
+
+This "latent" character actually works to advantage when applied to Saju astrology. The meaning of a Saju chart is of a kind that resists explicit fragmentation (see Chapter 6). If similarity can be measured *without* performing fragmentation, the difficulty of fragmentation can be bypassed.
+
+### 10-4. Cosine Similarity
+
+The standard way to measure the similarity of two vectors is *cosine similarity*. It measures the angle between two vectors. If the angle is 0°, the two vectors point in the same direction and the cosine value is 1. If the angle is 90°, they are perpendicular, and the cosine value is 0. If 180°, they point in opposite directions and the cosine value is −1.
+
+Accordingly, a cosine similarity close to 1 between the embedding vectors of two texts indicates very similar meaning, close to 0 indicates that the two are unrelated, and close to −1 indicates opposite meaning. In a well-trained embedding model, even unrelated texts have cosine similarities not at 0 but in the range of 0.2–0.4. Texts of similar meaning fall in the range of 0.7–0.9. The shape of this distribution is itself a quality indicator of the embedding model.
+
+In RimSaju v1's RAG pipeline, the cosine similarity between the embedding vector of the user's Saju information and the embedding vectors of the 562 canonical passages is computed. The top N passages with the highest similarity are used as reference materials in the user's reading.
+
+### 10-5. Mapping Saju into Latent Space
+
+The core vision of this whitepaper can be summarized as follows. There are 518,400 possible Saju charts. If all of them are embedded individually, 518,400 points are formed in latent space. These points are not randomly distributed. Saju charts of similar structure lie close together; those of different structure lie far apart.
+
+The passages of the *mingli* canon are embedded into the same space. They too are positioned as points, and each passage may be said to describe a particular region of the latent space. The passage "such-and-such a chart is one of wealth and rank" is mapped to the position closest to the region where such wealth-and-rank charts are clustered.
+
+On this structure, a Saju reading operates as follows.
+
+\`\`\`
+The user's chart → a point in latent space → retrieve canonical passages near that point
+→ provide the retrieved passages as context to the LLM → the LLM generates the reading
+\`\`\`
+
+This is the basic form of RAG (Retrieval-Augmented Generation), the way RimSaju v1 operates, and the starting point of v2. In v2 we go one step beyond this basic form.
+
+---
+
+## Chapter 11. Five Forms of Retrieval-Augmented Generation (RAG)
+
+### 11-1. Why RAG Is Introduced
+
+LLMs are powerful systems but have two fundamental limits.
+
+**Limit 1: They cannot reflect information after the training cutoff.** Once a model has been trained on data up to a particular date, it has no access to information after that date.
+
+**Limit 2: They lack depth in specialized domains.** The fine-grained school distinctions of *mingli*, particular passages of Ren Tiechao's commentary, the differences between Korean Saju and Japanese *chumyeong*, and so on, are areas that a general LLM has not learned in sufficient depth. A general LLM, when queried about Saju, produces answers at the level of popular books.
+
+The means of overcoming these two limits is RAG (Retrieval-Augmented Generation). The basic idea of RAG is simple. **Before having the LLM generate an answer, retrieve relevant material from an external knowledge source and supply it to the LLM together with the prompt.** The LLM is made to answer not on its trained knowledge alone but with reference to the retrieved material.
+
+### 11-2. The Five Forms of RAG
+
+The idea of "retrieving external material and supplying it together with the prompt" can be implemented in many ways. This section sets out the five principal forms.
+
+**Form 1: Basic RAG (Simple Retrieval RAG).** The simplest form. The user's question is embedded, the top N most similar documents are retrieved from an external corpus, and the retrieved documents are injected directly into the LLM, which then generates an answer. Easy to implement, this form works well when retrieval is close to keyword matching, but is weak on queries requiring complex reasoning. RimSaju v1 is close to this form.
+
+**Form 2: Re-ranking RAG.** This adds a stage that re-orders the results of the simple retrieval. After the first retrieval brings back, say, 100 documents, a more refined model evaluates the true relevance of those 100 and narrows them to the top 10. Retrieval accuracy can be raised, but materials missed in the first retrieval ultimately remain unused.
+
+**Form 3: Multi-hop RAG.** Retrieval is performed multiple times in order to answer the query. The model looks at the result of the first retrieval and forms a new search question from it for the next retrieval. In a Saju reading, if the first retrieval yields the result "this chart's Day Master is weak," the next stage retrieves "the *yongsin* that protects a weak Day Master," and the stage after that retrieves "how that *yongsin* operates in luck pillars." Retrieval deepens at each stage. This form is strong on complex reasoning, but the more stages there are the higher the cost, and an error at one stage risks propagating to the next.
+
+**Form 4: Tool-Augmented RAG.** The LLM is allowed to use other tools beyond retrieval. For Saju, deterministic algorithms such as a sexagenary-cycle calculator, a *gyeokguk* classifier, and a *yongsin* extractor can be called as tools. The LLM decides when to call which tool, and uses the tool's result in its own reasoning. Deterministic parts are handled by deterministic algorithms; interpretive parts are handled by the LLM — a division of labor. Both accuracy and consistency are improved. RimSaju v2 actively adopts this form.
+
+**Form 5: Integrated / Hybrid RAG.** All of the above forms are integrated into a single system. At the same time, the data targeted for retrieval is extended beyond vector embeddings to graph structures, structured databases, and external APIs. The architecture this whitepaper proposes as the core of RimSaju v2 is this form, and the next chapter sets it out in detail.
+
+### 11-3. Evolution from v1 to v2
+
+| Item | v1 (current) | v2 (target) |
+|------|--------------|-------------|
+| RAG form | Basic Retrieval | Integrated RAG |
+| Corpus size | 562 passages | 5,000+ passages |
+| Embedding dimension | 1,536 | 1,536 (extended with a domain-adapted model) |
+| Tool use | Sexagenary-cycle calculator only | Adds *gyeokguk* / *yongsin* / Combination–Clash analyzers |
+| Graph structure | None | Saju relation graph introduced |
+| School awareness | Single reading | Per-school reading separation |
+| Multilingual tone | EN/KO/JA translation | Culture-specific reading styles |
+| Evaluation protocol | None | Weak + intermediate verification infrastructure |
+
+The greatest change from v1 to v2 is the introduction of the integrated RAG architecture. The next chapter describes that architecture at the design level.
+
+---
+
+## Chapter 12. The Architecture of an Integrated RAG Engine
+
+### 12-1. Core Design Principle
+
+The core design principle of RimSaju v2 can be summarized as follows.
+
+**Saju analysis must be an integrated system in which text retrieval (Vector), structural analysis (Graph), and LLM reasoning (Reasoning) operate simultaneously.**
+
+The three elements perform distinct roles.
+
+- **Vector**: Represents the texts of the *mingli* canon and Saju charts themselves as points in latent space, and measures semantic similarity.
+- **Graph**: Explicitly represents the relations among the eight characters of a Saju chart (Combination/Clash/Punishment/Harm, the Ten Gods, *gyeokguk*) as nodes and edges.
+- **Reasoning**: An LLM synthesizes the information extracted from the two elements above and produces the linguistic reading delivered to the user.
+
+The architecture that integrates these three elements into a single pipeline, rather than separating them, is the integrated RAG architecture.
+
+### 12-2. The Necessity of the Graph
+
+Vector embedding is a powerful tool, but it has limits in expressing the *explicit structure* of a Saju chart. For instance, when the Day Master *yi*-wood meets an hour stem of *geng*-metal, the heavenly-stem combination *yi-geng he-hua jin* (乙庚合化金) occurs. This combination is not the mere coexistence of two characters; it is a dynamic relation in which two characters combine and transform into a new Five Element, and it is explicitly defined by *mingli* rules.
+
+If one tries to handle this relation with vectors alone, the model has to estimate the concept of *"yi-geng he"* from the statistical patterns of canonical text. Estimation can be inaccurate. There can be cases where the model overlooks a combination, fabricates a wrong combination, or applies the effect of a combination incorrectly.
+
+The solution is to make the Combination/Clash/Punishment/Harm relations explicit as a graph. In the graph, nodes are characters (or the positions those characters occupy), and edges are relation types. Six relation types are defined — Combination, Clash, Punishment, Harm, Generation, and Conquest — and for any pair of characters whether such a relation holds is computed deterministically.
+
+When this graph is supplied alongside the LLM, the LLM does not estimate the Combination/Clash relations but reads them directly from the graph. Accuracy improves dramatically.
+
+### 12-3. The Structure of the Saju Graph
+
+The Saju graph of RimSaju v2 is composed of the following nodes and edges.
+
+**Nodes:**
+
+- Heavenly Stem nodes (4): Year stem, Month stem, Day stem, Hour stem
+- Earthly Branch nodes (4): Year branch, Month branch, Day branch, Hour branch
+- Hidden Stem nodes (8–12): The Heavenly Stems concealed within each Earthly Branch
+- Five Element nodes (5): Wood, Fire, Earth, Metal, Water
+- Ten Gods nodes (10): With the Day Master as reference — *Comparable, Rob Wealth, Eating God, Hurting Officer, Direct Wealth, Indirect Wealth, Direct Officer, Seven Killings, Direct Resource, Indirect Resource*
+- *Gyeokguk* node (variable): The *gyeokguk* determined by the chart
+- *Yongsin* node (variable): The pivotal Five Element that brings the chart into balance
+
+**Edges (relation types):**
+
+- Combination edges: Heavenly Stem combinations · Earthly Branch six-combinations · Earthly Branch three-combinations · Earthly Branch directional combinations
+- Clash edges: Heavenly Stem clashes · Earthly Branch clashes
+- Punishment edges: Three Punishments · Self-Punishment
+- Harm edges: Six Harms
+- Generation edges: Five-Element mutual-generation relations
+- Conquest edges: Five-Element mutual-conquest relations
+- Ten-God edges: The Ten-God relation that a stem or branch holds toward the Day Master
+- *Gyeokguk* edge: Which *gyeokguk* the nodes form
+- Rooting edges (*tonggeun*, 通根): In which Hidden Stem of which Earthly Branch a Heavenly Stem is rooted
+- Manifestation edges (*tuchul*, 透出): The relation in which a Hidden Stem of an Earthly Branch is revealed in a Heavenly Stem
+
+This graph is generated automatically by deterministic algorithms immediately after the sexagenary-cycle calculation. Only those parts on which there is no inter-school disagreement — the *mingli*-agreed parts — are included in the graph. Parts where opinion is divided (e.g., the criteria for *gyeokguk* classification) are produced as separate graphs per school.
+
+### 12-4. The Operating Flow of the Integrated RAG Pipeline
+
+When a user requests a Saju reading, the Integrated RAG of RimSaju v2 operates in the following nine stages.
+
+**Stage 1 — Input processing.** The user's birth information is received. After apparent-solar-time correction, the eight characters (the Saju chart) are extracted.
+
+**Stage 2 — Graph generation.** A Saju graph is generated from the eight characters by deterministic algorithms. All Combination/Clash/Punishment/Harm/Generation/Conquest/Ten-God/Rooting/Manifestation relations are represented as nodes and edges.
+
+**Stage 3 — School selection.** Depending on the user's request type or the system's default setting, it is decided which school's reading to prioritize. The *gyeokguk* school, the *eokbu* school, or the *johu* school is selected; or composite weights are set for an eclectic reading.
+
+**Stage 4 — Determining *gyeokguk* and *yongsin*.** *Gyeokguk* and *yongsin* are determined by the algorithm of the selected school. The *gyeokguk* of the same chart can differ across schools, and that difference is preserved as is.
+
+**Stage 5 — Vector retrieval.** The graph structure and *gyeokguk* information are serialized as text, and the embedding of that text is searched in the latent space. The top N most similar passages from the canonical corpus are retrieved. Which canonical works to prioritize is adjusted by per-school weights.
+
+**Stage 6 — Tool calls.** When the LLM judges that further information is needed, additional tools are called. For instance, a *daewoon*/*seoun* analyzer is called to compute the fortune of a particular period.
+
+**Stage 7 — Reading generation.** The LLM synthesizes the graph information, the retrieved passages, and the tool results, and produces a linguistic reading. The user's language environment (EN/KO/JA) and the reading tone (Chinese style / Japanese style / Korean style) are applied.
+
+**Stage 8 — Citation.** Each part of the reading is output together with citation information indicating which canonical passage it was based on and which school's algorithm was followed. The user can trace the basis of the reading.
+
+**Stage 9 — Consistency verification.** The output reading is automatically verified for consistency with the input Saju graph. If the reading mentions a relation not present in the graph, or contains a claim that contradicts the graph, a warning is raised.
+
+These nine stages constitute the entire operating flow of the RimSaju v2 integrated RAG pipeline.
+
+### 12-5. Modularization by School
+
+The per-school algorithms appear in Stage 7 above. This is another core piece of v2's design. Each school is implemented as a separate module.
+
+- *Gyeokguk* school module: *Ziping Zhenquan* algorithm
+- *Eokbu* school module: *Diwen Lu* strength-judgment algorithm
+- *Johu* school module: *Qiongtong Baojian* month-branch-priority algorithm
+- *Tongbyeon* school module: *Diwen Lu Tongbyeon* algorithm
+- *Sinsal* school module: *Sanming Tonghui Sinsal* algorithm
+- *Maengpa* school module: blind-school algorithm (limited to verifiable parts)
+- *Sinbeop* school module: statistical algorithm (experimental)
+
+Each module receives the same input (the Saju graph) and produces a different output (its own *gyeokguk*, *yongsin*, and reading emphasis). This difference systemically preserves the differences among schools.
+
+The user can choose which school's reading to receive. Alternatively, the system automatically recommends the school best suited to the chart's characteristics. The option to display readings from multiple schools side by side is also provided.
+
+The greatest value of this modularization is that it makes the differences among schools *measurable*. For the same chart, the difference between the readings produced by the *gyeokguk* school module and the *eokbu* school module can be measured as a distance in latent space. This measurement is the technical foundation of the *map of school divergence*.
+
+### 12-6. Domain Adaptation of the Embedding Model
+
+Finally, an improvement to the embedding model itself is required. OpenAI's general-purpose embedding model (text-embedding-3-small) can process classical-Chinese *mingli* text, but lacks domain depth. The fine difference between *Direct Officer* and *Indirect Officer* may not be sufficiently separated in the embedding space, and the same holds for the difference between *yi*-wood and *jia*-wood.
+
+The solution is *domain adaptation*. The embedding model is further trained on a *mingli* corpus. Two methods are possible.
+
+**Method 1: Contrastive learning.** Pairs of *mingli* texts that have the same meaning, and pairs that have different meanings, are presented to the model. The weights are adjusted so that the same meanings embed close to each other and different meanings embed far apart.
+
+**Method 2: Retrieval-based fine-tuning.** A *mingli* scholar labels which passage should match which Saju chart in real readings, building a labeled dataset; the model is then fine-tuned on that data.
+
+Both methods require labeling cost and time. At the v2 stage, the plan is to start with about ten thousand labeled records and expand from there.
+
+Once this domain adaptation is complete, the domain accuracy of the embedding will be improved relative to the general-purpose model (estimated retrieval-accuracy improvement of about 30–50%). This improvement carries through to a quality improvement in the entire integrated RAG pipeline.
+
+### 12-7. Operating Trace — A Concrete Path Through the Nine Stages
+
+This section traces *how the nine-stage pipeline of 12-4 actually operates with real data*. Stepping down from the abstract stage specification, we make explicit the *input/output data formats of each stage*.
+
+**Input data (User Input)**
+
+\`\`\`
+{
+  "birth_date": "1980-04-06",
+  "birth_time": "12:00",
+  "birth_location": {
+    "city": "Seoul",
+    "country": "KR",
+    "longitude": 126.978,
+    "latitude": 37.566
+  },
+  "calendar_type": "lunar",
+  "user_language": "ko",
+  "school_preference": "auto"
+}
+\`\`\`
+
+**Stage 1 output — Sexagenary-cycle conversion result (Manseryeok Output)**
+
+\`\`\`
+{
+  "year_pillar":  {"stem": "庚", "branch": "申"},
+  "month_pillar": {"stem": "庚", "branch": "辰"},
+  "day_pillar":   {"stem": "乙", "branch": "酉"},
+  "hour_pillar":  {"stem": "壬", "branch": "午"},
+  "true_solar_time_offset": "-32min",
+  "season_node": "清明",
+  "day_master": "乙"
+}
+\`\`\`
+
+**Stage 2 output — Saju graph (Saju Graph Output)**
+
+The graph is serialized as a list of nodes and a list of edges.
+
+\`\`\`
+nodes: [
+  {id: "Y_stem",  type: "stem",   value: "庚", element: "金", yin_yang: "陽"},
+  {id: "M_stem",  type: "stem",   value: "庚", element: "金", yin_yang: "陽"},
+  {id: "D_stem",  type: "stem",   value: "乙", element: "木", yin_yang: "陰", is_day_master: true},
+  {id: "H_stem",  type: "stem",   value: "壬", element: "水", yin_yang: "陽"},
+  {id: "Y_branch", type: "branch", value: "申", element: "金", hidden_stems: ["庚","壬","戊"]},
+  {id: "M_branch", type: "branch", value: "辰", element: "土", hidden_stems: ["戊","乙","癸"]},
+  {id: "D_branch", type: "branch", value: "酉", element: "金", hidden_stems: ["辛"]},
+  {id: "H_branch", type: "branch", value: "午", element: "火", hidden_stems: ["丁","己"]}
+]
+
+edges: [
+  {type: "ten_god", from: "D_stem", to: "Y_stem", relation: "正官"},
+  {type: "ten_god", from: "D_stem", to: "M_stem", relation: "正官"},
+  {type: "ten_god", from: "D_stem", to: "H_stem", relation: "正印"},
+  {type: "harm",    from: "D_branch", to: "H_branch", relation: "酉午害"},
+  {type: "half_combination", nodes: ["Y_branch","M_branch"], target_element: "水"},
+  {type: "controls", from: "Y_stem", to: "D_stem", source_element: "金", target_element: "木"}
+]
+\`\`\`
+
+This graph is generated automatically by deterministic algorithms. For the same input, the same graph is always produced.
+
+**Stages 3–4 output — School-module call and *gyeokguk*/*yongsin* determination**
+
+For the selected school, the *gyeokguk*/*yongsin* judgment algorithm is run. The result of calling the *gyeokguk* school (the *Ziping Zhenquan* algorithm):
+
+\`\`\`
+{
+  "school": "Gyeokgukpa",
+  "format": "從勢格 (Special Format)",
+  "format_reason": "The Hidden Stems of the Month Branch 辰 — 戊·乙·癸 — are not manifested in the Heavenly Stems; the Day Master 乙木 is weak; the Metal force is overwhelming",
+  "yongsin_primary": "金",
+  "yongsin_secondary": "水",
+  "confidence": 0.78
+}
+\`\`\`
+
+The result of calling the *eokbu* school (the *Diwen Lu* strength algorithm) produces a different *gyeokguk* and *yongsin*. The difference between the two results becomes the *school-divergence data*.
+
+**Stage 5 output — Vector retrieval results**
+
+The school-specific serialized text of the graph is embedded, and the top N passages of the corpus are retrieved.
+
+\`\`\`
+search_query_embedding: [1536-dim vector]
+top_k_results: [
+  {
+    passage_id: "JCJM_p142",
+    source: "Ziping Zhenquan",
+    chapter: "Special Formats",
+    similarity: 0.847,
+    school_weight: 1.0
+  },
+  {
+    passage_id: "JCS_p089",
+    source: "Diwen Lu Chanwei",
+    chapter: "On Following the Form — Ren Tiechao's Commentary",
+    similarity: 0.821,
+    school_weight: 0.7
+  },
+  ... (N total)
+]
+\`\`\`
+
+The school weights (*school_weight*) are adjusted by the school the user has chosen. When the *gyeokguk* school is chosen, *Ziping Zhenquan* passages receive a weight of 1.0; other canonical works receive 0.5 to 0.8.
+
+**Stage 6 output — Tool-call result (Tool Calls)**
+
+When the LLM judges that further information is needed, it calls deterministic tools.
+
+\`\`\`
+tool_call: "daewoon_calculator"
+tool_input:  {birth_pillar_set, gender, year_of_inquiry: 2026}
+tool_output: {
+  current_daewoon: "丙申",
+  daewoon_age_range: "44-53",
+  daewoon_ten_god_to_day_master: "正官",
+  daewoon_element_balance_shift: "金 +0.3"
+}
+\`\`\`
+
+**Stage 7 output — LLM reading generation**
+
+All the contexts above (graph + *gyeokguk*/*yongsin* + retrieved passages + tool results) are assembled as the LLM system prompt. The LLM generates the reading *only on top of this context*; it does not produce Combination/Clash relations or doctrinal claims that are not in the context.
+
+\`\`\`
+output_structure: {
+  summary: "...",
+  format_explanation: "...",
+  yongsin_explanation: "...",
+  career_section: "...",
+  relationships_section: "...",
+  current_daewoon_section: "...",
+  citations: [
+    {sentence_id: 1, source_passage: "JCJM_p142"},
+    {sentence_id: 2, source_passage: "JCS_p089"},
+    ...
+  ]
+}
+\`\`\`
+
+**Stage 8 — Citation**
+
+Each item in the citations field above is shown as an inline citation on the user's screen. The user can verify which sentence was derived from which canonical passage.
+
+**Stage 9 — Consistency verification**
+
+A verification algorithm automatically checks that each claim of the reading is not in contradiction with the Saju graph. For instance, if the reading claims "Wood is strong in this chart" but the graph shows only one Wood node and five Metal nodes — this is classified as a contradiction and an alarm is raised. When a contradiction is found, the LLM is asked to regenerate, or the reading is blocked.
+
+**Significance of the operating trace**
+
+Two points become clear in this nine-stage trace. First, the *deterministic stages* (1, 2, 3, 4, 6, 9) are separated from the *reasoning stages* (5, 7, 8). The output of the deterministic stages is always the same; only the reasoning stages depend on the LLM. Second, the reasoning stages also *receive the output of the deterministic stages as their context*, so free hallucination is blocked. If the LLM tries to invent a Combination/Clash relation or a doctrinal view outside the context, the Stage 9 consistency verification catches it.
+
+This structure is the technical foundation of the *reproducibility* and *academic traceability* of this system.
+
+### 12-8. The Limits of the Fragmentary Scoring Approach and This Research's Bypass Strategy
+
+This section makes explicit the position of this research toward the approach that reduces Saju analysis to *summation and weighted averages of numerical scores*. This approach was attempted in the 1980s under the expert-system paradigm, and has been repeatedly attempted in *mingli* by some contemporary researchers. This research does not adopt that approach. The reasons follow.
+
+**Limit 1: Arbitrariness of weights.** Every attempt to score in the form *Heavenly Stem 1.0, Earthly Branch 0.7, Hidden Stem 0.3* runs into the limit that *the weights themselves are arbitrary*. There is no academic ground for choosing 1.0 for the Heavenly Stem rather than 0.9. If the weights are determined by *mingli* scholarly consensus, that consensus itself splits along school lines; if determined from data, the bias of the data sample is reflected in the weights as it stands.
+
+**Limit 2: Information loss in dimensional reduction.** The eight characters of a Saju chart, together with the Combination/Clash/Punishment/Harm and Ten-God relations among them, contain dozens of dimensions of information. Reducing them to three to five axes (e.g., agency, stability, expressiveness) compresses every chart into that narrow coordinate space, and the differences that are *essential* in *mingli* — for example, the difference between a *jia*-wood Day Master and a *yi*-wood Day Master, the difference between *jia*-wood in the month of *yin* and *jia*-wood in the month of *zi* — collapse into the same coordinate values.
+
+**Limit 3: Loss of school divergence.** The fragmentary scoring approach assumes a single formula. Yet the central asset of *mingli* is the *distinct analytic systems* of the *gyeokguk*, *eokbu*, *johu*, and *tongbyeon* schools. Reducing them to a single formula causes school divergence itself to be lost from the system. This amounts to discarding the academic asset of *mingli* at the system level.
+
+**Limit 4: The illusion of verifiability.** Fragmentary scoring appears verifiable on the surface (*"agency = 0.8"*). But because the *grounds* of the score are arbitrary weights, when the score does not statistically associate with life events — *the formula is amended and the answer changes*. The formula has so many degrees of freedom that *post-hoc fitting* to any data is possible. This is the form of the *degenerative research programme* defined in Chapter 8 of this whitepaper, and runs in exactly the opposite direction of the conversion to a *progressive research programme*.
+
+**The bypass strategy of this research.**
+
+This research does not reduce a Saju chart to *explicit numerical coordinates*. Instead it treats the chart as a *point in an embedding latent space*. What each dimension of the latent space means is not defined in advance; instead the *naturally emerging semantic structure* that arises from training on the *mingli* canonical corpus is exploited. This is the standard approach of modern LLMs such as word2vec, BERT, and GPT, and is a methodology already validated in other domains such as medicine, law, and the humanities.
+
+*Not performing fragmentation* is the core design principle of this research. Fragmentation is performed only at the final output stage (the stage that generates a reading in language); all internal representations prior to that are kept in the continuous form of latent space. This design is the *fragmentation-bypass* direction defined in Chapter 6.
+
+That said, this research does *not entirely reject* deterministic algorithms. The *mingli*-agreed domain (Combination/Clash/Punishment/Harm, the Ten-God relations, *tonggeun*, *tuchul*) is made explicit by deterministic algorithms in graph form (see 12-3). But this deterministic part is *a relation graph, not numerical scores*. The graph expresses *which character bears which relation to which other character* — it does not reduce *the strength of that relation to a single number*.
+
+As a result of this bypass strategy, the system of this research simultaneously possesses the following three properties.
+
+- **Reproducibility**: The deterministic graph generation and the algorithms of the school modules produce the same output for the same input.
+- **Academic depth**: The fine semantic differences in the canonical corpus are preserved in latent space and exploited in reading generation.
+- **Preservation of school divergence**: Seven school modules produce different *gyeokguk*, *yongsin*, and readings on top of the same graph.
+
+The fragmentary scoring approach cannot achieve these three properties simultaneously.
+
+---
+# Part IV. The Execution Plan for RimSaju v2
+
+The discussion through Part III has dealt with the methodological justification of this work. Part IV deals with the question of how to actually build that methodology. The build schedule, technical specifications, evaluation metrics, and public infrastructure are the topics of this part.
+
+## Chapter 13. RimSaju v1 — The Industry's First RAG-Based Saju Engine
+
+### 13-1. Defining the Position of v1
+
+RimSaju v1 (released April 2026) is *the first production engine in the field of Saju astrology to apply a RAG (Retrieval-Augmented Generation) architecture*. This chapter sets out the technical stack of v1 by system component, and at the same time describes its structural differentiations from other Saju services on the market.
+
+The general industry Saju AI service is typically built on a *single-inference* structure that feeds Saju information directly to an LLM and delivers the output to the user as is. In this structure the LLM produces readings on the basis of *popular-book-level Saju knowledge* contained in its training data. The academic depth of canonical texts is not reflected in the reading, and citation tracing is impossible in principle.
+
+RimSaju v1 differs from this structure essentially. It is equipped with a RAG pipeline that maps the canonical corpus into latent space, retrieves from it, and injects the retrieved passages into the LLM's context. This chapter sets out v1's seven system components in turn.
+
+### 13-2. The System Components
+
+**Component 1: Apparent-solar-time-corrected sexagenary calendar engine.**
+
+v1 receives the user's birth information (year, month, day, hour, region) and, after apparent-solar-time correction, extracts the Saju chart in the sexagenary cycle. The correction precision is on the order of ±15 minutes, equivalent to that of industry-standard sexagenary-calendar libraries. Time-zone and longitude correction are applied automatically for major cities in Korea, Japan, China, and the United States. The starting time of each of the 24 solar terms, the handling of the *zi-shi* hour (early *zi*-hour and late *zi*-hour), and time-of-day correction by longitude are all handled within a single module.
+
+**Component 2: Deterministic *mingli* analysis layer.**
+
+On top of the sexagenary calendar output, the extraction of the Day Master, the computation of the Five-Element distribution, the mapping of Ten-God relations, and the identification of Combination/Clash/Punishment/Harm relations are performed automatically by deterministic algorithms. The output of this layer falls within the *mingli*-agreed domain, so the results are consistent regardless of school. The analytic accuracy of v1 is 100% in this layer; only the school-dependent judgments of *gyeokguk* and *yongsin* depend on LLM inference at later stages.
+
+**Component 3: Canonical embedding corpus.**
+
+562 passages extracted from the five major canonical works — *Diwen Lu Chanwei*, *Ziping Zhenquan*, *Qiongtong Baojian*, *Yuanhai Ziping*, and *Mingli Zhengzong* — have been embedded by the OpenAI *text-embedding-3-small* model into 1,536-dimensional vectors and are stored in Supabase's pgvector database. This corpus is *the first production database in the field of Saju astrology to operate, in embedded form, a corpus of academically validated canonical works*.
+
+The choice of embedding model is based on internal benchmark results comparing the classical-Chinese accuracy of OpenAI text-embedding-3-small with that of Google Gemini Embedding. On the semantic separation of classical-Chinese *mingli* texts, the OpenAI model showed about 2–4% higher accuracy, and on this basis the OpenAI model was adopted.
+
+**Component 4: Retrieval-Augmented Generation (RAG) pipeline.**
+
+When the user's input is embedded, the cosine similarity with the 562 canonical passages in the 1,536-dimensional latent space is computed, and the top N passages are extracted as context for reading generation. In this process, the LLM's output is no longer a *statistical average of training data* but a *reading grounded in concrete passages of the canon*. The retrieval-augmentation procedure applies equally to free and paid readings, and the system has a safety structure that automatically falls back to the existing reading logic in case of RAG-call failure.
+
+**Component 5: Multi-LLM inference and the five-stage fallback.**
+
+Reading generation is operated under a five-stage fallback structure. The first stage is Google Gemini, the second is Anthropic Claude, and the third is a deterministic fallback based on cache; these are called sequentially. In situations such as a model's response failure, hitting a rate limit, or evading a policy violation, the system automatically transitions to the next stage; this structure maintains *roughly 99.9% availability of reading generation*. This fallback structure applies to *mingli* reading generation a pattern borrowed from mission-critical systems in medicine and finance.
+
+**Component 6: Multilingual output.**
+
+Readings in three languages — Korean, English, and Japanese — are output at a level that reads naturally to a speaker of each language. The structure is not simple machine translation; the LLM directly generates the reading according to each language environment. At the v1 stage, however, this remains at the level of outputting the same analytic result in three languages; differences in culture-specific reading style (Chinese-style directness, Japanese-style caution, Korean-style emotional warmth) will be introduced at the v2 stage.
+
+**Component 7: Cloud infrastructure.**
+
+Vercel's edge network for global automatic deployment, Supabase Pro's distributed PostgreSQL database (with the pgvector extension), and Cloudflare R2 object storage are integrated to constitute the production environment. Cumulative downtime since launch has been within thirty minutes, and response latency (p95 latency) for reading generation is operated stably in the range of 4–7 seconds.
+
+### 13-3. Comparison Against the Market
+
+A comparison of v1 with other Saju AI services on the market is summarized below. The items of comparison are the core elements of the academic standardization that this whitepaper defines.
+
+| Item | General Saju AI services | RimSaju v1 |
+|------|--------------------------|------------|
+| Sexagenary calendar precision | ±day or ±hour | ±15 minutes (apparent-solar-time correction) |
+| Canonical-corpus embedding | None | 562 passages (5 canonical works) |
+| Reading generation method | Single LLM inference | RAG retrieval + LLM inference |
+| LLM fallback structure | Single LLM | Five-stage fallback |
+| Availability | Average 95–98% | 99.9% |
+| Multilingual support | Translation after output | Direct generation per language |
+| Citation traceability | Not possible | Internal tracing (UI exposure to be introduced in v2) |
+| Infrastructure | Single region | Global edge network |
+
+This comparison makes the position of RimSaju v1 clear. v1 possesses *an architecture a generation ahead of the market average for Saju AI*, and the *foundational infrastructure* of the academic standardization that this whitepaper defines is already operating in the production environment.
+
+### 13-4. Areas of Extension in v2
+
+v1 corresponds to first-generation RAG (Basic RAG, simple-retrieval RAG). On top of the foundational infrastructure that v1 has, v2 extends the system into the following areas. These extension areas are not defects of v1 but *new next-generation components introduced on top of v1's foundation*.
+
+**Extension area 1: School modularization.** The eclectic readings of v1 are close to the average of Korean *mingli*. v2 introduces seven school modules — *gyeokguk*, *eokbu*, *johu*, *tongbyeon*, *sinsal*, *maengpa*, and *sinbeop* — extending the system so that the user can choose a school or compare readings across schools.
+
+**Extension area 2: Academic expansion of the corpus.** The 562 passages of v1 cover the five major canonical works. v2 expands to 56 works and 5,000+ passages including Qing-dynasty commentaries, the modern *pingzhu* of Xu Lewu and Wei Qianli, the doctrines of Park Jae-wan and Lee Seok-young in Korea, and Japanese *chumyeong* studies. This is the stage at which the threshold of academic depth is crossed.
+
+**Extension area 3: Domain-adapted embedding.** v1 uses OpenAI's general-purpose embedding model. v2 builds a *domain-adapted* embedding model from contrastive-learning data on the order of ten thousand pairs in the *mingli* domain, refining the fine semantic separation of classical-Chinese *mingli* texts.
+
+**Extension area 4: Saju graph and tool calls.** In v1, Combination/Clash relations are conveyed to the LLM as text descriptions. In v2 the Saju graph structure defined in Chapter 12 of Part III is introduced, making Combination/Clash/Rooting/Manifestation relations explicit as nodes and edges, and extending the system into a tool-augmented RAG in which the LLM dynamically calls deterministic tools such as a *gyeokguk* classifier, a *yongsin* extractor, and a *daewoon* analyzer.
+
+**Extension area 5: Citation-display UI.** v1 traces the source of a reading internally but does not expose it on the user's screen. v2 visualizes which part of the reading was derived from which passage of which canonical work in inline-citation form. The user can directly trace the academic basis of the reading.
+
+**Extension area 6: Evaluation protocol and statistical-verification infrastructure.** v1 monitors operational quality through indirect indicators such as user satisfaction. v2 builds the evaluation protocol defined in Chapter 15 (the metrics for reproducibility, continuity, doctrinal fidelity, and school divergence) as automated measurement infrastructure, and constructs the user-data collection, anonymization, and analysis pipeline for the statistical pattern verification of v3, together with a pre-registration database.
+
+### 13-5. Strategic Continuity from v1 to v2
+
+The relation between v1 and v2 is one of *extension*, not *replacement*. Of v1's seven components, the sexagenary-calendar engine (Component 1), the deterministic analysis layer (Component 2), the canonical embedding corpus (Component 3), the multi-LLM fallback (Component 5), the multilingual output (Component 6), and the cloud infrastructure (Component 7) are kept as they are in v2 and are refined and extended. Only v1's RAG pipeline (Component 4) is *rebuilt* into v2's integrated RAG architecture.
+
+This continuity is decisive from the standpoint of system stability. v1 users will be able to use the new features at the moment of v2's release *without service interruption*, and the user data, corpus, and evaluation labels accumulated in v1 will all be carried over to the v2 environment. That is to say, v1 is not a *prototype* of v2 but its *foundation infrastructure*; v2 is not a *separate project* but the *academic and functional evolution* of v1.
+
+This point is central to the execution strategy of this research. Academic standardization is not work completed in a single stroke; it is work that is accumulated step by step on top of an operating system, and RimSaju has already passed the first generation of that accumulation in a production environment.
+
+---
+
+## Chapter 14. v1 → v2 → v3 — The Four-Year Build Roadmap and the Completeness of v2
+
+### 14-1. The Structure of the Integrated Roadmap
+
+This research organizes RimSaju into three stages: v1, v2, and v3. v1 is already the industry's first RAG-based *mingli* engine in operation (Chapter 13); v2 is a two-year build (Q3 2026 – Q2 2028) that completes all six layers promised by this whitepaper *in their minimum-viable form*. v3, on the foundation of v2, performs an additional two-year build (Q3 2028 – Q2 2030) to *extend the depth*. This chapter specifies the full four-year roadmap and the deliverables of each stage.
+
+The position of the three stages is defined as follows.
+
+| Stage | Period | Core Identity | System State at End |
+|-------|--------|---------------|---------------------|
+| v1 | up to Q2 2026 (in operation) | Industry's first RAG-based *mingli* engine | 562-passage Basic RAG, five-stage fallback, 99.9% availability |
+| v2 | Q3 2026 – Q2 2028 (2 years) | **An academic-standardization system in which all six layers operate** | 5,000+ passage Integrated RAG, seven school modules, Saju graph, automated weak-verification measurement, Open Benchmark v0.5 |
+| v3 | Q3 2028 – Q2 2030 (2 years) | **Expansion of depth and entry into statistical verification** | 10,000+ passage multilingual corpus, statistical-pattern verification results, accumulating global academic citations, Open Benchmark v1.0 |
+
+The core point of this structure is that *v2 is itself a complete construction*. At the end of v2, all the layers promised by this whitepaper — sexagenary-calendar refinement, corpus expansion, the Saju graph, school modules, the integrated RAG pipeline, the evaluation protocol, and the open benchmark — are in operating form. v3 is not the *addition of a new system*, but the *expansion in depth, range, and multilingual coverage* of the existing system.
+
+### 14-2. v2 — The Completion of the Six Layers (2 years: Q3 2026 – Q2 2028)
+
+The build schedule of the six layers of v2 is as follows.
+
+| Layer | Work | Duration | Completion |
+|-------|------|----------|------------|
+| Layer 1 | Sexagenary-calendar refinement (±1 minute) | 3 months | Q3 2026 |
+| Layer 3-α | School-divergence comparison feature (early release) | 6 months | Q4 2026 |
+| Layer 2 | Corpus expansion + domain-adapted embedding | 9 months | Q1 2027 |
+| Layer 3 | Saju graph + 7 school modules | 12 months | Q3 2027 |
+| Layer 4 | 9-stage Integrated RAG pipeline | 9 months | Q1 2028 |
+| Layer 5 | Automated measurement of evaluation protocol (weak verification) | 12 months | Q2 2028 |
+| Layer 6 | Open Benchmark v0.5 (2,000 charts) | 6 months | Q2 2028 |
+
+**Grounds for the time compression.** There are three grounds on which v2 can complete all six layers within two years. First, since v1 is already operating in production, parts of Layers 1, 2, and 5 (fallback and infrastructure) are reused as existing assets. Second, Layers 3, 4, and 5 proceed in part in parallel. While the design of the Saju graph (Layer 3) is in progress, the interface definition of the Integrated RAG (Layer 4) begins concurrently, and the metrics of the evaluation protocol (Layer 5) become applicable from the moment Layer 3 is released. Third, Layers 5 and 6 correspond to internal use and external publication of the same evaluation infrastructure, and so are operated as one.
+
+### 14-3. The Six Layers of v2 — Detailed Tasks and Deliverables
+
+**Layer 1 — Sexagenary calendar refinement (Q3 2026, 3 months)**
+
+The ±15-minute precision of v1 is improved to within ±1 minute in v2.
+
+1) Equation-of-time correction: Owing to the non-uniformity of the Earth's rotational speed, even at the same clock time the apparent solar time differs by up to ±16 minutes depending on the season. v2 computes the equation-of-time correction at the minute level, matched to the user's date of birth.
+
+2) Astronomical computation of the timing of the 24 solar terms: Using the NASA JPL ephemeris, the start times of the 24 solar terms are computed at minute-level precision.
+
+3) Refinement of birth-region coordinates: Automatic conversion of city name to longitude/latitude, plus an option for direct user input of coordinates.
+
+4) Optionalization of *zi-shi* (子時) handling per school: The Korean separation of early and late *zi*-hour (野子時/朝子時) and the Japanese unified-*zi* doctrine are offered as user choices.
+
+Deliverable: A library that computes Saju charts at minute-level precision for any time and any region in the world. Released separately as an open-source package.
+
+**Layer 2 — Vectorized canonical-corpus expansion (Q1 2027, 9 months)**
+
+| Category | v1 | At end of v2 |
+|----------|----|--------------|
+| Song-Yuan texts | 1 | 5 |
+| Ming texts | 1 | 8 |
+| Qing texts | 3 | 15 |
+| Modern commentaries | 0 | 10 |
+| Korean *mingli* works | 0 | 5 |
+| Japanese *chumyeong* | 0 | 3 |
+| Modern scholarly works | 0 | 10 |
+| **Total number of texts** | **5** | **56** |
+| **Number of embedded passages** | **562** | **5,000+** |
+
+Alongside the qualitative expansion, the domain adaptation of the embedding model proceeds on two parallel tracks. Track A (contrastive learning): labeling of ten thousand *mingli*-text pairs. Track B (retrieval evaluation): labeling of one hundred actual Saju cases. As a result of the domain adaptation, retrieval accuracy is estimated to improve by 30–50% relative to the general-purpose model.
+
+**Layer 3 — Saju graph and school modules (Q3 2027, 12 months)**
+
+1) Saju-graph automatic generator: The graph structure defined in 12-3 — Heavenly Stems, Earthly Branches, Hidden Stems, the Five Elements, the Ten Gods, *gyeokguk*, *yongsin* nodes, and Combination/Clash/Punishment/Harm/Generation/Conquest/Rooting/Manifestation edges — is generated automatically from the sexagenary-calendar result by deterministic algorithms.
+
+2) Seven school modules: *Gyeokgukpa* (*Ziping Zhenquan*), *Eokbupa* (*Diwen Lu* strength judgment), *Johupa* (*Qiongtong Baojian* month-branch priority), *Tongbyeonpa* (*Diwen Lu Tongbyeon*), *Sinsalpa* (*Sanming Tonghui Sinsal*), *Maengpa* (verifiable parts of the blind-school), and *Sinbeop* (statistical algorithms). Each module produces different output for the same input.
+
+3) School-divergence measurement: For the same chart, the differences among the outputs of the seven modules are measured as distances in latent space. The distribution of *convergence regions* and *divergence regions* forms the empirical data of the map of school divergence.
+
+**Layer 3-α — Early release of the school-divergence comparison feature (Q4 2026)**
+
+Nine months ahead of the full completion of Layer 3, the school-divergence comparison feature alone is separated and released in Q4 2026. It is a feature that displays the readings of the *gyeokguk*, *eokbu*, and *johu* schools in parallel for the same chart at once. This is the first time in the history of *mingli* that such systematic automation is offered to users.
+
+This early release has two significances. First, the *minimum-viable form* of the school-divergence measurement that this whitepaper promises is verified in a production environment in the early phase of the v2 build. Second, behavioral data on which school's reading the user resonates with more strongly accumulates, and the empirical data for the evaluation metric of Layer 5 (the accuracy of school auto-recommendation) is *automatically generated from operation itself*.
+
+**Layer 4 — Integrated RAG pipeline (Q1 2028, 9 months)**
+
+The nine-stage pipeline defined in 12-4 and 12-7 is fully implemented. The graph-text serialization, the school-weighted retrieval, the tool-call interface, the multi-hop RAG, the citation tracking, the consistency verification, and the multilingual/multicultural reading-style application are integrated. At the time of completion of this layer, the user can verify on screen which sentence of their reading was derived from which passage of which canonical work.
+
+**Layer 5 — Automated measurement of evaluation protocol (Q2 2028, 12 months)**
+
+The weak-verification metrics defined in Chapter 15 — reproducibility, continuity, and doctrinal fidelity — are built as automated measurement infrastructure. The *measurement-as-code* structure of daily automated reading generation, distributional measurement, and threshold alerts on a 100-chart standard test set is operated. The school-divergence metrics (B1, B2) are also automated in this layer.
+
+**Layer 6 — Open Benchmark v0.5 (Q2 2028, 6 months)**
+
+A standard dataset of 2,000 charts, school-specific ground-truth labels, automated evaluation scripts, and a public leaderboard begin operation. v0.5 expands in v3 into v1.0 with 10,000 charts.
+
+### 14-4. The System Completeness at the End of v2
+
+At the end of v2 (Q2 2028), RimSaju reaches a state in which all of the following items are in operation.
+
+| System Item | State at End of v2 |
+|-------------|--------------------|
+| Sexagenary-calendar precision | ±1 minute |
+| Canonical corpus | 56 works, 5,000+ passages |
+| Embedding model | Domain adaptation complete (retrieval accuracy +30 to 50%) |
+| Saju graph | Auto-generated; all Combination/Clash/Punishment/Harm relations explicit |
+| School modules | 7 in operation |
+| School-divergence comparison (user feature) | In commercial operation |
+| Integrated RAG pipeline | 9 stages in operation; citation-traceable |
+| Citation-display UI | Exposed on the user screen |
+| Consistency verification | Auto-blocking |
+| Multilingual readings | KO/EN/JA with culture-specific tone |
+| Weak-verification metrics | Automatically measured and published |
+| Map of school divergence v0.5 | Published |
+| Open Benchmark | v0.5 (2,000 charts) in operation |
+| Leaderboard | Publicly operating |
+| User-data consent infrastructure | In operation (preparing for v3 statistical verification) |
+
+This end state corresponds to the form of the *academic-standardization engine* that this whitepaper defines. All the central commitments of this whitepaper are realized at the end of v2.
+
+### 14-5. v3 — Extending Depth and Entering Statistical Verification (2 years: Q3 2028 – Q2 2030)
+
+v3 *maintains and extends* every system of v2. It does not add new systems; it extends each layer of v2 in depth, range, and multilingual coverage.
+
+| Domain | State at End of v2 | State at End of v3 |
+|--------|--------------------|--------------------|
+| Canonical corpus | 5,000+ passages | 10,000+ passages (multilingual primary texts + commentary expansion) |
+| Embedding model | Domain adaptation v1.0 | Multilingual-corpus fine-tuning v2.0 |
+| School modules | 7 in operation | School auto-recommendation algorithm + adaptation based on user-behavior learning |
+| Integrated RAG | 9 stages in operation | Refinement of multilingual/multicultural reading styles; cross-cultural reading transformation |
+| Evaluation protocol | Automated weak-verification measurement | **Intermediate verification — statistical-pattern measurement begins** |
+| User data | Consent infrastructure in operation | **Quarterly publication of verification results for pre-registered hypotheses** |
+| Open Benchmark | v0.5 (2,000 charts) | v1.0 (10,000 charts) + accumulating global academic citations |
+
+The single most important event in v3 is *the formal beginning of intermediate verification measurement*. Since the user-data collection/anonymization infrastructure and the pre-registration database are in operation at the end of v2, statistical-pattern measurement begins in v3 on top of the data accumulated from those. The first results are expected one and a half to two years after the start of v3 (the first half of 2030).
+
+### 14-6. Design Principles for User-Data Collection
+
+Layer C (statistical pattern verification) is premised on infrastructure that accumulates the user's life-event data. This section makes explicit *the design principles* on which this data collection operates. Data collection that depends solely on voluntary consent has limits in sample bias and accumulation speed.
+
+The user-data collection of this system is designed on three *mutual-reciprocity principles*.
+
+**Principle 1: Data input deepens the user's own reading.**
+
+When the user inputs life events (job changes, marriage, health changes, business pivots, etc.) together with their timing, a *personalized retrospective analysis report* is automatically generated, showing how the *daewoon*/*seoun*/*ilun* of each timing resonated with the event. The structure is one in which providing data is *immediately returned* as *the depth of the user's own reading*. In this structure, data input is not *contribution to the system* but *the user's own self-understanding*.
+
+**Principle 2: Daewoon turning points become natural points of input.**
+
+The *daewoon* of Saju astrology turns every ten years. When a *daewoon* turning point arrives for the user, the system offers an interface that elicits a *retrospective on the past ten years of life*. This retrospective is used as *contextual information* for the reading of the next *daewoon*. That is, for the user it is *a natural reorganization at a turning point in life*; for the system it is *life-event data with accurate timing*.
+
+**Principle 3: Inputs are anonymized and revocable.**
+
+All data are used in statistical analysis in anonymized form, and the user can withdraw consent for the analytic use of their data at any time. Upon withdrawal, the corresponding data are immediately removed from the analytic corpus. This infrastructure complies with GDPR and Korea's Personal Information Protection Act.
+
+These three principles structure data collection so that it *naturally accumulates from the operation of the system itself*. The reason no separate rewards or gamification are used is that reward-driven data carries a *sample bias of those seeking the reward*. The reliability of statistical verification requires data input from *non-distorted motives*.
+
+### 14-7. Intellectual-Property Protection Strategy
+
+The system this whitepaper describes monetizes *the technology itself* and *the intellectual property of that technology* simultaneously. This section sets out the principles of the IP protection strategy across the four years of v1, v2, and v3.
+
+**Principle 1: System structure as patents; data know-how as trade secret.**
+
+The IP assets of this system are organized into two layers. *The structure of the system pipeline* (the nine-stage Integrated RAG, the automatic generation of the Saju graph, the parallel operation of seven school modules, the automatic consistency verification) is filed as patent applications and protected publicly. *The know-how of data engineering* (the labeling criteria for ten thousand contrastive-learning pairs, the method of determining chunking units, the per-school ground-truth labeling system) is maintained as trade secret.
+
+The basis of this separation lies in the difference in imitation cost between the two assets. System structure can be imitated at the level of a blueprint, so *public protection* (patents) is effective. Data engineering, by contrast, is not a blueprint but the *cumulative know-how of years*; it is hard to imitate quickly even if disclosed, and disclosure rather makes it the target of *imitation-avoiding designs*. Maintaining the latter as a non-public trade secret is therefore advantageous for protecting asset value.
+
+**Principle 2: Stage-by-stage filing and PCT international entry.**
+
+At each stage of v1, v2, and v3, the central inventions accumulate, and the central inventions of each stage are filed in Korea, then enter four countries — Korea, Japan, China, and the United States — through PCT international filing. The timing of filing is matched to the moment when the invention *operates in a production environment*.
+
+| Stage | Principal Subjects of Filing |
+|-------|------------------------------|
+| v1 | The *mingli* RAG retrieval system and methods for its operation |
+| v2 | Automatic Saju-graph generation algorithm / parallel-operation system for school-specific reading modules / methods for automatic consistency verification of *mingli* readings |
+| v3 | System for pre-registration and statistical verification of *mingli* hypotheses / school auto-recommendation algorithm |
+
+**Principle 3: Separate protection of datasets.**
+
+The 5,000+ passage canonical corpus (v2) and the 10,000-chart benchmark dataset (v3) are separately protected by database rights and copyright. Public disclosure of the datasets themselves takes the form of academic licensing; commercial use requires a separate licensing agreement.
+
+The intent of these three principles is to achieve simultaneously *academic disclosure of the system* and *commercial protection of the core assets*. Disclosing the system structure academically is the work of *defining the vocabulary of the field*; the protection of trade secrets and datasets is the work of *maintaining the company's asset value* on top of that.
+
+---
+
+## Chapter 15. The Design of the Evaluation Protocol
+
+### 15-1. The Three Levels of Evaluation
+
+In Chapter 7 of Part II, three levels of verifiability — weak, intermediate, and strong — were defined. The evaluation protocol of v2 promises only the infrastructure for weak and intermediate verification. Strong verification is explicitly excluded.
+
+The evaluation protocol is composed of three levels.
+
+\`\`\`
+Level A: System consistency (weak verification)
+  - Same chart → same reading (reproducibility)
+  - Similar chart → similar reading (continuity)
+  - Internal accord within the same school (doctrinal fidelity)
+
+Level B: School-divergence measurement (extension of weak verification)
+  - Inter-school reading distance
+  - Distribution of convergence regions and divergence regions
+  - Accuracy of school auto-recommendation
+
+Level C: Statistical-pattern verification (intermediate verification)
+  - Correlation analysis of Saju patterns and life events
+  - Verification of pre-registered hypotheses
+  - Estimation separating self-fulfilling effects
+\`\`\`
+
+For each level, concrete measurement metrics are defined.
+
+### 15-2. Level A — System-Consistency Metrics
+
+**Metric A1: Reproducibility.** For the same input chart, v2 generates a reading N times (typically 100), then embeds the 100 readings and measures the variance in latent space. The smaller the variance, the higher the reproducibility.
+
+The numerical target is that the average cosine distance among the 100 readings be 0.05 or less (for reference, the cosine distance between text pairs of identical meaning typically falls in the 0.03–0.10 range).
+
+Reproducibility varies with the LLM's *temperature* setting. v2 sets the interpretive parts to a low temperature (e.g., 0.2) to raise reproducibility, while allowing slight variation in stylistic diversity.
+
+**Metric A2: Continuity.** The distance between the readings of two charts that differ by a single character in the Original Bureau is measured. The distribution of these distances over many chart pairs should be smoothly continuous.
+
+The problem this metric finds is *discontinuity*. If the reading reverses entirely with a single character change, there is the possibility of a system defect at that point. Alternatively, that character change may be an *mingli*-significant change such as a *gyeokguk* transition; in that case, the change must be tracked explicitly.
+
+**Metric A3: Doctrinal fidelity (School Fidelity).** Measures how closely the reading of the *gyeokguk*-school module accords with the doctrine of the *Ziping Zhenquan*. The measurement method is to compare the cosine similarity in embedding space between the model's reading and the passages of the *Ziping Zhenquan*.
+
+The numerical target is that the average similarity of the *gyeokguk* module's reading with the cluster of *Ziping Zhenquan* passages be 0.65 or higher, and that this similarity be markedly higher than the similarity with the canonical works of other schools (e.g., *Qiongtong Baojian*).
+
+### 15-3. Level B — School-Divergence Measurement
+
+**Metric B1: Inter-school reading distance.** For the same chart, the average cosine distance among the readings produced by the seven school modules is measured. We observe how this distance is distributed across charts.
+
+Finding 1: For some charts, the inter-school distance is very short (a *convergence region*). In such charts, no matter which school is selected, the reading comes out similar.
+
+Finding 2: For some charts, the inter-school distance is very large (a *divergence region*). In such charts, the choice of school decisively influences the reading.
+
+This distribution is the actual data of the map of school divergence mentioned in Chapter 4 of Part I. For the first time in the history of *mingli*, a tool is built that visualizes, with data, on which charts opinion among schools diverges.
+
+**Metric B2: Accuracy of school auto-recommendation.** An algorithm is built that examines the graph structure of a chart and automatically recommends which school is most suited to it. We measure how well this recommendation matches the assessments of an *mingli*-scholar panel.
+
+A reasonable basis for school recommendation is as follows.
+- Charts where the *gyeokguk* is clearly formed → recommend the *gyeokguk* school
+- Charts where the *gyeokguk* is not clear but the strength/weakness of the Day Master is clear → recommend the *eokbu* school
+- Charts where heat/cold/dryness/moisture are extreme → recommend the *johu* school
+- Special charts such as *salwang sinswae* or *jongse-gyeok* → recommend the *tongbyeon* school
+
+The numerical target is a recommendation match rate of 70% or higher with the *mingli*-scholar panel.
+
+### 15-4. Level C — Statistical-Pattern Verification
+
+At this level, only the infrastructure is built at the v2 stage. The actual measurement results are published from v3 onward. The core elements of the infrastructure are as follows.
+
+**1) Consent framework for user-data collection.** An interface in which a user who has received a Saju reading explicitly consents to providing their chart and life-event data, in anonymized form, for research. It complies with GDPR and Korea's Personal Information Protection Act. Consent is revocable at any time, and revocation triggers data deletion.
+
+**2) Standardized classification of life events.** A standardized classification scheme is required for life events such as "marriage", "job change", "health event", and "business start". The form of mapping timing onto categorized events is more suited to statistical analysis than free-form text input. This classification scheme is built with reference to existing classifications in the social and demographic sciences.
+
+**3) Pre-registration database.** The pre-registration defined in Chapter 8 of Part II is implemented as an in-system database. Research hypotheses are registered before the outcome is measured, and only registered hypotheses become subjects of verification. Patterns discovered post hoc are flagged separately and must be pre-registered as new hypotheses to be subject to verification.
+
+**4) Statistical analysis tools.** An analysis pipeline is built that applies standard statistical techniques such as multiple-comparisons correction (Bonferroni, FDR), sample-bias correction (propensity score matching), and the separation of self-fulfilling effects (treatment-effect estimation).
+
+**5) Result-publication interface.** An interface is built that automatically posts verification results — regardless of whether the predictions were confirmed — to a public GitHub repository. All change history of the results is tracked.
+
+Once these five infrastructural elements are built in v2, full-scale statistical verification begins from v3 onward. The first results are expected at least two to three years after the start of data collection.
+
+### 15-5. The Principle of Public Disclosure of Evaluation Results
+
+All of the evaluation results above are publicly disclosed without exception. Results favorable to this research are disclosed; results unfavorable to this research are disclosed equally. If a metric falls short of the target, this is announced. If a hypothesis is refuted, this is announced.
+
+This disclosure principle is the foundation of academic credibility. A system that selectively discloses results invites suspicion regardless of what it announces. Only a system that discloses every result earns credibility for the favorable results among them.
+
+### 15-6. Automated Measurement Infrastructure — *Measurement-as-Code*
+
+Stepping down from the *definition* of the metrics above, this section describes the *infrastructure for routinely measuring them*. If the evaluation metrics are only defined and there is no automated measurement infrastructure, measurement is performed in an ad hoc and sporadic manner and fails to acquire academic credibility. At the v2 stage the following infrastructure is built and operated in *measurement-as-code* form.
+
+**Infrastructure 1: Daily automated measurement on a standard chart dataset**
+
+100 standard charts (a balanced sample distributed across diverse *gyeokguk*, strength/weakness, and seasons) are fixed in the evaluation environment. Every day at midnight, an automatic scheduler runs the following.
+
+\`\`\`
+[01:00] Generate v2 readings for the 100 standard charts (each reading repeated 5 times)
+[02:00] Convert the 500 readings into embedding vectors
+[03:00] Compute the average cosine distance among the 5 readings per chart (reproducibility, Metric A1)
+[04:00] Measure reading distance for 200 adjacent chart pairs (continuity, Metric A2)
+[05:00] Measure similarity between each school module's reading and the canonical passages (doctrinal fidelity, Metric A3)
+[06:00] Auto-commit the results to the GitHub evaluation repository
+[06:30] Send alerts on threshold violations
+\`\`\`
+
+The cumulative output of this daily measurement becomes *time-series evaluation data*. Since automatic measurement runs every day after the release of v2, the impact of system changes on the metrics can be tracked at a daily granularity.
+
+**Infrastructure 2: Weekly automated measurement of school-divergence metrics**
+
+Every weekend, the following runs automatically.
+
+\`\`\`
+For 1,000 standard charts, all 7 school modules generate readings → 7,000 readings embedded
+→ Per-chart inter-school reading distances measured → distribution of convergence and divergence regions updated
+→ The recommendations of the school auto-recommendation algorithm are compared against the *mingli*-scholar-panel labels
+→ Recommendation match rate updated (Metric B2)
+\`\`\`
+
+As a result of this weekly measurement, the *map of school divergence* is updated weekly. The map of school divergence v0.5 of v2 is the cumulative output of this infrastructure.
+
+**Infrastructure 3: Regression detection**
+
+Whenever a code change occurs in the system, automatic regression detection runs. After core changes (embedding-model fine-tuning, school-module algorithm modifications, RAG-pipeline changes), the following runs automatically.
+
+\`\`\`
+Compare the reading on 100 standard charts before and after the change
+→ When the reading distance crosses the threshold (cosine distance 0.15), a change-impact report is generated automatically
+→ The change is approved or rejected after review by the *mingli*-scholar panel
+\`\`\`
+
+This regression detection blocks *unintended drift* in the system. Cases such as embedding-model fine-tuning unintentionally moving the readings of one school in the direction of another school are detected automatically.
+
+**Infrastructure 4: Automation of evaluation-result publication**
+
+All measurement results from infrastructures 1, 2, and 3 above are auto-committed to a public GitHub repository. The history of result updates is fully recorded in the git log, and manual manipulation is structurally blocked. External researchers can track changes in this system's evaluation results through the git log.
+
+**Significance of the infrastructure**
+
+When these four infrastructures are in place, the evaluation of this system is performed not by *the subjective judgment of the researcher* but by *automated procedures defined in code and data*. This is the definition of *measurement-as-code*, and it is the standard evaluation methodology of the machine-learning field. This infrastructure begins operation at the end of v2 and is extended in the v3 stage to the statistical-pattern verification infrastructure (Level C).
+
+---
+
+## Chapter 16. Open Benchmark and Leaderboard
+
+### 16-1. The Academic Significance of the Benchmark
+
+The past decade or so of the machine-learning field can be characterized as the era of benchmarks. ImageNet standardized computer vision; GLUE and SuperGLUE standardized natural-language understanding; MMLU standardized knowledge evaluation of LLMs.
+
+The academic significance of a benchmark lies in enabling fair comparison. When every system is measured by the same dataset and the same evaluation metric, debates over which system is superior are reduced. Communication shifts from self-claims to numerical figures.
+
+*Mingli* has lacked such a benchmark. Which practitioner produces a better reading has always been a matter of subjective judgment. This absence has been one of the decisive defects preventing *mingli* from being established as an academic discipline. RimSaju v2 introduces an open benchmark to *mingli* for the first time.
+
+### 16-2. The Composition of the Benchmark
+
+The *mingli* benchmark is composed of the following items.
+
+**Item 1: A standard chart dataset.** A fixed set of charts to be used in evaluation. It includes 10,000 charts (a sample with diverse *gyeokguk*, strength/weakness, and seasons evenly represented). This dataset is published on GitHub and accessible to anyone.
+
+**Item 2: Ground-truth labels.** For each chart, the reading elements regarded as correct answers are defined. Where a unique correct answer does not exist (parts that differ across schools), separate per-school correct answers are defined.
+
+Labeling is performed by consensus of an *mingli*-scholar panel (5–10 scholars, balanced by school). Items where consensus is not reached are marked as *no consensus* and are excluded from evaluation. The *no consensus* itself is used as data for the map of school divergence.
+
+**Item 3: Evaluation metrics.** The metrics defined in Chapter 15 are implemented as automated evaluation scripts. When an external Saju engine applies its system to this benchmark, the score is computed automatically.
+
+Detailed metrics:
+- *Gyeokguk* classification accuracy (per school)
+- *Yongsin* determination accuracy (per school)
+- Combination/Clash/Punishment/Harm identification accuracy (school-independent)
+- Citation traceability of readings to canonical sources
+- Internal consistency of readings
+
+**Item 4: Leaderboard.** Scores of all participating systems by these metrics are published on a public ranking. RimSaju too receives a score under the same conditions as other systems. If another system surpasses RimSaju, this research records that fact.
+
+### 16-3. Risks of Benchmark Operation and Responses
+
+Operating a benchmark carries the following risks. This research specifies a response to each risk.
+
+**Risk 1: Bias of the benchmark designer.** When this research designs the benchmark, there is a possibility that metrics favorable to this research will be included. To prevent this, the metric design stage undergoes review by external *mingli* scholars and ML researchers. Attempts at fairness alone are insufficient; external verification is essential.
+
+**Risk 2: Benchmark overfitting.** When a system is optimized to a specific benchmark, good scores may appear on that benchmark but not in real use. To prevent this, part of the benchmark dataset is kept private (a separation between a public development set and a private evaluation set).
+
+**Risk 3: School politics.** The decision of which school's doctrine to label as the correct answer carries school-political implications in itself. This research does not place any school's doctrine as the absolute correct answer. Separate correct answers are defined per school, and only school-independent parts become integrated correct answers. Without this distinction made clear, there is a risk that the appearance of overwhelming dominance of one school may emerge.
+
+**Risk 4: Data misuse.** There is a possibility that the benchmark data (in particular the demographic distribution of the 10,000 charts) may be misused for other purposes (e.g., advertising targeting). The dataset license imposes an explicit restriction that it may be used for research purposes only.
+
+### 16-4. The Conditions Under Which a Standard Arises
+
+The conditions under which a benchmark settles as a standard are not self-evident. Some benchmarks are made and never used; others become standards. What is the difference?
+
+Consider the case of ImageNet. The reason ImageNet became a standard is not that it was made better than every other benchmark. It is that ImageNet was the first to provide a sufficiently large dataset and clear metrics simultaneously, and that the research community had a motive to compete on top of it.
+
+For an *mingli* benchmark to settle as a standard, the same two conditions must be met.
+
+**Condition 1: A sufficient dataset and clear metrics.** The 10,000 charts, the per-school ground-truth labels, and the automated metrics defined in 16-2 must provide a basis for competition. A reliability sufficient that a good score on this benchmark is regarded as meaningful is required.
+
+**Condition 2: The formation of a motive to compete.** Multiple Saju-engine developers must perceive value in competing on this benchmark. This depends on the credibility of the benchmark, the visibility of the leaderboard, and the practical meaning of the results. A good score must connect to commercial and academic value.
+
+Toward these two conditions, this research promises the following.
+
+- The benchmark is permanently free and public. The license is MIT.
+- The leaderboard is in permanent operation. New results are updated quarterly.
+- The system of this research is itself subject to public evaluation. This research is not the only one being evaluated.
+- When an external system surpasses this research, that fact is recorded in this research's marketing materials as well.
+- Major updates to the benchmark dataset are announced six months in advance.
+
+If these promises are kept, the *mingli* benchmark has the possibility of settling as a standard step by step. A standard is not made in a quarter. Across five and ten years, citations from academia and industry accumulate, and a standard arises.
+
+### 16-5. The Nature of a Standard
+
+A standard is not formed by anyone declaring it. The accumulation of time forms it. Yet the place where that accumulation first begins must be made by someone. In *mingli*, that place has been empty until now.
+
+At the point where this whitepaper ends, this research begins the work of making that place. Whether this research will permanently remain in that place is not for this research to decide. When subsequent research that brings something better to that place arises, the place will be ceded. This is the nature of a standard.
+
+---
+
+## Chapter 17. The Academic and Cultural Significance of This Work
+
+This chapter sets out the academic and cultural significance of the four-year build across v1, v2, and v3. The system this whitepaper describes is at once an industrial product and an academic product, and its significance accumulates in a domain that is hard to measure directly.
+
+### 17-1. The Formation of the Field of *Mingli* Information Systems
+
+The first academic significance of this build lies in the formation of the field of *Mingli* Information Systems (Myeongri Information Systems). At present, this field does not exist academically. Saju reading services exist as an industry, but the academic infrastructure of canonical-corpus-based system construction with embeddings, evaluable reading generation, and per-school modularization has been absent.
+
+The vocabulary introduced by this whitepaper — *Integrated RAG pipeline*, *Saju graph*, *map of school divergence*, *convergence regions and divergence regions*, *weak verification and intermediate verification*, *fragmentation bypass*, *measurement-as-code* — has the possibility of accumulating as the standard vocabulary that subsequent researchers will use when treating this field. The formation of a field is not done by a single whitepaper. This whitepaper makes one place in that accumulation.
+
+The RAG architecture of this build (classical-Chinese texts + latent-space mapping + per-school modularization) provides a *methodological prototype* applicable not only to Saju astrology but to traditional East Asian knowledge systems in general — Korean medicine, Eastern astrology, *feng-shui*, the *Yi*-studies, and so on. Each time the system design of this build is cited in another domain, the vocabulary of the field expands.
+
+### 17-2. The Transition to a Measurable Discipline
+
+The second academic significance of this build lies in building, for the first time, the infrastructure that converts *mingli* into a *measurable discipline*.
+
+*Mingli* possesses about a thousand years of accumulated case records and school divergences, but no tool has existed for *quantitatively measuring* doctrinal accord and disagreement on top of them. Where does the reading of the *gyeokguk* school diverge from the reading of the *eokbu* school? In which charts does inter-school convergence occur and in which divergence? — On these questions the history of *mingli* has relied on case-by-case intuition.
+
+This build builds the infrastructure of that measurement. At the end of v2, the output distance among the seven school modules for the same input is measured quantitatively in latent space, and the map of school divergence is visualized as data. At the end of v3, the statistical verification of pre-registered hypotheses is updated quarterly. With this infrastructure in place, the school-by-school differences of *mingli* doctrines can be expressed not as *claims* but as *data*.
+
+The significance of this transition is not limited to *mingli*. Other traditional East Asian knowledge systems (*Sasang* medicine vs. pattern-differentiation theory in Korean medicine; the formal-school vs. compass-school in *feng-shui*; etc.) also have school-divergence structures. The measurement methodology of this build becomes a precedent for treating school-by-school accord and disagreement as data in those domains as well.
+
+### 17-3. Resolving the Information Asymmetry of *Mingli*
+
+The social significance of this build lies in resolving the information asymmetry of *mingli*. At present, the *mingli* reading market has wide variance in reading quality depending on the individual practitioner's doctrine, technique, and interpretation. The user cannot verify on which passage of which canonical work, or which algorithm of which school, their reading is grounded.
+
+The Integrated RAG pipeline of v2 introduces *academic-citation traceability* of readings. The user can verify directly on screen which sentence of their reading was derived from which passage of which canonical work. The school-divergence comparison feature lets the user compare side by side how the same chart is interpreted differently across schools.
+
+Once these two features take root, the user becomes able to judge *which reading to receive* on academic grounds. The resolution of information asymmetry is accompanied by the result that *the user's own self-understanding deepens*. The user's position shifts from *the place that receives a reading* to *the place that reads and reviews*.
+
+### 17-4. Digital Preservation of Eastern Traditional Knowledge
+
+The cultural significance of this build lies in the digital preservation of Eastern traditional knowledge. Many of the *mingli* canonical works are at present out of print or exist only in classical-Chinese originals. Qing canonical works such as the *Diwen Lu Chanwei*, the *Ziping Zhenquan*, and the *Qiongtong Baojian* are preserved in some libraries in Korea, China, Japan, and Taiwan, but the work of digitization, search-enablement, and translation has been sporadic and informal.
+
+The corpus-digitization work of v2 and v3 contributes to the *permanent preservation* of these canonical works. At the end of v3, a digital canonical-text database on the order of 10,000+ passages will be published under an academic license, improving accessibility for future-generation researchers. Digitization is not simple text input; it includes *semantic-unit chunking, metadata attachment, and embedding mapping*, so the academic usability of the canonical works is fundamentally extended.
+
+### 17-5. The Academic Self-Esteem of the East Asian Cultural Sphere
+
+The deepest layer of significance of this build lies in restoring the academic self-esteem of the East Asian cultural sphere. The field of large language models has developed centered on English-language academic resources. The standard benchmarks — ImageNet, GLUE, SuperGLUE, MMLU — have all been defined in the English-speaking world, and East Asian classical-Chinese texts have been treated as *peripheral data resources*.
+
+This build demonstrates that East Asian classical-Chinese texts can be handled in the highest tier of modern AI infrastructure. The *mingli* canon becomes the core of the embedding corpus; the fine semantic differences of classical-Chinese vocabulary are separated by a domain-adapted embedding; school divergence is measured in latent space — a system in which all of this is in operation. This becomes a methodological precedent for subsequent researchers in Korea, China, Japan, and Taiwan in *connecting their own classical texts to digital infrastructure*.
+
+Each time this build accumulates, the vocabulary of the field arises in Korean and classical Chinese, and that vocabulary, translated into English, accumulates in global academic citations. The work of having vocabulary that arose in Korea, in the field of *mingli* information systems, become part of global scholarship — that is the place at which this whitepaper sets its starting point.
+
+### 17-6. The Step-by-Step Accumulation of the Four-Year Build
+
+The step-by-step build of v1 → v2 → v3 has each stage holding *independent value* while at the same time forming the foundation of the next stage.
+
+**v1 (in operation)** — The industry's first RAG-based *mingli* engine. A canonical-text embedding database of 562 passages. A five-stage LLM fallback. Readings in three languages: Korean, English, Japanese.
+
+**End of v2 (Q2 2028)** — A 5,000+-passage domain-adapted embedding corpus. Parallel operation of seven school modules. An automatic Saju-graph generator. The nine-stage Integrated RAG pipeline. Commercial operation of the school-divergence comparison. Automated measurement and publication of weak-verification metrics. Open Benchmark v0.5. Map of school divergence v0.5.
+
+**End of v3 (Q2 2030)** — A 10,000+-passage multilingual corpus. Quarterly publication of statistical-pattern verification results. School auto-recommendation algorithm. Open Benchmark v1.0. Global academic standard infrastructure for the field of *mingli*.
+
+Each stage is itself complete while forming the precondition of the next. Without v1, the RAG infrastructure of v2 begins from a blank slate; without v2, the user data, the evaluation infrastructure, and the corpus foundation needed for v3's statistical verification are absent. The stages of the four-year build accumulate, and at the point of 2030 the global academic infrastructure of the *mingli* field is to be formed.
+
+The temporal accumulation of this structure aligns with the central claim of this whitepaper. A standard is not made in a single stroke. Time must accumulate. What this whitepaper provides is the *first four years* of that accumulation; the time after that is to be formed by the accumulation of subsequent researchers and other systems.
+
+---
+# Epilogue
+
+In the closing chapter of *Cosmos*, Carl Sagan wrote:
+
+> We are a way for the universe to know itself.
+
+This sentence carries the insight that human self-knowledge is connected to the self-knowledge of the universe. Human beings, made of the matter of stars, look back at those stars and try to understand the principles by which they operate.
+
+Saju astrology stands in a similar place. The moment of a person's birth is fixed in the time-coordinates of the universe. A person again tries to read those coordinates. It is an attempt to understand how that person's life is connected to the larger flow of the cosmos.
+
+Whether this attempt will reach truth is uncertain. But that the attempt itself is meaningful work is clear. As attempts accumulate, what within them is closer to truth and what is not is gradually revealed. As a result of accumulation, the human understanding of the universe becomes finely more precise.
+
+The tool this research builds is one tool of that refinement. When a better tool emerges, the tool of this research yields its place. That is enough.
+
+This work cannot be carried out by a single company alone. Researchers who have entered deeply into *mingli*; engineers who have handled the inside of Transformers and RAG directly; statisticians familiar with the pitfalls of statistical verification; scholars who can read classical-Chinese texts in the original; data engineers who have built evaluation infrastructure — only collaborators from such varied domains, working together, can complete this build.
+
+If a reader who has read this whitepaper to the end belongs to any of the areas above, we ask you to write to Rimfactory. info@rimfactory.io.
+
+If everything this whitepaper sets out to convey were summarized in a single sentence, it would be the following.
+
+> What this research is building is not the answer of Saju. It is the tool that asks Saju precisely.
+
+Once the tool is made, the answer follows. Time is required, but when enough time has passed, the answer arrives even if this research does not produce it. The work of making that arrival faster and more honest is what Rimfactory undertakes.
+
+---
+
+# Appendices
+
+## Appendix A. Glossary
+
+### *Mingli* / Saju Terms
+
+- **Saju (四柱)**: The four pillars expressing a person's year, month, day, and hour of birth as Heavenly Stems and Earthly Branches.
+- **Palja / Bazi (八字)**: The eight characters of a Saju chart. In China called *Bazi*.
+- **Heavenly Stems (天干)**: The ten characters *jia, yi, bing, ding, wu, ji, geng, xin, ren, gui*.
+- **Earthly Branches (地支)**: The twelve characters *zi, chou, yin, mao, chen, si, wu, wei, shen, you, xu, hai*.
+- **Sexagenary cycle (60 *jiazi*)**: The 60-unit set formed by combining the Heavenly Stems and the Earthly Branches; one full cycle.
+- **Day Master (日干)**: The Heavenly Stem of the day pillar; the central character in Saju analysis.
+- **Five Elements (五行)**: The five elements wood, fire, earth, metal, water; operating through the two relations of mutual generation and mutual conquest.
+- **Ten Gods (十神)**: The ten relations defined relative to the Day Master — *Comparable, Rob Wealth, Eating God, Hurting Officer, Direct Wealth, Indirect Wealth, Direct Officer, Seven Killings, Direct Resource, Indirect Resource*.
+- **Gyeokguk (格局)**: The classification of chart structure — *Direct Officer Gyeokguk, Seven Killings Gyeokguk, Eating God Gyeokguk*, etc.
+- **Yongsin (用神)**: The pivotal Five Element that maintains the balance of the chart.
+- **Combination, Clash, Punishment, Harm**: Dynamic relations among characters — *he, chong, hyeong, hae* (合·沖·刑·害).
+- **Apparent solar time (眞太陽時)**: Time based on the actual position of the sun at the place of birth, not clock time.
+- **Hidden Stems (地藏干)**: The Heavenly Stems concealed within an Earthly Branch.
+- **Rooting (通根, *tonggeun*)**: The relation in which a Heavenly Stem takes root in a Hidden Stem of an Earthly Branch.
+- **Manifestation (透出, *tuchul*)**: The relation in which a Hidden Stem of an Earthly Branch is revealed in a Heavenly Stem.
+
+### Technical Terms
+
+- **Embedding**: The operation of converting text into a high-dimensional vector.
+- **Transformer**: The neural-network architecture published in 2017; the foundation of LLMs.
+- **Attention**: The core mechanism of the Transformer; the simultaneous processing of relations among words.
+- **Latent space**: The high-dimensional semantic space that embeddings form.
+- **Cosine similarity**: A similarity measure based on the angle between two vectors.
+- **RAG**: Retrieval-Augmented Generation.
+- **LLM**: Large Language Model.
+- **Fine-tuning**: Additional training of a pre-trained model adapted to a specific domain.
+- **Benchmark**: A standardized test for comparative evaluation of system performance.
+- **Pre-registration**: The research methodology of registering a hypothesis publicly before the outcome is measured.
+- **Equation of time**: The difference between apparent solar time and mean solar time.
+
+## Appendix B. Canon List (RimSaju v2 Corpus Plan)
+
+**Song-Yuan period (target: 5 works)**
+- *Yuanhai Ziping* (淵海子平)
+- *Luolu Zi Sanming Xiaoxi Fu* and commentaries (珞琭子三命消息賦)
+- *Yuzhao Shenying Zhenjing* (玉照神應眞經)
+- *Ziping Sanming Tongbian Yuanyuan* (子平三命通變淵源)
+- *Mingtongfu* (命通賦)
+
+**Ming dynasty (target: 8 works)**
+- *Sanming Tonghui* (三命通會) — Wan Min-ying
+- *Shenfeng Tongkao* (神峯通考) — Zhang Nan
+- *Mingli Zhengzong* (命理正宗) — Zhang Nan
+- *Ziping Shouyan* (子平粹言)
+- The text of the *Diwen Lu* (滴天髓) — late Song / early Ming
+- *Shenxiang Quanbian* (神相全編)
+- *Lan Gang Wang* (蘭江網) — the original of the *Qiongtong Baojian*
+- *Diwen Lu Zhengyi* (滴天髓徵義) — Ming-period commentary
+
+**Qing dynasty (target: 15 works)**
+- *Diwen Lu Chanwei* (滴天髓闡微) — Ren Tiechao
+- *Ziping Zhenquan* (子平眞詮) — Shen Xiaozhan
+- *Qiongtong Baojian* (窮通寶鑑) — Yu Chuntai
+- *Mingli Tanyuan* (命理探源)
+- *Mingli Yuegan* (命理約言) — Chen Suan
+- *Diwen Lu Buzhu* (滴天髓補註)
+- *Ziping Shouyan* (子平粹言)
+- *Mingbao* (命譜) — Yuan Shushan
+- *Sajucheryeong* (四柱捷經, Korea)
+- *Mingli Yo-gang* (命理要綱, Korea)
+- *Saju Chumyeong-hak Jeonjip* (四柱推命學全集, Japan, Abe Taizan)
+
+**Modern commentaries and reorganizations (target: 10 works)**
+- *Ziping Zhenquan Pingzhu* (子平眞詮評註) — Xu Lewu
+- *Qiongtong Baojian Buzhu* (窮通寶鑑補註) — Xu Lewu
+- *Diwen Lu Buzhu* (滴天髓補註) — Xu Lewu
+- *Qianli Mingdao* (千里命稿) — Wei Qianli
+
+**Korea (target: 5 works)**
+- *Mingli Yo-gang* (命理要綱) — Park Jae-wan
+- *Sajucheryeong* (四柱捷經) — Lee Seok-young
+
+**Japan (target: 3 works)**
+- *Saju Chumyeong-hak Jeonjip* (四柱推命學全集) — Abe Taizan
+
+**Modern scholars (target: 10 works)**
+- To be added upon publication or after consent for use
+
+## Appendix C. Schedule for Future Public Disclosures
+
+This appendix sets out the schedule of stage-by-stage public disclosures across the four-year build of v1, v2, and v3. At the end of each stage, the deliverables promised by this whitepaper are published through GitHub or academic repositories.
+
+**v2 stage (Q3 2026 – Q2 2028)**
+
+| Time | Public Disclosure |
+|------|-------------------|
+| Q3 2026 | RimSaju sexagenary-calendar library v1.0 (open source) |
+| Q4 2026 | Release of school-divergence comparison feature (B2C commercial) |
+| Q1 2027 | Canonical corpus v2.0 (2,500+ passages) |
+| Q3 2027 | 7 school modules + Saju-graph automatic generator |
+| Q4 2027 | Canonical corpus v2.1 (5,000+ passages) + embedding domain-adaptation results report |
+| Q1 2028 | Integrated RAG pipeline 9 stages begins operation + citation-tracking UI published |
+| Q2 2028 | Evaluation-protocol automated measurement infrastructure published + Open Benchmark v0.5 (2,000 charts) + map of school divergence v0.5 |
+
+**v3 stage (Q3 2028 – Q2 2030)**
+
+| Time | Public Disclosure |
+|------|-------------------|
+| Q4 2028 | Multilingual corpus v3.0 (Simplified and Traditional Chinese added) |
+| Q2 2029 | School auto-recommendation algorithm + adaptation based on user-behavior learning |
+| Q4 2029 | First publication of statistical-pattern verification results (based on pre-registered hypotheses) |
+| Q2 2030 | Open Benchmark v1.0 (10,000-chart dataset) + map of school divergence v1.0 |
+| Q3 2030 onward | Quarterly updates of statistical-verification results |
+
+## Appendix D. References
+
+### *Mingli* Canon
+
+- Ren Tiechao. *Diwen Lu Chanwei* (滴天髓闡微). Qing dynasty.
+- Shen Xiaozhan. *Ziping Zhenquan* (子平眞詮). Qing dynasty.
+- Yu Chuntai (ed.). *Qiongtong Baojian* (窮通寶鑑). Qing dynasty.
+- Xu Dasheng (ed.). *Yuanhai Ziping* (淵海子平). Song-Yuan period.
+- Wan Min-ying. *Sanming Tonghui* (三命通會). Ming dynasty.
+- Zhang Nan. *Mingli Zhengzong* (命理正宗). Ming dynasty.
+
+### Modern *Mingli*
+
+- Xu Lewu. *Ziping Zhenquan Pingzhu*; *Qiongtong Baojian Buzhu*; *Diwen Lu Buzhu*. 1930s.
+- Wei Qianli. *Qianli Mingdao* (千里命稿).
+- Yuan Shushan. *Mingli Tanyuan*; *Mingbao*.
+
+### Korean *Mingli*
+
+- Park Jae-wan. *Mingli Yo-gang* (命理要綱).
+- Lee Seok-young. *Sajucheryeong* (四柱捷經).
+
+### Japanese *Chumyeong*
+
+- Abe Taizan. *Saju Chumyeong-hak Jeonjip* (四柱推命學全集).
+
+### Philosophy of Science
+
+- Kuhn, T. S. (1962). *The Structure of Scientific Revolutions*. University of Chicago Press.
+- Lakatos, I. (1978). *The Methodology of Scientific Research Programmes*. Cambridge University Press.
+- Popper, K. (1959). *The Logic of Scientific Discovery*. Hutchinson.
+
+### Machine Learning and Natural Language Processing
+
+- Vaswani, A., et al. (2017). "Attention Is All You Need." *NeurIPS 2017*.
+- Devlin, J., et al. (2019). "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding." *NAACL 2019*.
+- Lewis, P., et al. (2020). "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks." *NeurIPS 2020*.
+- Reimers, N., & Gurevych, I. (2019). "Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks." *EMNLP 2019*.
+
+### Science Communication (Inspiration)
+
+- Sagan, C. (1980). *Cosmos*. Random House.
+- Sagan, C. (1994). *Pale Blue Dot: A Vision of the Human Future in Space*. Random House.
+
+## Appendix E. List of Items Subject to Intellectual Property Protection
+
+This appendix sets out the items subject to intellectual-property protection across the four years of v1, v2, and v3 for the system this whitepaper describes. The timing of filing for each item, the form of protection (patent, trademark, copyright, trade secret, database right), and the countries of entry will be determined in accordance with the moment of the invention's arrival in production. This appendix is the place to declare the intent of protection; concrete filing specifications and claims are drafted separately.
+
+**Items of protection at the v1 stage**
+
+| Type | Subject of Protection |
+|------|------------------------|
+| Patent | The *mingli* RAG retrieval system and methods for its operation (562-passage embedding + school-weighted retrieval + multi-stage LLM fallback) |
+| Trademark | RimSaju · 림사주 |
+| Copyright | The v1 system codebase, the passage-chunking dataset, the reading-generation prompt templates |
+
+**Items of protection at the v2 stage**
+
+| Type | Subject of Protection |
+|------|------------------------|
+| Patent | Algorithm for automatic Saju-graph generation and the system that uses it |
+| Patent | System for parallel operation of school-specific reading modules |
+| Patent | Method for automatic consistency verification of *mingli* readings |
+| Trade secret | Methodology for domain-adapted embedding training of *mingli* texts (contrastive-learning labeling criteria, chunking-unit decision procedures, fine-tuning hyperparameters) |
+| Database right | The 5,000+ passage canonical corpus |
+
+**Items of protection at the v3 stage**
+
+| Type | Subject of Protection |
+|------|------------------------|
+| Patent | System for pre-registration and statistical verification of *mingli* hypotheses |
+| Patent | School auto-recommendation algorithm |
+| Database right · Copyright | The *mingli* benchmark dataset (10,000 charts) and the per-school ground-truth labeling system |
+
+**Principles of the protection strategy (see 14-7)**
+
+The core principle of this IP protection lies in *publicly protecting system structure with patents* and *non-publicly maintaining data-engineering know-how as trade secret*. The *structure* of the system pipeline can be imitated at the level of a blueprint, so public protection through patents is effective; the *data engineering* — labeling criteria, chunking know-how, and the like — is the cumulative know-how of years and is more advantageously protected as a non-public trade secret for asset value.
+
+---
+
+## Whitepaper Information
+
+- **Version**: v0.4 (v1·v2·v3 four-year-build comprehensive edition)
+- **Date of Publication**: May 1, 2026
+- **Next Update Scheduled**: Q3 2026
+- **Inquiries**: info@rimfactory.io
+
+---
+
+### License
+
+The copyright of this whitepaper belongs to Rimfactory. Unauthorized distribution, reproduction, translation, and citation of this document are prohibited. Citation for academic and journalistic purposes is permitted provided that the source is clearly attributed. Any use of part or whole of this document for commercial purposes requires prior written consent from Rimfactory.
+
+ⓒ 2026 Rimfactory. All rights reserved.
+
+---
+
+*— This whitepaper is updated periodically as the RimSaju v2 build progresses. v0.4 corresponds to a draft of the vision and design; the technical specifications will become more precise as each layer's build advances. The update history can be tracked in the GitHub repository.*
+`;
 
 // Japanese placeholder — falls back to Korean until Japanese translation ships.
 export const whitepaperContentJa = whitepaperContentKo;
