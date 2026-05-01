@@ -298,6 +298,18 @@ export function HeroSection() {
                 estate.
             ════════════════════════════════════════════════════════ */}
             <div className="flex flex-col gap-2 mt-1">
+              {/* Whitepaper link — placed first so it sits closest to the
+                  NVIDIA Inception strip above. Adds an academic-authority
+                  signal next to the external-validation signal. */}
+              <Link
+                href="/whitepaper"
+                className="text-[14px] sm:text-[15px] text-[#d4af37] hover:text-[#f5d76e] transition-colors inline-flex items-center gap-1.5 self-center sm:self-start"
+              >
+                <span>
+                  {t("hero.whitepaperLink")}
+                </span>
+              </Link>
+
               {/* Letter (CEO message) link — centered on mobile */}
               <Link
                 href="/letter"
@@ -307,16 +319,6 @@ export function HeroSection() {
                   {t("hero.letterLink")}
                 </span>
               </Link>
-
-              {/* Celebrity Readings link */}
-              <a
-                href="https://blog.sajuastrology.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[14px] sm:text-[15px] text-[#d4af37] hover:text-[#f5d76e] transition-colors text-center sm:text-left"
-              >
-                {t("hero.celebLink")}
-              </a>
             </div>
           </motion.div>
 
