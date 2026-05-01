@@ -31,9 +31,6 @@ export const whitepaperContentKo = `# RimSaju v2 백서
 
 ⓒ 2026 Rimfactory · Chandler. All rights reserved.
 
-사업자등록번호 402-44-01247 · DUNS 696528952
-서울특별시 구로구 새말로 97 신도림테크노마트 1층 243호
-
 ---
 
 ### 본 백서를 읽는 분들께

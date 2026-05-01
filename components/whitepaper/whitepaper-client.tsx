@@ -5,21 +5,22 @@
  *
  * RimSaju v2 Whitepaper — public viewer.
  *
- * Design notes:
- *  - Korean is the source of truth (v0.4). English/Japanese fall back to Korean
- *    until translation ships; the language toggle remains visible so users see
- *    that the engine is multilingual even when the translation is pending.
- *  - Renders the markdown source directly with a small in-house parser. We
- *    deliberately avoid adding `react-markdown` or `marked` to the bundle —
- *    the document is large and shipping it through a dependency-free path is
- *    safer for Vercel builds and faster for the reader.
- *  - Copy / right-click / drag are blocked at the JS layer for a soft IP
- *    barrier. This is a deterrent, not a guarantee. A persistent visible
- *    watermark + the explicit copyright notice in the body are the real
- *    protection.
- *  - `select-none` + `oncontextmenu` are intentionally redundant with the
- *    JS handlers — cooperative browsers respect the CSS, hostile clients
- *    still hit the JS layer.
+ * v2 changes (chandler 2026-05-01):
+ *  - Headings (h1/h2/h3/h4) carry stable slug IDs so the TOC can deep-link.
+ *  - The TOC list items beneath "### 목차" are auto-converted to anchor
+ *    links that scroll-jump to the right heading. Heading lands ~88px
+ *    below the viewport top so the title is clear of the sticky header
+ *    and the body sits in the visible center — what chandler asked.
+ *  - Right after the Abstract section, a small Chandler signature block
+ *    is rendered: "림팩토리 대표 챈들러" + the signature image already
+ *    used in /letter (/letter/chandler-signature.webp).
+ *
+ * Design notes (unchanged):
+ *  - Korean is the source of truth (v0.4). EN/JA fall back to Korean.
+ *  - In-house markdown parser, no react-markdown dependency.
+ *  - Copy / right-click / drag are blocked at the JS layer for soft IP
+ *    barrier. This is a deterrent, not a guarantee. Real protection is
+ *    the persistent watermark + the explicit copyright notice.
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -33,27 +34,32 @@ import {
 } from "@/lib/whitepaper-content";
 
 // ---------------------------------------------------------------------------
-// Minimal markdown renderer
-//
-// The whitepaper uses only a small subset of markdown:
-//   #, ##, ###, ####  headings
-//   **bold**, *italic*
-//   GFM tables (| col | col |)
-//   horizontal rules (---)
-//   plain paragraphs
-//   bullet/numbered lists
-//
-// We render straight into JSX. No HTML strings, no dangerouslySetInnerHTML.
+// Slug helper
+// ---------------------------------------------------------------------------
+
+function slugify(text: string): string {
+  const cleaned = text
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1")
+    .trim();
+  return cleaned
+    .replace(/\s+/g, "-")
+    .replace(/[(),.·—–:?!"'`]/g, "")
+    .toLowerCase();
+}
+
+// ---------------------------------------------------------------------------
+// Markdown parser
 // ---------------------------------------------------------------------------
 
 type MdNode =
-  | { kind: "h1"; text: string }
-  | { kind: "h2"; text: string }
-  | { kind: "h3"; text: string }
-  | { kind: "h4"; text: string }
+  | { kind: "h1"; text: string; id: string }
+  | { kind: "h2"; text: string; id: string }
+  | { kind: "h3"; text: string; id: string }
+  | { kind: "h4"; text: string; id: string }
   | { kind: "hr" }
   | { kind: "table"; headers: string[]; rows: string[][] }
-  | { kind: "ul"; items: string[] }
+  | { kind: "ul"; items: string[]; isToc: boolean }
   | { kind: "ol"; items: string[] }
   | { kind: "p"; text: string };
 
@@ -61,51 +67,64 @@ function parseMarkdown(md: string): MdNode[] {
   const lines = md.replace(/\r\n/g, "\n").split("\n");
   const nodes: MdNode[] = [];
   let i = 0;
+  let inTocSection = false;
 
   while (i < lines.length) {
     const raw = lines[i];
     const line = raw.trimEnd();
 
-    // blank line
     if (!line.trim()) {
       i++;
       continue;
     }
 
-    // horizontal rule
     if (/^---+\s*$/.test(line)) {
       nodes.push({ kind: "hr" });
+      inTocSection = false;
       i++;
       continue;
     }
 
-    // headings (#### takes precedence over ###)
     let m: RegExpMatchArray | null;
     if ((m = line.match(/^####\s+(.*)$/))) {
-      nodes.push({ kind: "h4", text: m[1] });
+      const text = m[1];
+      nodes.push({ kind: "h4", text, id: slugify(text) });
       i++;
       continue;
     }
     if ((m = line.match(/^###\s+(.*)$/))) {
-      nodes.push({ kind: "h3", text: m[1] });
+      const text = m[1];
+      nodes.push({ kind: "h3", text, id: slugify(text) });
+      if (/^(목차|目次|Table\s+of\s+Contents)\s*$/i.test(text.trim())) {
+        inTocSection = true;
+      } else {
+        inTocSection = false;
+      }
       i++;
       continue;
     }
     if ((m = line.match(/^##\s+(.*)$/))) {
-      nodes.push({ kind: "h2", text: m[1] });
+      const text = m[1];
+      nodes.push({ kind: "h2", text, id: slugify(text) });
+      inTocSection = false;
       i++;
       continue;
     }
     if ((m = line.match(/^#\s+(.*)$/))) {
-      nodes.push({ kind: "h1", text: m[1] });
+      const text = m[1];
+      nodes.push({ kind: "h1", text, id: slugify(text) });
+      inTocSection = false;
       i++;
       continue;
     }
 
-    // table — header line containing |, followed by --- separator
-    if (line.startsWith("|") && i + 1 < lines.length && /^\s*\|?\s*[-:|\s]+\|?\s*$/.test(lines[i + 1])) {
+    if (
+      line.startsWith("|") &&
+      i + 1 < lines.length &&
+      /^\s*\|?\s*[-:|\s]+\|?\s*$/.test(lines[i + 1])
+    ) {
       const headerCells = splitTableRow(line);
-      i += 2; // skip header + separator
+      i += 2;
       const rows: string[][] = [];
       while (i < lines.length && lines[i].trim().startsWith("|")) {
         rows.push(splitTableRow(lines[i]));
@@ -115,18 +134,16 @@ function parseMarkdown(md: string): MdNode[] {
       continue;
     }
 
-    // unordered list
     if (/^[-*]\s+/.test(line)) {
       const items: string[] = [];
       while (i < lines.length && /^[-*]\s+/.test(lines[i].trim())) {
         items.push(lines[i].trim().replace(/^[-*]\s+/, ""));
         i++;
       }
-      nodes.push({ kind: "ul", items });
+      nodes.push({ kind: "ul", items, isToc: inTocSection });
       continue;
     }
 
-    // ordered list
     if (/^\d+\.\s+/.test(line)) {
       const items: string[] = [];
       while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) {
@@ -137,7 +154,6 @@ function parseMarkdown(md: string): MdNode[] {
       continue;
     }
 
-    // paragraph — accumulate until blank line or special
     const buf: string[] = [line];
     i++;
     while (
@@ -159,15 +175,11 @@ function parseMarkdown(md: string): MdNode[] {
 }
 
 function splitTableRow(line: string): string[] {
-  // strip outer pipes, then split. Trim each cell.
   const inner = line.trim().replace(/^\|/, "").replace(/\|$/, "");
   return inner.split("|").map((c) => c.trim());
 }
 
-// inline formatting: **bold**, *italic*. We render as React fragments to keep
-// nested marks safe.
 function renderInline(text: string): React.ReactNode[] {
-  // Tokenize into runs. Process bold first (greedy **...**), then italic.
   const out: React.ReactNode[] = [];
   let rest = text;
   let key = 0;
@@ -216,56 +228,130 @@ function renderInline(text: string): React.ReactNode[] {
 }
 
 // ---------------------------------------------------------------------------
+// TOC link resolver
+// ---------------------------------------------------------------------------
+
+function buildHeadingIndex(nodes: MdNode[]) {
+  const exact = new Map<string, string>();
+  for (const n of nodes) {
+    if (n.kind === "h1" || n.kind === "h2" || n.kind === "h3") {
+      const plain = n.text
+        .replace(/\*\*(.+?)\*\*/g, "$1")
+        .replace(/\*(.+?)\*/g, "$1")
+        .trim();
+      exact.set(plain, n.id);
+    }
+  }
+  return exact;
+}
+
+function resolveTocLink(
+  itemText: string,
+  index: Map<string, string>,
+): string | null {
+  const plain = itemText
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1")
+    .trim();
+  if (index.has(plain)) return index.get(plain)!;
+  for (const [headingText, slug] of index.entries()) {
+    if (headingText.startsWith(plain) || plain.startsWith(headingText)) {
+      return slug;
+    }
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // Renderer
 // ---------------------------------------------------------------------------
 
-function MarkdownRenderer({ source }: { source: string }) {
+const SCROLL_MARGIN = "scroll-mt-24";
+
+function MarkdownRenderer({
+  source,
+  signatureBlock,
+}: {
+  source: string;
+  signatureBlock?: React.ReactNode;
+}) {
   const nodes = useMemo(() => parseMarkdown(source), [source]);
+  const headingIndex = useMemo(() => buildHeadingIndex(nodes), [nodes]);
+
+  let signatureRendered = false;
+  let lastH3WasAbstract = false;
 
   return (
     <div className="whitepaper-prose">
       {nodes.map((n, idx) => {
+        let injectSignatureAfter: React.ReactNode = null;
+        if (
+          !signatureRendered &&
+          lastH3WasAbstract &&
+          (n.kind === "hr" ||
+            n.kind === "h2" ||
+            n.kind === "h3" ||
+            n.kind === "h1")
+        ) {
+          injectSignatureAfter = signatureBlock ?? null;
+          signatureRendered = true;
+          lastH3WasAbstract = false;
+        }
+
+        let rendered: React.ReactNode = null;
         switch (n.kind) {
           case "h1":
-            return (
+            rendered = (
               <h1
                 key={idx}
-                className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold mt-16 mb-6 leading-tight gold-gradient-text"
+                id={n.id}
+                className={`font-serif text-3xl sm:text-4xl lg:text-5xl font-bold mt-16 mb-6 leading-tight gold-gradient-text ${SCROLL_MARGIN}`}
               >
                 {renderInline(n.text)}
               </h1>
             );
+            break;
           case "h2":
-            return (
+            rendered = (
               <h2
                 key={idx}
-                className="font-serif text-2xl sm:text-3xl font-bold mt-14 mb-5 leading-tight border-b border-amber-500/20 pb-3"
+                id={n.id}
+                className={`font-serif text-2xl sm:text-3xl font-bold mt-14 mb-5 leading-tight border-b border-amber-500/20 pb-3 ${SCROLL_MARGIN}`}
               >
                 {renderInline(n.text)}
               </h2>
             );
+            break;
           case "h3":
-            return (
+            if (/^(초록|Abstract|抄録|要旨)/i.test(n.text.trim())) {
+              lastH3WasAbstract = true;
+            }
+            rendered = (
               <h3
                 key={idx}
-                className="font-serif text-xl sm:text-2xl font-semibold mt-10 mb-4 text-amber-100/90"
+                id={n.id}
+                className={`font-serif text-xl sm:text-2xl font-semibold mt-10 mb-4 text-amber-100/90 ${SCROLL_MARGIN}`}
               >
                 {renderInline(n.text)}
               </h3>
             );
+            break;
           case "h4":
-            return (
+            rendered = (
               <h4
                 key={idx}
-                className="font-serif text-lg sm:text-xl font-semibold mt-8 mb-3 text-amber-100/80"
+                id={n.id}
+                className={`font-serif text-lg sm:text-xl font-semibold mt-8 mb-3 text-amber-100/80 ${SCROLL_MARGIN}`}
               >
                 {renderInline(n.text)}
               </h4>
             );
+            break;
           case "hr":
-            return <hr key={idx} className="my-12 border-amber-500/15" />;
+            rendered = <hr key={idx} className="my-12 border-amber-500/15" />;
+            break;
           case "p":
-            return (
+            rendered = (
               <p
                 key={idx}
                 className="text-base sm:text-[1.0625rem] leading-[1.85] text-foreground/85 my-5"
@@ -273,24 +359,80 @@ function MarkdownRenderer({ source }: { source: string }) {
                 {renderInline(n.text)}
               </p>
             );
-          case "ul":
-            return (
-              <ul key={idx} className="my-5 space-y-2 list-disc list-outside pl-6 text-base sm:text-[1.0625rem] leading-[1.85] text-foreground/85 marker:text-amber-500/60">
-                {n.items.map((it, j) => (
-                  <li key={j}>{renderInline(it)}</li>
-                ))}
-              </ul>
-            );
+            break;
+          case "ul": {
+            if (n.isToc) {
+              rendered = (
+                <ul
+                  key={idx}
+                  className="my-5 space-y-2.5 list-none pl-0 text-base sm:text-[1.0625rem] leading-[1.85] text-foreground/85"
+                >
+                  {n.items.map((item, j) => {
+                    const slug = resolveTocLink(item, headingIndex);
+                    if (slug) {
+                      return (
+                        <li
+                          key={j}
+                          className="pl-4 border-l-2 border-amber-500/20 hover:border-amber-400/60 transition-colors"
+                        >
+                          <a
+                            href={`#${slug}`}
+                            className="text-amber-100/85 hover:text-amber-300 transition-colors inline-flex items-baseline gap-2"
+                            onClick={(e) => {
+                              const target = document.getElementById(slug);
+                              if (target) {
+                                e.preventDefault();
+                                const y =
+                                  target.getBoundingClientRect().top +
+                                  window.scrollY -
+                                  88;
+                                window.scrollTo({ top: y, behavior: "smooth" });
+                                history.replaceState(null, "", `#${slug}`);
+                              }
+                            }}
+                          >
+                            <span className="text-amber-500/60 text-sm">→</span>
+                            <span>{renderInline(item)}</span>
+                          </a>
+                        </li>
+                      );
+                    }
+                    return (
+                      <li key={j} className="pl-4 text-foreground/65">
+                        {renderInline(item)}
+                      </li>
+                    );
+                  })}
+                </ul>
+              );
+            } else {
+              rendered = (
+                <ul
+                  key={idx}
+                  className="my-5 space-y-2 list-disc list-outside pl-6 text-base sm:text-[1.0625rem] leading-[1.85] text-foreground/85 marker:text-amber-500/60"
+                >
+                  {n.items.map((it, j) => (
+                    <li key={j}>{renderInline(it)}</li>
+                  ))}
+                </ul>
+              );
+            }
+            break;
+          }
           case "ol":
-            return (
-              <ol key={idx} className="my-5 space-y-2 list-decimal list-outside pl-6 text-base sm:text-[1.0625rem] leading-[1.85] text-foreground/85 marker:text-amber-500/60">
+            rendered = (
+              <ol
+                key={idx}
+                className="my-5 space-y-2 list-decimal list-outside pl-6 text-base sm:text-[1.0625rem] leading-[1.85] text-foreground/85 marker:text-amber-500/60"
+              >
                 {n.items.map((it, j) => (
                   <li key={j}>{renderInline(it)}</li>
                 ))}
               </ol>
             );
+            break;
           case "table":
-            return (
+            rendered = (
               <div key={idx} className="my-8 -mx-4 sm:mx-0 overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
                   <thead>
@@ -312,7 +454,10 @@ function MarkdownRenderer({ source }: { source: string }) {
                         className="border-b border-amber-500/10 hover:bg-amber-500/5"
                       >
                         {row.map((cell, ci) => (
-                          <td key={ci} className="py-3 px-3 align-top text-foreground/80">
+                          <td
+                            key={ci}
+                            className="py-3 px-3 align-top text-foreground/80"
+                          >
                             {renderInline(cell)}
                           </td>
                         ))}
@@ -322,19 +467,27 @@ function MarkdownRenderer({ source }: { source: string }) {
                 </table>
               </div>
             );
+            break;
         }
+
+        return (
+          <span key={`f${idx}`} style={{ display: "contents" }}>
+            {rendered}
+            {injectSignatureAfter}
+          </span>
+        );
       })}
+
+      {!signatureRendered && signatureBlock}
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Watermark overlay
+// Watermark
 // ---------------------------------------------------------------------------
 
 function Watermark() {
-  // Tiled, very subtle. Visible enough to deter casual screenshots/redistribution
-  // but light enough to not interfere with reading.
   return (
     <div
       aria-hidden="true"
@@ -356,7 +509,32 @@ function Watermark() {
 }
 
 // ---------------------------------------------------------------------------
-// Main client component
+// Signature block
+// ---------------------------------------------------------------------------
+
+function SignatureBlock() {
+  return (
+    <div className="my-12 sm:my-16 flex flex-col items-center sm:items-start gap-3">
+      <div className="text-sm sm:text-base text-foreground/70">
+        림팩토리 대표
+      </div>
+      <img
+        src="/letter/chandler-signature.webp"
+        alt="Chandler — Rimfactory"
+        className="h-12 sm:h-14 w-auto opacity-90"
+        loading="lazy"
+        draggable={false}
+        onContextMenu={(e) => e.preventDefault()}
+      />
+      <div className="text-base sm:text-lg font-serif text-amber-100/90">
+        챈들러 (Chandler)
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main
 // ---------------------------------------------------------------------------
 
 const LOCALE_LABEL: Record<WhitepaperLocale, string> = {
@@ -372,24 +550,22 @@ export default function WhitepaperClient({
 }) {
   const [locale, setLocale] = useState<WhitepaperLocale>(initialLocale);
 
-  // ---------------- protection layer ----------------
-  // None of these are guarantees. Devtools and screenshot tools defeat them
-  // trivially. They exist so casual copy-paste / right-click-save / drag-out
-  // doesn't grab the text effortlessly.
   useEffect(() => {
     const blockEvent = (e: Event) => e.preventDefault();
     const blockKey = (e: KeyboardEvent) => {
       const k = e.key.toLowerCase();
-      // Block common copy / save / print / view-source / select-all combos.
-      if ((e.ctrlKey || e.metaKey) && ["c", "x", "s", "a", "p", "u"].includes(k)) {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        ["c", "x", "s", "a", "p", "u"].includes(k)
+      ) {
         e.preventDefault();
       }
-      // Block PrintScreen — note: OS-level capture cannot be blocked by JS.
       if (k === "printscreen") {
         e.preventDefault();
-        // Best-effort: blank clipboard so PrtSc on Windows doesn't silently win.
         if (navigator.clipboard) {
-          navigator.clipboard.writeText("© Rimfactory — 무단 복제·배포 금지").catch(() => {});
+          navigator.clipboard
+            .writeText("© Rimfactory — 무단 복제·배포 금지")
+            .catch(() => {});
         }
       }
     };
@@ -411,8 +587,22 @@ export default function WhitepaperClient({
     };
   }, []);
 
-  // Choose the body. Korean is the source of truth; until EN/JA ship we mirror
-  // Korean but show a small notice at the top.
+  // Re-trigger anchor scroll on language change so deep links keep working.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash;
+    if (!hash) return;
+    const slug = hash.slice(1);
+    const t = window.setTimeout(() => {
+      const target = document.getElementById(slug);
+      if (target) {
+        const y = target.getBoundingClientRect().top + window.scrollY - 88;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 50);
+    return () => window.clearTimeout(t);
+  }, [locale]);
+
   const body =
     locale === "ko"
       ? whitepaperContentKo
@@ -435,7 +625,6 @@ export default function WhitepaperClient({
       <Watermark />
 
       <article className="relative z-10 mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        {/* meta strip */}
         <div className="mb-10 flex flex-wrap items-center gap-3 text-xs sm:text-sm text-foreground/60">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500/80 animate-pulse" />
@@ -447,7 +636,6 @@ export default function WhitepaperClient({
           <span>Rimfactory</span>
         </div>
 
-        {/* Language toggle */}
         <div className="mb-12 flex items-center gap-2 text-sm">
           {(["ko", "en", "ja"] as WhitepaperLocale[]).map((loc) => (
             <button
@@ -472,15 +660,16 @@ export default function WhitepaperClient({
           </div>
         )}
 
-        <MarkdownRenderer source={body} />
+        <MarkdownRenderer
+          source={body}
+          signatureBlock={<SignatureBlock />}
+        />
 
-        {/* footer note */}
         <footer className="mt-20 pt-10 border-t border-amber-500/15 text-sm text-foreground/55 leading-relaxed">
-          <p>
-            © 2026 Rimfactory · Chandler. All rights reserved.
-          </p>
+          <p>© 2026 Rimfactory · Chandler. All rights reserved.</p>
           <p className="mt-2">
-            본 백서의 무단 배포·복제·번역·인용을 금합니다. 학술 인용 및 보도 목적의 인용은 출처를 명시할 경우 허용됩니다. 문의: <span className="text-amber-100/80">info@rimfactory.io</span>
+            본 백서의 무단 배포·복제·번역·인용을 금합니다. 학술 인용 및 보도 목적의 인용은 출처를 명시할 경우 허용됩니다. 문의:{" "}
+            <span className="text-amber-100/80">info@rimfactory.io</span>
           </p>
         </footer>
       </article>

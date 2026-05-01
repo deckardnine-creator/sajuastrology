@@ -159,14 +159,49 @@ export function HeroSection() {
               <span className="align-middle">{t("hero.techLine")}</span>
             </p>
 
-            {/* v6.17.60 — CRITICAL: NVIDIA Inception strip MUST be
-                hidden inside the native app. App Store Guideline 5.2.5
-                forbids displaying third-party marks without permission,
-                and NVIDIA marketing inside the app could escalate the
-                existing 4.3(b) "saturated category" appeal. The strip
-                itself comments "HIDDEN in the native app via the parent
-                hero gating" — this is that gate. Web-only, never app. */}
-            {!isNativeApp && <NvidiaInceptionStrip />}
+            {/* ════════════════════════════════════════════════════════
+                Whitepaper button — top of the authority stack, sitting
+                ABOVE the NVIDIA Inception strip. The whitepaper is our
+                academic-authority signal; NVIDIA is the external-validation
+                signal. Both are gated to web-only because Apple Guideline
+                5.2.5 prohibits third-party marks in the native binary, and
+                academic content can complicate the existing 4.3(b) review
+                track if discovered through the app surface.
+                
+                Visual language:
+                  - Glow: subtle gold pulse around the rounded card
+                  - Compact height: py-3, NOT a thick CTA bar
+                  - Web: items-start (left). Mobile: items-center.
+                  - Spacing to NVIDIA = ~gap-3, mirroring the gap between
+                    the two primary CTAs (Reading / Compatibility) below.
+            ════════════════════════════════════════════════════════ */}
+            {!isNativeApp && (
+              <div className="flex flex-col items-center sm:items-start gap-3">
+                <Link
+                  href="/whitepaper"
+                  className="group relative w-[280px] lg:w-auto lg:min-w-[280px] block"
+                >
+                  {/* Glow halo */}
+                  <span
+                    aria-hidden
+                    className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-amber-500/30 via-amber-300/40 to-amber-500/30 opacity-60 blur-md group-hover:opacity-90 transition-opacity"
+                  />
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 rounded-xl ring-1 ring-amber-300/50 group-hover:ring-amber-200/70 transition-colors"
+                  />
+                  <div className="relative rounded-xl bg-gradient-to-r from-amber-500/[0.08] via-amber-400/[0.12] to-amber-500/[0.08] backdrop-blur-sm px-4 py-3 flex items-center gap-3">
+                    <span className="text-base">📄</span>
+                    <span className="flex-1 min-w-0 text-[13.5px] sm:text-[14px] leading-snug font-medium text-amber-100 group-hover:text-amber-50 transition-colors">
+                      {t("hero.whitepaperLink")}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </Link>
+
+                <NvidiaInceptionStrip />
+              </div>
+            )}
 
             {/* ════════════════════════════════════════════════════════
                 v1.3 Sprint 2-B v6.9: Soram CTA + primary CTAs unified
@@ -298,19 +333,9 @@ export function HeroSection() {
                 estate.
             ════════════════════════════════════════════════════════ */}
             <div className="flex flex-col gap-2 mt-1">
-              {/* Whitepaper link — placed first so it sits closest to the
-                  NVIDIA Inception strip above. Adds an academic-authority
-                  signal next to the external-validation signal. */}
-              <Link
-                href="/whitepaper"
-                className="text-[14px] sm:text-[15px] text-[#d4af37] hover:text-[#f5d76e] transition-colors inline-flex items-center gap-1.5 self-center sm:self-start"
-              >
-                <span>
-                  {t("hero.whitepaperLink")}
-                </span>
-              </Link>
-
-              {/* Letter (CEO message) link — centered on mobile */}
+              {/* Letter (CEO message) link — centered on mobile.
+                  Celebrity link removed (chandler 2026-05-01) — replaced by
+                  the whitepaper glow button above the NVIDIA strip. */}
               <Link
                 href="/letter"
                 className="text-[13px] sm:text-[14px] text-muted-foreground/85 hover:text-primary transition-colors inline-flex items-center gap-1.5 self-center sm:self-start"
