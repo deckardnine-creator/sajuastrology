@@ -23,7 +23,10 @@
  *    the persistent watermark + the explicit copyright notice.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
+import { Navbar } from "@/components/landing/navbar";
+import { Footer } from "@/components/landing/footer";
+import { useLanguage } from "@/lib/language-context";
 import {
   whitepaperContentKo,
   whitepaperContentEn,
@@ -548,19 +551,43 @@ function SignatureBlock() {
 // Main
 // ---------------------------------------------------------------------------
 
-const LOCALE_LABEL: Record<WhitepaperLocale, string> = {
-  ko: "한국어",
-  en: "English",
-  ja: "日本語",
-};
+/**
+ * Maps the global locale string (10 languages) to the whitepaper's
+ * 3-language source set. Korean stays Korean, Japanese stays Japanese,
+ * everything else falls through to English. As English/Japanese
+ * translations land in `whitepaper-content.ts`, the `whitepaperContentEn`
+ * and `whitepaperContentJa` exports flip from "fallback to Korean" to the
+ * real translation — no change required here.
+ */
+function mapLocaleToWhitepaper(locale: string): WhitepaperLocale {
+  const l = locale.toLowerCase();
+  if (l.startsWith("ko")) return "ko";
+  if (l.startsWith("ja")) return "ja";
+  return "en";
+}
 
 export default function WhitepaperClient({
-  initialLocale = "ko",
+  initialLocale,
 }: {
   initialLocale?: WhitepaperLocale;
-}) {
-  const [locale, setLocale] = useState<WhitepaperLocale>(initialLocale);
+} = {}) {
+  // chandler 2026-05-01 (rev3):
+  //   - Page now wraps with the same <Navbar /> and <Footer /> the rest of
+  //     the site uses, so the language toggle, hamburger, sign-in, mobile
+  //     bottom-nav etc. are all consistent across web and mobile.
+  //   - The previous in-page ko/en/ja toggle is removed — the global
+  //     language picker drives the whole site, and the whitepaper now
+  //     follows it via `useLanguage()`. Korean / Japanese render natively;
+  //     other locales fall back to English (which itself currently mirrors
+  //     Korean until the EN translation ships).
+  //   - `initialLocale` is kept on the prop signature for SSR fallback, but
+  //     the live value comes from the language context.
+  const { locale: globalLocale } = useLanguage();
+  const wpLocale: WhitepaperLocale = mapLocaleToWhitepaper(
+    globalLocale || initialLocale || "ko",
+  );
 
+  // ----- soft IP barrier (deterrent only — see file header) -----
   useEffect(() => {
     const blockEvent = (e: Event) => e.preventDefault();
     const blockKey = (e: KeyboardEvent) => {
@@ -612,78 +639,72 @@ export default function WhitepaperClient({
       }
     }, 50);
     return () => window.clearTimeout(t);
-  }, [locale]);
+  }, [wpLocale]);
 
   const body =
-    locale === "ko"
+    wpLocale === "ko"
       ? whitepaperContentKo
-      : locale === "ja"
+      : wpLocale === "ja"
         ? whitepaperContentJa
         : whitepaperContentEn;
 
-  const showFallbackNotice = locale !== "ko";
+  // The whitepaper has 3 source languages. EN/JA fall back to Korean source
+  // until the translation is published. We surface a small inline notice so
+  // a non-Korean reader understands why the body looks Korean.
+  const showFallbackNotice = wpLocale !== "ko";
+  const fallbackNotice =
+    wpLocale === "ja"
+      ? "英語版・日本語版は準備中です。現在は韓国語版を表示しています。"
+      : "The English edition is in preparation. The Korean source is shown below for now.";
 
   return (
-    <div
-      className="relative min-h-screen bg-background text-foreground select-none"
-      style={{
-        WebkitUserSelect: "none",
-        userSelect: "none",
-        WebkitTouchCallout: "none",
-      }}
-      onContextMenu={(e) => e.preventDefault()}
-    >
-      <Watermark />
+    <>
+      <Navbar />
+      <main
+        className="relative min-h-screen bg-background text-foreground select-none"
+        style={{
+          WebkitUserSelect: "none",
+          userSelect: "none",
+          WebkitTouchCallout: "none",
+        }}
+        onContextMenu={(e) => e.preventDefault()}
+      >
+        <Watermark />
 
-      <article className="relative z-10 mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <div className="mb-10 flex flex-wrap items-center gap-3 text-xs sm:text-sm text-foreground/60">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500/80 animate-pulse" />
-            RimSaju Whitepaper {WHITEPAPER_VERSION}
-          </span>
-          <span className="text-foreground/30">·</span>
-          <span>{WHITEPAPER_PUBLISHED}</span>
-          <span className="text-foreground/30">·</span>
-          <span>Rimfactory</span>
-        </div>
-
-        <div className="mb-12 flex items-center gap-2 text-sm">
-          {(["ko", "en", "ja"] as WhitepaperLocale[]).map((loc) => (
-            <button
-              key={loc}
-              onClick={() => setLocale(loc)}
-              className={`rounded-full px-4 py-1.5 border transition-colors ${
-                locale === loc
-                  ? "border-amber-500/60 bg-amber-500/10 text-amber-100"
-                  : "border-foreground/15 text-foreground/55 hover:border-foreground/30"
-              }`}
-            >
-              {LOCALE_LABEL[loc]}
-            </button>
-          ))}
-        </div>
-
-        {showFallbackNotice && (
-          <div className="mb-10 rounded-lg border border-amber-500/20 bg-amber-500/[0.04] p-4 text-sm text-foreground/70">
-            {locale === "en"
-              ? "The English edition is in preparation. Korean source is shown below for now."
-              : "英語版・日本語版は準備中です。現在は韓国語版を表示しています。"}
+        <article className="relative z-10 mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          {/* meta strip — version / date / publisher */}
+          <div className="mb-10 flex flex-wrap items-center gap-3 text-xs sm:text-sm text-foreground/60">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500/80 animate-pulse" />
+              RimSaju Whitepaper {WHITEPAPER_VERSION}
+            </span>
+            <span className="text-foreground/30">·</span>
+            <span>{WHITEPAPER_PUBLISHED}</span>
+            <span className="text-foreground/30">·</span>
+            <span>Rimfactory</span>
           </div>
-        )}
 
-        <MarkdownRenderer
-          source={body}
-          signatureBlock={<SignatureBlock />}
-        />
+          {showFallbackNotice && (
+            <div className="mb-10 rounded-lg border border-amber-500/20 bg-amber-500/[0.04] p-4 text-sm text-foreground/70">
+              {fallbackNotice}
+            </div>
+          )}
 
-        <footer className="mt-20 pt-10 border-t border-amber-500/15 text-sm text-foreground/55 leading-relaxed">
-          <p>© 2026 Rimfactory · Chandler. All rights reserved.</p>
-          <p className="mt-2">
-            본 백서의 무단 배포·복제·번역·인용을 금합니다. 학술 인용 및 보도 목적의 인용은 출처를 명시할 경우 허용됩니다. 문의:{" "}
-            <span className="text-amber-100/80">info@rimfactory.io</span>
-          </p>
-        </footer>
-      </article>
-    </div>
+          <MarkdownRenderer
+            source={body}
+            signatureBlock={<SignatureBlock />}
+          />
+
+          <div className="mt-20 pt-10 border-t border-amber-500/15 text-sm text-foreground/55 leading-relaxed">
+            <p>© 2026 Rimfactory · Chandler. All rights reserved.</p>
+            <p className="mt-2">
+              본 백서의 무단 배포·복제·번역·인용을 금합니다. 학술 인용 및 보도 목적의 인용은 출처를 명시할 경우 허용됩니다. 문의:{" "}
+              <span className="text-amber-100/80">info@rimfactory.io</span>
+            </p>
+          </div>
+        </article>
+      </main>
+      <Footer />
+    </>
   );
 }

@@ -1,7 +1,7 @@
 // lib/whitepaper-content.ts
 // RimSaju v2 Whitepaper — Korean source of truth.
-// English/Japanese versions arrive in subsequent commits.
-// Korean default — English/Japanese fallback to Korean for now.
+// English/Japanese translations arrive in subsequent commits.
+// EN/JA currently fall back to Korean text.
 
 export type WhitepaperLocale = "ko" | "en" | "ja";
 
@@ -39,7 +39,7 @@ export const whitepaperContentKo = `# RimSaju v2 백서
 
 첫째, **일반 사용자**가 RimSaju 엔진이 어떤 원리로 구축되고 있는지 — 점술이 아니라 정보시스템적 작업으로 — 이해할 수 있도록 안내한다. 사주를 신비로 받아들이는 분이든 회의로 받아들이는 분이든, 본 백서는 그 사이에 놓인 *측정 가능한 작업*의 윤곽을 제시한다.
 
-둘째, **본 회사에 진지하게 초기 투자를 검토하는 분**에게는 기술적 토대와 4년 빌드 로드맵의 구조를 제시한다. 본 회사의 지분은 100% 대표에게 귀속되어 있다. 본 백서는 림팩토리(NVIDIA Inception 멤버, RimSaju v1 엔진 운영, 출시 30일 만에 50개국 사용자 도달)의 중요한 자산이며, 진지한 검토를 위한 자료로 작성되었다.
+둘째, **본 회사에 진지하게 초기 투자를 검토하는 분**에게는 기술적 토대와 4년 빌드 로드맵의 구조를 제시한다. 본 회사의 지분은 100% 대표에게 귀속되어 있다. 본 백서는 림팩토리(NVIDIA Inception 멤버, RimSaju v1 엔진 운영, 출시 30일 만에 50개국 사용자 도달)의 중요한 자산이며, 림팩토리의 사주엔진 업그레이드를 위한 사전 설계를 위해 작성되었다.
 
 본 회사의 기업 가치는 가볍지 않게 책정되어 있다. 단순한 가격 탐색을 위한 접촉은 정중히 사양한다. 본 백서의 학술적·기술적 내용에 대한 질문, 또는 진지한 협업·투자 논의는 언제든 환영한다.
 
@@ -1984,7 +1984,6 @@ export const whitepaperContentEn = whitepaperContentKo;
 export const whitepaperContentJa = whitepaperContentKo;
 
 export function getWhitepaperContent(locale: WhitepaperLocale | string): string {
-  // Korean first, English second, Japanese third — anything else falls back to English (which currently mirrors Korean).
   if (locale === "ko") return whitepaperContentKo;
   if (locale === "ja") return whitepaperContentJa;
   return whitepaperContentEn;
