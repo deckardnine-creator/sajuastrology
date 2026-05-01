@@ -312,7 +312,7 @@ function MarkdownRenderer({
               <h1
                 key={idx}
                 id={n.id}
-                className={`font-serif text-3xl sm:text-4xl lg:text-5xl font-bold mt-16 mb-6 leading-tight gold-gradient-text ${SCROLL_MARGIN}`}
+                className={`font-serif text-[1.625rem] sm:text-[2rem] lg:text-[2.5rem] font-bold mt-12 mb-5 leading-[1.25] gold-gradient-text ${SCROLL_MARGIN}`}
               >
                 {renderInline(n.text)}
               </h1>
@@ -323,7 +323,7 @@ function MarkdownRenderer({
               <h2
                 key={idx}
                 id={n.id}
-                className={`font-serif text-2xl sm:text-3xl font-bold mt-14 mb-5 leading-tight border-b border-amber-500/20 pb-3 ${SCROLL_MARGIN}`}
+                className={`font-serif text-[1.25rem] sm:text-[1.5625rem] font-bold mt-12 mb-4 leading-[1.3] border-b border-amber-500/20 pb-2.5 ${SCROLL_MARGIN}`}
               >
                 {renderInline(n.text)}
               </h2>
@@ -337,7 +337,7 @@ function MarkdownRenderer({
               <h3
                 key={idx}
                 id={n.id}
-                className={`font-serif text-xl sm:text-2xl font-semibold mt-10 mb-4 text-amber-100/90 ${SCROLL_MARGIN}`}
+                className={`font-serif text-[1.0625rem] sm:text-[1.1875rem] font-semibold mt-8 mb-3 text-amber-100/90 ${SCROLL_MARGIN}`}
               >
                 {renderInline(n.text)}
               </h3>
@@ -348,7 +348,7 @@ function MarkdownRenderer({
               <h4
                 key={idx}
                 id={n.id}
-                className={`font-serif text-lg sm:text-xl font-semibold mt-8 mb-3 text-amber-100/80 ${SCROLL_MARGIN}`}
+                className={`font-serif text-[0.96875rem] sm:text-[1.0625rem] font-semibold mt-6 mb-2.5 text-amber-100/80 ${SCROLL_MARGIN}`}
               >
                 {renderInline(n.text)}
               </h4>
@@ -361,7 +361,7 @@ function MarkdownRenderer({
             rendered = (
               <p
                 key={idx}
-                className="text-base sm:text-[1.0625rem] leading-[1.85] text-foreground/85 my-5"
+                className="text-[0.9375rem] sm:text-base leading-[1.8] text-foreground/85 my-4"
               >
                 {renderInline(n.text)}
               </p>
@@ -372,7 +372,7 @@ function MarkdownRenderer({
               rendered = (
                 <ul
                   key={idx}
-                  className="my-5 space-y-2.5 list-none pl-0 text-base sm:text-[1.0625rem] leading-[1.85] text-foreground/85"
+                  className="my-4 space-y-2 list-none pl-0 text-[0.9375rem] sm:text-base leading-[1.75] text-foreground/85"
                 >
                   {n.items.map((item, j) => {
                     const slug = resolveTocLink(item, headingIndex);
@@ -416,7 +416,7 @@ function MarkdownRenderer({
               rendered = (
                 <ul
                   key={idx}
-                  className="my-5 space-y-2 list-disc list-outside pl-6 text-base sm:text-[1.0625rem] leading-[1.85] text-foreground/85 marker:text-amber-500/60"
+                  className="my-4 space-y-1.5 list-disc list-outside pl-6 text-[0.9375rem] sm:text-base leading-[1.75] text-foreground/85 marker:text-amber-500/60"
                 >
                   {n.items.map((it, j) => (
                     <li key={j}>{renderInline(it)}</li>
@@ -430,7 +430,7 @@ function MarkdownRenderer({
             rendered = (
               <ol
                 key={idx}
-                className="my-5 space-y-2 list-decimal list-outside pl-6 text-base sm:text-[1.0625rem] leading-[1.85] text-foreground/85 marker:text-amber-500/60"
+                className="my-4 space-y-1.5 list-decimal list-outside pl-6 text-[0.9375rem] sm:text-base leading-[1.75] text-foreground/85 marker:text-amber-500/60"
               >
                 {n.items.map((it, j) => (
                   <li key={j}>{renderInline(it)}</li>
@@ -671,7 +671,7 @@ export default function WhitepaperClient({
       >
         <Watermark />
 
-        <article className="relative z-10 mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-12 sm:pb-16">
+        <article className="relative z-10 mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 pt-page-lg pb-12 sm:pb-16">
           {/* meta strip — version / date / publisher */}
           <div className="mb-10 flex flex-wrap items-center gap-3 text-xs sm:text-sm text-foreground/60">
             <span className="inline-flex items-center gap-1.5">

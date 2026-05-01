@@ -372,3 +372,33 @@ html.native-app .mobile-bottom-nav-web {
 .native-app .web-footer {
   display: none !important;
 }
+
+/* ════════════════════════════════════════════════════════════════
+   chandler 2026-05-01 — Global mobile BottomNav clearance
+   ────────────────────────────────────────────────────────────────
+   The MobileBottomNav (components/layout/mobile-bottom-nav.tsx) is
+   `fixed bottom-0` with h-16 (64px) on mobile web. Without bottom
+   padding on body, every page's last element sits flush against
+   (or behind) the bar — chandler's screenshots showed the home
+   footer's last line cropped, the Reading page's "See My Reading"
+   button hugging the nav, the whitepaper's licence block touching
+   the bar, etc. Adding the breathing room globally instead of
+   per-page means we don't have to remember to add pb-* on every
+   new page.
+   
+   The native app shell (.native-app, set pre-paint by the inline
+   script in app/layout.tsx) renders its own Flutter BottomNav —
+   the web bar is hidden via the rule above, so the body padding
+   becomes wasted space. We zero it out for native.
+   
+   md and up: MobileBottomNav is `md:hidden`, so no padding needed.
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: 5rem;  /* 80px = 64px nav + 16px breathing room */
+  }
+}
+
+html.native-app body {
+  padding-bottom: 0;
+}
