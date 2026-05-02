@@ -160,27 +160,34 @@ export function HeroSection() {
             </p>
 
             {/* ════════════════════════════════════════════════════════
-                Whitepaper button — top of the authority stack, sitting
-                ABOVE the NVIDIA Inception strip. The whitepaper is our
-                academic-authority signal; NVIDIA is the external-validation
-                signal. Both are gated to web-only because Apple Guideline
-                5.2.5 prohibits third-party marks in the native binary, and
-                academic content can complicate the existing 4.3(b) review
-                track if discovered through the app surface.
+                Authority stack — NVIDIA Inception strip ABOVE the
+                whitepaper button (chandler 2026-05-02 reorder).
+                
+                Reasoning: NVIDIA Inception is the strongest external
+                validation signal a startup can show on a hero — selected
+                by NVIDIA = third-party gatekeeper credential. Putting it
+                first builds the "this is a real, vetted company" frame
+                BEFORE the visitor encounters the whitepaper (which then
+                lands as supporting technical depth, not as the lead claim).
+                
+                Both gated:
+                  - NVIDIA strip: web-only (Apple Guideline 5.2.5 — no
+                    third-party marks in native binary).
+                  - Whitepaper: visible on app too (own asset, not a
+                    third-party mark, so 5.2.5 does not apply).
                 
                 Visual language:
-                  - Glow: subtle gold pulse around the rounded card
-                  - Compact height: py-3, NOT a thick CTA bar
+                  - Compact: NVIDIA strip py-2, whitepaper py-3
                   - Web: items-start (left). Mobile: items-center.
-                  - Spacing to NVIDIA = ~gap-3, mirroring the gap between
-                    the two primary CTAs (Reading / Compatibility) below.
+                  - gap-3 between NVIDIA and whitepaper, mirroring the
+                    gap between the two primary CTAs below.
             ════════════════════════════════════════════════════════ */}
-            {/* chandler 2026-05-01 (rev): Whitepaper button now visible on
-                APP too. The whitepaper is our own asset (not a third-party
-                mark), so Apple Guideline 5.2.5 does not gate it. NVIDIA
-                Inception strip stays web-only — third-party mark must not
-                ship in the native binary. */}
             <div className="flex flex-col items-center sm:items-start gap-3">
+              {/* NVIDIA strip — web only (Apple Guideline 5.2.5: no third-
+                  party marks in the native binary). Now sits at the top of
+                  the authority stack. */}
+              {!isNativeApp && <NvidiaInceptionStrip />}
+
               {/* chandler 2026-05-01 (rev): explicitly forward current locale
                   via ?lang= on click. The whitepaper page reads ?lang= first
                   in detectLocale() (language-context.tsx) and persists it,
@@ -218,10 +225,6 @@ export function HeroSection() {
                   <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
                 </div>
               </Link>
-
-              {/* NVIDIA strip — web only (Apple Guideline 5.2.5: no third-
-                  party marks in the native binary). */}
-              {!isNativeApp && <NvidiaInceptionStrip />}
             </div>
 
             {/* ════════════════════════════════════════════════════════

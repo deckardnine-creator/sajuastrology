@@ -220,7 +220,7 @@ export const whitepaperContentKo = `# RimSaju v2 백서
 
 **「적천수(滴天髓)」**는 원래 송말 명초의 경도(京圖) 또는 유백온(劉伯溫, 1311~1375)의 저작으로 전해지는 본문이다. 그러나 현재 통용되는 「적천수」는 청대 임철초(任鐵樵, 약 1773~?)의 「적천수천미(滴天髓闡微)」, 즉 임철초의 주해본이다. 「적천수」 본문은 송말~명초의 산물이지만, 실질적 학술 가치를 형성한 것은 청대 임철초의 주석이다. 본 연구가 RimSaju v1의 RAG 코퍼스에 포함시킨 「적천수」 또한 사실상 임철초의 텍스트이다.
 
-**「자평진전(子平眞詮)」**은 청대 심효첨(沈孝瞻, 약 1696~1757)의 저작으로, 격국론(格局論)을 체계화하였다. 정관격·편관격·정재격·편재격·식신격·상관격 등 격국의 분류와 운용을 정리한 격국파 명리의 정전이다.
+**「자평진전(子平眞詮)」**은 청대 심효첨(沈孝瞻, 약 1696~?)의 저작으로, 격국론(格局論)을 체계화하였다. 정관격·편관격·정재격·편재격·식신격·상관격 등 격국의 분류와 운용을 정리한 격국파 명리의 정전이다.
 
 **「궁통보감(窮通寶鑑)」**은 청대 여춘대(余春台)가 편집한 것으로 알려져 있다. 명대의 「난강망(欄江網)」 또는 「조화원약(造化元鑰)」을 정리한 것이라는 견해가 있다. 조후론(調候論)을 정수로 하며, 월령(月令), 즉 태어난 달의 계절적 한난조습(寒暖燥濕)에 따라 용신을 정하는 방식을 체계화하였다. 조후파 명리의 정전이다.
 
@@ -2183,7 +2183,7 @@ The principal works that this research treats as primary texts are listed below 
 
 **Qing Dynasty (17th – 19th c.)**
 
-- *Ziping Zhenquan* (子平眞詮, mid-18th c.). Authored by Shen Xiaozhan (沈孝瞻, c. 1696–1757). It systematized the *gyeokguk* (格局, formative-pattern) theory and provided the framework that subsequent Saju astrology relies on for *gyeokguk* analysis. Notes for *Yongsin* are particularly precise.
+- *Ziping Zhenquan* (子平眞詮, mid-18th c.). Authored by Shen Xiaozhan (沈孝瞻, c. 1696–?). It systematized the *gyeokguk* (格局, formative-pattern) theory and provided the framework that subsequent Saju astrology relies on for *gyeokguk* analysis. Notes for *Yongsin* are particularly precise.
 - *Diwen Lu Chanwei* (滴天髓闡微, c. 19th c.). The commentary on the *Diwen Lu* by Ren Tiechao (任鐵樵, c. 1773 – ?). Still treated as a basic academic reference today.
 
 **Republican China and the Twentieth Century**
@@ -4079,7 +4079,7 @@ export const whitepaperContentJa = `# RimSaju v2 ホワイトペーパー
 
 **『適天髄 (滴天髓)』** は、もともと宋末明初の京図 (京圖) もしくは劉伯温 (劉伯溫, 1311 ~ 1375) の著作として伝えられる本文である。しかし現在通用している『適天髄』は、清代の任鉄樵 (任鐵樵, 約 1773 ~ ?) による『適天髄闡微 (滴天髓闡微)』、すなわち任鉄樵の注解本である。『適天髄』本文は宋末から明初の所産であるが、実質的な学術的価値を形成したのは清代の任鉄樵の注釈である。本研究が RimSaju v1 の RAG コーパスに含めた『適天髄』もまた、事実上は任鉄樵のテキストである。
 
-**『子平真詮 (子平眞詮)』** は、清代の沈孝瞻 (沈孝瞻, 約 1696 ~ 1757) の著作であり、格局論 (格局論) を体系化した。正官格・偏官格・正財格・偏財格・食神格・傷官格などの格局の分類と運用を整理した、格局派命理の正典である。
+**『子平真詮 (子平眞詮)』** は、清代の沈孝瞻 (沈孝瞻, 約 1696 ~ ?) の著作であり、格局論 (格局論) を体系化した。正官格・偏官格・正財格・偏財格・食神格・傷官格などの格局の分類と運用を整理した、格局派命理の正典である。
 
 **『窮通宝鑑 (窮通寶鑑)』** は、清代の余春台 (余春台) が編集したものとして知られている。明代の『欄江網 (欄江網)』もしくは『造化元鑰 (造化元鑰)』を整理したものであるとの見解もある。調候論 (調候論) を要諦とし、月令 (月令) すなわち生まれた月の季節的な寒暖燥湿 (寒暖燥濕) によって用神を定める方式を体系化した。調候派命理の正典である。
 
