@@ -277,7 +277,7 @@ export function Footer() {
               <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground/55">
                 <span>Reg. No.: 402-44-01247</span>
                 <span className="hidden sm:inline">|</span>
-                <span>CEO: Cho Yeon Yun</span>
+                <span>CEO: Yun Choyeon</span>
               </div>
               <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground/55">
                 <span>info@rimfactory.io</span>
@@ -285,7 +285,7 @@ export function Footer() {
                 <span>+82-10-4648-6793</span>
               </div>
               <p className="text-xs text-muted-foreground/55 max-w-xs text-center leading-relaxed">
-                243, 1F, Sindorim Technomart, 97 Saemallo, Guro-gu, Seoul, Korea
+                243, 1F, Sindorim Technomart, 97 Saemal-ro, Guro-gu, Seoul 08288, Republic of Korea
               </p>
             </div>
           </div>
