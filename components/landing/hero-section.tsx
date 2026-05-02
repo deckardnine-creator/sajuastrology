@@ -268,12 +268,31 @@ export function HeroSection() {
                 </Button>
               </Link>
 
-              {/* Secondary: Compatibility check (free) */}
-              <Link href="/compatibility" className="block w-[280px] lg:w-auto">
+              {/* Secondary: Compatibility check (free)
+                  v6.17.55 — chandler 2026-05-02: outline styled to match
+                  the whitepaper button above (glow halo + amber ring)
+                  while keeping the existing color/border palette. The
+                  goal was visual parity in *outline treatment*, not in
+                  fill — so the inner Button keeps its bg-transparent +
+                  EAB308 border, and the new glow + ring sit OUTSIDE on
+                  the wrapping Link. group-hover wiring mirrors the
+                  whitepaper button so both elements (halo opacity, ring
+                  brightness, ArrowRight slide) animate together. */}
+              <Link href="/compatibility" className="group relative block w-[280px] lg:w-auto">
+                {/* Glow halo — same gradient as whitepaper button */}
+                <span
+                  aria-hidden
+                  className="absolute -inset-0.5 rounded-md bg-gradient-to-r from-amber-500/30 via-amber-300/40 to-amber-500/30 opacity-60 blur-md group-hover:opacity-90 transition-opacity pointer-events-none"
+                />
+                {/* Outer ring outline */}
+                <span
+                  aria-hidden
+                  className="absolute inset-0 rounded-md ring-1 ring-amber-300/50 group-hover:ring-amber-200/70 transition-colors pointer-events-none"
+                />
                 <Button
                   size="lg"
                   variant="outline"
-                  className="bg-transparent border-2 border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold text-base px-6 group w-full lg:w-auto transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99]"
+                  className="relative bg-transparent border-2 border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold text-base px-6 w-full lg:w-auto transition-all duration-200 active:scale-[0.99]"
                 >
                   <span className="truncate lg:overflow-visible lg:whitespace-nowrap">{t("hero.ctaCompatibility")}</span>
                   <ArrowRight className="ml-2 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />

@@ -155,7 +155,7 @@ export function NvidiaInceptionStrip() {
             border border-sky-400/40
             bg-gradient-to-br from-sky-500/10 via-cyan-400/5 to-transparent
             backdrop-blur-sm
-            pl-3 pr-3 py-3
+            pl-3 pr-3 pt-2 pb-3
             transition-all duration-200
             hover:border-sky-300/70
             hover:shadow-[0_8px_24px_rgba(56,189,248,0.25)]
