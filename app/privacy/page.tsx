@@ -27,7 +27,7 @@ export default function PrivacyPage() {
                 <p><strong>Representative:</strong> Yun Choyeon</p>
                 <p><strong>Business Registration No.:</strong> 402-44-01247</p>
                 <p><strong>Mail-order Business Report No.:</strong> 2025-Seoul Guro-2056</p>
-                <p><strong>Address:</strong> 243, 1F, Sindorim Technomart, 97 Saemal-ro, Guro-gu, Seoul 08213, Republic of Korea</p>
+                <p><strong>Address:</strong> 243, 1F, Sindorim Technomart, 97 Saemal-ro, Guro-gu, Seoul 08288, Republic of Korea</p>
                 <p><strong>Email:</strong> <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a></p>
                 <p><strong>Phone:</strong> +82-10-4648-6793</p>
               </div>
@@ -181,7 +181,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">Contact</h2>
               <div className="bg-card/50 border border-border rounded-xl p-4">
-                <p><strong>Rimfactory</strong> — 243, 1F, Sindorim Technomart, 97 Saemal-ro, Guro-gu, Seoul 08213, Republic of Korea</p>
+                <p><strong>Rimfactory</strong> — 243, 1F, Sindorim Technomart, 97 Saemal-ro, Guro-gu, Seoul 08288, Republic of Korea</p>
                 <p className="mt-1">Business Registration No.: 402-44-01247 · Mail-order Business Report No.: 2025-Seoul Guro-2056</p>
                 <p className="mt-1">Email: <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> · Phone: +82-10-4648-6793</p>
               </div>
