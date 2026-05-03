@@ -693,7 +693,7 @@ export default function WhitepaperClient({
           <div className="web-footer mt-20 pt-10 border-t border-amber-500/15 text-sm text-foreground/55 leading-relaxed">
             <p>© 2026 Rimfactory. All rights reserved.</p>
             <p className="mt-2">
-              본 백서의 무단 배포·복제·번역·인용을 금합니다. 학술 인용 및 보도 목적의 인용은 출처를 명시할 경우 허용됩니다. 문의:{" "}
+              학술·언론·비상업적 연구 목적의 인용은 출처를 명시할 경우 허용됩니다. 상업적 재사용·복제·번역·재구현은 사전 서면 동의를 요합니다. 문의:{" "}
               <span className="text-amber-100/80">info@rimfactory.io</span>
             </p>
           </div>
