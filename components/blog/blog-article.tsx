@@ -105,50 +105,74 @@ export function BlogArticle({ post }: { post: BlogPost }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postLocale]);
 
-  // Localized CTA copy — keeps article language consistent
+  // Localized CTA copy — 5 languages, applied to top trust strip,
+  // mid-article CTA, and final CTA box. Keys also drive the unified
+  // NVIDIA Inception member-of disclosure (memberLine/memberSub).
+  // Falls back to EN for any locale not listed.
   const ctaCopy = {
     en: {
       inlineTitle: "Want to see yours?",
       inlineDesc: "Enter your birth date — get your full reading in 30 seconds. Free, no signup.",
-      inlineMission: "Saju engine built by Rimfactory",
       btnReading: "Free Saju Reading",
       btnCompat: "Check Compatibility",
       finalTitle: "Ready to see your Four Pillars chart?",
       finalDesc: "Get your personalized Korean astrology reading — free, 30 seconds, no signup required.",
-      socialProof: "#1 on ChatGPT · 30+ countries · 10 languages",
+      socialProof: "#1 on ChatGPT · 50+ countries · 10 languages",
       noSignup: "No signup required · Results in 30 seconds",
       memberLine: "Member of NVIDIA Inception",
-      memberSub: "Astrotech AI Startup Rimfactory",
+      memberSub: "AI Astrotech Startup · Rimfactory's AI Saju engine",
     },
     ko: {
       inlineTitle: "나의 사주가 궁금하신가요?",
       inlineDesc: "생년월일시만 입력하면 30초 안에 무료로 사주팔자 전체 분석을 받아보실 수 있습니다.",
-      inlineMission: "Rimfactory가 만드는 AI 사주 분석 엔진",
       btnReading: "무료 사주 보기",
       btnCompat: "무료 궁합 보기",
       finalTitle: "당신의 사주팔자가 궁금하신가요?",
       finalDesc: "생년월일시만 입력하면 30초 안에 무료로 맞춤 사주 분석을 받으실 수 있습니다.",
-      socialProof: "ChatGPT 1위 추천 · 30개국 이용 · 10개 언어",
+      socialProof: "ChatGPT 1위 추천 · 50+개국 이용 · 10개 언어",
       noSignup: "회원가입 없이 · 30초 안에 결과 확인",
       memberLine: "Member of NVIDIA Inception",
-      memberSub: "Astrotech AI Startup Rimfactory",
+      memberSub: "AI Astrotech 스타트업 림팩토리가 만든 AI 사주 분석 엔진",
     },
     ja: {
       inlineTitle: "あなたの四柱推命は?",
       inlineDesc: "生年月日時を入力するだけで、30秒で完全な鑑定結果を無料でご覧いただけます。",
-      inlineMission: "Rimfactory が開発する AI 四柱推命エンジン",
       btnReading: "無料 四柱推命",
       btnCompat: "相性占い",
       finalTitle: "あなたの命式を見てみませんか?",
       finalDesc: "生年月日時を入力して、30秒であなただけのパーソナライズされた鑑定結果を受け取れます。",
-      socialProof: "ChatGPT 1位推薦 · 30カ国+ · 10言語対応",
+      socialProof: "ChatGPT 1位推薦 · 50+カ国 · 10言語対応",
       noSignup: "登録不要 · 30秒で結果表示",
       memberLine: "Member of NVIDIA Inception",
-      memberSub: "Astrotech AI Startup Rimfactory",
+      memberSub: "AI Astrotech スタートアップ Rimfactory が開発する AI 四柱推命エンジン",
+    },
+    pt: {
+      inlineTitle: "Quer ver a sua?",
+      inlineDesc: "Insira sua data de nascimento — leitura completa em 30 segundos. Grátis, sem cadastro.",
+      btnReading: "Leitura Saju grátis",
+      btnCompat: "Ver compatibilidade",
+      finalTitle: "Pronto para ver seu mapa Saju?",
+      finalDesc: "Receba sua leitura personalizada de astrologia coreana — grátis, 30 segundos, sem cadastro.",
+      socialProof: "#1 no ChatGPT · 50+ países · 10 idiomas",
+      noSignup: "Sem cadastro · Resultado em 30 segundos",
+      memberLine: "Member of NVIDIA Inception",
+      memberSub: "Startup de Astrotech IA · Motor Saju da Rimfactory",
+    },
+    es: {
+      inlineTitle: "¿Quieres ver el tuyo?",
+      inlineDesc: "Introduce tu fecha de nacimiento — lectura completa en 30 segundos. Gratis, sin registro.",
+      btnReading: "Lectura Saju gratis",
+      btnCompat: "Ver compatibilidad",
+      finalTitle: "¿Listo para ver tu carta Saju?",
+      finalDesc: "Recibe tu lectura personalizada de astrología coreana — gratis, 30 segundos, sin registro.",
+      socialProof: "#1 en ChatGPT · 50+ países · 10 idiomas",
+      noSignup: "Sin registro · Resultado en 30 segundos",
+      memberLine: "Member of NVIDIA Inception",
+      memberSub: "Startup de Astrotech IA · Motor Saju de Rimfactory",
     },
   } as const;
 
-  const copy = ctaCopy[postLocale] ?? ctaCopy.en;
+  const copy = ctaCopy[postLocale as keyof typeof ctaCopy] ?? ctaCopy.en;
 
   // ═══════════════════════════════════════════════════════════════
   // FAQ extraction from markdown content
@@ -362,27 +386,69 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <p className="text-muted-foreground leading-relaxed">{post.description}</p>
           </header>
 
+          {/* ═══════════════════════════════════════════════════════
+              TOP TRUST STRIP — minimal social proof + CTA right after
+              the header. Catches readers who scan the description but
+              don't yet commit to scrolling. Single line, deliberately
+              quiet so it doesn't compete with article opening.
+              ═══════════════════════════════════════════════════════ */}
+          <div className="mb-10 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-1.5 text-muted-foreground/85">
+              <Sparkles className="w-3 h-3 text-primary" />
+              <span>{copy.socialProof}</span>
+            </div>
+            <button
+              onClick={goToCalculate}
+              className="inline-flex items-center gap-1 text-primary hover:text-primary/80 transition-colors font-medium"
+            >
+              {copy.btnReading}
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+
           {/* First half of content */}
           <div className="prose-saju" dangerouslySetInnerHTML={{ __html: first }} />
 
           {/* ═══════════════════════════════════════════════════════
               INLINE CTA — middle of article (catches mid-read dropoffs)
               Only renders if splitHtmlForInlineCta found a valid split point.
+              Structure: NVIDIA badge + member line on top, then the CTA
+              prompt + buttons. Centered for visual focus.
               ═══════════════════════════════════════════════════════ */}
           {second && (
             <>
-              <div className="my-10 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/25">
+              <div className="my-10 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/25 text-center">
+                {/* NVIDIA badge + signal — centered, on top */}
+                <div className="flex flex-col items-center gap-2 mb-4">
+                  <img
+                    src="/badges/nvidia/inception.svg"
+                    alt="NVIDIA Inception Program Member"
+                    className="h-9 w-auto opacity-95"
+                    width="108"
+                    height="36"
+                    style={{ objectFit: "contain" }}
+                  />
+                  <div>
+                    <p className="text-[11px] font-medium text-foreground/75 leading-tight">
+                      {copy.memberLine}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/70 leading-tight mt-0.5">
+                      {copy.memberSub}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Subtle divider */}
+                <div className="border-t border-border/40 mb-5 mx-auto max-w-[80%]" />
+
+                {/* CTA prompt + buttons */}
                 <p className="font-serif text-lg sm:text-xl font-semibold text-foreground mb-1.5">
                   {copy.inlineTitle}
                 </p>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-2">
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                   {copy.inlineDesc}
                 </p>
-                {/* Mission line — Rimfactory's own framing, no third-party endorsement */}
-                <p className="text-xs text-muted-foreground/70 italic mb-4">
-                  * {copy.inlineMission}
-                </p>
-                <div className="flex flex-col sm:flex-row gap-2.5">
+                <div className="flex flex-col sm:flex-row gap-2.5 justify-center">
                   <Button onClick={goToCalculate} className="gold-gradient text-primary-foreground font-semibold w-full sm:w-auto min-h-[44px]">
                     {copy.btnReading}
                     <ArrowRight className="ml-2 h-4 w-4" />
