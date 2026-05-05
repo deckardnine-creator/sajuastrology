@@ -299,6 +299,53 @@ export function HeroSection() {
                 </Button>
               </Link>
 
+              {/* CEO message card (chandler 2026-05-05) — placed right after the
+                  free Compatibility CTA because that's the moment a user is about
+                  to start the celebrity-compatibility behavior we want to
+                  acknowledge. The box is intentionally collapsed by default
+                  (Read more) so it doesn't dominate the hero on first paint;
+                  expanding it surfaces the full founder voice.
+
+                  Wikipedia link is locale-aware (KO/JA → native Wikipedia,
+                  others → English Wikipedia Special:Search). Text wraps with
+                  whitespace-pre-line so \n in the i18n string preserves
+                  paragraph breaks. */}
+              <details className="group relative w-[280px] lg:w-[420px] rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-500/5 to-transparent open:bg-amber-500/[0.06] transition-colors">
+                <div className="absolute inset-y-0 left-0 w-1 bg-amber-400/60 rounded-l-xl" />
+                <summary className="cursor-pointer list-none p-3 sm:p-4 pl-5 select-none">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[13px] sm:text-[14px] font-semibold text-amber-100/90 leading-snug">
+                        {t("hero.ceoMsgTitle")}
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-amber-300/70 shrink-0 transition-transform group-open:rotate-90" />
+                  </div>
+                </summary>
+                <div className="px-4 sm:px-5 pb-4 sm:pb-5 pl-5 pt-1">
+                  <p className="whitespace-pre-line text-[12.5px] sm:text-[13px] text-amber-100/85 leading-relaxed break-keep">
+                    {t("hero.ceoMsgBody")}
+                  </p>
+                  <a
+                    href={
+                      locale === "ko"
+                        ? "https://ko.wikipedia.org/wiki/%ED%8A%B9%EC%88%98:%EA%B2%80%EC%83%89"
+                        : locale === "ja"
+                        ? "https://ja.wikipedia.org/wiki/%E7%89%B9%E5%88%A5:%E6%A4%9C%E7%B4%A2"
+                        : "https://en.wikipedia.org/wiki/Special:Search"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 mt-3 text-[12.5px] sm:text-[13px] font-semibold text-amber-300 hover:text-amber-200 underline decoration-amber-400/40 underline-offset-4 hover:decoration-amber-200/70 transition-colors"
+                  >
+                    {t("hero.ceoMsgLink")}
+                  </a>
+                  <div className="mt-3 text-[11px] text-amber-200/50 text-right tracking-wide">
+                    {t("hero.ceoMsgSignature")}
+                  </div>
+                </div>
+              </details>
+
               {/* Soram CTA card — moved BELOW the primary CTAs (chandler rev) */}
               <button
                 onClick={handleSoramClick}
