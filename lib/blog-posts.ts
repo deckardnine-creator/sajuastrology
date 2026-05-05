@@ -7,7 +7,7 @@ export interface BlogPost {
   readTime: string;
   category: string;
   keywords: string[];
-  locale: "en" | "ko" | "ja";
+  locale: "en" | "ko" | "ja" | "es" | "pt";
   content: string;
 }
 
@@ -3299,6 +3299,276 @@ Until then — may your five elements stay in balance.
 *본 글은 SajuAstrology의 Celebrity Compatibility 시리즈 일부입니다. SajuAstrology는 10개 언어로 제공되는 한국 사주 서비스로, 50개국 이상의 독자가 이용 중입니다. 본 글의 분석은 공개된 생년월일(위키피디아)에 기반합니다. 정확한 사주 풀이에는 출생 시각이 필요합니다 — 본 글은 년·월·일 수준의 읽기입니다.*
 
 *사주는 문화적·철학적 체계입니다. 개인의 판단, 전문 상담, 의료 자문을 대체하지 않습니다. 본 글의 실존 인물에 대한 모든 언급은 사적 영역에 대한 예언이나 판단이 아니라, 존중에 기반한 문화적 해석입니다.*`,
+  },
+  {
+    slug: "compatibilidade-bias-kpop-saju-coreano",
+    locale: "pt",
+    title: "Bias K-pop × Você — A Compatibilidade Saju Com Seu Ídolo Favorito",
+    description: "O que a astrologia coreana de 5.000 anos diz sobre você e seu bias K-pop? Análise Saju de Jin, Jisoo, V e Lisa — e como descobrir sua compatibilidade real em 30 segundos.",
+    date: "2026-05-05",
+    readTime: "8 min",
+    category: "Celebrity Series",
+    keywords: ["compatibilidade k-pop", "bias kpop compatibilidade", "saju kpop", "horóscopo coreano kpop", "astrologia coreana", "jin saju", "jisoo saju", "v bts compatibilidade", "lisa blackpink astrologia", "quatro pilares destino"],
+    content: `**Celebrity Compatibility Series — Vol. 2 · Edição K-pop**
+*Uma análise cultural — não uma previsão — do que a astrologia coreana de 5.000 anos pode dizer sobre você e seu ídolo favorito.*
+
+Você já procurou a data de nascimento do seu bias para ver se vocês "combinam"? Você não está sozinho. Em São Paulo, no Rio, em Brasília, milhares de fãs brasileiros fazem exatamente isso todos os dias — e descobrem, no caminho, algo que poucas tradições astrológicas ocidentais oferecem: uma leitura granular de **518.400 perfis cósmicos únicos**, baseada não no seu signo do mês, mas no momento exato do seu nascimento.
+
+Esta é uma tradição coreana chamada **Saju (사주)** — literalmente "Quatro Pilares do Destino". Onde a astrologia ocidental te coloca em uma de doze caixas, o Saju lê quatro pilares (ano, mês, dia, hora) e gera um padrão energético único — pessoal como uma impressão digital. Quando dois desses padrões se encontram, o que vemos não é "vocês combinam ou não". Vemos **como duas energias interagem**.
+
+Nesta segunda edição da nossa série, vamos olhar quatro ídolos K-pop que o público brasileiro acompanha de perto — e mostrar como o Saju lê cada um deles. No final, você vai entender exatamente como rodar sua própria leitura de compatibilidade com seu bias.
+
+---
+
+## Como o Saju lê uma compatibilidade
+
+Antes de ir aos ídolos, três conceitos rápidos que você vai ver repetidos no texto:
+
+- **Mestre do Dia (일간 / il-gan)** — o caractere chinês que representa o seu núcleo. Existem dez possibilidades: Madeira Yang (甲), Madeira Yin (乙), Fogo Yang (丙), Fogo Yin (丁), Terra Yang (戊), Terra Yin (己), Metal Yang (庚), Metal Yin (辛), Água Yang (壬), Água Yin (癸).
+- **Cinco Elementos (오행 / o-haeng)** — quanto de Madeira, Fogo, Terra, Metal e Água cada pessoa carrega. Boas duplas frequentemente *completam* as lacunas elementais uma da outra.
+- **Geração ou Choque (생·충 / saeng-chung)** — relações estruturais entre os oito caracteres do mapa. Determinam onde duas pessoas se nutrem mutuamente e onde encontram atrito.
+
+A leitura completa exige hora de nascimento exata. Para ídolos K-pop, a hora raramente é divulgada publicamente, então usamos o nível ano-mês-dia — já é mais do que suficiente para conversar sobre energia.
+
+---
+
+## 1. BTS Jin (김석진) — A Madeira Estável de Inverno
+
+* **Data de nascimento**: 4 de dezembro de 1992
+* **Mês**: 子 (Rato) — Água pura
+* **Ano**: 壬申 (Macaco de Água Yang)
+
+Jin nasceu no auge do inverno coreano, num mês de pura energia de Água. Em 1992, o ano era duplamente Água. Isso dá ao mapa dele uma **base hídrica profunda** — em Saju, Água carrega memória, paciência, capacidade de absorver pressão sem se romper. É o elemento que esculpe pedra com tempo, não com força.
+
+Para um fã com **mestre do dia em Madeira (甲 ou 乙)**, Jin oferece o que a tradição chama de **印星 (in-seong / "estrela da nutrição")** — Água nutre Madeira (水生木), e essa relação é traduzida classicamente como "alguém que te ajuda a crescer sem te empurrar". Para fãs com Madeira fraca no mapa, Jin é o tipo de presença que sustenta — não que dirige.
+
+Para mestres do dia em **Fogo (丙 ou 丁)**, a interação é mais complexa: Água apaga Fogo (水剋火), o que pode parecer atrito, mas em mapas equilibrados é exatamente esse contraste que protege o Fogo de queimar rápido demais. É a leitura clássica de "duas pessoas que parecem opostas mas se equilibram".
+
+---
+
+## 2. BLACKPINK Jisoo (김지수) — O Metal Yin do Inverno Profundo
+
+* **Data de nascimento**: 3 de janeiro de 1995
+* **Mês**: 子 (Rato) — Água pura
+* **Ano**: 甲戌 (Cão de Madeira Yang)
+
+Jisoo compartilha com Jin o mês de Água pura, mas o ano dela traz **Madeira Yang sobre Terra (Cão)** — uma combinação que classicamente produz pessoas com aparência calma e profundidade interna pouco visível à primeira vista. O Cão em Saju é um dos signos mais subestimados — sua energia de Terra esconde Metal e Fogo, criando uma pessoa de várias camadas.
+
+Para fãs com **mestre do dia em Água (壬 ou 癸)**, Jisoo cria uma ressonância de mês — vocês compartilham o mesmo "clima energético" de origem. Isso geralmente se traduz em facilidade de conversa silenciosa, daquelas amizades onde ninguém precisa preencher os silêncios.
+
+Para mestres do dia em **Terra (戊 ou 己)**, a leitura é interessante: o ano dela (Madeira) controla Terra (木剋土), mas o mês dela (Água) é gerado por Metal — então pessoas de Terra que carregam muito Metal no mapa encontram em Jisoo uma combinação rara: **estímulo intelectual sem confronto direto**. É a configuração que tradutores coreanos chamam de 文星 (mun-seong / "estrela letrada").
+
+---
+
+## 3. BTS V (김태형) — A Estrela do Final do Inverno
+
+* **Data de nascimento**: 30 de dezembro de 1995
+* **Mês**: 子 (Rato) — Água pura
+* **Ano**: 乙亥 (Porco de Madeira Yin)
+
+V também é um nascido de dezembro, mas seu ano (1995, Madeira Yin sobre Porco/Água) cria um padrão completamente diferente do de Jin. Madeira Yin sobre Água é uma das configurações mais classicamente *artísticas* do Saju — em textos clássicos é descrita como "bambu crescendo na neve". A Madeira é flexível e adaptativa (Yin), e a Água do ano e do mês a alimenta continuamente.
+
+Pessoas com essa configuração frequentemente apresentam o que praticantes coreanos chamam de **食傷 (sik-sang)** — uma energia voltada à expressão criativa, performance, e à transformação de emoção em forma. Faz sentido para quem acompanha o trabalho dele.
+
+Para fãs com **mestre do dia em Fogo (丙 ou 丁)**, V oferece uma das compatibilidades mais clássicas do Saju: Madeira gera Fogo (木生火). É a relação chamada **印生 (in-saeng)** — quem carrega Madeira *alimenta* quem carrega Fogo, sem competição. Em leituras tradicionais de relacionamento, essa configuração é frequentemente descrita como "alguém que faz você brilhar mais sem ofuscar".
+
+Para mestres do dia em **Metal (庚 ou 辛)**, há mais atrito — Metal corta Madeira (金剋木) — mas em mapas onde o Metal é forte, V se torna a "matéria-prima" sobre a qual o Metal pode trabalhar. Não é confortável, é produtivo.
+
+---
+
+## 4. BLACKPINK Lisa (라리사 마노반) — O Metal de Primavera
+
+* **Data de nascimento**: 27 de março de 1997
+* **Mês**: 卯 (Coelho) — Madeira pura
+* **Ano**: 丁丑 (Boi de Fogo Yin)
+
+Lisa é a única dos quatro nascida fora do mês de inverno. Março em Saju é o mês do Coelho — Madeira pura, primavera no auge. Seu ano traz **Fogo Yin sobre Terra (Boi)**, uma combinação onde o Fogo está oculto, sob a superfície da Terra fria de inverno.
+
+A leitura clássica desse padrão é **木火通明 (mok-hwa tong-myeong / "Madeira e Fogo iluminando-se mutuamente")** — uma das configurações mais associadas a performers no Saju tradicional. A Madeira do mês alimenta o Fogo do ano, criando um mapa que *gera luz a partir de si mesmo*.
+
+Para fãs com **mestre do dia em Terra (戊 ou 己)**, Lisa oferece a relação geradora clássica: Fogo gera Terra (火生土). É lida como "alguém que aquece e estrutura ao mesmo tempo" — o tipo de presença que dá calor sem desorganizar.
+
+Para mestres do dia em **Água (壬 ou 癸)**, a relação é tensa mas produtiva: Água controla Fogo (水剋火), mas a Madeira de Lisa modera essa tensão (Madeira drena Água e alimenta Fogo). Em leituras detalhadas, essa configuração frequentemente aparece em parcerias criativas onde dois polos se balanceiam ao longo do tempo.
+
+---
+
+## Como descobrir sua compatibilidade real
+
+Os ídolos acima são análises de elementos baseadas em datas públicas. Mas a leitura *real* — a sua, com seu bias — exige duas coisas:
+
+1. **Sua data e hora de nascimento** (a hora é importante; a leitura sem ela perde resolução).
+2. **A data de nascimento do seu bias** (a Wikipédia tem essa informação para todos os ídolos K-pop ativos).
+
+Você cola ambas em [SajuAstrology](/) e o nosso motor RimSaju roda a comparação completa em segundos. A leitura inclui:
+
+- Comparação dos mestres do dia
+- Análise de Cinco Elementos combinada
+- Pontos de geração mútua e pontos de choque
+- Pilares de ano (geração) e mês (rotina compartilhada)
+- Sugestões de quando suas energias se reforçam vs quando colidem
+
+[**→ Faça sua leitura grátis de Saju**](/) · [**→ Verifique a compatibilidade com seu bias**](/)
+
+Sem cadastro. Sem cartão de crédito. Em dez idiomas, incluindo português brasileiro com o vocabulário Saju traduzido com cuidado.
+
+---
+
+## O que esta análise *não* é
+
+* Não é uma previsão de que você vai conhecer seu ídolo.
+* Não é um julgamento sobre o ídolo nem sobre você.
+* Não é um teste de personalidade dele baseado em informação privada — usamos apenas datas públicas.
+
+O Saju é uma tradição observacional de 5.000 anos. Seu valor está em **dar vocabulário para pensar sobre energias** — não em prever o futuro nem em rotular pessoas. Toda relação real é feita de escolhas, contexto e dimensões privadas que nenhum mapa astrológico vê.
+
+---
+
+## Próximo na série
+
+**Vol. 3** vai explorar grupos K-pop inteiros — a química interna entre membros do mesmo grupo. Que duplas dentro do BTS, BLACKPINK, NewJeans, Stray Kids têm os mapas mais geradores? Que duplas estão lá apesar (ou por causa) do choque?
+
+Até lá — que seus cinco elementos permaneçam em equilíbrio.
+
+---
+
+*Este artigo faz parte da série Celebrity Compatibility do SajuAstrology — um serviço de astrologia coreana disponível em 10 idiomas, usado por leitores em mais de 50 países. As análises aqui se baseiam em datas de nascimento públicas (Wikipédia). Leituras Saju precisas exigem hora de nascimento exata; as análises acima usam ano-mês-dia, conforme disponível em fontes abertas.*
+
+*Saju é um sistema cultural e filosófico. Não substitui julgamento pessoal, aconselhamento profissional ou orientação médica. Toda discussão sobre pessoas reais aqui é interpretação cultural respeitosa, não previsão ou julgamento sobre vidas privadas.*`,
+  },
+  {
+    slug: "compatibilidad-bias-kpop-saju-coreano",
+    locale: "es",
+    title: "Tu Bias K-pop × Tú — La Compatibilidad Saju Con Tu Ídolo Favorito",
+    description: "¿Qué dice la astrología coreana de 5.000 años sobre tu compatibilidad con tu ídolo K-pop? Análisis Saju de Jimin, Jennie, Jungkook y Rosé — y cómo descubrir tu compatibilidad real en 30 segundos.",
+    date: "2026-05-05",
+    readTime: "8 min",
+    category: "Celebrity Series",
+    keywords: ["compatibilidad k-pop", "bias kpop compatibilidad", "saju kpop", "horóscopo coreano kpop", "astrología coreana", "jimin compatibilidad", "jennie blackpink saju", "jungkook astrología", "rose blackpink saju", "cuatro pilares destino"],
+    content: `**Celebrity Compatibility Series — Vol. 2 · Edición K-pop**
+*Una mirada cultural — no una predicción — a lo que la astrología coreana de cinco mil años puede decir sobre tu conexión con tu ídolo favorito.*
+
+Si alguna vez buscaste la fecha de nacimiento de tu bias para ver si "encajan", no estás sola. En Ciudad de México, Lima, Buenos Aires, Bogotá — miles de fanáticas latinoamericanas hacen exactamente eso todos los días. Y descubren, en el camino, algo que pocas tradiciones astrológicas occidentales ofrecen: una lectura granular de **518.400 perfiles cósmicos únicos**, basada no en tu signo del mes, sino en el momento exacto de tu nacimiento.
+
+Esta tradición coreana se llama **Saju (사주)** — literalmente "Cuatro Pilares del Destino". Donde la astrología occidental te coloca en una de doce categorías amplias, el Saju lee cuatro pilares (año, mes, día, hora) y genera un patrón energético tan único como una huella digital. Cuando dos de esos patrones se encuentran, la pregunta no es "¿son compatibles?" sino **"¿cómo interactúan estas dos energías?"**.
+
+En esta segunda edición de la serie, miramos cuatro ídolos que el público latino sigue de cerca — y mostramos cómo el Saju lee a cada uno. Al final del artículo vas a saber exactamente cómo correr tu propia lectura con tu bias.
+
+---
+
+## Cómo el Saju lee una compatibilidad
+
+Antes de ir a los ídolos, tres conceptos rápidos que vas a ver repetidos:
+
+- **Maestro del Día (일간 / il-gan)** — el carácter chino que representa tu núcleo. Hay diez posibilidades: Madera Yang (甲), Madera Yin (乙), Fuego Yang (丙), Fuego Yin (丁), Tierra Yang (戊), Tierra Yin (己), Metal Yang (庚), Metal Yin (辛), Agua Yang (壬), Agua Yin (癸).
+- **Cinco Elementos (오행 / o-haeng)** — cuánta Madera, Fuego, Tierra, Metal y Agua carga cada persona. Las parejas fluidas suelen *completar* las carencias elementales del otro.
+- **Generación o Choque (생·충 / saeng-chung)** — relaciones estructurales entre los ocho caracteres del mapa. Marcan dónde dos personas se nutren y dónde encuentran fricción.
+
+La lectura completa requiere hora de nacimiento exacta. Para ídolos K-pop, la hora rara vez se hace pública, así que trabajamos al nivel año-mes-día — más que suficiente para una conversación seria sobre energía.
+
+---
+
+## 1. BTS Jimin (박지민) — La Tierra Yin del Otoño Pleno
+
+* **Fecha de nacimiento**: 13 de octubre de 1995
+* **Mes**: 戌 (Perro) — Tierra con Fuego oculto
+* **Año**: 乙亥 (Cerdo de Madera Yin)
+
+Jimin nació en pleno otoño coreano, cuando el Fuego del verano se ha asentado dentro de la Tierra. El mes del Perro en Saju esconde tres elementos en sus "tallos ocultos" (藏干): Tierra, Fuego y Metal. Esto produce mapas con **profundidad emocional poco visible en la superficie** — la Tierra estabiliza, el Fuego oculto da calidez, el Metal da disciplina.
+
+Su año (1995, Madera Yin sobre Cerdo/Agua) añade una capa creativa: Madera Yin sobre Agua es la configuración que los textos clásicos llaman "bambú creciendo cerca del río" — flexibilidad alimentada por una fuente continua.
+
+Para fanáticas con **maestro del día en Metal (庚 o 辛)**, Jimin ofrece la relación generadora clásica: Tierra produce Metal (土生金). Es traducida tradicionalmente como "alguien que te refina sin presionarte". Para maestros del día en **Agua (壬 o 癸)**, la lectura es más tensa pero productiva: Tierra controla Agua (土剋水), y eso, en mapas donde el Agua es excesiva, se convierte en una contención necesaria.
+
+---
+
+## 2. BLACKPINK Jennie (제니) — El Agua de Pleno Invierno
+
+* **Fecha de nacimiento**: 16 de enero de 1996
+* **Mes**: 丑 (Buey) — Tierra con Agua y Metal ocultos
+* **Año**: 乙亥 (Cerdo de Madera Yin)
+
+Jennie comparte año con Jimin (1995-1996 ambos en el ciclo Madera Yin / Cerdo), pero su mes es completamente distinto. El Buey en Saju es uno de los signos más malinterpretados — parece estable y silencioso, pero esconde Agua y Metal en sus tallos ocultos. Las personas nacidas en el mes del Buey suelen tener **un mundo interior mucho más complejo de lo que su exterior sugiere**.
+
+Para fanáticas con **maestro del día en Madera (甲 o 乙)**, Jennie ofrece nutrición a través del Agua oculta de su mes: Agua nutre Madera (水生木). Esta es una de las relaciones más buscadas en lecturas de pareja — alguien que te nutre sin saturarte.
+
+Para maestros del día en **Fuego (丙 o 丁)**, la lectura clásica es sobre **balance térmico**: el invierno frío del mapa de Jennie equilibra el exceso de Fuego en mapas demasiado "calientes". Practicantes coreanos llaman esto 調候 (jo-hu / "regulación climática") — el principio de que un buen mapa de pareja no busca igualdad sino *complementariedad térmica*.
+
+---
+
+## 3. BTS Jungkook (전정국) — El Metal Yin del Otoño Maduro
+
+* **Fecha de nacimiento**: 1 de septiembre de 1997
+* **Mes**: 申 (Mono) — Metal puro
+* **Año**: 丁丑 (Buey de Fuego Yin)
+
+Jungkook nació al inicio del otoño, en el mes del Mono — Metal puro. En Saju, septiembre es el mes donde el Metal está en su pico de fuerza, antes de que el frío del invierno lo haga rígido. Es la energía clásica del *artesano que perfecciona su oficio*.
+
+Su año (1997, Fuego Yin sobre Buey/Tierra) añade una dimensión interesante: Fuego Yin oculto bajo Tierra fría. La leyenda clásica de esta configuración es **金白水清 (geum-baek su-cheong / "Metal blanco, agua clara")** — un Metal pulido que refleja el agua del entorno. Personas con esta configuración tienden a absorber influencias de su entorno y devolverlas refinadas.
+
+Para fanáticas con **maestro del día en Agua (壬 o 癸)**, Jungkook ofrece la relación más buscada del Saju para parejas creativas: Metal genera Agua (金生水). Tradicionalmente esta relación se llama **印生 (in-saeng)** y se asocia con "alguien que te alimenta intelectualmente". Si el Metal de Jungkook es fuerte y tu Agua necesita fuente, la energía corre con naturalidad.
+
+Para maestros del día en **Madera (甲 o 乙)**, la situación es la opuesta — Metal corta Madera (金剋木) — pero los lectores tradicionales saben que el corte no siempre es destructivo. En mapas donde la Madera es excesiva y desordenada, un Metal preciso *poda* en lugar de *destruir*.
+
+---
+
+## 4. BLACKPINK Rosé (박채영) — El Madera Yin del Final del Invierno
+
+* **Fecha de nacimiento**: 11 de febrero de 1997
+* **Mes**: 寅 (Tigre) — Madera con Fuego oculto
+* **Año**: 丁丑 (Buey de Fuego Yin)
+
+Rosé comparte año con Jungkook (1997, ambos en el ciclo Fuego Yin / Buey), pero su mes la coloca en plena emergencia de la primavera. El Tigre en Saju es Madera Yang, y el inicio de febrero es cuando la Madera empieza a *romper* la Tierra del invierno. Es la configuración llamada **立春 (ip-chun / "comienzo de primavera")** — energía de despertar.
+
+El Tigre esconde tres elementos: Madera, Fuego y Tierra. Esto le da al mapa de Rosé una rara combinación de **flexibilidad creativa (Madera) + calidez emocional (Fuego oculto) + base estable (Tierra oculta)**. La leyenda clásica de esta combinación es 火 旺得木 ("Fuego próspero gana Madera") — la Madera alimenta el Fuego de su año, generando luz desde dentro.
+
+Para fanáticas con **maestro del día en Fuego (丙 o 丁)**, Rosé ofrece la generación clásica: Madera alimenta Fuego (木生火). En lecturas de pareja, esta es una de las configuraciones más asociadas con *colaboración creativa* — donde dos personas se hacen brillar mutuamente sin competir.
+
+Para maestros del día en **Tierra (戊 o 己)**, la lectura es sobre *control suave*: Madera controla Tierra (木剋土), pero la Tierra rica del Buey en su año modera esa tensión. Tradicionalmente, esta configuración produce parejas donde uno *organiza* y el otro *crea* — y ambos se necesitan.
+
+---
+
+## Cómo descubrir tu compatibilidad real
+
+Los ídolos arriba son análisis de elementos basados en fechas públicas. La lectura *real* — la tuya, con tu bias — necesita dos cosas:
+
+1. **Tu fecha y hora de nacimiento** (la hora es importante; sin ella, la resolución cae mucho).
+2. **La fecha de nacimiento de tu bias** (Wikipedia tiene esa información para todos los ídolos K-pop activos).
+
+Las pegas en [SajuAstrology](/) y nuestro motor RimSaju corre la comparación completa en segundos. La lectura incluye:
+
+- Comparación de los maestros del día
+- Análisis combinado de Cinco Elementos
+- Puntos de generación mutua y puntos de choque
+- Pilares de año (generación) y mes (ritmo compartido)
+- Cuándo sus energías se refuerzan vs cuándo chocan
+
+[**→ Hazte tu lectura Saju gratis**](/) · [**→ Verifica tu compatibilidad con tu bias**](/)
+
+Sin registro. Sin tarjeta de crédito. En diez idiomas, incluyendo español neutro con el vocabulario Saju cuidadosamente traducido.
+
+---
+
+## Lo que esta serie *no* es
+
+* No es una predicción de que vas a conocer a tu ídolo.
+* No es un juicio sobre tu ídolo ni sobre ti.
+* No es un test de personalidad de tu ídolo basado en información privada — usamos solo fechas públicas.
+
+El Saju es una tradición observacional de cinco mil años. Su valor está en **darnos vocabulario para pensar sobre energías** — no en predecir el futuro ni en etiquetar personas. Toda relación real está hecha de elecciones, contexto y dimensiones privadas que ningún mapa astrológico ve.
+
+---
+
+## Próximo en la serie
+
+**Vol. 3** va a explorar grupos K-pop completos — la química interna entre miembros del mismo grupo. ¿Qué duplas dentro de BTS, BLACKPINK, NewJeans, Stray Kids tienen los mapas más generadores? ¿Cuáles están ahí a pesar (o gracias) al choque elemental?
+
+Hasta entonces — que tus cinco elementos permanezcan en equilibrio.
+
+---
+
+*Este artículo es parte de la serie Celebrity Compatibility de SajuAstrology — un servicio de astrología coreana disponible en 10 idiomas, usado por lectores en más de 50 países. Los análisis aquí se basan en fechas de nacimiento públicas (Wikipedia). Las lecturas Saju precisas requieren hora de nacimiento exacta; los análisis arriba usan año-mes-día, según fuentes abiertas.*
+
+*El Saju es un sistema cultural y filosófico. No reemplaza el juicio personal, la consejería profesional ni la orientación médica. Toda discusión sobre personas reales aquí es interpretación cultural respetuosa, no predicción ni juicio sobre vidas privadas.*`,
   },
 ];
 
