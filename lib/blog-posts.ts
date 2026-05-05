@@ -2876,6 +2876,430 @@ Saju readings are provided for self-reflection and entertainment purposes only. 
   },
 
 
+  {
+    slug: "kpop-bias-compatibility-saju-guide",
+    locale: "en",
+    title: "Your K-pop Bias × You — The Saju Compatibility Guide",
+    description: "What does 5,000-year-old Korean astrology say about you and your K-pop bias? A Saju element analysis of RM, Suga, J-Hope, and IU — and how to run your own reading in 30 seconds.",
+    date: "2026-05-05",
+    readTime: "8 min",
+    category: "Celebrity Series",
+    keywords: ["kpop compatibility", "kpop bias compatibility", "saju kpop", "korean astrology kpop", "rm bts saju", "suga astrology", "j-hope four pillars", "iu saju", "kpop birth chart", "korean four pillars destiny"],
+    content: `**Celebrity Compatibility Series — Vol. 2 · K-pop Edition**
+*A cultural lens — not a prediction — on what 5,000-year-old Korean astrology might say about you and the artist you stream the most.*
+
+If you've ever looked up your bias's birth date to see whether you "match," you're in extremely good company. Across our user data we see the same pattern: fans entering a celebrity's birthday alongside their own, running the compatibility check, screenshot, share to a private fan chat. It's not a fringe behavior. It's everywhere.
+
+The system you're using when you do that is **Saju (사주)** — Korean Four Pillars of Destiny. Where Western astrology gives you one of twelve sun signs, Saju gives you one of **518,400 possible cosmic profiles**, calculated from the four pillars of your birth moment (year, month, day, hour). When two of those profiles meet, what we read isn't "you match" or "you don't." We read **how two energy patterns interact**.
+
+For Volume 2, we wanted to give you a real reference — not a list, an actual reading — of four artists whose charts our community has asked about most often. We picked four whose work spans the depth of the form: three foundational members of BTS who each carry distinct elemental signatures, and the artist many Korean fans consider the reference point of soloist craft.
+
+Below is what their charts actually say.
+
+---
+
+## How Saju reads compatibility
+
+Three concepts you'll see referenced throughout:
+
+- **Day Master (일간 / il-gan)** — the single Chinese character that represents your core self. There are ten: Yang Wood (甲), Yin Wood (乙), Yang Fire (丙), Yin Fire (丁), Yang Earth (戊), Yin Earth (己), Yang Metal (庚), Yin Metal (辛), Yang Water (壬), Yin Water (癸).
+- **Five Elements balance (오행 / o-haeng)** — how much Wood, Fire, Earth, Metal, and Water each person carries. The most resonant pairs often *complete* each other's elemental gaps.
+- **Generation or Clash (생·충 / saeng-chung)** — structural relationships between the eight characters. They mark where two people generate each other and where they grind.
+
+A precise reading needs exact birth time. K-pop artists rarely make their birth hour public, so we're working at year-month-day resolution — already enough to have a real conversation.
+
+---
+
+## 1. BTS RM (Kim Namjoon) — The Yang Metal of Late Summer
+
+* **Born**: September 12, 1994
+* **Month**: 酉 (Rooster) — pure Metal
+* **Year**: 甲戌 (Yang Wood Dog)
+
+RM was born in mid-September — the Rooster month, pure Yin Metal at its seasonal peak. Metal in Saju is the element of **language, structure, and refinement** — the mind that cuts through noise and produces signal. (Anyone who's followed his lyric writing, his interviews, or his curatorial side work in art and architecture is already familiar with this energy.)
+
+His year (1994, Yang Wood Dog) brings something interesting on top: Yang Wood standing on Earth (the Dog). In classical Saju this is read as **甲木立土 (gap-mok rip-to / "Yang Wood standing on Earth")** — a person whose intellectual structure is anchored in solid ground. Wood reaches up, Earth holds it down. The Dog itself is one of Saju's most underrated branches; it hides Earth, Fire, and Metal in its inner stems, giving the chart depth that doesn't show on the surface.
+
+For fans whose **Day Master is Water (壬 or 癸)**, RM offers the classic generative relationship: Metal generates Water (金生水). Traditionally this configuration is called **印星 (in-seong / "the nourishing star")** — someone who gives you intellectual or emotional nutrition without overwhelming. Many readers describe Metal-to-Water as "feeling like you can finally think clearly around them."
+
+For fans whose **Day Master is Wood (甲 or 乙)**, the read is more frictional but often productive: Metal cuts Wood (金剋木). In overgrown Wood charts — too many ideas, too much branching — Metal becomes the *editor*. Not comfortable, but clarifying.
+
+---
+
+## 2. BTS Suga (Min Yoongi) — The Yin Water of Mid-Spring
+
+* **Born**: March 9, 1993
+* **Month**: 卯 (Rabbit) — pure Wood
+* **Year**: 癸酉 (Yin Water Rooster)
+
+Suga's chart is a study in tension — and in Saju, tension well-arranged produces craft. His year carries **Yin Water on Yin Metal (癸酉)** — Water generated by Metal in pure form. Yin Water in Saju is associated with deep introspection, lyrical sensitivity, and a kind of melancholic intelligence. The Yin Water poet is one of the most recognized archetypes in classical Korean readings.
+
+His birth month (the Rabbit) is pure Yin Wood — flexible, expressive, branching. So the chart runs **Metal → Water → Wood** in its own internal generation. This is one of the more elegant *self-feeding* configurations in Saju: a chart where energy flows through the elements without external help.
+
+For fans whose **Day Master is Fire (丙 or 丁)**, Suga offers a cooling and refining relationship: his Water tempers excess Fire, and his Wood (the month) feeds it back through. The classical reading is **水火既濟 (su-hwa gi-je / "Water and Fire balanced")** — one of the most stable elemental hexagrams in East Asian thought.
+
+For fans whose **Day Master is Earth (戊 or 己)**, the read is about *erosion and shape*: Water carves Earth, slowly and over time. In rigid Earth charts, this is exactly what's needed to keep growth possible. In already-soft Earth charts, the dynamic asks for more boundaries.
+
+---
+
+## 3. BTS J-Hope (Jung Hoseok) — The Yin Earth of Late Winter
+
+* **Born**: February 18, 1994
+* **Month**: 寅 (Tiger) — Wood with hidden Fire
+* **Year**: 甲戌 (Yang Wood Dog)
+
+J-Hope was born at the threshold between winter and spring — the Tiger month, which is Yang Wood beginning to break through Earth. February 18 sits inside the Tiger window, and the Tiger hides Wood, Fire, and Earth in its inner stems. This produces what Korean Saju practitioners call a **木火通明 (mok-hwa tong-myeong / "Wood and Fire mutually illuminating")** chart — a configuration deeply associated with performers, choreographers, and people whose work requires *generating warmth on demand*.
+
+His year shares Yang Wood with RM (1994), but where RM's Wood is anchored in the autumn equinox, J-Hope's Wood is the rising kind — energy moving upward and outward.
+
+For fans whose **Day Master is Fire (丙 or 丁)**, J-Hope is one of the most generative possible matches: Wood feeds Fire (木生火). His chart literally produces the element your chart needs to burn brighter. Korean readers traditionally describe this configuration as **food god relationships** (식신 / sik-sin) — partnerships where one person *creates output* in the presence of the other.
+
+For fans whose **Day Master is Metal (庚 or 辛)**, the read is about *productive contact*: Metal cuts Wood (金剋木), but in a chart where Wood is healthy and Metal is restrained, this is the relationship of *the sculptor and the marble* — neither dominant, both needed.
+
+---
+
+## 4. IU (Lee Ji-eun) — The Yang Earth of Late Spring
+
+* **Born**: May 16, 1993
+* **Month**: 巳 (Snake) — Fire with hidden Earth and Metal
+* **Year**: 癸酉 (Yin Water Rooster)
+
+IU's chart is unusual — and in Saju, unusual configurations are often where the most precise readings live. Her birth month is the Snake, which is Yang Fire on the surface but hides Yang Earth and Yang Metal in its inner stems. This single branch holds **Fire, Earth, and Metal at once** — a self-contained generative chain (Fire → Earth → Metal) inside one pillar.
+
+Her year (1993, Yin Water Rooster) — same as Suga — adds Yin Water on Yin Metal at the year level. So her full chart cycles through **Metal → Water → Fire → Earth → Metal** without needing external input. Classical readers call this kind of self-completing chart **五行流通 (o-haeng yu-tong / "the Five Elements flow through")** — extremely rare and historically associated with artists whose careers span unusual longevity.
+
+The 17-year career, the writing credits, the genre range — read accurately through the lens of a self-flowing chart.
+
+For fans whose **Day Master is Metal (庚 or 辛)**, IU's chart is unusually nourishing: her Earth produces Metal directly (土生金), and her Water cleans Metal (金清水). The combined configuration is what Korean readers call **印食兼備 (in-sik gyeom-bi / "both nurturing and creative star present")** — a partner who both supports and inspires.
+
+For fans whose **Day Master is Water (壬 or 癸)**, the relationship runs through her Metal: she generates Water for you (Metal → Water), and her Earth-Fire combination warms it. The traditional reading is *quiet mutual deepening over time*.
+
+---
+
+## How to actually run your own reading
+
+The element analyses above are based on public birth dates only. The *real* reading — yours, with your bias — needs two pieces:
+
+1. **Your birth date and time** (the hour matters; without it, a lot of resolution collapses).
+2. **Your bias's birth date** (Wikipedia has this for every active K-pop idol).
+
+Paste both into [SajuAstrology](/) and our RimSaju engine runs the full comparison in seconds. The reading covers:
+
+- Day Master to Day Master comparison
+- Combined Five Elements analysis
+- Where your charts generate vs where they clash
+- Year pillar (generational) and month pillar (rhythmic) resonance
+- When your energies reinforce vs when they grind
+
+[**→ Get your free Saju reading**](/) · [**→ Check compatibility with your bias**](/)
+
+No signup. No credit card. Available in ten languages. The English version uses Korean Saju vocabulary translated with care — not collapsed into Western horoscope language.
+
+---
+
+## What this series is *not*
+
+* Not a prediction that you'll meet your bias.
+* Not a judgment on your bias or on you.
+* Not a personality test of your bias from private information — only public birth dates are used.
+
+Saju is a 5,000-year-old observational tradition. Its value is in **giving us vocabulary for thinking about energy patterns** — not in predicting the future, not in labeling people. Every real relationship is built on choices, context, and private dimensions no chart can see.
+
+---
+
+## Next in the series
+
+**Vol. 3** will look at internal group chemistry — which member-to-member pairs inside BTS, BLACKPINK, NewJeans, Stray Kids, and ATEEZ have the most generative charts? Which pairs are there *despite* the elemental clash, and which configurations actually use clash productively?
+
+Until then — may your five elements stay in balance.
+
+---
+
+*This article is part of the Celebrity Compatibility Series from SajuAstrology — a Korean astrology service available in 10 languages, used by readers in 50+ countries. The analyses here are based on publicly available birth dates (Wikipedia). Precise Saju readings require exact birth time; the analyses above use year-month-day information from open sources.*
+
+*Saju is a cultural and philosophical system. It is not a substitute for personal judgment, professional counseling, or medical advice. All discussions of real people here are intended as respectful cultural interpretation, not prediction or judgment of private lives.*`,
+  },
+  {
+    slug: "kpop-oshi-aishou-kankokushiki-saju",
+    locale: "ja",
+    title: "推しと自分の四柱推命相性 — K-POP の星たちを韓国式サジュで読み解く",
+    description: "韓国式サジュ（四柱推命）で読み解く、推しとの本気の相性。TWICE のサナ・ミナ・モモ、NCT の悠太の四柱命式を分析。MBTI とも星座占いとも違う、518,400 通りの精密占いとは？",
+    date: "2026-05-05",
+    readTime: "9 min",
+    category: "Celebrity Series",
+    keywords: ["推し 相性", "K-POP 相性占い", "韓国式サジュ", "四柱推命 K-POP", "サナ 四柱推命", "ミナ 占い", "モモ サジュ", "NCT 悠太 相性", "推し活 占い", "韓国 四柱推命"],
+    content: `**Celebrity Compatibility Series — Vol. 2 · K-POP 編**
+*5,000 年の歴史を持つ韓国式サジュ（四柱推命）の視点から、あなたと推しの「気の交わり」を読み解く文化的な試みです — 予言ではありません。*
+
+推しの誕生日を調べて、自分との相性を見たことはありますか？それは決して特殊な行為ではありません。むしろ、私たちのサービスのユーザーデータを見ていると、東京・大阪・名古屋・福岡から、毎日のように同じパターンが現れます — ファンが自分の生年月日と推しの生年月日を入力し、相性鑑定の結果を眺める。
+
+その鑑定の背後にあるのが、**韓国式サジュ（四柱推命 / 사주）** です。日本でも馴染みのある四柱推命と同じ古典中国の系譜を持ちますが、韓国独自の発展を経て、現代に伝わっています。西洋占星術が 12 の星座にあなたを分類するのに対し、サジュは生まれた瞬間の四つの柱（年・月・日・時）から、**518,400 通り**の組み合わせのうち一つを導き出します。二人の命式が出会ったとき、サジュが読むのは「相性が良いか悪いか」ではなく、**二つのエネルギーがどう交わるか**です。
+
+第二弾となる今回は、日本で活動する K-POP の四人 — TWICE のサナ、ミナ、モモ、そして NCT 127 の悠太 — の命式を、韓国式サジュの視点から丁寧に読み解きます。
+
+---
+
+## サジュにおける相性の読み方
+
+本題に入る前に、本文中で繰り返し登場する三つの概念を確認します。
+
+- **日干（일간 / il-gan）** — あなたの中核を表す一文字の漢字。十種類あります：甲（陽木）、乙（陰木）、丙（陽火）、丁（陰火）、戊（陽土）、己（陰土）、庚（陽金）、辛（陰金）、壬（陽水）、癸（陰水）。
+- **五行のバランス（오행 / o-haeng）** — 木・火・土・金・水を、それぞれの命式がどれだけ持っているか。深く相性が良いとされるパートナーは、互いの五行の不足を*補い合う*傾向があります。
+- **生・冲（생·충 / saeng-chung）** — 命式の八文字の間にある構造的関係。どこで気が生まれ、どこで衝突するかを示します。
+
+正確な鑑定には出生時刻が必要です。K-POP のアーティストは時刻まで公にしないことが多いため、本記事では年・月・日のレベルで読み解きます — それでも、十分に意味のある対話が可能です。
+
+---
+
+## 1. TWICE サナ（湊崎紗夏）— 真冬の癸水
+
+* **生年月日**: 1996 年 12 月 29 日
+* **月**: 子（鼠）— 純粋な水
+* **年**: 丙子（火の上に立つ水）
+
+サナさんは真冬の鼠月、純粋な水の月に生まれています。1996 年は陽火（丙）が陽水（子）の上に乗る年で、サジュではこれを **水火既済（수화기제 / su-hwa gi-je）** に近い構造として読みます。火と水の対立が、ぶつかり合うのではなく、互いを際立たせる配置です。
+
+癸水の人は、サジュの古典で「夜の海」「深い井戸」と表現されます。一見静かに見えても、内側に深い感受性と、長い時間をかけて物事を観察する力を持っているとされます。表面の明るさと内側の深さの両立 — それがサナさんの命式が持つ典型的なテクスチャです。
+
+**日干が木（甲・乙）の方**との相性は、サジュにおいて最も古典的な「印星」関係です。水は木を生む（水生木）— つまり、サナさんの命式の水のエネルギーが、あなたの木を養う構造になります。「一緒にいると、自分が伸びていく感覚がある」と古典的に表現される配置です。
+
+**日干が火（丙・丁）の方**には、サナさんの水は冷却の役割を果たします。火が強すぎて消耗しやすい命式の方にとって、適度な水は休息と回復の場になります。逆に、火が弱い命式の方にとっては、緊張感が高まりすぎる可能性もあります。
+
+---
+
+## 2. TWICE ミナ（名井南）— 早春の辛金
+
+* **生年月日**: 1997 年 3 月 24 日
+* **月**: 卯（兎）— 純粋な木
+* **年**: 丁丑（土の上に立つ火）
+
+ミナさんは初春の兎月、純粋な陰木の月に生まれています。年柱は陰火（丁）の牛年（丑）— 内に火を秘めた土の構造です。これが意味するのは、**外見は柔らかく見えるけれど、内側に明確な意志と方向性を持っている**という古典的な「内火外柔」の配置です。
+
+もしミナさんの日干が辛金であれば（時刻が分からないため確定はできませんが、月柱の卯と年柱の丁丑から見て、命式の中で金の成分が重要な役割を果たしている可能性が高い）、これは **金清水秀（금청수수）** — 「澄んだ金と美しい水」と古典で呼ばれる、芸術家の典型的な命式の一つです。バレエを長年続けてこられた集中力と、ステージでの繊細な表現力は、この構造から自然に導かれるものと言えるでしょう。
+
+**日干が水（壬・癸）の方**には、ミナさんは金から水を生む関係（金生水）を提供します。「一緒にいると、自分の考えが整理されていく」という古典的な印星の体験です。
+
+**日干が土（戊・己）の方**との相性は、ミナさんの命式の木が土を制する構造（木剋土）になります。これは緊張関係ですが、土が肥沃すぎて何も育たない命式の方には、ミナさんの木が「整える存在」として機能することがあります。
+
+---
+
+## 3. TWICE モモ（平井もも）— 晩秋の戊土
+
+* **生年月日**: 1996 年 11 月 9 日
+* **月**: 亥（猪）— 水の中に隠れた木
+* **年**: 丙子（火の上に立つ水）
+
+モモさんはサナさんと同じ 1996 年生まれですが、月が完全に異なります。11 月は亥月 — 表は水ですが、中に甲木（陽木）と壬水（陽水）を蔵干として隠す月です。この「水の中に芽を秘めた」構造は、サジュでは **食神帯木（식신대목）** に近く、エネルギーを内側で長く育てて、適切なタイミングで外に出すパフォーマーの命式として読まれます。
+
+ダンサーとしての爆発力と、グループの中での絶妙なリズム感 — これらは、内に蓄えた木のエネルギーが時を見て外に出る、典型的な亥月の配置から自然に説明されます。
+
+**日干が火（丙・丁）の方**との相性は、モモさんの命式の木があなたの火を直接育てる関係（木生火）です。古典的に「一緒にいると、自分の表現したいものが明確になる」と表現される配置で、創作・表現を共にするパートナーとして長く愛されてきた構造です。
+
+**日干が土（戊・己）の方**には、モモさんの水が土を潤す関係になります（土と水は剋の関係ですが、適度な水は乾いた土を肥沃にします）。古典では **土水相通（토수상통）** と呼ばれ、互いに補完し合う長期的な関係として読まれることが多い配置です。
+
+---
+
+## 4. NCT 127 悠太（中本悠太）— 晩秋の戊土の重なり
+
+* **生年月日**: 1995 年 10 月 26 日
+* **月**: 戌（戌）— 火と金を隠した土
+* **年**: 乙亥（水の上に立つ陰木）
+
+悠太さんは晩秋の戌月生まれ。戌は表面的には土ですが、蔵干に丁火（陰火）と辛金（陰金）を秘めた、サジュの中でも最も多層的な月の一つです。年柱は陰木（乙）が陽水（亥）の上に乗る配置 — これは古典で「水辺の柳」と表現される構造です。
+
+つまり悠太さんの命式は、**外側は穏やかな土に見えても、内側には火（情熱）・金（規律）・水（深さ）・木（柔軟性）の四元素が同時に走っている**、極めて多層的な構造になっています。日韓両国で長年にわたり活動を続け、ダンス・ボーカル・MC・俳優と多面的な表現を展開している軌跡は、この多層的な命式から自然に読み解けます。
+
+**日干が金（庚・辛）の方**との相性は、悠太さんの土が金を生む関係（土生金）です。「一緒にいると、自分の力が引き出される」と古典で表現される印生の配置で、特に金の日干で命式に金が少ない方にとって、強い磁場を持つパートナーになり得ます。
+
+**日干が木（甲・乙）の方**には、悠太さんの命式の年柱の乙木があなたの木と並ぶ関係（比肩）になります。これは競合のようでいて、実は **同じ景色を見ている仲間**として古典で読まれる配置です。同年代のクリエイティブな関係性として、深い理解が成立しやすい構造です。
+
+---
+
+## あなた自身の相性を見る方法
+
+上の四人の分析は、公開されている生年月日に基づく五行の読み解きです。しかし*本当の*鑑定 — あなたと推しの相性 — を見るには、二つのものが必要です。
+
+1. **あなたの生年月日と出生時刻**（時刻は重要です — 時刻なしでは精度が大きく下がります）。
+2. **推しの生年月日**（Wikipedia に活動中の K-POP アーティスト全員の情報があります）。
+
+両方を [SajuAstrology](/) に入力すると、私たちの RimSaju エンジンが完全な相性鑑定を数秒で行います。鑑定には以下が含まれます：
+
+- 日干同士の比較
+- 五行バランスの統合分析
+- 互いに気を生む点と、衝突する点
+- 年柱（世代の共鳴）と月柱（生活リズムの共鳴）
+- 互いのエネルギーが強まる時期と、衝突しやすい時期
+
+[**→ 無料でサジュ鑑定を受ける**](/) · [**→ 推しとの相性を見る**](/)
+
+会員登録不要、クレジットカード不要、無料。日本語を含む 10 言語に対応。日本語版では、四柱推命の用語を韓国式サジュの文脈で丁寧に翻訳しています。
+
+---
+
+## このシリーズが*意図しないこと*
+
+* 推しに会えるという予言ではありません。
+* 推し本人や読者を判断するものではありません。
+* 私的情報に基づく性格診断ではありません — あくまで公開されている生年月日のみを使用しています。
+
+サジュは 5,000 年にわたる観察的伝統です。その価値は、未来を予測することではなく、**気の交わりについて考える語彙を提供すること**にあります。実際の人間関係は、選択・文脈・命式には見えない私的な次元で築かれるものです。
+
+---
+
+## シリーズ次回
+
+**Vol. 3** では、K-POP グループ内のメンバー同士の相性を扱います。BTS、BLACKPINK、TWICE、ENHYPEN、NewJeans の中で、最も気の生まれる組み合わせはどれか。衝突がありながらも、その衝突を生産的に使っている組み合わせはどれか — グループ内の化学反応を、サジュの視点から読み解きます。
+
+それまで、あなたの五行が穏やかに巡りますように。
+
+---
+
+*本記事は SajuAstrology の Celebrity Compatibility シリーズの一部です。SajuAstrology は 10 言語対応の韓国式サジュ・サービスで、50 以上の国で利用されています。本記事の分析は、公開されている生年月日（Wikipedia）に基づいています。サジュの正確な鑑定には出生時刻が必要ですが、本記事では年月日レベルで読み解きました。*
+
+*サジュは文化的・哲学的な体系であり、個人の判断、専門的なカウンセリング、医療上の助言の代わりにはなりません。本記事における実在の人物への言及は、すべて文化的解釈として尊重をもって書かれており、私生活への予言や判断ではありません。*`,
+  },
+  {
+    slug: "choe-ae-kpop-saju-gunghap-guide",
+    locale: "ko",
+    title: "최애와 나, 사주가 진짜 잘 맞을까 — K-pop 아이돌 사주 궁합 가이드",
+    description: "5,000년 된 한국 사주로 본 최애와 나의 진짜 궁합. 아이유, 트와이스 나연, 샤이니 태민, 지드래곤의 사주 격국 분석 — 그리고 직접 궁합 보는 법.",
+    date: "2026-05-05",
+    readTime: "9 min",
+    category: "Celebrity Series",
+    keywords: ["케이팝 궁합", "아이돌 사주", "최애 궁합", "K팝 사주 궁합", "아이유 사주", "나연 사주", "태민 사주", "지드래곤 사주", "셀럽 궁합", "사주 무료"],
+    content: `**Celebrity Compatibility Series — Vol. 2 · K-pop 편**
+*5,000년 된 한국 사주의 시선으로, 최애와 나의 기운이 어떻게 만나는지 살펴보는 문화적 시도 — 예언이 아닙니다.*
+
+위키피디아에서 최애의 생년월일 검색해서 무료 궁합 한 번쯤 돌려본 적 있으시죠. 솔직히 말씀드리면, 저희 사이트 접속 데이터를 보면 거의 모든 K-pop 팬덤에서 같은 패턴이 반복됩니다. 최애의 생일과 본인의 생일을 입력하고, 결과 화면을 캡처해서 친한 덕메랑 공유 — 이건 일상이 됐습니다.
+
+그런데 그 궁합 결과를 *제대로 읽는 법*은 잘 안 알려져 있습니다. 12개 별자리로 나누는 서양 점성술과 달리, 사주는 태어난 순간의 네 기둥(년·월·일·시)에서 **518,400가지 고유한 명식**을 도출합니다. 두 명식이 만났을 때 보는 건 "잘 맞는다 / 안 맞는다"가 아니라 **두 기운이 어떻게 만나는가**입니다. 충(冲)이 무조건 나쁜 게 아니고, 합(合)이 무조건 좋은 것도 아닙니다.
+
+이번 두 번째 시리즈에서는 한국 K-pop 팬덤이 가장 많이 검색하는 네 분 — 아이유, 트와이스 나연, 샤이니 태민, 지드래곤 — 의 명식을 사주의 관점에서 정리해드립니다. 끝까지 읽으시면 직접 본인 사주와 비교하는 법까지 가져가실 수 있습니다.
+
+---
+
+## 사주에서 궁합을 읽는 법
+
+본문 들어가기 전에, 자주 등장할 세 가지 개념만 짚고 갑니다.
+
+- **일간(日干)** — 명식의 핵을 이루는 한 글자. 갑·을·병·정·무·기·경·신·임·계 열 가지. 본인의 일간을 모르신다면 [SajuAstrology](/)에서 무료로 30초 만에 확인 가능합니다.
+- **오행 분포** — 목·화·토·금·수가 명식 안에 어떻게 분포돼 있는지. 좋은 궁합은 보통 서로의 오행 결핍을 *채워*줍니다.
+- **생·극·합·충** — 두 명식의 여덟 글자 사이에서 일어나는 구조적 관계. 어디서 기운이 생기고, 어디서 부딪히는지를 보여줍니다.
+
+정확한 궁합은 시(時)까지 필요하지만, K-pop 아티스트는 출생 시각을 공개하지 않는 경우가 대부분입니다. 그래서 본 글은 **년·월·일** 수준에서 분석합니다. 그래도 충분히 의미 있는 대화가 됩니다.
+
+---
+
+## 1. 아이유(이지은) — 사오미회국(巳午未會局)의 화토 명식
+
+* **생년월일**: 1993년 5월 16일
+* **월**: 사월(巳月) — 화 속에 토와 금을 감춤
+* **년**: 계유(癸酉) — 신금(辛金) 위의 계수(癸水)
+
+아이유 님은 늦봄의 사월(巳月) 출생입니다. 사화는 표면적으로 양화이지만 지장간에 무토와 경금을 함께 품고 있어, **하나의 지지 안에 화·토·금이 동시에 흐르는** 다층적 월입니다. 사주에서는 이 구조를 **화생토(火生土) → 토생금(土生金)** 의 자체 흐름이라 부르며, 한 사람의 명식 안에서 오행이 자연스럽게 순환할 때 나타나는 드문 형태로 봅니다.
+
+년주의 계유(癸酉)는 신금 위에 계수가 앉은 구조 — 금에서 수가 생겨납니다(金生水). 결국 아이유 님의 명식 전체는 **금 → 수 → 화 → 토 → 금** 의 순환을 그 자체로 보유하게 됩니다. 고전에서는 이를 **오행유통(五行流通)** 이라 부릅니다. 외부 도움 없이 명식 내에서 오행이 흐르는 구조로, 17년 이상 이어지는 커리어와 작사·작곡·연기까지 펼쳐지는 활동 폭이 이 구조에서 자연스럽게 설명됩니다.
+
+**일간이 금(庚·辛)** 이신 분은 아이유 님의 명식이 매우 자양분 있게 다가옵니다. 사월의 토가 금을 직접 생하고(土生金), 년주의 수가 금의 기운을 맑게 합니다(金白水淸). 고전에서는 이를 **인식겸비(印食兼備)** — "지지해주는 별과 표현하는 별이 함께 있다"는 배치로 읽습니다. 함께 있으면 본인의 표현이 깊어지는 경험을 의미합니다.
+
+**일간이 수(壬·癸)** 이신 분과는 또 다른 관계가 형성됩니다. 아이유 님의 금을 통해 본인의 수가 생성되는 흐름(金生水)에 더해, 년주에 같은 수를 공유하기 때문에 **동기상응(同氣相應)** — 비슷한 결의 사람들끼리 알아보는 관계로 읽힙니다. 오래 알수록 깊어지는 형태의 인연입니다.
+
+---
+
+## 2. 트와이스 나연(임나연) — 추월(秋月)의 신금 명식
+
+* **생년월일**: 1995년 9월 22일
+* **월**: 유월(酉月) — 순수한 음금(辛金)
+* **년**: 을해(乙亥) — 해수(亥水) 위의 을목(乙木)
+
+나연 님은 가을이 가장 깊어지는 9월 하순, 유월(酉月)의 순수한 신금(辛金) 시기에 태어났습니다. 사주에서 신금은 **세공된 금속, 보석, 거울** 의 상징입니다. 거친 경금(庚金)이 원광이라면, 신금은 그것을 다듬어 빛이 나게 만든 결과물입니다. 정밀함, 절제, 미세한 차이를 잡아내는 감각이 핵심입니다.
+
+년주의 을해(乙亥)는 해수 위의 을목 — 음목이 수의 자양을 받는 구조입니다. 명식 전체로 보면 **수 → 목 → 금** 의 흐름이 형성됩니다. 다만 금이 사주의 핵심에 자리 잡고 있어, 부드러운 외양 안에 단단한 결단력이 함께 흐르는 형태가 됩니다. 트와이스 데뷔 10년 차까지 이어지는 안정적 활동의 명식적 근거를 찾자면 이 구조에서 출발할 수 있습니다.
+
+**일간이 수(壬·癸)** 이신 분과는 사주의 가장 고전적인 인성(印星) 관계입니다. 금이 수를 생하는 흐름(金生水)이 그대로 작동하며, 나연 님의 명식이 본인의 사고를 정돈해주는 자리에 옵니다. **"같이 있으면 머리가 맑아지는 사람"** 의 배치입니다.
+
+**일간이 목(甲·乙)** 이신 분과는 다소 긴장 관계가 형성됩니다(金剋木). 다만 본인의 목이 너무 무성하고 정리가 안 된 명식이라면, 나연 님의 정밀한 금이 *가지치기* 역할을 합니다. 이는 고전에서 **官星制木(관성제목)** — "관성이 목을 다스린다"고 불리는 구조로, 갈등이 아니라 *형태를 잡아주는* 관계로 읽힙니다.
+
+---
+
+## 3. 샤이니 태민(이태민) — 미월(未月)의 정화 명식
+
+* **생년월일**: 1993년 7월 18일
+* **월**: 미월(未月) — 토 속에 목과 화를 감춤
+* **년**: 계유(癸酉) — 신금 위의 계수
+
+태민 님은 한여름 미월(未月)에 태어났습니다. 미토는 표면적으로 음토이지만 지장간에 을목(陰木)과 정화(陰火)를 함께 품습니다. 늦여름의 토 — 화의 열을 흡수해 머금은 상태입니다. 사주에서는 이를 **고지(庫地)** 라 부르며, 안에 무엇을 *저장*하고 *때가 되면 꺼내는* 구조로 읽습니다.
+
+년주의 계유는 아이유 님과 동일합니다(1993년생). 두 분은 **년주 동기(同期)** 관계로, 같은 시대의 결을 공유합니다. 다만 월이 완전히 달라 — 아이유 님은 사월(화 → 토 → 금의 순환), 태민 님은 미월(토 안에 목·화를 저장) — 표현 방식은 매우 다르게 발현됩니다.
+
+태민 님의 명식 전체는 **수 → 목(년주의 을목) → 화(미토 안의 정화) → 토(미토)** 의 흐름이 안에 응축돼 있습니다. 이를 고전에서는 **목화통명(木火通明)** — "목과 화가 서로 빛난다"고 부르며, 무대 위에서 빛을 *생성하는* 퍼포머의 전형적 명식으로 읽힙니다. 데뷔 17년 차까지 이어지는 무대 표현력이 이 구조에서 자연스럽게 설명됩니다.
+
+**일간이 토(戊·己)** 이신 분에게 태민 님의 명식은 *생산하는 화* 의 역할을 합니다(火生土). 안정된 토에 새로운 에너지를 더해주는 관계로, 고전에서는 **인생토(印生土)** — "지지가 토를 키운다"는 배치로 읽힙니다.
+
+**일간이 금(庚·辛)** 이신 분과는 미묘합니다. 토는 금을 생합니다(土生金), 그러나 미토 안의 정화는 금을 녹이는 작용도 함께 합니다(火剋金). 본인 명식의 금이 단단하다면 태민 님의 화가 *세공해주는* 역할을 하고, 본인 금이 약하다면 *부담이 되는* 관계가 됩니다. 즉 본인 명식의 금 강약에 따라 같은 사주가 다르게 작용하는 — 사주의 묘미를 잘 보여주는 구조입니다.
+
+---
+
+## 4. 지드래곤(권지용) — 입추(立秋)의 무토 명식
+
+* **생년월일**: 1988년 8월 18일
+* **월**: 신월(申月) — 금 속에 수와 토를 감춤
+* **년**: 무진(戊辰) — 진토(辰土) 위의 무토(戊土)
+
+지드래곤 님은 입추 직후의 신월(申月) 출생입니다. 신금은 양금이며, 지장간에 임수와 무토를 함께 품습니다. **금 → 수의 흐름이 월 안에서 일어나는** 구조로, 사주에서 금수상함(金水相涵)이라 불리는 배치입니다. 가을 초입의 신월은 화의 열기가 식어가며 금의 결정성이 드러나는 시기 — 사고가 차가워지고 형태가 잡혀가는 계절입니다.
+
+년주는 무진(戊辰) — 진토 위의 무토. 토가 두 겹으로 겹쳐 단단한 기반을 이룹니다. 명식 전체로 보면 **토 → 금 → 수** 의 흐름이 안정적으로 흐르며, 그 위에 1988년의 강한 토 기운이 받쳐주고 있습니다. 1990년대 후반 데뷔부터 30년 가까이 음악·패션·아트의 경계를 넘나드는 활동을 이어올 수 있는 명식적 기반은 이 *두꺼운 토* 와 *맑은 금수* 의 결합에서 옵니다. 고전에서는 이를 **재관쌍미(財官雙美)** — "재성과 관성이 함께 아름답다"고 부르며, 다영역 자산 형성에 적합한 구조로 봅니다.
+
+**일간이 수(壬·癸)** 이신 분과는 강력한 인성 관계입니다. 신월의 금과 무진의 토가 함께 본인의 수를 생성하고 안정시킵니다(土生金, 金生水). 고전에서 **양인격생수(羊刃格生水)** 에 가까운 구조로, 함께 있으면 본인의 깊이가 형성되는 관계입니다.
+
+**일간이 목(甲·乙)** 이신 분과는 가장 도전적인 관계가 됩니다. 토는 목의 뿌리를 흔들고(土剋木의 약한 형태), 금은 목을 직접 자릅니다(金剋木). 다만 — 이 강한 토금 기운은 *목이 너무 무성한 명식* 에는 오히려 정리해주는 작용을 합니다. 본인의 목이 가지가 너무 많다면, 지드래곤 님과의 관계는 *전지(剪枝)*하여 줄기를 굵게 만드는 역할을 할 수 있습니다.
+
+---
+
+## 본인 사주로 직접 궁합 보는 법
+
+위의 네 분 분석은 공개된 생년월일에 기반한 *오행 수준의 읽기*입니다. *진짜 궁합* — 본인과 최애의 — 을 보려면 두 가지가 필요합니다.
+
+1. **본인의 생년월일과 출생 시각** (시는 매우 중요합니다 — 시 없이는 해석의 정밀도가 크게 떨어집니다).
+2. **최애의 생년월일** (위키피디아에 활동 중인 모든 K-pop 아티스트 정보가 있습니다).
+
+두 가지를 [SajuAstrology](/)에 입력하시면, 저희 RimSaju 엔진이 완전한 궁합을 수 초 안에 풀어드립니다. 풀이에 포함되는 항목:
+
+- 일간 대 일간 비교
+- 두 명식의 오행 통합 분석
+- 두 명식이 생하는 지점과 충하는 지점
+- 년주(세대 공명)와 월주(생활 리듬 공명)
+- 두 분의 기운이 강해지는 시기와 부딪히는 시기
+- 대운(10년 주기)에서 두 분이 만나는 흐름
+
+[**→ 무료 사주 풀이 시작하기**](/) · [**→ 최애와 궁합 보기**](/)
+
+회원가입 불필요. 신용카드 불필요. 한국어 포함 10개 언어 지원. 한국어판은 사주 용어를 그대로 사용합니다 — 격국, 용신, 일간, 지장간, 대운까지.
+
+---
+
+## 이 시리즈가 *아닌* 것
+
+* 최애를 만나게 된다는 예언이 아닙니다.
+* 최애나 본인에 대한 판단이 아닙니다.
+* 사적 정보 기반의 성격 검사가 아닙니다 — 오직 공개된 생년월일만 사용했습니다.
+
+사주는 5,000년에 걸쳐 누적된 관찰 체계입니다. 그 가치는 미래를 예언하는 데 있지 않고, **두 사람의 기운이 만날 때를 어떻게 생각해야 하는지에 대한 어휘를 제공하는 데** 있습니다. 실제 관계는 명식이 볼 수 없는 선택과 맥락, 사적인 차원으로 이루어집니다.
+
+---
+
+## 다음 시리즈
+
+**Vol. 3** 에서는 K-pop 그룹 *내부* 멤버 간의 궁합을 다룹니다. BTS, BLACKPINK, 트와이스, 뉴진스, 스트레이키즈 — 그룹 안에서 가장 생(生)하는 조합과, 충(冲)이 있음에도 그 충을 *생산적으로 활용*하는 조합을 사주의 시선으로 풀어봅니다.
+
+그날까지, 다섯 기운이 평화롭게 흐르시기를.
+
+---
+
+*본 글은 SajuAstrology의 Celebrity Compatibility 시리즈 일부입니다. SajuAstrology는 10개 언어로 제공되는 한국 사주 서비스로, 50개국 이상의 독자가 이용 중입니다. 본 글의 분석은 공개된 생년월일(위키피디아)에 기반합니다. 정확한 사주 풀이에는 출생 시각이 필요합니다 — 본 글은 년·월·일 수준의 읽기입니다.*
+
+*사주는 문화적·철학적 체계입니다. 개인의 판단, 전문 상담, 의료 자문을 대체하지 않습니다. 본 글의 실존 인물에 대한 모든 언급은 사적 영역에 대한 예언이나 판단이 아니라, 존중에 기반한 문화적 해석입니다.*`,
+  },
 ];
 
 
