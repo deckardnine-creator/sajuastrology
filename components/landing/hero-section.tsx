@@ -225,6 +225,42 @@ export function HeroSection() {
                   <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
                 </div>
               </Link>
+
+              {/* ════════════════════════════════════════════════════════
+                  v6.18.4: LLM self-evaluation experiment badge
+                  
+                  Sits at the bottom of the authority stack (NVIDIA →
+                  Whitepaper → LLM Experiment), visually subordinate to
+                  the two academic/external-validation signals above.
+                  
+                  Cyan/sky tone (vs amber for Whitepaper) marks this as
+                  a different category — playful experiment, not a
+                  credential. Same shape language (rounded card + ring +
+                  arrow) keeps the stack coherent.
+                  
+                  Links to /blog/llm-saju-self-evaluation, an English-only
+                  static page (no Navbar, no language toggle) per chandler
+                  spec — this is the only blog page reachable from home.
+              ════════════════════════════════════════════════════════ */}
+              <Link
+                href="/blog/llm-saju-self-evaluation"
+                className="group relative w-[280px] lg:w-auto lg:min-w-[280px] block"
+              >
+                <span
+                  aria-hidden
+                  className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-cyan-500/25 via-sky-300/35 to-cyan-500/25 opacity-50 blur-md group-hover:opacity-80 transition-opacity"
+                />
+                <span
+                  aria-hidden
+                  className="absolute inset-0 rounded-xl ring-1 ring-cyan-300/40 group-hover:ring-cyan-200/60 transition-colors"
+                />
+                <div className="relative rounded-xl bg-gradient-to-r from-cyan-500/[0.06] via-sky-400/[0.10] to-cyan-500/[0.06] backdrop-blur-sm px-4 py-3 flex items-center gap-3">
+                  <span className="flex-1 min-w-0 text-[13.5px] sm:text-[14px] leading-snug font-medium text-cyan-100 group-hover:text-cyan-50 transition-colors">
+                    {t("hero.llmExperimentBadge")}
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-cyan-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
+                </div>
+              </Link>
             </div>
 
             {/* ════════════════════════════════════════════════════════
