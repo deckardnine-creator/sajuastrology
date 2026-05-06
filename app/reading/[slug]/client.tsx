@@ -856,25 +856,48 @@ export default function ReadingPageClient() {
       return;
     }
     // Web mode OR admin in native mode: hit checkout endpoint
-    // Mixpanel: PayPal checkout redirect initiated — funnel step before leaving our domain
+    // Routing:
+    //   - Korean users (locale='ko') → Creem (PayPal can't process KR cards)
+    //   - Global users (en/ja/etc) → PayPal (high recognition)
+    // Both flows ultimately set readings.is_paid=true via their webhooks.
+    const useCreem = locale === "ko";
+    // Mixpanel: checkout redirect initiated — funnel step before leaving our domain
     try {
       track(Events.reading_payment_initiated, {
         share_slug: reading.share_slug,
-        method: "paypal",
+        method: useCreem ? "creem" : "paypal",
         amount: 9.99,
         currency: "USD",
       });
     } catch {}
     setPaymentLoading(true);
     try {
-      const res = await fetch("/api/payment/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shareSlug: reading.share_slug, readingName: reading.name, userEmail: user.email }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
+      if (useCreem) {
+        const res = await fetch("/api/creem/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productKey: "full_destiny_reading",
+            customId: reading.share_slug,
+            customerEmail: user.email,
+          }),
+        });
+        const data = await res.json();
+        if (data.checkout_url) {
+          window.location.href = data.checkout_url;
+        } else {
+          throw new Error(data.error || data.detail || "Checkout failed");
+        }
+      } else {
+        const res = await fetch("/api/payment/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ shareSlug: reading.share_slug, readingName: reading.name, userEmail: user.email }),
+        });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        }
       }
     } catch {
       setPaymentLoading(false);

@@ -208,9 +208,35 @@ export function CompatibilityPaywall({ shareSlug, partnerName }: Props) {
       return;
     }
 
-    // ─── Web mode: PayPal flow ───
+    // ─── Web mode: PayPal (global) or Creem (Korea + fallback) ───
+    // Korean users can't use PayPal (no KR card support). Route them to Creem.
+    // Global users get PayPal (high recognition). Both eventually reach the
+    // same "is_paid=true" state via different webhook paths.
     setLoading(true);
     try {
+      const useCreem = locale === "ko";
+
+      if (useCreem) {
+        const res = await fetch("/api/creem/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productKey: "compatibility_full",
+            customId: shareSlug,
+            customerEmail: user.email,
+          }),
+        });
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          throw new Error(errBody.error || errBody.detail || "Failed to start payment");
+        }
+        const { checkout_url } = await res.json();
+        if (!checkout_url) throw new Error("No checkout URL returned");
+        window.location.href = checkout_url;
+        return;
+      }
+
+      // Default: PayPal flow (global, en/ja/etc + admin bypass)
       const res = await fetch("/api/payment/checkout-compatibility", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

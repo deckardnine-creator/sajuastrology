@@ -490,16 +490,38 @@ export function ConsultationClient() {
     }
 
     // Web mode OR admin in native mode: hit checkout endpoint
+    // Korean users → Creem ($29.99 5-pack via global card MoR)
+    // Global users → PayPal (existing flow with admin bypass)
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/payment/checkout-consultation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, userEmail: user.email }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
+      const useCreem = locale === "ko";
+
+      if (useCreem) {
+        const res = await fetch("/api/creem/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productKey: "master_5_pack",
+            customId: user.id,
+            customerEmail: user.email,
+          }),
+        });
+        const data = await res.json();
+        if (data.checkout_url) {
+          window.location.href = data.checkout_url;
+        } else {
+          setError(data.error || data.detail || t("consult.paymentSetupFailed", locale));
+        }
+      } else {
+        const res = await fetch("/api/payment/checkout-consultation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id, userEmail: user.email }),
+        });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        }
       }
     } catch {
       setError(t("consult.paymentSetupFailed", locale));
