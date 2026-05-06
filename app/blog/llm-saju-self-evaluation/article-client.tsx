@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useNativeApp } from "@/lib/native-app";
 
 // ════════════════════════════════════════════════════════════════
 // Per-LLM data — kept inline (single source of truth). Editing the
@@ -170,18 +171,55 @@ function Lightbox({
 
 // ════════════════════════════════════════════════════════════════
 // Reusable: zoomable screenshot card (click → lightbox)
+//
+// On Flutter WebView (Android / iOS app), the WebViewWidget's
+// pinch-zoom is disabled by default in our shell, so the lightbox
+// would just open a non-zoomable copy of the same image — frustrating
+// for the user. We detect the native-app context via useNativeApp()
+// and render a static inline image with no click affordance, no
+// "Click to zoom" hint, and no lightbox handler. The web flow stays
+// fully interactive.
+//
+// To enable zoom inside the app: set WebViewController.enableZoom(true)
+// in the Flutter shell (next app build). This component will continue
+// to gate on useNativeApp() since the shell still won't open a separate
+// overlay — pinch-zoom on the inline image is the better app UX anyway.
 // ════════════════════════════════════════════════════════════════
 function Screenshot({
   src,
   alt,
   caption,
   onZoom,
+  isNativeApp,
 }: {
   src: string;
   alt: string;
   caption: string;
   onZoom: (img: LightboxImage) => void;
+  isNativeApp: boolean;
 }) {
+  if (isNativeApp) {
+    // App: static inline image, no zoom affordance, neutral caption
+    return (
+      <figure className="my-6">
+        <div className="relative block w-full overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
+          <Image
+            src={src}
+            alt={alt}
+            width={1200}
+            height={800}
+            className="h-auto w-full"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 720px"
+          />
+        </div>
+        <figcaption className="mt-2 text-center text-xs italic text-white/50">
+          {caption.replace(/\.\s*Click to zoom\.?$/i, ".").replace(/\s*Click to zoom\.?$/i, "")}
+        </figcaption>
+      </figure>
+    );
+  }
+
+  // Web: clickable button → lightbox
   return (
     <figure className="my-6">
       <button
@@ -213,6 +251,7 @@ function Screenshot({
 // Main article body
 // ════════════════════════════════════════════════════════════════
 export function ArticleClient() {
+  const isNativeApp = useNativeApp();
   const [lightboxImage, setLightboxImage] = useState<LightboxImage | null>(
     null
   );
@@ -448,6 +487,7 @@ export function ArticleClient() {
           alt="GPT-5.5 Thinking self-evaluation answer, scoring itself 68 out of 100 against RimSaju V1"
           caption="GPT-5.5 Thinking's self-evaluation. Click to zoom."
           onZoom={openLightbox}
+          isNativeApp={isNativeApp}
         />
 
         <div className="prose prose-invert mt-4 max-w-none">
@@ -495,6 +535,7 @@ export function ArticleClient() {
           alt="Gemini Pro self-evaluation answer, scoring itself 35 out of 100"
           caption="Gemini Pro's self-evaluation. Click to zoom."
           onZoom={openLightbox}
+          isNativeApp={isNativeApp}
         />
 
         <div className="prose prose-invert mt-4 max-w-none">
@@ -557,6 +598,7 @@ export function ArticleClient() {
           alt="Claude Opus 4.7 self-evaluation answer, scoring itself approximately 30 out of 100"
           caption="Claude Opus 4.7's self-evaluation. Click to zoom."
           onZoom={openLightbox}
+          isNativeApp={isNativeApp}
         />
 
         <div className="prose prose-invert mt-4 max-w-none">
