@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     // PayPal flow: capture the order
-    if (sessionId) {
+    if (sessionId && sessionId !== "lemon") {
       // Idempotency check — don't add credits twice for same PayPal order
       const existCheck = await fetch(
         `${supabaseUrl}/rest/v1/consultation_credits?paypal_order_id=eq.${sessionId}&select=id`,
@@ -80,6 +80,19 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json({ error: "Payment not completed" }, { status: 400 });
+    }
+
+    // Legacy LemonSqueezy flow
+    if (sessionId === "lemon") {
+      await new Promise((r) => setTimeout(r, 3000));
+      if (await checkCredits()) {
+        return NextResponse.json({ success: true });
+      }
+      await new Promise((r) => setTimeout(r, 3000));
+      if (await checkCredits()) {
+        return NextResponse.json({ success: true });
+      }
+      return NextResponse.json({ success: true, pending: true });
     }
 
     return NextResponse.json({ error: "Payment not confirmed" }, { status: 400 });

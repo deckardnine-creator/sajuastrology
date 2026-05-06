@@ -195,7 +195,7 @@ export default function ReadingPageClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Reset payment loading when user returns from external payment (browser tab regains focus)
+  // Reset payment loading when user returns from LemonSqueezy (browser tab regains focus)
   useEffect(() => {
     const handleFocus = () => { setPaymentLoading(false); };
     window.addEventListener("focus", handleFocus);
