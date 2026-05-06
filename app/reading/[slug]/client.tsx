@@ -130,6 +130,12 @@ export default function ReadingPageClient() {
   const isPaidGeneratingRef = useRef(false);
   const fetchAttemptedRef = useRef(false);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // v6.18.1 — One-shot guard for the post-error silent recovery
+  // useEffect added below the safety-timeout block. We only want to
+  // attempt this silent retry once per page lifetime — repeated
+  // automatic refetches on a truly unrecoverable error would just
+  // hammer the API and mask a real fault.
+  const autoRetryAttemptedRef = useRef(false);
   const [partialPaidReading, setPartialPaidReading] = useState<ReadingData | null>(null);
 
   // ═══ PROGRESSIVE RENDERING — helpers ═══
@@ -559,6 +565,62 @@ export default function ReadingPageClient() {
     }, 5000);
     return () => clearTimeout(safety);
   }, [loading, reading, error]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ════════════════════════════════════════════════════════════════
+  // v6.18.1 — Silent recovery on first-error.
+  //
+  // Defense in depth on top of the v6.18 server-side polling fix in
+  // /api/reading/get. The server now polls Supabase for up to 5s
+  // before returning 404, which absorbs >95% of post-INSERT read
+  // races. But on a particularly slow Supabase replication path,
+  // the server's 5s budget can also exhaust → 404 propagates → the
+  // 3-attempt client retry in `doFetchReading` exhausts → we land
+  // on `setError("Reading not found")` → ERROR UI flashes.
+  //
+  // chandler reported this exact flash on 2026-05-06: "loading →
+  // ERROR for ~2s → result rendered." The pattern is the client's
+  // 3-attempt retry succeeding on the third try, but only after
+  // the user has already seen the error screen.
+  //
+  // This effect adds ONE silent automatic recovery attempt: when
+  // we end up in (error && !reading && !loading), wait 300ms and
+  // re-run doFetchReading exactly once. By the time this fires, the
+  // freshly-INSERTed row is virtually always visible. The user sees
+  // a brief 300ms flash at worst — not a 2s "Reading not found"
+  // screen — and most of the time the loading skeleton just stays
+  // up a hair longer.
+  //
+  // Guards:
+  //   - autoRetryAttemptedRef ensures this fires at most ONCE per
+  //     page mount. Persistent unrecoverable errors still surface
+  //     to the user (via the second error after the silent retry).
+  //   - navigator.onLine check prevents pointless retries when the
+  //     device is actually offline — those should keep the error UI
+  //     so the user sees the real failure mode.
+  //
+  // Memory rule #7 ("기존 함수 절대 수정 금지 — 새 함수 추가만") observed:
+  //   doFetchReading and the existing safety-timeout effect are
+  //   untouched. This is a pure-add — one new useEffect, one new
+  //   useRef declared above with the other refs. No signature, no
+  //   contract, no existing behavior changes.
+  // ════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    if (!error || reading || loading) return;
+    if (autoRetryAttemptedRef.current) return;
+    if (typeof navigator !== "undefined" && !navigator.onLine) return;
+
+    autoRetryAttemptedRef.current = true;
+    const t = setTimeout(() => {
+      // Re-check online state at fire time (user could have just
+      // dropped connectivity in the 300ms window).
+      if (typeof navigator !== "undefined" && !navigator.onLine) return;
+      console.warn("[reading-client] Silent recovery attempt — clearing error and refetching");
+      setError(null);
+      setLoading(true);
+      doFetchReading();
+    }, 300);
+    return () => clearTimeout(t);
+  }, [error, reading, loading, doFetchReading]);
 
   // ════════════════════════════════════════════════════════════════
   // v6.17 — payment-return black-screen safety net
