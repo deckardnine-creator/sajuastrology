@@ -82,7 +82,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">7. Payments and Refunds</h2>
-              <p className="mb-2"><strong>Web payments</strong> are processed by PayPal Checkout (accepting PayPal, Visa, Mastercard, American Express, and other major cards). <strong>App payments</strong> are processed by the Apple App Store (iOS) or Google Play (Android) through in-app purchase. We do not receive, handle, or store your payment card details.</p>
+              <p className="mb-2"><strong>Web payments</strong> are processed either through Creem.io (acting as our <strong>Merchant of Record</strong> for global card processing, including Korean cards) or through PayPal Checkout (which accepts PayPal, Visa, Mastercard, American Express, and other major cards). <strong>App payments</strong> are processed by the Apple App Store (iOS) or Google Play (Android) through in-app purchase. We do not receive, handle, or store your payment card details. As Merchant of Record on the Creem checkout flow, Creem is the contracting seller of record for the transaction (issuing the receipt and remitting any applicable taxes), while Rimfactory remains the supplier of the underlying digital reading.</p>
               <p className="mb-2">Digital content (AI-generated readings) is delivered immediately and uniquely for your birth chart upon purchase.</p>
               <ul className="list-disc pl-6 mb-2 space-y-1">
                 <li>If a technical error prevents your reading from being delivered, contact <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> within 7 days of purchase for a refund.</li>
@@ -91,7 +91,7 @@ export default function TermsPage() {
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li><strong>iOS App Store:</strong> open <em>Settings → [your name] → Subscriptions</em>, tap <em>Soram Companion</em>, and tap <em>Cancel Subscription</em>.</li>
                     <li><strong>Google Play:</strong> open the Google Play Store app, tap your profile icon → <em>Payments &amp; subscriptions → Subscriptions</em>, select <em>Soram Companion</em>, and tap <em>Cancel subscription</em>.</li>
-                    <li><strong>Web (PayPal):</strong> cancel from your dashboard or by emailing <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. You can also cancel directly from your PayPal account under <em>Payments → Manage automatic payments</em>.</li>
+                    <li><strong>Web (PayPal or Creem):</strong> cancel from your dashboard or by emailing <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. If your subscription was processed by PayPal, you can also cancel directly from your PayPal account under <em>Payments → Manage automatic payments</em>. If your subscription was processed by Creem, the cancellation is handled in your dashboard or by writing to <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>; Creem will stop billing the next cycle.</li>
                   </ul>
                   Cancellation stops the next billing cycle; you retain access through the end of the current paid period. Already-billed monthly periods are not refunded except as required by applicable consumer-protection law or by Apple / Google policy.
                 </li>

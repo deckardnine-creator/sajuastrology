@@ -39,9 +39,9 @@ export default function PrivacyPage() {
               <p className="mb-2"><strong>Account information.</strong> When you sign in via Google OAuth or Apple Sign-in, we receive your name, email address, and (when provided) profile picture. We never receive or store your password. If you use Apple&rsquo;s Hide My Email option, we use the relay address provided.</p>
               <p className="mb-2"><strong>Birth data.</strong> Name, gender, date and time of birth, and city of birth that you voluntarily enter for Saju readings, compatibility checks, and consultations. Because this combination can identify a natural person, we treat it as personal data under GDPR/PIPA and apply appropriate safeguards.</p>
               <p className="mb-2"><strong>Soram conversation data.</strong> If you use the Soram chat feature, your questions and Soram&rsquo;s responses are stored in your account so you can review them on the dashboard and so Soram can remember context across sessions. We may also generate a periodic short summary of recurring themes from your conversations to improve continuity. You can delete this history at any time by deleting your account.</p>
-              <p className="mb-2"><strong>Subscription state (Soram Companion).</strong> If you subscribe, we store the subscription start/end dates, current status (active/canceled/expired), and the platform that processes the subscription (PayPal / Apple App Store / Google Play). We do not store your payment card.</p>
+              <p className="mb-2"><strong>Subscription state (Soram Companion).</strong> If you subscribe, we store the subscription start/end dates, current status (active/canceled/expired), and the platform that processes the subscription (Creem / PayPal / Apple App Store / Google Play). We do not store your payment card.</p>
               <p className="mb-2"><strong>Usage and device data.</strong> Pages visited, features used, interactions, device type, operating system, browser type, approximate location (inferred from IP at country/city level), and performance telemetry. Collected via Google Analytics 4, Mixpanel (web), Firebase Analytics (mobile app), and Vercel Analytics.</p>
-              <p className="mb-2"><strong>Purchase data.</strong> Transaction identifiers, product IDs, purchase timestamps, and platform (web / iOS / Android). Full payment-card data is never received or stored by us — it is handled by PayPal (web) or Apple / Google (mobile app).</p>
+              <p className="mb-2"><strong>Purchase data.</strong> Transaction identifiers, product IDs, purchase timestamps, and platform (web / iOS / Android). Full payment-card data is never received or stored by us — it is handled by Creem.io (our Merchant of Record on the web for global card processing, including Korean cards), PayPal (alternative web checkout), or Apple / Google (mobile app in-app purchase).</p>
               <p><strong>Communications.</strong> Any email you send to us (including support requests).</p>
             </section>
 
@@ -111,7 +111,7 @@ export default function PrivacyPage() {
                 <li><strong>Identity providers:</strong> Google (OAuth), Apple (Sign-in).</li>
                 <li><strong>Database and infrastructure:</strong> Supabase (authentication, relational storage with Row Level Security), Vercel (web hosting and edge delivery).</li>
                 <li><strong>AI model providers:</strong> Google (Gemini API), Anthropic (Claude).</li>
-                <li><strong>Payment processors:</strong> PayPal (web), Apple App Store (iOS), Google Play (Android).</li>
+                <li><strong>Payment processors:</strong> Creem.io (Merchant of Record on the web for global card processing, including Korean cards), PayPal (alternative web checkout for non-Korean users), Apple App Store (iOS in-app purchase), Google Play (Android in-app purchase). On the Creem flow, Creem is the contracting seller of record for the transaction; Rimfactory remains the supplier of the underlying digital reading.</li>
                 <li><strong>Analytics:</strong> Google Analytics 4, Mixpanel, Firebase Analytics (mobile), Vercel Analytics.</li>
                 <li><strong>Error and performance monitoring:</strong> Vercel, and limited logging within our own infrastructure.</li>
               </ul>
@@ -163,7 +163,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">11. Cookies and Similar Technologies</h2>
-              <p>We use a minimal set of cookies and local-storage items required to keep you signed in, remember your language, and measure product usage. Vercel Analytics is cookieless. Google Analytics, Mixpanel, and Firebase may set analytics cookies or use localStorage to generate anonymous identifiers. PayPal may set essential cookies during checkout. You can control cookies via your browser settings; disabling non-essential cookies will not prevent use of the Service.</p>
+              <p>We use a minimal set of cookies and local-storage items required to keep you signed in, remember your language, and measure product usage. Vercel Analytics is cookieless. Google Analytics, Mixpanel, and Firebase may set analytics cookies or use localStorage to generate anonymous identifiers. PayPal and Creem.io may set essential cookies during their respective checkout flows. You can control cookies via your browser settings; disabling non-essential cookies will not prevent use of the Service.</p>
             </section>
 
             <section>
