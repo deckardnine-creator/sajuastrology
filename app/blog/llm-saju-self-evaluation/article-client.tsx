@@ -262,6 +262,7 @@ export function ArticleClient() {
   const closeLightbox = useCallback(() => setLightboxImage(null), []);
 
   return (
+    <>
     <main
       id="main-content"
       className="relative mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12"
@@ -822,8 +823,31 @@ validation) is set as 100, please answer the following:
           ))}
         </div>
       </section>
-
-      <Lightbox image={lightboxImage} onClose={closeLightbox} />
     </main>
+
+    {/* ═══════════════════════════════════════════════════════
+        Footer — web only. Hidden inside Flutter WebView (the app
+        already has its own native bottom-nav: Home / Reading /
+        Soram / Match / Consult / My, so a web footer above that
+        creates duplicate-footer awkwardness). Per chandler 2026-05-06:
+        FAQ should be the last visible content in-app, then native nav.
+        ═══════════════════════════════════════════════════════ */}
+    {!isNativeApp && (
+      <footer className="border-t border-white/5 px-4 py-8 text-center sm:px-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs text-white/50 transition-colors hover:text-amber-300"
+        >
+          <span aria-hidden>←</span>
+          <span>Back to sajuastrology.com</span>
+        </Link>
+        <p className="mt-3 text-[11px] text-white/30">
+          © 2026 Rimfactory · Published from Seoul
+        </p>
+      </footer>
+    )}
+
+    <Lightbox image={lightboxImage} onClose={closeLightbox} />
+    </>
   );
 }

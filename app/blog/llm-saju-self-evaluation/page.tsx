@@ -183,21 +183,6 @@ export default function LlmSajuSelfEvaluationPage() {
       </header>
 
       <ArticleClient />
-
-      {/* Minimal footer — single home link, no language toggle, no Footer
-          component (per chandler spec). */}
-      <footer className="border-t border-white/5 px-4 py-8 text-center sm:px-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs text-white/50 transition-colors hover:text-amber-300"
-        >
-          <span aria-hidden>←</span>
-          <span>Back to sajuastrology.com</span>
-        </Link>
-        <p className="mt-3 text-[11px] text-white/30">
-          © 2026 Rimfactory · Published from Seoul
-        </p>
-      </footer>
     </>
   );
 }
