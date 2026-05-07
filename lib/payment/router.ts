@@ -39,24 +39,28 @@ export function getAvailablePaymentMethods(ctx: RouterContext): PaymentMethod[] 
  * Whether a payment method is currently active/integrated.
  * As we activate new PGs (Toss/Naver/Kakao), flip the flag here.
  *
+ * Uses NEXT_PUBLIC_ env vars so this works in both server and client components.
+ * Server-only API keys (CREEM_API_KEY, PAYPAL_CLIENT_ID) stay secure —
+ * only boolean feature flags are exposed to the browser.
+ *
  * Currently active: creem, paypal
  * Pending integration (KR PGs in review): toss, naverpay, kakaopay
  */
 export function isPaymentMethodActive(method: PaymentMethod): boolean {
   switch (method) {
     case "creem":
-      return Boolean(process.env.CREEM_API_KEY);
+      return process.env.NEXT_PUBLIC_CREEM_ENABLED === "true";
     case "paypal":
-      return Boolean(process.env.PAYPAL_CLIENT_ID);
+      return process.env.NEXT_PUBLIC_PAYPAL_ENABLED === "true";
     case "toss":
       // TODO: enable when Toss Payments review passes
-      return Boolean(process.env.TOSS_CLIENT_KEY);
+      return process.env.NEXT_PUBLIC_TOSS_ENABLED === "true";
     case "naverpay":
       // TODO: enable when Naver Pay review passes
-      return Boolean(process.env.NAVERPAY_PARTNER_ID);
+      return process.env.NEXT_PUBLIC_NAVERPAY_ENABLED === "true";
     case "kakaopay":
       // TODO: enable when Kakao Pay review passes
-      return Boolean(process.env.KAKAOPAY_CID);
+      return process.env.NEXT_PUBLIC_KAKAOPAY_ENABLED === "true";
     default:
       return false;
   }
