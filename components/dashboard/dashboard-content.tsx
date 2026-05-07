@@ -844,13 +844,33 @@ function DashboardInner() {
               <CreditCard className="w-3 h-3" />
               {t("dash.planTitle", locale)}
             </p>
-            {soramUsage?.tier !== "subscriber" && (
+            {soramUsage?.tier !== "subscriber" ? (
               <Link
                 href="/pricing?plan=companion"
                 className="text-[11px] text-amber-300/90 hover:text-amber-200 transition-colors min-h-[28px] flex items-center"
               >
                 {t("dash.upgrade", locale)} →
               </Link>
+            ) : (
+              <button
+                onClick={async () => {
+                  if (!user?.email) return;
+                  try {
+                    const res = await fetch("/api/creem/portal", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ email: user.email }),
+                    });
+                    const data = await res.json();
+                    if (data.portal_url) {
+                      window.open(data.portal_url, "_blank");
+                    }
+                  } catch {}
+                }}
+                className="text-[11px] text-muted-foreground/70 hover:text-amber-200 transition-colors min-h-[28px] flex items-center"
+              >
+                {locale === "ko" ? "\uAD6C\uB3C5 \uAD00\uB9AC" : locale === "ja" ? "\u30B5\u30D6\u30B9\u30AF\u30EA\u30D7\u30B7\u30E7\u30F3\u7BA1\u7406" : "Manage Subscription"}
+              </button>
             )}
           </div>
           <div className="flex items-baseline gap-2 mb-3">
