@@ -14,6 +14,7 @@ import { t, type Locale } from "@/lib/translations";
 import { ELEMENT_COLORS } from "@/lib/constants";
 import { CompatibilityPaywall } from "@/components/compatibility/compat-paywall";
 import { CompatibilityUnlockLoader } from "@/components/compatibility/compat-unlock-loader";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 interface CompatResult {
   person_a_name: string;
@@ -720,7 +721,7 @@ export default function CompatibilityResultClient() {
                 <h2 className="font-serif text-lg font-semibold">{t("cr.yourConnection", locale)}</h2>
               </div>
               <div className="prose prose-invert prose-sm max-w-none">
-                <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85] prose-strong:text-foreground" dangerouslySetInnerHTML={{ __html: renderCompatMarkdown(result.free_summary) }} />
+                <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85] prose-strong:text-foreground" dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderCompatMarkdown(result.free_summary)) }} />
               </div>
             </div>
           </motion.section>
@@ -772,7 +773,7 @@ export default function CompatibilityResultClient() {
               </div>
               <div className="rounded-2xl p-6 sm:p-8" style={{ background: "linear-gradient(135deg, rgba(167,139,250,0.06), rgba(15,15,25,0.5))", border: "1px solid rgba(167,139,250,0.15)" }}>
                 <div className="prose prose-invert prose-sm max-w-none">
-                  <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85] prose-strong:text-foreground" dangerouslySetInnerHTML={{ __html: renderCompatMarkdown(result.paid_yearly) }} />
+                  <div className="prose prose-invert prose-sm max-w-none prose-headings:font-serif prose-headings:text-primary prose-p:leading-[1.85] prose-strong:text-foreground" dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderCompatMarkdown(result.paid_yearly)) }} />
                 </div>
               </div>
             </motion.section>

@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useLanguage } from "@/lib/language-context";
 import { t, toBCP47 } from "@/lib/translations";
 import Link from "next/link";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 interface ConsultationRecord {
   id: string;
@@ -132,7 +133,7 @@ export function ConsultationHistory() {
                       prose-headings:font-serif prose-headings:text-primary
                       prose-p:text-foreground/85 prose-p:leading-[1.8]
                       prose-strong:text-foreground prose-li:text-foreground/85"
-                    dangerouslySetInnerHTML={{ __html: renderMarkdown(c.report) }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderMarkdown(c.report)) }}
                   />
                 </div>
               )}

@@ -29,6 +29,7 @@ import Link from "next/link";
 import { useNativeApp } from "@/lib/native-app";
 import { requestIAP, requestAuth, onFlutterMessage } from "@/lib/flutter-bridge";
 import { track, Events } from "@/lib/analytics";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 /* ─── Types ─── */
 
@@ -803,7 +804,7 @@ export function ConsultationClient() {
                         prose-strong:text-foreground prose-strong:font-semibold
                         prose-li:text-foreground/85 prose-li:leading-relaxed prose-li:mb-1
                         prose-ul:my-3 prose-ol:my-3"
-                      dangerouslySetInnerHTML={{ __html: renderMarkdown(partialReport.content) }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderMarkdown(partialReport.content)) }}
                     />
                   </div>
                 </div>
@@ -870,7 +871,7 @@ export function ConsultationClient() {
                     prose-li:text-foreground/85 prose-li:leading-relaxed prose-li:mb-1
                     prose-ul:my-3 prose-ol:my-3
                     prose-hr:border-border/30 prose-hr:my-6"
-                  dangerouslySetInnerHTML={{ __html: renderMarkdown(report.content) }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(renderMarkdown(report.content)) }}
                 />
               </div>
             </div>
