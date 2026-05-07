@@ -108,6 +108,7 @@ export default function ReadingPageClient() {
   const [error, setError] = useState<string | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [showPaymentSelect, setShowPaymentSelect] = useState(false);
   const [paidContentLoading, setPaidContentLoading] = useState(false);
   const [generationStep, setGenerationStep] = useState(0);
   const [paidGenerationFailed, setPaidGenerationFailed] = useState(false);
@@ -917,51 +918,74 @@ export default function ReadingPageClient() {
       requestIAP("full_destiny_reading", reading.share_slug);
       return;
     }
-    // Web mode OR admin in native mode: hit checkout endpoint
-    // Routing:
-    //   - Korean users (locale='ko') → Creem (PayPal can't process KR cards)
-    //   - Global users (en/ja/etc) → PayPal (high recognition)
-    // Both flows ultimately set readings.is_paid=true via their webhooks.
-    const useCreem = locale === "ko";
-    // Mixpanel: checkout redirect initiated — funnel step before leaving our domain
+    // Web mode OR admin in native mode: show payment method selection
+    // Korean → Creem only (PayPal can't process KR cards)
+    // Global → Creem (top) + PayPal (bottom)
+    setShowPaymentSelect(true);
+  };
+
+  // ── Individual payment method handlers (called from payment selection UI) ──
+
+  const handleCreemCheckout = async () => {
+    if (!reading || !user) return;
+    setPaymentError(null);
     try {
       track(Events.reading_payment_initiated, {
         share_slug: reading.share_slug,
-        method: useCreem ? "creem" : "paypal",
+        method: "creem",
         amount: 9.99,
         currency: "USD",
       });
     } catch {}
     setPaymentLoading(true);
     try {
-      if (useCreem) {
-        const res = await fetch("/api/creem/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productKey: "full_destiny_reading",
-            customId: reading.share_slug,
-            customerEmail: user.email,
-          }),
-        });
-        const data = await res.json();
-        if (data.checkout_url) {
-          window.location.href = data.checkout_url;
-        } else {
-          throw new Error(data.error || data.detail || "Checkout failed");
-        }
+      const res = await fetch("/api/creem/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productKey: "full_destiny_reading",
+          customId: reading.share_slug,
+          customerEmail: user.email,
+        }),
+      });
+      const data = await res.json();
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
       } else {
-        const res = await fetch("/api/payment/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ shareSlug: reading.share_slug, readingName: reading.name, userEmail: user.email }),
-        });
-        const data = await res.json();
-        if (data.url) {
-          window.location.href = data.url;
-        }
+        throw new Error(data.error || data.detail || "Checkout failed");
       }
-    } catch {
+    } catch (err) {
+      setPaymentError(err instanceof Error ? err.message : "Checkout failed");
+      setPaymentLoading(false);
+    }
+  };
+
+  const handlePayPalCheckout = async () => {
+    if (!reading || !user) return;
+    setPaymentError(null);
+    try {
+      track(Events.reading_payment_initiated, {
+        share_slug: reading.share_slug,
+        method: "paypal",
+        amount: 9.99,
+        currency: "USD",
+      });
+    } catch {}
+    setPaymentLoading(true);
+    try {
+      const res = await fetch("/api/payment/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareSlug: reading.share_slug, readingName: reading.name, userEmail: user.email }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("PayPal checkout failed");
+      }
+    } catch (err) {
+      setPaymentError(err instanceof Error ? err.message : "PayPal checkout failed");
       setPaymentLoading(false);
     }
   };
@@ -1587,23 +1611,44 @@ export default function ReadingPageClient() {
                     <p className="text-muted-foreground text-xs mb-3 max-w-xs mx-auto">
                       {t("reading.unlockDesc", locale)}
                     </p>
-                    <Button 
-                      className="gold-gradient text-primary-foreground font-semibold px-8"
-                      onClick={handleUnlock}
-                      disabled={paymentLoading}
-                    >
-                      {paymentLoading ? (
-                        <span className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                          {t("reading.processing", locale)}
-                        </span>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4 mr-2" />
-                          {t("reading.unlockBtn", locale)}
-                        </>
-                      )}
-                    </Button>
+                    {!showPaymentSelect ? (
+                      <Button 
+                        className="gold-gradient text-primary-foreground font-semibold px-8"
+                        onClick={handleUnlock}
+                        disabled={paymentLoading}
+                      >
+                        {paymentLoading ? (
+                          <span className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                            {t("reading.processing", locale)}
+                          </span>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            {t("reading.unlockBtn", locale)}
+                          </>
+                        )}
+                      </Button>
+                    ) : (
+                      <div className="flex flex-col gap-2 w-full max-w-xs mx-auto">
+                        <button
+                          onClick={handleCreemCheckout}
+                          disabled={paymentLoading}
+                          className="w-full px-4 py-3 rounded-lg font-medium text-sm bg-primary text-primary-foreground hover:bg-primary/90 border border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {paymentLoading ? "..." : locale === "ko" ? "\uD574\uC678 \uCE74\uB4DC \uACB0\uC81C (Visa / Master / JCB)" : "Pay with card (Visa / Mastercard / JCB)"}
+                        </button>
+                        {locale !== "ko" && (
+                          <button
+                            onClick={handlePayPalCheckout}
+                            disabled={paymentLoading}
+                            className="w-full px-4 py-3 rounded-lg font-medium text-sm bg-background text-foreground hover:bg-foreground/5 border border-foreground/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {paymentLoading ? "..." : "Pay with PayPal"}
+                          </button>
+                        )}
+                      </div>
+                    )}
                     <p className="text-xs text-[rgba(148,163,184,0.50)] mt-2">{t("reading.oneTime", locale)}</p>
                     <p className="text-xs text-[rgba(242,202,80,0.60)] mt-1">{t("reading.compatFree", locale)}</p>
                     {locale === "ko" && <p className="text-[10px] text-[rgba(148,163,184,0.40)] mt-1.5">{t("upgrade.koNotice", locale)}</p>}

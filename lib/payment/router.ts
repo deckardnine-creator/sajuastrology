@@ -29,8 +29,8 @@ export function getAvailablePaymentMethods(ctx: RouterContext): PaymentMethod[] 
   const candidates: PaymentMethod[] = isKorean
     // Korea: KR PGs first (familiar to users), Creem as fallback for foreign cards
     ? ["toss", "naverpay", "kakaopay", "creem"]
-    // Global: PayPal first (high recognition), Creem as alternative
-    : ["paypal", "creem"];
+    // Global: Creem first (card direct), PayPal second (account-based)
+    : ["creem", "paypal"];
 
   return candidates.filter(isPaymentMethodActive);
 }
