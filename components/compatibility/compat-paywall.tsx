@@ -117,6 +117,7 @@ export function CompatibilityPaywall({ shareSlug, partnerName }: Props) {
   const isNative = useNativeApp();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPaymentSelect, setShowPaymentSelect] = useState(false);
 
   const handleUnlock = async () => {
     setError(null);
@@ -208,55 +209,57 @@ export function CompatibilityPaywall({ shareSlug, partnerName }: Props) {
       return;
     }
 
-    // ─── Web mode: PayPal (global) or Creem (Korea + fallback) ───
-    // Korean users can't use PayPal (no KR card support). Route them to Creem.
-    // Global users get PayPal (high recognition). Both eventually reach the
-    // same "is_paid=true" state via different webhook paths.
+    // ─── Web mode: show payment method selection ───
+    // Korean → Creem only (PayPal can't process KR cards)
+    // Global → Creem (top) + PayPal (bottom)
+    setShowPaymentSelect(true);
+  };
+
+  const handleCreemCheckout = async () => {
+    setError(null);
     setLoading(true);
     try {
-      const useCreem = locale === "ko";
-
-      if (useCreem) {
-        const res = await fetch("/api/creem/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productKey: "compatibility_full",
-            customId: shareSlug,
-            customerEmail: user.email,
-          }),
-        });
-        if (!res.ok) {
-          const errBody = await res.json().catch(() => ({}));
-          throw new Error(errBody.error || errBody.detail || "Failed to start payment");
-        }
-        const { checkout_url } = await res.json();
-        if (!checkout_url) throw new Error("No checkout URL returned");
-        window.location.href = checkout_url;
-        return;
+      const res = await fetch("/api/creem/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productKey: "compatibility_full",
+          customId: shareSlug,
+          customerEmail: user?.email,
+        }),
+      });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.error || errBody.detail || "Failed to start payment");
       }
+      const { checkout_url } = await res.json();
+      if (!checkout_url) throw new Error("No checkout URL returned");
+      window.location.href = checkout_url;
+    } catch (e: any) {
+      setError(e?.message || "Payment error. Please try again.");
+      setLoading(false);
+    }
+  };
 
-      // Default: PayPal flow (global, en/ja/etc + admin bypass)
+  const handlePayPalCheckout = async () => {
+    setError(null);
+    setLoading(true);
+    try {
       const res = await fetch("/api/payment/checkout-compatibility", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           compatSlug: shareSlug,
           partnerName,
-          userEmail: user.email,
+          userEmail: user?.email,
         }),
       });
-
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({}));
         throw new Error(errBody.error || "Failed to start payment");
       }
-
       const { url } = await res.json();
       if (!url) throw new Error("No payment URL returned");
-
-      // Admin bypass returns ?payment=success directly — same URL handler
-      // works for both real PayPal and admin path. Just redirect.
       window.location.href = url;
     } catch (e: any) {
       setError(e?.message || "Payment error. Please try again.");
@@ -439,6 +442,7 @@ export function CompatibilityPaywall({ shareSlug, partnerName }: Props) {
             </span>
           </div>
 
+          {!showPaymentSelect ? (
           <Button
             onClick={handleUnlock}
             disabled={loading}
@@ -464,6 +468,27 @@ export function CompatibilityPaywall({ shareSlug, partnerName }: Props) {
               </>
             )}
           </Button>
+          ) : (
+          <div className="flex flex-col gap-2 w-full sm:w-auto sm:min-w-[260px]">
+            <button
+              onClick={handleCreemCheckout}
+              disabled={loading}
+              className="w-full px-4 py-3 rounded-full font-semibold text-sm text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: "linear-gradient(135deg, #EC4899, #A78BFA)", boxShadow: "0 4px 20px rgba(236,72,153,0.3)" }}
+            >
+              {loading ? "..." : locale === "ko" ? "\uD574\uC678 \uCE74\uB4DC \uACB0\uC81C (Visa / Master / JCB)" : "Pay with card (Visa / Mastercard / JCB)"}
+            </button>
+            {locale !== "ko" && (
+              <button
+                onClick={handlePayPalCheckout}
+                disabled={loading}
+                className="w-full px-4 py-3 rounded-full font-medium text-sm border border-foreground/20 text-foreground hover:bg-foreground/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "..." : "Pay with PayPal"}
+              </button>
+            )}
+          </div>
+          )}
 
           <p className="text-[11px] text-muted-foreground/60 mt-3">
             {tt("paywall.compat.lifetime", locale)}

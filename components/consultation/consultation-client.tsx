@@ -133,6 +133,7 @@ export function ConsultationClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [showPaymentSelect, setShowPaymentSelect] = useState(false);
   const [autoFilled, setAutoFilled] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [partialReport, setPartialReport] = useState<Report | null>(null);
@@ -489,42 +490,56 @@ export function ConsultationClient() {
       return;
     }
 
-    // Web mode OR admin in native mode: hit checkout endpoint
-    // Korean users → Creem ($29.99 5-pack via global card MoR)
-    // Global users → PayPal (existing flow with admin bypass)
+    // Web mode OR admin in native mode: show payment method selection
+    // Korean → Creem only (PayPal can't process KR cards)
+    // Global → Creem (top) + PayPal (bottom)
+    setShowPaymentSelect(true);
+  };
+
+  const handleCreemPurchase = async () => {
+    if (!user) return;
+    setPaymentError(null);
     setIsSubmitting(true);
     try {
-      const useCreem = locale === "ko";
-
-      if (useCreem) {
-        const res = await fetch("/api/creem/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productKey: "master_5_pack",
-            customId: user.id,
-            customerEmail: user.email,
-          }),
-        });
-        const data = await res.json();
-        if (data.checkout_url) {
-          window.location.href = data.checkout_url;
-        } else {
-          setError(data.error || data.detail || t("consult.paymentSetupFailed", locale));
-        }
+      const res = await fetch("/api/creem/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productKey: "master_5_pack",
+          customId: user.id,
+          customerEmail: user.email,
+        }),
+      });
+      const data = await res.json();
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
       } else {
-        const res = await fetch("/api/payment/checkout-consultation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user.id, userEmail: user.email }),
-        });
-        const data = await res.json();
-        if (data.url) {
-          window.location.href = data.url;
-        }
+        setPaymentError(data.error || data.detail || t("consult.paymentSetupFailed", locale));
       }
     } catch {
-      setError(t("consult.paymentSetupFailed", locale));
+      setPaymentError(t("consult.paymentSetupFailed", locale));
+    }
+    setIsSubmitting(false);
+  };
+
+  const handlePayPalPurchase = async () => {
+    if (!user) return;
+    setPaymentError(null);
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/payment/checkout-consultation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, userEmail: user.email }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setPaymentError(t("consult.paymentSetupFailed", locale));
+      }
+    } catch {
+      setPaymentError(t("consult.paymentSetupFailed", locale));
     }
     setIsSubmitting(false);
   };
@@ -585,6 +600,9 @@ export function ConsultationClient() {
             <NoCreditsCTA
               isLoggedIn={!!user}
               onPurchase={handlePurchase}
+              onCreemPurchase={handleCreemPurchase}
+              onPayPalPurchase={handlePayPalPurchase}
+              showPaymentSelect={showPaymentSelect}
               onSignIn={openSignInModal}
               isSubmitting={isSubmitting}
               paymentError={paymentError}
@@ -1283,6 +1301,9 @@ function ConsultationLoader({ category, locale }: { category: string; locale: "e
 function NoCreditsCTA({
   isLoggedIn,
   onPurchase,
+  onCreemPurchase,
+  onPayPalPurchase,
+  showPaymentSelect,
   onSignIn,
   isSubmitting,
   paymentError,
@@ -1290,6 +1311,9 @@ function NoCreditsCTA({
 }: {
   isLoggedIn: boolean;
   onPurchase: () => void;
+  onCreemPurchase: () => void;
+  onPayPalPurchase: () => void;
+  showPaymentSelect: boolean;
   onSignIn: () => void;
   isSubmitting: boolean;
   paymentError: string | null;
@@ -1354,6 +1378,7 @@ function NoCreditsCTA({
             ))}
           </ul>
 
+          {!showPaymentSelect ? (
           <Button
             onClick={onPurchase}
             disabled={isSubmitting}
@@ -1371,6 +1396,27 @@ function NoCreditsCTA({
             )}
             {t("consult.get5", locale)}
           </Button>
+          ) : (
+          <div className="flex flex-col gap-2 w-full max-w-sm mx-auto">
+            <button
+              onClick={onCreemPurchase}
+              disabled={isSubmitting}
+              className="w-full px-4 py-3 rounded-lg font-semibold text-sm text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: "linear-gradient(135deg, #a78bfa, #7c3aed)" }}
+            >
+              {isSubmitting ? "..." : locale === "ko" ? "\uD574\uC678 \uCE74\uB4DC \uACB0\uC81C (Visa / Master / JCB)" : "Pay with card (Visa / Mastercard / JCB)"}
+            </button>
+            {locale !== "ko" && (
+              <button
+                onClick={onPayPalPurchase}
+                disabled={isSubmitting}
+                className="w-full px-4 py-3 rounded-lg font-medium text-sm border border-foreground/20 text-foreground hover:bg-foreground/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "..." : "Pay with PayPal"}
+              </button>
+            )}
+          </div>
+          )}
           {locale === "ko" && <p className="text-[10px] text-muted-foreground/40 mt-3">{t("upgrade.koNotice", locale)}</p>}
           {paymentError && (
             <p className="text-xs text-red-400 mt-3 max-w-sm mx-auto">{paymentError}</p>

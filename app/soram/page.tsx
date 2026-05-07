@@ -443,6 +443,7 @@ interface PaywallCardProps {
 function PaywallCard({ isNative, userId, userEmail, userName, locale, labels }: PaywallCardProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPaymentSelect, setShowPaymentSelect] = useState(false);
 
   const handleClick = async () => {
     if (!userId) return;
@@ -480,7 +481,40 @@ function PaywallCard({ isNative, userId, userEmail, userName, locale, labels }: 
       return;
     }
 
-    // ─── Web mode: PayPal subscription approval URL ───
+    // ─── Web mode: show payment method selection ───
+    setLoading(false);
+    setShowPaymentSelect(true);
+  };
+
+  const handleCreemSubscribe = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/creem/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productKey: "soram_companion",
+          customId: userId,
+          customerEmail: userEmail,
+          metadata: { user_id: userId },
+        }),
+      });
+      const data = await res.json();
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+      } else {
+        throw new Error(data.error || data.detail || "Checkout failed");
+      }
+    } catch (e: any) {
+      setError(e?.message || "Payment error. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  const handlePayPalSubscribe = async () => {
+    setError(null);
+    setLoading(true);
     try {
       const res = await fetch("/api/payment/checkout-companion", {
         method: "POST",
@@ -521,6 +555,7 @@ function PaywallCard({ isNative, userId, userEmail, userName, locale, labels }: 
         <p className="text-[10px] text-amber-200/60 mb-2 pl-2 leading-snug">
           Auto-renewable subscription · 1 month · $4.99 USD per month
         </p>
+        {!showPaymentSelect ? (
         <button
           type="button"
           onClick={handleClick}
@@ -529,6 +564,28 @@ function PaywallCard({ isNative, userId, userEmail, userName, locale, labels }: 
         >
           {loading ? "..." : labels.cta}
         </button>
+        ) : (
+        <div className="flex flex-col gap-2 w-full">
+          <button
+            type="button"
+            onClick={handleCreemSubscribe}
+            disabled={loading}
+            className="w-full py-2.5 rounded-xl bg-gradient-to-br from-amber-300 to-amber-500 text-black font-semibold text-sm transition-all duration-200 hover:from-amber-200 hover:to-amber-400 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {loading ? "..." : locale === "ko" ? "\uD574\uC678 \uCE74\uB4DC \uACB0\uC81C (Visa / Master / JCB)" : "Subscribe with card (Visa / Mastercard / JCB)"}
+          </button>
+          {locale !== "ko" && (
+            <button
+              type="button"
+              onClick={handlePayPalSubscribe}
+              disabled={loading}
+              className="w-full py-2.5 rounded-xl border border-amber-400/30 text-amber-100 font-medium text-sm transition-all duration-200 hover:bg-amber-500/10 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loading ? "..." : "Subscribe with PayPal"}
+            </button>
+          )}
+        </div>
+        )}
         <p className="text-[10px] text-amber-200/50 mt-2 text-center leading-snug">
           {labels.footer} · Renews until canceled in account settings
         </p>
