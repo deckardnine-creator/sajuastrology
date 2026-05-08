@@ -347,13 +347,7 @@ export function HeroSection() {
                     {t("hero.ceoMsgBody")}
                   </p>
                   <a
-                    href={
-                      locale === "ko"
-                        ? "https://ko.wikipedia.org/wiki/%ED%8A%B9%EC%88%98:%EA%B2%80%EC%83%89"
-                        : locale === "ja"
-                        ? "https://ja.wikipedia.org/wiki/%E7%89%B9%E5%88%A5:%E6%A4%9C%E7%B4%A2"
-                        : "https://en.wikipedia.org/wiki/Special:Search"
-                    }
+                    href={APP_STORE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 mt-3 text-[12.5px] sm:text-[13px] font-semibold text-amber-300 hover:text-amber-200 underline decoration-amber-400/40 underline-offset-4 hover:decoration-amber-200/70 transition-colors"
