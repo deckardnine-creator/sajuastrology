@@ -149,6 +149,43 @@ const SECURITY_HEADERS = [
     key: 'X-DNS-Prefetch-Control',
     value: 'on',
   },
+  {
+    // ── CSP Report-Only (Phase 2, step 1) ──────────────────────────
+    // This header does NOT block anything. It only logs violations to
+    // the browser console. After 1 week of monitoring with zero
+    // unexpected violations, switch to Content-Security-Policy (enforce).
+    //
+    // Known third-party domains whitelisted below:
+    //   - Supabase (auth + DB)
+    //   - Google OAuth + Analytics + Tag Manager
+    //   - Apple Sign-in
+    //   - Creem checkout
+    //   - PayPal checkout
+    //   - Mixpanel analytics
+    //   - Vercel Analytics + Speed Insights
+    //   - Firebase
+    //   - Cloudflare (future image CDN)
+    //
+    // 'unsafe-inline' is required for Next.js (inline __NEXT_DATA__
+    // script, Tailwind inline styles). 'unsafe-eval' is required for
+    // Next.js hot reload in dev — harmless in production since the
+    // compiler strips eval paths.
+    key: 'Content-Security-Policy-Report-Only',
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.mxpnl.com https://appleid.cdn-apple.com https://va.vercel-scripts.com https://vercel.live",
+      "style-src 'self' 'unsafe-inline' https://accounts.google.com https://appleid.cdn-apple.com",
+      "img-src 'self' data: blob: https: http:",
+      "font-src 'self' data:",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://apis.google.com https://www.google-analytics.com https://api-js.mixpanel.com https://api.mixpanel.com https://appleid.apple.com https://api.creem.io https://checkout.creem.io https://creem.io https://www.paypal.com https://www.sandbox.paypal.com https://vitals.vercel-insights.com https://va.vercel-scripts.com https://*.google-analytics.com https://*.analytics.google.com",
+      "frame-src 'self' https://accounts.google.com https://appleid.apple.com https://checkout.creem.io https://creem.io https://www.paypal.com https://www.sandbox.paypal.com https://vercel.live",
+      "frame-ancestors 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self' https://accounts.google.com https://appleid.apple.com https://checkout.creem.io https://www.paypal.com",
+      "upgrade-insecure-requests",
+    ].join('; '),
+  },
 ];
 
 const nextConfig = {
