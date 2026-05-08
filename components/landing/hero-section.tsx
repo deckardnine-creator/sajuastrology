@@ -24,7 +24,7 @@ const APP_STORE_URL = "https://apps.apple.com/us/app/sajuastrology/id6761590704"
 // broken hybrid experience. Re-enable once v1.3.8 ships.
 // To revert: set IOS_APP_AVAILABLE = true.
 // ════════════════════════════════════════════════════════════════
-const IOS_APP_AVAILABLE = false
+const IOS_APP_AVAILABLE = true
 
 const pillars = [
   { chinese: "甲", english: "Wood", element: "wood", color: "text-secondary" },
@@ -180,7 +180,45 @@ export function HeroSection() {
                 mark), so Apple Guideline 5.2.5 does not gate it. NVIDIA
                 Inception strip stays web-only — third-party mark must not
                 ship in the native binary. */}
+            {/* App Download Buttons — above authority stack, Apple first */}
+            {!isNativeApp && (
+            <div className="flex flex-col gap-2 mt-1">
+              <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3">
+
+                {/* App Store (FIRST — v1.3.8 approved) */}
+                <a
+                  href={APP_STORE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-white/5 border border-white/15 hover:border-white/30 hover:bg-white/10 transition-all group w-full sm:w-auto"
+                >
+                  <svg className="w-5 h-5 text-white/80 group-hover:text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                  </svg>
+                  <span className="text-sm text-white/90 font-medium leading-tight">{t("hero.appStore")}</span>
+                </a>
+
+                {/* Google Play (SECOND) */}
+                <a
+                  href={PLAY_STORE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-white/5 border border-white/15 hover:border-white/30 hover:bg-white/10 transition-all group w-full sm:w-auto"
+                >
+                  <svg className="w-5 h-5 text-white/80 group-hover:text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3.18 23.04L13.3 12.93 3.18.96 3.18 23.04zM14.42 11.83L5.3.46 19.03 8.3 14.42 11.83zM14.46 14.07L19.13 17.67 5.24 25.54 14.46 14.07zM20.17 9.48L22.03 10.56C22.72 10.95 22.72 11.95 22.03 12.35L20.05 13.48 15.58 12.92 20.17 9.48z"/>
+                  </svg>
+                  <span className="text-sm text-white/90 font-medium leading-tight">{t("hero.googlePlay")}</span>
+                </a>
+              </div>
+            </div>
+            )}
+
             <div className="flex flex-col items-center sm:items-start gap-3">
+              {/* NVIDIA strip — web only (Apple Guideline 5.2.5: no third-
+                  party marks in the native binary). Now FIRST in authority stack. */}
+              {!isNativeApp && <NvidiaInceptionStrip />}
+
               <Link
                 href="/whitepaper"
                 className="group relative w-[280px] lg:w-auto lg:min-w-[280px] block"
@@ -195,18 +233,12 @@ export function HeroSection() {
                   className="absolute inset-0 rounded-xl ring-1 ring-amber-300/50 group-hover:ring-amber-200/70 transition-colors"
                 />
                 <div className="relative rounded-xl bg-gradient-to-r from-amber-500/[0.08] via-amber-400/[0.12] to-amber-500/[0.08] backdrop-blur-sm px-4 py-3 flex items-center gap-3">
-                  {/* The 📄 emoji is in hero.whitepaperLink at the
-                      translations layer. */}
                   <span className="flex-1 min-w-0 text-[13.5px] sm:text-[14px] leading-snug font-medium text-amber-100 group-hover:text-amber-50 transition-colors">
                     {t("hero.whitepaperLink")}
                   </span>
                   <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
                 </div>
               </Link>
-
-              {/* NVIDIA strip — web only (Apple Guideline 5.2.5: no third-
-                  party marks in the native binary). */}
-              {!isNativeApp && <NvidiaInceptionStrip />}
 
               {/* ════════════════════════════════════════════════════════
                   v6.18.4: LLM self-evaluation experiment badge
@@ -365,60 +397,7 @@ export function HeroSection() {
               </button>
             </div>
 
-            {/* App Download Buttons — hidden inside native app */}
-            {!isNativeApp && (
-            <div className="flex flex-col gap-2 mt-1">
-              <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3">
-
-                {/* Google Play (FIRST — Released) */}
-                <a
-                  href={PLAY_STORE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-white/5 border border-white/15 hover:border-white/30 hover:bg-white/10 transition-all group w-full sm:w-auto"
-                >
-                  <svg className="w-5 h-5 text-white/80 group-hover:text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3.18 23.04L13.3 12.93 3.18.96 3.18 23.04zM14.42 11.83L5.3.46 19.03 8.3 14.42 11.83zM14.46 14.07L19.13 17.67 5.24 25.54 14.46 14.07zM20.17 9.48L22.03 10.56C22.72 10.95 22.72 11.95 22.03 12.35L20.05 13.48 15.58 12.92 20.17 9.48z"/>
-                  </svg>
-                  <span className="text-sm text-white/90 font-medium leading-tight">{t("hero.googlePlay")}</span>
-                </a>
-
-                {/* App Store (Released) — temporarily disabled during v1.3.8 review.
-                    See IOS_APP_AVAILABLE constant at top of file. */}
-                {IOS_APP_AVAILABLE ? (
-                  <a
-                    href={APP_STORE_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="relative flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-white/5 border border-white/15 hover:border-white/30 hover:bg-white/10 transition-all group w-full sm:w-auto"
-                  >
-                    <svg className="w-5 h-5 text-white/80 group-hover:text-white" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                    </svg>
-                    <span className="text-sm text-white/90 font-medium leading-tight">{t("hero.appStore")}</span>
-                  </a>
-                ) : (
-                  <div
-                    aria-disabled="true"
-                    title={t("hero.iosUpdating")}
-                    className="relative flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 opacity-60 cursor-not-allowed w-full sm:w-auto"
-                  >
-                    <svg className="w-5 h-5 text-white/50" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                    </svg>
-                    <span className="text-sm text-white/60 font-medium leading-tight">{t("hero.appStore")}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* iOS update notice — only visible while iOS button is disabled */}
-              {!IOS_APP_AVAILABLE && (
-                <p className="text-[11px] text-amber-200/70 mt-0.5 text-center sm:text-left">
-                  ✨ {t("hero.iosUpdating")}
-                </p>
-              )}
-            </div>
-            )}
+            {/* App download buttons moved above authority stack */}
 
             {/* ════════════════════════════════════════════════════════
                 v1.3 Sprint 2-B: Letter + Celebrity links MOVED HERE,
