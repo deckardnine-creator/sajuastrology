@@ -217,7 +217,7 @@ export function HeroSection() {
             <div className="flex flex-col items-center sm:items-start gap-3">
               {/* NVIDIA strip — web only (Apple Guideline 5.2.5: no third-
                   party marks in the native binary). Now FIRST in authority stack. */}
-              {!isNativeApp && <NvidiaInceptionStrip />}
+              <NvidiaInceptionStrip />
 
               <Link
                 href="/whitepaper"
