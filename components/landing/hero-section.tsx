@@ -160,51 +160,29 @@ export function HeroSection() {
             </p>
 
             {/* ════════════════════════════════════════════════════════
-                Authority stack — NVIDIA Inception strip ABOVE the
-                whitepaper button (chandler 2026-05-02 reorder).
-                
-                Reasoning: NVIDIA Inception is the strongest external
-                validation signal a startup can show on a hero — selected
-                by NVIDIA = third-party gatekeeper credential. Putting it
-                first builds the "this is a real, vetted company" frame
-                BEFORE the visitor encounters the whitepaper (which then
-                lands as supporting technical depth, not as the lead claim).
-                
-                Both gated:
-                  - NVIDIA strip: web-only (Apple Guideline 5.2.5 — no
-                    third-party marks in native binary).
-                  - Whitepaper: visible on app too (own asset, not a
-                    third-party mark, so 5.2.5 does not apply).
+                Whitepaper button — top of the authority stack, sitting
+                ABOVE the NVIDIA Inception strip. The whitepaper is our
+                academic-authority signal; NVIDIA is the external-validation
+                signal. Both are gated to web-only because Apple Guideline
+                5.2.5 prohibits third-party marks in the native binary, and
+                academic content can complicate the existing 4.3(b) review
+                track if discovered through the app surface.
                 
                 Visual language:
-                  - Compact: NVIDIA strip py-2, whitepaper py-3
+                  - Glow: subtle gold pulse around the rounded card
+                  - Compact height: py-3, NOT a thick CTA bar
                   - Web: items-start (left). Mobile: items-center.
-                  - gap-3 between NVIDIA and whitepaper, mirroring the
-                    gap between the two primary CTAs below.
+                  - Spacing to NVIDIA = ~gap-3, mirroring the gap between
+                    the two primary CTAs (Reading / Compatibility) below.
             ════════════════════════════════════════════════════════ */}
+            {/* chandler 2026-05-01 (rev): Whitepaper button now visible on
+                APP too. The whitepaper is our own asset (not a third-party
+                mark), so Apple Guideline 5.2.5 does not gate it. NVIDIA
+                Inception strip stays web-only — third-party mark must not
+                ship in the native binary. */}
             <div className="flex flex-col items-center sm:items-start gap-3">
-              {/* NVIDIA strip — web only (Apple Guideline 5.2.5: no third-
-                  party marks in the native binary). Now sits at the top of
-                  the authority stack. */}
-              {!isNativeApp && <NvidiaInceptionStrip />}
-
-              {/* chandler 2026-05-01 (rev): explicitly forward current locale
-                  via ?lang= on click. The whitepaper page reads ?lang= first
-                  in detectLocale() (language-context.tsx) and persists it,
-                  so this guarantees the user lands in the same language
-                  they're already viewing the site in — no race conditions
-                  with localStorage hydration on a fresh tab. */}
               <Link
                 href="/whitepaper"
-                onClick={(e) => {
-                  try {
-                    e.preventDefault();
-                    const lang = locale || "en";
-                    window.location.href = `/whitepaper?lang=${lang}`;
-                  } catch {
-                    // fall through to default href
-                  }
-                }}
                 className="group relative w-[280px] lg:w-auto lg:min-w-[280px] block"
               >
                 {/* Glow halo */}
@@ -226,17 +204,18 @@ export function HeroSection() {
                 </div>
               </Link>
 
+              {/* NVIDIA strip — web only (Apple Guideline 5.2.5: no third-
+                  party marks in the native binary). */}
+              {!isNativeApp && <NvidiaInceptionStrip />}
+
               {/* ════════════════════════════════════════════════════════
                   v6.18.4: LLM self-evaluation experiment badge
                   
-                  Sits at the bottom of the authority stack (NVIDIA →
-                  Whitepaper → LLM Experiment), visually subordinate to
-                  the two academic/external-validation signals above.
-                  
-                  Cyan/sky tone (vs amber for Whitepaper) marks this as
-                  a different category — playful experiment, not a
-                  credential. Same shape language (rounded card + ring +
-                  arrow) keeps the stack coherent.
+                  Sits at the bottom of the authority stack (Whitepaper →
+                  NVIDIA → LLM Experiment). Cyan/sky tone marks this as
+                  a playful experiment vs the credential signals above.
+                  Same shape language (rounded card + ring + arrow) keeps
+                  the stack coherent.
                   
                   Links to /blog/llm-saju-self-evaluation, an English-only
                   static page (no Navbar, no language toggle) per chandler
@@ -304,48 +283,21 @@ export function HeroSection() {
                 </Button>
               </Link>
 
-              {/* Secondary: Compatibility check (free)
-                  v6.17.55 — chandler 2026-05-02: outline styled to match
-                  the whitepaper button above (glow halo + amber ring)
-                  while keeping the existing color/border palette. The
-                  goal was visual parity in *outline treatment*, not in
-                  fill — so the inner Button keeps its bg-transparent +
-                  EAB308 border, and the new glow + ring sit OUTSIDE on
-                  the wrapping Link. group-hover wiring mirrors the
-                  whitepaper button so both elements (halo opacity, ring
-                  brightness, ArrowRight slide) animate together. */}
-              <Link href="/compatibility" className="group relative block w-[280px] lg:w-auto">
-                {/* Glow halo — same gradient as whitepaper button */}
-                <span
-                  aria-hidden
-                  className="absolute -inset-0.5 rounded-md bg-gradient-to-r from-amber-500/30 via-amber-300/40 to-amber-500/30 opacity-60 blur-md group-hover:opacity-90 transition-opacity pointer-events-none"
-                />
-                {/* Outer ring outline */}
-                <span
-                  aria-hidden
-                  className="absolute inset-0 rounded-md ring-1 ring-amber-300/50 group-hover:ring-amber-200/70 transition-colors pointer-events-none"
-                />
+              {/* Secondary: Compatibility check (free) */}
+              <Link href="/compatibility" className="block w-[280px] lg:w-auto">
                 <Button
                   size="lg"
                   variant="outline"
-                  className="relative bg-transparent border-2 border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold text-base px-6 w-full lg:w-auto transition-all duration-200 active:scale-[0.99]"
+                  className="bg-transparent border-2 border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold text-base px-6 group w-full lg:w-auto transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99]"
                 >
                   <span className="truncate lg:overflow-visible lg:whitespace-nowrap">{t("hero.ctaCompatibility")}</span>
                   <ArrowRight className="ml-2 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
 
-              {/* CEO message card (chandler 2026-05-05) — placed right after the
-                  free Compatibility CTA because that's the moment a user is about
-                  to start the celebrity-compatibility behavior we want to
-                  acknowledge. The box is intentionally collapsed by default
-                  (Read more) so it doesn't dominate the hero on first paint;
-                  expanding it surfaces the full founder voice.
-
-                  Wikipedia link is locale-aware (KO/JA → native Wikipedia,
-                  others → English Wikipedia Special:Search). Text wraps with
-                  whitespace-pre-line so \n in the i18n string preserves
-                  paragraph breaks. */}
+              {/* CEO message card (chandler 2026-05-05) — kept in sync with
+                  components/landing/hero-section.tsx. See that file for the
+                  full rationale comment. */}
               <details className="group relative w-[280px] lg:w-[420px] rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-500/5 to-transparent open:bg-amber-500/[0.06] transition-colors">
                 <div className="absolute inset-y-0 left-0 w-1 bg-amber-400/60 rounded-l-xl" />
                 <summary className="cursor-pointer list-none p-3 sm:p-4 pl-5 select-none">
@@ -398,6 +350,17 @@ export function HeroSection() {
                     </p>
                   </div>
                   <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
+                </div>
+                <div className="mt-3 pl-2">
+                  <img
+                    src="/chandler_soram.png"
+                    alt="Chandler and Soram"
+                    className="w-full max-w-[220px] sm:max-w-[240px] rounded-lg border border-amber-400/15"
+                    loading="lazy"
+                  />
+                  <p className="mt-2 text-[11px] sm:text-[12px] text-amber-200/60 leading-relaxed">
+                    {t("hero.soramChandlerMsg")}
+                  </p>
                 </div>
               </button>
             </div>
