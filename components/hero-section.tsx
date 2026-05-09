@@ -315,9 +315,6 @@ export function HeroSection() {
                     {t("hero.ceoMsgBody")}
                   </p>
 
-                  <div className="mt-3 text-[11px] text-amber-200/50 text-right tracking-wide">
-                    {t("hero.ceoMsgSignature")}
-                  </div>
                 </div>
               </details>
 

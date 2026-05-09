@@ -346,17 +346,7 @@ export function HeroSection() {
                   <p className="whitespace-pre-line text-[12.5px] sm:text-[13px] text-amber-100/85 leading-relaxed break-keep">
                     {t("hero.ceoMsgBody")}
                   </p>
-                  <a
-                    href={APP_STORE_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 mt-3 text-[12.5px] sm:text-[13px] font-semibold text-amber-300 hover:text-amber-200 underline decoration-amber-400/40 underline-offset-4 hover:decoration-amber-200/70 transition-colors"
-                  >
-                    {t("hero.ceoMsgLink")}
-                  </a>
-                  <div className="mt-3 text-[11px] text-amber-200/50 text-right tracking-wide">
-                    {t("hero.ceoMsgSignature")}
-                  </div>
+
                 </div>
               </details>
 
