@@ -346,7 +346,28 @@ export function HeroSection() {
                   <p className="whitespace-pre-line text-[12.5px] sm:text-[13px] text-amber-100/85 leading-relaxed break-keep">
                     {t("hero.ceoMsgBody")}
                   </p>
-
+                  <a
+                    href={
+                      locale === "ko"
+                        ? "https://ko.wikipedia.org/wiki/%ED%8A%B9%EC%88%98:%EA%B2%80%EC%83%89"
+                        : locale === "ja"
+                        ? "https://ja.wikipedia.org/wiki/%E7%89%B9%E5%88%A5:%E6%A4%9C%E7%B4%A2"
+                        : locale === "zh-TW"
+                        ? "https://zh.wikipedia.org/wiki/Special:Search"
+                        : locale === "es"
+                        ? "https://es.wikipedia.org/wiki/Especial:Buscar"
+                        : locale === "fr"
+                        ? "https://fr.wikipedia.org/wiki/Sp%C3%A9cial:Recherche"
+                        : locale === "pt"
+                        ? "https://pt.wikipedia.org/wiki/Especial:Pesquisar"
+                        : "https://en.wikipedia.org/wiki/Special:Search"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 mt-3 text-[12.5px] sm:text-[13px] font-semibold text-amber-300 hover:text-amber-200 underline decoration-amber-400/40 underline-offset-4 hover:decoration-amber-200/70 transition-colors"
+                  >
+                    {t("hero.ceoMsgWiki")}
+                  </a>
                 </div>
               </details>
 
