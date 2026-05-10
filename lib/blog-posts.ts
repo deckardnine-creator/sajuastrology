@@ -334,19 +334,19 @@ Endrick é puro **Fogo Yang (丙)** — o sol do meio-dia. É o elemento mais vi
 
 O Cão (戌) no ano é Terra com Metal e Fogo escondidos — uma base estável para tanta energia solar. Em jogadores jovens, essa combinação costuma se manifestar como maturidade precoce: Endrick não joga como um adolescente porque sua base elemental é mais velha que sua idade.
 
-Dois pilares de Fogo forte (ano e mês) significam que Endrick precisa de companheiros de equipe que tragam **Madeira** (combustível que sustenta o Fogo) ou **Terra** (que canaliza o Fogo em algo tangível). Sem esses elementos ao redor, Fogo Yang se dispersa — brilha muito, aquece pouco.
+Dois pilares de Fogo forte (ano e mês) significam que Endrick potencializa naturalmente companheiros que tragam **Madeira** (criatividade) ou **Terra** (estabilidade). É a configuração clássica do jogador que eleva o nível de quem está ao redor — quanto mais talento perto, mais o Fogo brilha.
 
-**Energia elemental dominante: Fogo Yang duplo — a estrela que precisa de combustível.**
+**Energia elemental dominante: Fogo Yang duplo — presença que ilumina o campo inteiro.**
 
 ---
 
 ## A química da Seleção
 
 Quando colocamos os três juntos no campo:
-- **Vinícius (Metal Yang)** + **Rodrygo (Metal Yin)** = dois tipos diferentes de Metal trabalhando juntos. Na tradição Saju, isso é chamado de **비겁 (bi-gyeop / "ombro a ombro")** — competição saudável entre iguais.
-- **Endrick (Fogo Yang)** + **Metal duplo** = Fogo forja Metal. Endrick energiza os dois. Mas se o Fogo for forte demais, pode derreter o Metal — traduzido em campo: se Endrick monopoliza a bola, a precisão de Rodrygo e a decisão de Vinícius ficam sem espaço.
+- **Vinícius + Rodrygo (Metal Yang compartilhado)** = mesma energia de ano, o que cria a sincronia instintiva que a torcida já conhece. Na tradição Saju, isso é chamado de **비겁 (bi-gyeop / "ombro a ombro")** — entendimento sem palavras.
+- **Endrick (Fogo Yang) + Metal duplo** = Fogo forja Metal. Endrick traz a intensidade que eleva o nível dos dois. O Fogo alimenta a determinação do Metal — é a configuração que a tradição associa a trios onde cada peça amplifica a outra.
 
-O equilíbrio ideal, segundo os Cinco Elementos, pede alguém com **Água forte** no meio de campo — alguém que controle o fluxo, distribua, e impeça que o Fogo e o Metal se consumam mutuamente.
+No Saju, quando Fogo e Metal coexistem em equilíbrio, o resultado é uma **liga mais forte que qualquer elemento sozinho**. É exatamente o que a torcida espera ver em campo.
 
 ---
 
