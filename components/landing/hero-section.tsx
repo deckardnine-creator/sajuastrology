@@ -471,17 +471,25 @@ export function HeroSection() {
                 estate.
             ════════════════════════════════════════════════════════ */}
             <div className="flex flex-col gap-2 mt-1">
-              {/* Letter (CEO message) link — centered on mobile.
-                  Celebrity link removed (chandler 2026-05-01) — replaced by
-                  the whitepaper glow button above the NVIDIA strip. */}
-              <Link
-                href="/letter"
-                className="text-[13px] sm:text-[14px] text-muted-foreground/85 hover:text-primary transition-colors inline-flex items-center gap-1.5 self-center sm:self-start"
-              >
-                <span>
-                  {t("hero.letterLink")}
-                </span>
-              </Link>
+              {/* Letter + Discord — thin box links at bottom */}
+              <div className="flex flex-col gap-2 self-center sm:self-start w-full max-w-xs">
+                <Link
+                  href="/letter"
+                  className="text-[12px] sm:text-[13px] text-muted-foreground/70 hover:text-primary transition-colors inline-flex items-center gap-1.5 px-4 py-2 border border-white/10 hover:border-white/25 rounded-lg"
+                >
+                  <span>🏛️</span>
+                  <span>{t("hero.letterLink")}</span>
+                </Link>
+                <a
+                  href="https://discord.gg/ynf9tHVt3"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[12px] sm:text-[13px] text-muted-foreground/70 hover:text-primary transition-colors inline-flex items-center gap-1.5 px-4 py-2 border border-white/10 hover:border-white/25 rounded-lg"
+                >
+                  <span>🐱</span>
+                  <span>Soram&apos;s Den (Discord) →</span>
+                </a>
+              </div>
             </div>
           </motion.div>
 
