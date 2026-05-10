@@ -166,16 +166,16 @@ export function HeroSection() {
                 onKeyDown={(e) => e.key === "Enter" && setShowCountryRanking(true)}
                 className="text-[11px] sm:text-xs text-emerald-400/70 hover:text-emerald-300 underline underline-offset-2 decoration-emerald-400/30 hover:decoration-emerald-300/50 transition-colors cursor-pointer"
               >
-                {locale === "ko" ? "(국가별 방문순위 확인하기 — GA4)" :
-                 locale === "ja" ? "(国別訪問ランキング確認 — GA4)" :
-                 locale === "es" ? "(Ver ranking por país — GA4)" :
-                 locale === "fr" ? "(Voir le classement par pays — GA4)" :
-                 locale === "pt" ? "(Ver ranking por país — GA4)" :
-                 locale === "zh-TW" ? "(查看國家訪問排名 — GA4)" :
-                 locale === "ru" ? "(Рейтинг по странам — GA4)" :
-                 locale === "hi" ? "(देश रैंकिंग देखें — GA4)" :
-                 locale === "id" ? "(Lihat peringkat negara — GA4)" :
-                 "(See country rankings — GA4)"}
+                {locale === "ko" ? "(투명성이 브랜딩이다 😊 방문국가 확인하기 — GA4)" :
+                 locale === "ja" ? "(透明性がブランディングだ 😊 訪問国を確認 — GA4)" :
+                 locale === "es" ? "(La transparencia es branding 😊 Ver países — GA4)" :
+                 locale === "fr" ? "(La transparence est du branding 😊 Voir les pays — GA4)" :
+                 locale === "pt" ? "(Transparência é branding 😊 Ver países — GA4)" :
+                 locale === "zh-TW" ? "(透明就是品牌 😊 查看訪問國家 — GA4)" :
+                 locale === "ru" ? "(Прозрачность — это брендинг 😊 Страны — GA4)" :
+                 locale === "hi" ? "(पारदर्शिता ब्रांडिंग है 😊 देश देखें — GA4)" :
+                 locale === "id" ? "(Transparansi adalah branding 😊 Lihat negara — GA4)" :
+                 "(Transparency is branding 😊 See countries — GA4)"}
               </span>
             </p>
 
