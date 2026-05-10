@@ -12,6 +12,356 @@ export interface BlogPost {
 }
 
 export const BLOG_POSTS: BlogPost[] = [
+  // ════════════════════════════════════════════════════════════════
+  // 2026-05-11 BATCH — Funnel posts targeting women, 5 languages
+  // ════════════════════════════════════════════════════════════════
+  {
+    slug: "why-you-keep-attracting-wrong-people-saju",
+    locale: "en",
+    title: "Why You Keep Attracting the Wrong People — Your Saju Birth Chart Has the Answer",
+    description: "You're not unlucky in love. Your Five Elements are pulling a specific type toward you. Here's what 5,000 years of Korean astrology says about the pattern you can't seem to break.",
+    date: "2026-05-11",
+    readTime: "7 min",
+    category: "Relationships",
+    keywords: ["why do i attract the wrong people", "relationship patterns astrology", "saju love compatibility", "birth chart relationship", "korean astrology love", "why do i keep dating the same type", "five elements love"],
+    content: `# Why You Keep Attracting the Wrong People — Your Saju Birth Chart Has the Answer
+
+You've been here before. Different name, different face, same emotional dead end. Your friends say "you have a type." Your therapist says "look at your attachment style." But what if the answer is older — and more structural — than either of those?
+
+In Korean Saju (사주), the Four Pillars of Destiny, your birth chart doesn't just describe *who you are*. It maps **who you pull toward you** — and why.
+
+## Your Day Master Sets the Magnetic Field
+
+The single most important character in your Saju chart is your **Day Master** (일주 / 日主). It's the Heavenly Stem on your Day Pillar — one of ten possible cosmic identities. And it determines your relational gravity.
+
+Here's the pattern most people don't see:
+
+- **Yang Wood (甲)** women attract partners who want to lean on them. You're the towering oak — people rest in your shade. The problem? You attract people who *need* you, not people who *choose* you.
+- **Yin Fire (丁)** women attract intensity. You're the candle flame — intimate, warm, mesmerizing. But flames attract moths. The pattern: passionate starts, dramatic endings.
+- **Yin Water (癸)** women attract protectors. You're morning dew — gentle, reflective, quietly powerful. But protectors can become controllers. The pattern: safety that slowly becomes a cage.
+- **Yang Metal (庚)** women attract challenge-seekers. You're the uncut diamond — people want to prove they can get through to you. The pattern: you keep meeting people who treat love like a conquest.
+
+This isn't personality typing. It's **elemental physics**. Your Day Master creates an energetic signature, and certain elements are naturally drawn to it — through generation (生), control (剋), or resonance (比).
+
+## The Five Elements Love Cycle
+
+In Saju, love isn't random. It follows the Five Elements cycle:
+
+**Wood feeds Fire. Fire creates Earth. Earth produces Metal. Metal generates Water. Water nourishes Wood.**
+
+When someone whose chart *generates* your element shows up, it feels effortless — like coming home. When someone whose chart *controls* your element appears, it feels electric — intense, magnetic, sometimes destructive.
+
+Most "wrong person" patterns happen when you keep chasing the **controlling element** instead of the **generating one**. The chemistry is real. The sustainability isn't.
+
+## Why Your Chart Attracts a Specific Pattern
+
+Your birth chart contains more than just your Day Master. The balance of all five elements across your four pillars creates gaps — and humans unconsciously seek what fills those gaps.
+
+- **Too much Fire, not enough Water?** You'll attract Water-dominant people who feel "calming" but may actually dampen your energy over time.
+- **Strong Metal with weak Wood?** You'll be drawn to Wood people who challenge your rigidity — but the friction can become exhausting.
+- **Heavy Earth with no Fire?** You'll seek Fire personalities for excitement — but without the bridge element, the relationship burns hot and fast.
+
+The pattern isn't bad luck. It's your chart seeking balance in the only way it knows how.
+
+## How to Break the Cycle
+
+Saju doesn't trap you in a pattern — it *shows* you the pattern so you can make a conscious choice.
+
+1. **Know your Day Master**. This is step one. Everything else builds on this.
+2. **Map your element gaps**. Which elements are abundant? Which are missing?
+3. **Recognize the pull**. Next time you feel that instant magnetic attraction, ask: is this my generating element (sustainable) or my controlling element (intense but draining)?
+
+The reading won't tell you who to date. But it will show you **why you keep choosing who you choose** — and that awareness alone changes everything.
+
+---
+
+## Check Your Pattern — Free
+
+Your Saju chart takes 30 seconds to generate. No signup, no payment, no vague horoscope. Enter your birthday, birth time, and birth city — and see the elemental balance that's been running your love life.
+
+→ [**Get your free Saju reading**](https://sajuastrology.com/)
+→ [**Check compatibility with someone**](https://sajuastrology.com/)
+
+*SajuAstrology uses 562 classical Korean sources and multi-LLM cross-validation to generate each reading. Every chart is computed individually — not pulled from a template.*
+`
+  },
+  {
+    slug: "briga-melhor-amiga-saju-elementos",
+    locale: "pt",
+    title: "Briga com a melhor amiga? O Saju revela o que está por trás do conflito",
+    description: "Vocês eram inseparáveis. Agora mal se falam. A astrologia coreana de 5.000 anos explica por que certas amizades explodem — e como os Cinco Elementos mostram o caminho de volta.",
+    date: "2026-05-11",
+    readTime: "7 min",
+    category: "Relacionamentos",
+    keywords: ["briga com amiga", "melhor amiga briga", "compatibilidade amizade", "saju amizade", "astrologia coreana amizade", "cinco elementos amizade", "por que brigamos", "reconciliação amizade"],
+    content: `# Briga com a melhor amiga? O Saju revela o que está por trás do conflito
+
+Ela era a pessoa que mais te entendia no mundo. Vocês compartilhavam tudo — os segredos, as risadas, as crises de choro às 3 da manhã. E agora? Agora você olha para o celular, vê o nome dela e sente um nó no estômago.
+
+Brigas entre melhores amigas doem mais do que términos de namoro. E a razão, segundo a tradição milenar coreana do **Saju (사주)**, pode estar nos Cinco Elementos do mapa de nascimento de vocês.
+
+## O que é o Saju — e por que funciona para amizades
+
+O Saju — literalmente "Quatro Pilares do Destino" — é o sistema astrológico mais utilizado na Coreia, com mais de 1.000 anos de história. Diferente da astrologia ocidental (que te coloca em 1 de 12 signos), o Saju usa o ano, mês, dia e hora exatos do seu nascimento para criar **518.400 perfis energéticos únicos**.
+
+Cada pessoa carrega um equilíbrio específico de cinco elementos: **Madeira (木), Fogo (火), Terra (土), Metal (金) e Água (水)**. E quando dois mapas se encontram, os elementos interagem de formas previsíveis — nutrir, controlar, chocar ou harmonizar.
+
+Numa amizade, esses padrões determinam *por que vocês se entendiam tão bem* — e *por que o conflito explodiu quando explodiu*.
+
+## O ciclo dos Cinco Elementos nas amizades
+
+- **Madeira alimenta Fogo** — a amiga Madeira inspira e dá ideias; a amiga Fogo executa e brilha. Quando funciona, é imbatível. Quando quebra, a Madeira sente que "só dá" e o Fogo sente que "nunca é reconhecida pelo que faz sozinha."
+- **Fogo gera Terra** — a amiga Fogo traz energia e entusiasmo; a amiga Terra estabiliza e acolhe. O conflito clássico: Fogo acha Terra "chata e lenta"; Terra acha Fogo "exaustiva e egoísta."
+- **Metal e Madeira se chocam** (Metal corta Madeira) — essa é a combinação que produz as amizades mais intensas E as brigas mais violentas. Vocês se admiram justamente pelo que é diferente — mas essa diferença, sob pressão, vira atrito puro.
+- **Água e Água juntas** — duas pessoas com excesso de Água se entendem profundamente, mas quando uma entra em crise emocional, a outra absorve tudo. Nenhuma consegue ser a âncora.
+
+## A briga não é sobre o que parece ser sobre
+
+Na tradição Saju, conflitos entre pessoas próximas raramente são sobre o motivo aparente. A discussão pode ter sido sobre uma mensagem não respondida, um convite esquecido, uma foto sem marcação. Mas o combustível é elemental:
+
+**Quando seu elemento está em excesso, qualquer faísca incendeia.**
+
+Se você está num ano de Fogo forte e sua amiga é Madeira — o universo literalmente empilhou combustível entre vocês. Não é culpa de ninguém. É o ciclo energético fazendo o que faz.
+
+## Como o Saju mostra o caminho de volta
+
+A mesma leitura que explica *por que* a briga aconteceu pode mostrar *quando* a reconciliação é mais natural.
+
+No Saju, cada ano, mês e até dia carrega uma energia elemental diferente. Se o conflito nasceu num período de Metal forte (corte, separação, julgamento), a reconciliação é mais provável num período de Água (fluidez, empatia, dissolução de barreiras) ou Terra (estabilidade, paciência, acolhimento).
+
+Não é mágica. É timing — o mesmo conceito que faz empresários coreanos consultarem mestres de Saju antes de grandes decisões.
+
+## Descubra o equilíbrio entre vocês — grátis
+
+O primeiro passo é conhecer seu próprio mapa. Leva 30 segundos, não precisa criar conta.
+
+→ [**Descubra seu mapa Saju — grátis**](https://sajuastrology.com/)
+→ [**Veja a compatibilidade entre vocês — grátis**](https://sajuastrology.com/)
+
+*O SajuAstrology usa 562 textos clássicos coreanos e validação cruzada por múltiplos modelos de IA. Cada leitura é calculada individualmente — nunca um template.*
+`
+  },
+  {
+    slug: "ex-incompatible-saju-coreano-respuesta",
+    locale: "es",
+    title: "¿Tu ex y tú son realmente incompatibles? El Saju coreano tiene la respuesta",
+    description: "Terminaron. Pero sigues pensando. ¿Era realmente incompatibilidad o simplemente mal timing? La astrología coreana de 5.000 años analiza lo que la terapia no alcanza.",
+    date: "2026-05-11",
+    readTime: "7 min",
+    category: "Relaciones",
+    keywords: ["compatibilidad ex pareja", "saju compatibilidad amor", "astrologia coreana amor", "por que terminamos", "somos compatibles astrologia", "cuatro pilares destino amor", "ex pareja compatible", "saju relaciones"],
+    content: `# ¿Tu ex y tú son realmente incompatibles? El Saju coreano tiene la respuesta
+
+Han pasado semanas — tal vez meses. Pero sigues abriendo su perfil. Sigues repasando las conversaciones. La pregunta que no te deja dormir no es "¿por qué terminamos?" sino algo más profundo:
+
+**"¿Éramos realmente incompatibles, o simplemente nos encontramos en el momento equivocado?"**
+
+La astrología occidental te diría "Escorpio y Géminis son difíciles." Tu terapeuta te diría "patrones de apego." Pero el **Saju (사주)** — el sistema de Cuatro Pilares del Destino coreano, con más de 5.000 años de historia — mira algo que ninguno de los dos alcanza: **la estructura elemental de los dos mapas y el ciclo temporal en que se encontraron.**
+
+## Incompatibilidad real vs. mal timing
+
+En Saju, hay una distinción fundamental que la astrología occidental no hace:
+
+- **Choque estructural (구조적 충돌)** — los elementos centrales de los dos mapas están en relación de control (剋). Metal corta Madera. Agua apaga Fuego. Esto no significa que la relación sea imposible, pero sí que requiere trabajo constante de ambas partes. Es como nadar contra la corriente: se puede, pero cansa.
+- **Mal timing (시기적 불일치)** — los mapas son compatibles, pero se encontraron en un año donde la energía dominante amplificaba los peores aspectos de la relación. Un año de Metal fuerte intensifica el juicio y la frialdad. Un año de Fuego fuerte dispara los conflictos explosivos.
+
+**La mayoría de las rupturas que "no tienen sentido" son timing, no estructura.**
+
+Y esa es exactamente la información que el Saju puede darte — si la relación falló por una razón permanente o por un ciclo que ya pasó.
+
+## Los Cinco Elementos en el amor
+
+Tu **Maestro del Día (日主 / il-gan)** — el carácter central de tu mapa — determina cómo amas:
+
+- **Madera Yang (甲)**: amas protegiendo. Das sombra como un roble. Pero a veces confundes proteger con controlar.
+- **Fuego Yin (丁)**: amas con intimidad. Eres la llama de una vela — cálida, hipnótica, vulnerable. Pero cuando te apagas, te apagas del todo.
+- **Tierra Yin (己)**: amas acogiendo. Eres la tierra fértil donde todo crece. Pero a veces das tanto que te erosionas.
+- **Agua Yin (癸)**: amas absorbiendo. Sientes todo lo que tu pareja siente — la empatía es tu superpoder y tu kryptonita.
+
+Cuando dos Maestros del Día se encuentran, la interacción sigue las leyes de los Cinco Elementos. No es "compatible o no." Es "¿cuánta energía necesita esta relación para funcionar?"
+
+## La pregunta que importa
+
+No es "¿éramos compatibles?"
+
+Es: **"¿Cuál era nuestro puntaje elemental — y en qué año nos encontramos?"**
+
+Porque si tu mapa de Agua encontró su mapa de Fuego en un año de Metal (que genera Agua y debilita Fuego), la relación estaba energéticamente desequilibrada desde el primer día. Pero eso no significa que siempre lo estaría.
+
+El Saju no te dice "vuelve con tu ex." Te muestra **por qué la relación tomó la forma que tomó** — y si las condiciones que la rompieron eran temporales o permanentes.
+
+## Tu lectura — gratis, en 30 segundos
+
+No necesitas una sesión de dos horas con un astrólogo. No necesitas crear una cuenta. Simplemente ingresa tu fecha, hora y ciudad de nacimiento.
+
+→ [**Tu carta Saju — gratis**](https://sajuastrology.com/)
+→ [**Compatibilidad con otra persona — gratis**](https://sajuastrology.com/)
+
+*SajuAstrology utiliza 562 textos clásicos coreanos y validación cruzada por múltiples modelos de IA. Cada lectura es calculada individualmente — nunca un template.*
+`
+  },
+  {
+    slug: "renai-onaji-pattern-shichusuimei-riyu",
+    locale: "ja",
+    title: "恋愛で同じパターンを繰り返すあなたへ — 四柱推命が教える本当の理由",
+    description: "また同じタイプ。また同じ展開。また同じ結末。韓国式四柱推命（サジュ）が解き明かす、あなたの恋愛パターンの構造的な理由と、そこから抜け出すヒント。",
+    date: "2026-05-11",
+    readTime: "7 min",
+    category: "恋愛分析",
+    keywords: ["恋愛 同じパターン", "恋愛 繰り返す 理由", "四柱推命 恋愛", "サジュ 恋愛", "韓国式占い 恋愛", "なぜ同じタイプを好きになる", "五行 恋愛パターン", "相性 四柱推命"],
+    content: `# 恋愛で同じパターンを繰り返すあなたへ — 四柱推命が教える本当の理由
+
+また、同じだ。
+
+顔も名前も違う。出会った場所も違う。でも、3ヶ月目に起きることは同じ。半年後に感じる息苦しさも同じ。そして終わり方も——同じ。
+
+友達は「タイプを変えなよ」と言う。自己啓発本は「自己肯定感を上げよう」と言う。でも、もしこのパターンの根っこが、あなたの性格ではなく、**生まれた瞬間に決まった五行のバランス**にあるとしたら？
+
+## 韓国式四柱推命（サジュ）という視点
+
+**サジュ（사주）**は、韓国で1,000年以上使われてきた運命分析システムです。西洋占星術が12星座に分類するのに対し、サジュは年・月・日・時の4つの柱から**518,400通りの固有パターン**を算出します。
+
+その中核にあるのが**日主（にっしゅ / 일주）**——あなたの「核」となるエネルギー。10種類の天干のどれかに当たり、それがあなたの恋愛における「引力の方向」を決定します。
+
+## あなたの日主が引き寄せるパターン
+
+- **甲（陽の木）の女性** — 大樹のように相手を包む。「頼られる恋愛」を繰り返しやすい。問題は、頼ってくる人と、対等に愛してくれる人は、しばしば別人だということ。
+- **丁（陰の火）の女性** — ロウソクの炎のように親密で温かい。でも、火は蛾を引き寄せる。激しく始まり、劇的に終わるパターン。
+- **辛（陰の金）の女性** — 宝石のように美しく、近づきがたい。「攻略したい」と思う相手ばかり寄ってくる。愛されているのか、征服されているのか、区別がつかなくなる。
+- **癸（陰の水）の女性** — 朝露のように繊細で、相手の感情をすべて吸収する。共感力が武器であり、同時に最大の弱点。
+
+## 五行の「引力の法則」
+
+サジュでは、恋愛の引力は五行の相生・相剋サイクルに従います。
+
+**水は木を育てる。木は火を燃やす。火は土を生む。土は金を産む。金は水を生む。**
+
+あなたの元素を**生じる相手**と出会うと、自然で安心する関係になります。あなたの元素を**剋する相手**と出会うと、電撃的で中毒性のある関係になります。
+
+「同じパターン」の多くは、**剋の関係を繰り返し選んでいる**ことで説明がつきます。化学反応は本物。でも持続可能性がない。
+
+## パターンを「見える化」する
+
+四柱推命はあなたを運命に閉じ込めるものではありません。パターンを**構造として見せる**ことで、次の選択を意識的にするための道具です。
+
+1. **自分の日主を知る** — すべてはここから始まります。
+2. **五行バランスを確認する** — どの元素が過剰で、どの元素が不足しているか。
+3. **引力の正体を見抜く** — 次に「ビビッと来た」とき、それが相生（持続可能）なのか相剋（中毒性）なのかを判断できるようになります。
+
+## 無料で30秒 — あなたの命式を見る
+
+会員登録は不要です。生年月日、出生時間、出生都市を入力するだけ。
+
+→ [**無料で四柱推命を見る**](https://sajuastrology.com/)
+→ [**気になる相手との相性を見る — 無料**](https://sajuastrology.com/)
+
+*SajuAstrologyは562の古典文献とマルチLLM交差検証を使用し、すべての鑑定を個別に算出しています。テンプレートは使用していません。*
+`
+  },
+  {
+    slug: "copa-do-mundo-2026-saju-selecao-brasileira",
+    locale: "pt",
+    title: "Copa do Mundo 2026: O Saju analisa Vinícius Jr, Rodrygo e a energia da Seleção",
+    description: "O que a astrologia coreana de 5.000 anos diz sobre a personalidade dos craques da Seleção? Uma análise Saju dos Cinco Elementos de Vinícius Jr, Rodrygo e Endrick — sem previsões, só estrutura.",
+    date: "2026-05-11",
+    readTime: "8 min",
+    category: "Celebrity Series",
+    keywords: ["copa do mundo 2026 brasil", "vinicius jr signo", "saju futebol", "astrologia coreana copa", "selecao brasileira 2026", "rodrygo signo", "endrick mapa astral", "quatro pilares futebol"],
+    content: `**Celebrity Analysis Series — Edição Copa do Mundo 2026**
+*Uma análise de personalidade e energia — não previsão de resultados. Entretenimento cultural baseado na tradição coreana de Quatro Pilares.*
+
+# Copa do Mundo 2026: O Saju analisa Vinícius Jr, Rodrygo e a energia da Seleção
+
+A Copa do Mundo de 2026 se aproxima, e o Brasil inteiro já está naquele estado mental coletivo que só o futebol provoca. Mas enquanto todo mundo discute esquema tático e convocação, vamos fazer algo diferente.
+
+Vamos olhar para os craques da Seleção pela lente do **Saju (사주)** — o sistema coreano de Quatro Pilares do Destino, com mais de 5.000 anos de história. Não para "prever" quem vai ganhar (isso não é o que o Saju faz), mas para entender **que tipo de energia cada jogador carrega** e como essa energia interage em grupo.
+
+**Importante:** esta é uma análise cultural e de entretenimento. Não usamos hora de nascimento (não é pública) e não fazemos previsões de resultados esportivos.
+
+---
+
+## Como o Saju lê personalidade
+
+Três conceitos rápidos:
+
+- **Mestre do Dia (일간 / 日主)** — o caractere central do seu mapa. Define seu núcleo energético.
+- **Cinco Elementos (오행)** — Madeira, Fogo, Terra, Metal, Água. O equilíbrio deles no mapa mostra como a pessoa se move no mundo.
+- **Ano e Mês** — sem a hora, analisamos a energia do ano e do mês de nascimento. Já é suficiente para traçar o perfil energético básico.
+
+---
+
+## 1. Vinícius Jr (비니시우스 주니오르)
+
+* **Data de nascimento**: 12 de julho de 2000
+* **Ano**: 庚辰 (Dragão de Metal Yang)
+* **Mês**: Cabra de Água (癸未) — verão pleno
+
+Vinícius nasceu num ano de **Metal Yang (庚)** — o elemento do machado, da lâmina, da ação direta. Em Saju, 庚 (Gyeong) é o caractere mais decisivo dos dez Mestres: não negocia, não hesita, corta caminho. É exatamente o que vemos em campo — aquela aceleração do nada, a decisão de ir para cima quando todos esperariam o passe seguro.
+
+O Dragão (辰) no ano adiciona uma camada de **Terra com Água escondida** — ambição que vem de uma reserva emocional profunda. Em campo, isso se traduz em resiliência: quando Vinícius é derrubado, ele levanta não por disciplina, mas por combustível interno. O Dragão não aceita ficar no chão.
+
+O mês de verão (julho) traz Fogo forte ao mapa. Metal + Fogo é uma combinação clássica de **forja** — pressão extrema que transforma metal bruto em lâmina afiada. É a configuração que a tradição Saju associa a pessoas que melhoram sob pressão.
+
+**Energia elemental dominante: Metal + Fogo — o atacante forjado na pressão.**
+
+---
+
+## 2. Rodrygo Goes (호드리고)
+
+* **Data de nascimento**: 9 de janeiro de 2001
+* **Ano Saju**: 庚辰 (Dragão de Metal Yang) — nascido antes do 립춘 (4 de fevereiro), portanto ano Saju = 2000
+* **Mês**: Boi de Terra (己丑) — inverno profundo
+
+Curiosidade que só quem entende de Saju percebe: Rodrygo nasceu em janeiro de 2001, mas no calendário Saju o ano muda no **립춘 (início da primavera, ~4 de fevereiro)**, não em 1º de janeiro. Isso significa que Rodrygo pertence ao **mesmo ano Saju que Vinícius** — 庚辰, Dragão de Metal Yang.
+
+Dois jogadores, mesmo pilar do ano: **Metal Yang (庚)**. Na tradição Saju, isso é chamado de **비겁 (bi-gyeop / "ombro a ombro")** — energia idêntica que cria competição saudável e entendimento instintivo. É raro, e quando acontece em duplas de ataque, o resultado é sincronia — o tipo de jogada onde um sabe exatamente onde o outro vai estar.
+
+A diferença entre os dois está no **mês**: Vinícius nasceu em julho (癸未 — verão, Fogo forte), Rodrygo em janeiro (己丑 — inverno profundo, Água e Terra). O mês de inverno traz adaptabilidade, leitura fria de jogo, visão periférica. Enquanto Vinícius é o Metal forjado no Fogo (pressão = melhora), Rodrygo é o Metal polido pela Água (calma = precisão).
+
+É exatamente o contraste que vemos em campo: Vinícius acelera sob pressão, Rodrygo encontra espaço no silêncio.
+
+**Energia elemental dominante: Metal Yang + Água de inverno — a lâmina polida pela calma.**
+
+---
+
+## 3. Endrick Felipe (엔드릭)
+
+* **Data de nascimento**: 21 de julho de 2006
+* **Ano**: 丙戌 (Cão de Fogo Yang)
+* **Mês**: Cabra de Fogo (乙未) — verão pleno
+
+Endrick é puro **Fogo Yang (丙)** — o sol do meio-dia. É o elemento mais visível, mais expansivo, mais impossível de ignorar dos dez Mestres. Onde Metal é precisão e Água é adaptação, Fogo Yang é presença. Quando Endrick entra em campo, você percebe — mesmo que ele não toque na bola nos primeiros cinco minutos.
+
+O Cão (戌) no ano é Terra com Metal e Fogo escondidos — uma base estável para tanta energia solar. Em jogadores jovens, essa combinação costuma se manifestar como maturidade precoce: Endrick não joga como um adolescente porque sua base elemental é mais velha que sua idade.
+
+Dois pilares de Fogo forte (ano e mês) significam que Endrick precisa de companheiros de equipe que tragam **Madeira** (combustível que sustenta o Fogo) ou **Terra** (que canaliza o Fogo em algo tangível). Sem esses elementos ao redor, Fogo Yang se dispersa — brilha muito, aquece pouco.
+
+**Energia elemental dominante: Fogo Yang duplo — a estrela que precisa de combustível.**
+
+---
+
+## A química da Seleção
+
+Quando colocamos os três juntos no campo:
+- **Vinícius (Metal Yang)** + **Rodrygo (Metal Yin)** = dois tipos diferentes de Metal trabalhando juntos. Na tradição Saju, isso é chamado de **비겁 (bi-gyeop / "ombro a ombro")** — competição saudável entre iguais.
+- **Endrick (Fogo Yang)** + **Metal duplo** = Fogo forja Metal. Endrick energiza os dois. Mas se o Fogo for forte demais, pode derreter o Metal — traduzido em campo: se Endrick monopoliza a bola, a precisão de Rodrygo e a decisão de Vinícius ficam sem espaço.
+
+O equilíbrio ideal, segundo os Cinco Elementos, pede alguém com **Água forte** no meio de campo — alguém que controle o fluxo, distribua, e impeça que o Fogo e o Metal se consumam mutuamente.
+
+---
+
+## Descubra seu próprio mapa
+
+Qual é o seu Mestre do Dia? Você é Fogo como Endrick, Metal como Vinícius, ou algo completamente diferente?
+
+→ [**Descubra seu mapa Saju — grátis, 30 segundos**](https://sajuastrology.com/)
+→ [**Compatibilidade com seu jogador favorito — grátis**](https://sajuastrology.com/)
+
+*O SajuAstrology usa 562 textos clássicos coreanos e validação cruzada por múltiplos modelos de IA. Cada leitura é calculada individualmente — nunca um template.*
+
+*Esta análise é entretenimento cultural baseado na tradição dos Quatro Pilares. Não constitui previsão de resultados esportivos.*
+`
+  },
   {
     slug: "what-is-saju-korean-astrology",
     title: "What Is Saju? The Korean Astrology System That Makes Western Zodiac Look Like a Toy",
