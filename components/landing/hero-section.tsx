@@ -35,6 +35,7 @@ const pillars = [
 
 export function HeroSection() {
   const [particles, setParticles] = useState<{x: string; y: string; scale: number; duration: number}[]>([])
+  const [showCountryRanking, setShowCountryRanking] = useState(false)
 
   useEffect(() => {
     setParticles(
@@ -157,7 +158,61 @@ export function HeroSection() {
             <p className="text-[11px] sm:text-xs text-muted-foreground/60 leading-relaxed">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500/80 animate-pulse align-middle mr-1.5" />
               <span className="align-middle">{t("hero.techLine")}</span>
+              {" "}
+              <button
+                onClick={() => setShowCountryRanking(true)}
+                className="inline text-emerald-400/70 hover:text-emerald-300 underline underline-offset-2 decoration-emerald-400/30 hover:decoration-emerald-300/50 transition-colors cursor-pointer"
+              >
+                {locale === "ko" ? "(국가별 방문순위 확인하기 — GA4)" :
+                 locale === "ja" ? "(国別訪問ランキング確認 — GA4)" :
+                 locale === "es" ? "(Ver ranking por país — GA4)" :
+                 locale === "fr" ? "(Voir le classement par pays — GA4)" :
+                 locale === "pt" ? "(Ver ranking por país — GA4)" :
+                 locale === "zh-TW" ? "(查看國家訪問排名 — GA4)" :
+                 locale === "ru" ? "(Рейтинг по странам — GA4)" :
+                 locale === "hi" ? "(देश रैंकिंग देखें — GA4)" :
+                 locale === "id" ? "(Lihat peringkat negara — GA4)" :
+                 "(See country rankings — GA4)"}
+              </button>
             </p>
+
+            {/* GA4 Country Ranking Modal */}
+            {showCountryRanking && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowCountryRanking(false)}>
+                <div
+                  className="relative bg-[#1a1a2e] border border-emerald-400/30 rounded-xl w-[90vw] max-w-md h-[70vh] flex flex-col shadow-2xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-emerald-400/20 shrink-0">
+                    <span className="text-xs font-mono text-emerald-300/80 tracking-wider">
+                      {locale === "ko" ? "국가별 방문순위 (GA4 실데이터)" :
+                       locale === "ja" ? "国別訪問ランキング（GA4実データ）" :
+                       "Country Rankings (GA4 Live Data)"}
+                    </span>
+                    <button
+                      onClick={() => setShowCountryRanking(false)}
+                      className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 text-white/60 hover:text-white transition-colors text-sm font-bold"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  {/* Scrollable image */}
+                  <div className="flex-1 overflow-y-auto p-3">
+                    <img
+                      src="/population.png"
+                      alt="GA4 Country Rankings"
+                      className="w-full h-auto rounded"
+                      loading="lazy"
+                    />
+                  </div>
+                  {/* Scroll hint */}
+                  <div className="flex items-center justify-center gap-2 py-2 border-t border-emerald-400/10 shrink-0">
+                    <span className="text-[10px] text-emerald-400/40 font-mono">▲ ▼ scroll</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* ════════════════════════════════════════════════════════
                 Whitepaper button — top of the authority stack, sitting
