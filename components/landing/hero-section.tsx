@@ -161,7 +161,7 @@ export function HeroSection() {
               {" "}
               <button
                 onClick={() => setShowCountryRanking(true)}
-                className="inline text-emerald-400/70 hover:text-emerald-300 underline underline-offset-2 decoration-emerald-400/30 hover:decoration-emerald-300/50 transition-colors cursor-pointer"
+                className="inline text-[11px] sm:text-xs text-emerald-400/70 hover:text-emerald-300 underline underline-offset-2 decoration-emerald-400/30 hover:decoration-emerald-300/50 transition-colors cursor-pointer align-middle leading-relaxed p-0 m-0 border-0 bg-transparent"
               >
                 {locale === "ko" ? "(국가별 방문순위 확인하기 — GA4)" :
                  locale === "ja" ? "(国別訪問ランキング確認 — GA4)" :
