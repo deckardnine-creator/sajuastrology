@@ -159,9 +159,12 @@ export function HeroSection() {
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500/80 animate-pulse align-middle mr-1.5" />
               <span className="align-middle">{t("hero.techLine")}</span>
               {" "}
-              <button
+              <span
+                role="button"
+                tabIndex={0}
                 onClick={() => setShowCountryRanking(true)}
-                className="inline text-[11px] sm:text-xs text-emerald-400/70 hover:text-emerald-300 underline underline-offset-2 decoration-emerald-400/30 hover:decoration-emerald-300/50 transition-colors cursor-pointer align-middle leading-relaxed p-0 m-0 border-0 bg-transparent"
+                onKeyDown={(e) => e.key === "Enter" && setShowCountryRanking(true)}
+                className="text-[11px] sm:text-xs text-emerald-400/70 hover:text-emerald-300 underline underline-offset-2 decoration-emerald-400/30 hover:decoration-emerald-300/50 transition-colors cursor-pointer"
               >
                 {locale === "ko" ? "(국가별 방문순위 확인하기 — GA4)" :
                  locale === "ja" ? "(国別訪問ランキング確認 — GA4)" :
@@ -173,7 +176,7 @@ export function HeroSection() {
                  locale === "hi" ? "(देश रैंकिंग देखें — GA4)" :
                  locale === "id" ? "(Lihat peringkat negara — GA4)" :
                  "(See country rankings — GA4)"}
-              </button>
+              </span>
             </p>
 
             {/* GA4 Country Ranking Modal */}
