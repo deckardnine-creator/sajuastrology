@@ -487,7 +487,7 @@ export function HeroSection() {
                   className="text-[12px] sm:text-[13px] text-muted-foreground/70 hover:text-primary transition-colors inline-flex items-center gap-1.5 px-4 py-2 border border-white/10 hover:border-white/25 rounded-lg"
                 >
                   <span>🐱</span>
-                  <span>Soram&apos;s Den (Discord) →</span>
+                  <span>{t("hero.discordLink")}</span>
                 </a>
               </div>
             </div>
