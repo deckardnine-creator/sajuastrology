@@ -48,6 +48,8 @@ export async function POST(request: NextRequest) {
             headers: dbHeaders,
             body: JSON.stringify({
               is_paid: true,
+              payment_method: "paypal",
+              paid_at: new Date().toISOString(),
               customer_email: result.email || "",
               paypal_order_id: sessionId,
             }),
