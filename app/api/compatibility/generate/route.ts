@@ -99,11 +99,13 @@ async function callGemini(prompt: string, label: string, model = "gemini-2.5-fla
   return textParts.map((p: any) => p.text).join("");
 }
 
-async function callClaudeFallback(prompt: string, label: string): Promise<string> {
+async function callClaudeFallback(prompt: string, label: string, locale = "en"): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY || "";
   if (!apiKey) throw new Error("Claude not configured");
 
   const models = ["claude-sonnet-4-20250514", "claude-haiku-4-5-20251001"];
+  // Build locale system instruction for Claude
+  const sysInstr = getSystemInstruction(locale);
   for (let i = 0; i < models.length; i++) {
     if (i > 0) await new Promise((r) => setTimeout(r, 2000));
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -116,6 +118,7 @@ async function callClaudeFallback(prompt: string, label: string): Promise<string
       body: JSON.stringify({
         model: models[i],
         max_tokens: 3000,
+        ...(sysInstr ? { system: sysInstr } : {}),
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -262,7 +265,7 @@ async function callAI(prompt: string, label: string, locale = "en"): Promise<str
       try {
         console.warn(`${label}: 503 detected, skipping ${secondModel}, using Claude directly`);
         return await withTimeout(
-          callClaudeFallback(prompt, label),
+          callClaudeFallback(prompt, label, locale),
           CLAUDE_TIMEOUT_MS,
           `${label} Claude`
         );
@@ -287,7 +290,7 @@ async function callAI(prompt: string, label: string, locale = "en"): Promise<str
     } catch (err2) {
       console.warn(`${label}: ${secondModel} failed, falling back to Claude —`, err2 instanceof Error ? err2.message : err2);
       return await withTimeout(
-        callClaudeFallback(prompt, label),
+        callClaudeFallback(prompt, label, locale),
         CLAUDE_TIMEOUT_MS,
         `${label} Claude`
       );
@@ -571,7 +574,7 @@ export async function POST(request: NextRequest) {
       }
       if (!isCorrectLang) {
         try {
-          const corrected = await callClaudeFallback(ragPrefix + buildFreeCompatibilityPrompt(scores, locale), "LangFix");
+          const corrected = await callClaudeFallback(ragPrefix + buildFreeCompatibilityPrompt(scores, locale), "LangFix", locale);
           if (corrected) {
             try {
               const cp = parseJSON(corrected);
@@ -807,7 +810,7 @@ export async function POST(request: NextRequest) {
           const fixResults = await Promise.allSettled(
             Array.from(prompts.entries()).map(async ([key, prompt]) => ({
               key,
-              raw: await callClaudeFallback(prompt, `LangFix-${key}`),
+              raw: await callClaudeFallback(prompt, `LangFix-${key}`, locale),
             }))
           );
           for (const fr of fixResults) {

@@ -19,7 +19,11 @@ function detectLocaleFromContent(text: string | null): string | null {
   if (/[\u0900-\u097F]/.test(sample)) return "hi";
   // Traditional Chinese: CJK ideographs without Hangul or Kana.
   // Must be checked AFTER ko/ja since both can also contain CJK characters.
-  if (/[\u4E00-\u9FFF]/.test(sample)) return "zh-TW";
+  // IMPORTANT: All readings contain saju terms in Chinese (四柱, 戊, 日主 etc.)
+  // so a single CJK character is NOT sufficient. Require >30% CJK density
+  // to distinguish genuine Chinese text from saju terms embedded in other languages.
+  const cjkChars = (sample.match(/[\u4E00-\u9FFF]/g) || []).length;
+  if (cjkChars > sample.length * 0.3) return "zh-TW";
   // Indonesian: Latin script with distinctive stopwords (yang, dan, untuk,
   // kamu, dengan, adalah, dll). Check before ES/FR/PT since ID stopwords
   // are highly distinctive and rarely appear in those languages.
@@ -360,9 +364,9 @@ export async function POST(request: NextRequest) {
     const reading = readings?.[0];
     if (!reading) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    // Server-side locale detection
-    const detectedLocale = detectLocaleFromContent(reading.free_reading_personality);
-    const locale = detectedLocale || clientLocale;
+    // Server-side locale: trust DB-stored locale first, then client, then detection as last resort
+    const locale = reading.locale || clientLocale || "en";
+    console.log(`[generate-paid] locale decision: reading.locale=${reading.locale}, clientLocale=${clientLocale}, final=${locale}`);
 
     // Skip if already generated in the same language
     if (reading.paid_reading_career) {
