@@ -186,9 +186,9 @@ export function HeroSection() {
                   {/* Header */}
                   <div className="flex items-center justify-between px-4 py-3 border-b border-emerald-400/20 shrink-0">
                     <span className="text-xs font-mono text-emerald-300/80 tracking-wider">
-                      {locale === "ko" ? "국가별 방문순위 (GA4 실데이터)" :
-                       locale === "ja" ? "国別訪問ランキング（GA4実データ）" :
-                       "Country Rankings (GA4 Live Data)"}
+                      {locale === "ko" ? "국가별 방문순위 (GA4 실데이터 — May 9)" :
+                       locale === "ja" ? "国別訪問ランキング（GA4実データ — May 9）" :
+                       "Country Rankings (GA4 Live Data — May 9)"}
                     </span>
                     <button
                       onClick={() => setShowCountryRanking(false)}
