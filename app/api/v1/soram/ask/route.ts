@@ -1073,7 +1073,22 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { userId, question, locale = "ko" } = body;
+    const { userId, question } = body;
+    // v6.17 — smart locale fallback: body > Accept-Language header > "en"
+    // Flutter app doesn't send locale yet, so Accept-Language from the
+    // device OS is the best signal. Korean phones send "ko", Spanish
+    // phones send "es", etc. Safer than hardcoding "ko" for global users.
+    let locale = body.locale || "";
+    if (!locale) {
+      const accept = request.headers.get("accept-language") || "";
+      const head = accept.split(",")[0].trim().toLowerCase();
+      const hit = ["ko", "ja", "en", "es", "fr", "pt", "ru", "hi", "id"].find(
+        (l) => head.startsWith(l)
+      );
+      if (hit) locale = hit;
+      else if (head.startsWith("zh")) locale = "zh-TW";
+      else locale = "en";
+    }
 
     if (!userId || typeof userId !== "string") {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
