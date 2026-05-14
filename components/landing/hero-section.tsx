@@ -39,7 +39,7 @@ export function HeroSection() {
 
   const heroImages = [
     { src: "/soram/soram_consultation.webp", alt: "Soram \u2014 A cat scholar reading saju" },
-    { src: "/chandler_soram.png", alt: "Chandler and Soram at Golden Gate Bridge" },
+    { src: "/chansoram2.png", alt: "Chandler and Soram at Golden Gate Bridge" },
   ]
 
   useEffect(() => {
