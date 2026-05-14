@@ -406,7 +406,7 @@ export function HeroSection() {
               className="block w-full max-w-[480px] mt-2"
               aria-label={t("hero.soramCaption")}
             >
-              <div className="relative w-full aspect-[16/9] rounded-[14px] overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.4)]">
+              <div className="relative w-full aspect-[4/3] rounded-[14px] overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.4)]">
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={heroImageIdx}
@@ -416,7 +416,7 @@ export function HeroSection() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.8 }}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover object-center"
                     draggable={false}
                   />
                 </AnimatePresence>
