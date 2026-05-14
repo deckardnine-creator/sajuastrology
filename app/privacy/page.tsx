@@ -28,10 +28,10 @@ export default function PrivacyPage() {
                 <p><strong>Business Registration No.:</strong> 402-44-01247</p>
                 <p><strong>Mail-order Business Report No.:</strong> 2025-Seoul Guro-2056</p>
                 <p><strong>Address:</strong> 243, 1F, Sindorim Technomart, 97 Saemal-ro, Guro-gu, Seoul 08288, Republic of Korea</p>
-                <p><strong>Email:</strong> <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a></p>
+                <p><strong>Email:</strong> <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a></p>
                 <p><strong>Phone:</strong> +82-10-4648-6793</p>
               </div>
-              <p className="mt-2">For the purposes of the EU General Data Protection Regulation (&ldquo;GDPR&rdquo;), the UK GDPR, Korea&rsquo;s Personal Information Protection Act (&ldquo;PIPA&rdquo;), and the California Consumer Privacy Act as amended by the CPRA (&ldquo;CCPA&rdquo;), Rimfactory is the <strong>data controller</strong> (or &ldquo;business&rdquo; under CCPA) responsible for your personal information. All privacy-related inquiries should be directed to <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>.</p>
+              <p className="mt-2">For the purposes of the EU General Data Protection Regulation (&ldquo;GDPR&rdquo;), the UK GDPR, Korea&rsquo;s Personal Information Protection Act (&ldquo;PIPA&rdquo;), and the California Consumer Privacy Act as amended by the CPRA (&ldquo;CCPA&rdquo;), Rimfactory is the <strong>data controller</strong> (or &ldquo;business&rdquo; under CCPA) responsible for your personal information. All privacy-related inquiries should be directed to <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a>.</p>
             </section>
 
             <section>
@@ -153,7 +153,7 @@ export default function PrivacyPage() {
                 <li><strong>Complaint</strong> — lodge a complaint with your data-protection authority. EU/EEA residents may contact their local DPA; UK residents may contact the ICO; Korean residents may contact the Personal Information Protection Commission (PIPC); California residents may contact the California Privacy Protection Agency (CPPA).</li>
                 <li><strong>California residents (CCPA/CPRA)</strong> — the right to know, delete, correct, and limit use of sensitive personal information; and the right not to be discriminated against for exercising these rights. We do not sell or share personal information for cross-context behavioural advertising.</li>
               </ul>
-              <p className="mt-2">To exercise any right, email <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. We will respond within 30 days (or as legally required). Primary support language is English.</p>
+              <p className="mt-2">To exercise any right, email <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a>. We will respond within 30 days (or as legally required). Primary support language is English.</p>
             </section>
 
             <section>
@@ -183,7 +183,7 @@ export default function PrivacyPage() {
               <div className="bg-card/50 border border-border rounded-xl p-4">
                 <p><strong>Rimfactory</strong> — 243, 1F, Sindorim Technomart, 97 Saemal-ro, Guro-gu, Seoul 08288, Republic of Korea</p>
                 <p className="mt-1">Business Registration No.: 402-44-01247 · Mail-order Business Report No.: 2025-Seoul Guro-2056</p>
-                <p className="mt-1">Email: <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> · Phone: +82-10-4648-6793</p>
+                <p className="mt-1">Email: <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a> · Phone: +82-10-4648-6793</p>
               </div>
             </section>
           </div>

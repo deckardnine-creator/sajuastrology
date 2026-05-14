@@ -1474,7 +1474,7 @@ function DashboardInner() {
           v6.17.48 — Removed the older "chart-change support notice"
           that previously sat here. It duplicated the v6.17.46 footer
           change-hint two rows below ("내 사주 변경 요청은
-          info@rimfactory.io"), making the same support address show
+          sajuastrology@gmail.com"), making the same support address show
           up twice on the dashboard. The footer copy is the canonical
           placement; this region is now blank so the gap below the
           last card flows directly into the footer.
@@ -1495,7 +1495,7 @@ function DashboardInner() {
              footer satisfies both Apple and Google review while also
              improving real user UX.
           
-          2. The "내 사주 변경 요청은 info@rimfactory.io" hint that
+          2. The "내 사주 변경 요청은 sajuastrology@gmail.com" hint that
              previously sat under the My Saju label now lives here in
              the footer, sharing space with the policy links. One row,
              one mental model: support + policy links live together.
@@ -1511,10 +1511,10 @@ function DashboardInner() {
         <p className="text-[11px] text-muted-foreground/60 text-center mt-8 mb-2">
           {t("dash.mySajuChangeHint")}{" "}
           <a
-            href="mailto:info@rimfactory.io"
+            href="mailto:sajuastrology@gmail.com"
             className="text-amber-300/70 hover:text-amber-200 underline-offset-2 hover:underline"
           >
-            info@rimfactory.io
+            sajuastrology@gmail.com
           </a>
         </p>
       )}
@@ -1527,7 +1527,7 @@ function DashboardInner() {
           {t("common.terms", locale)}
         </Link>
         <span>·</span>
-        <a href="mailto:info@rimfactory.io" className="hover:text-muted-foreground transition-colors">
+        <a href="mailto:sajuastrology@gmail.com" className="hover:text-muted-foreground transition-colors">
           {t("common.contact", locale)}
         </a>
         <span>·</span>

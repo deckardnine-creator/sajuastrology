@@ -387,7 +387,7 @@ export default function AboutClient() {
             <div className="space-y-2 text-muted-foreground">
               <p className="font-medium text-foreground">Rimfactory</p>
               <p>CEO: Cho Yeon Yun</p>
-              <p>info@rimfactory.io</p>
+              <p>sajuastrology@gmail.com</p>
               <p>243, 1F, Sindorim Technomart, 97 Saemallo, Guro-gu, Seoul, Korea</p>
             </div>
           </motion.div>

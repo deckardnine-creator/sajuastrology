@@ -235,10 +235,10 @@ export default function SetupPrimaryChartPage() {
                   {!["ko","ja","en"].includes(locale) && "You can enter your own saju only once."}
                 </p>
                 <p className="text-[10px] sm:text-[11px] text-amber-200/60 leading-snug mt-0.5">
-                  {locale === "ko" && "잘못 입력 시 info@rimfactory.io"}
-                  {locale === "ja" && "誤りがあれば info@rimfactory.io"}
-                  {locale === "en" && "If incorrect: info@rimfactory.io"}
-                  {!["ko","ja","en"].includes(locale) && "If incorrect: info@rimfactory.io"}
+                  {locale === "ko" && "잘못 입력 시 sajuastrology@gmail.com"}
+                  {locale === "ja" && "誤りがあれば sajuastrology@gmail.com"}
+                  {locale === "en" && "If incorrect: sajuastrology@gmail.com"}
+                  {!["ko","ja","en"].includes(locale) && "If incorrect: sajuastrology@gmail.com"}
                 </p>
               </div>
             </div>
@@ -394,9 +394,9 @@ function ConfirmModal({
           </h2>
 
           <p className="text-xs text-center text-muted-foreground mb-6">
-            {locale === "ko" && "수정이 필요하면 info@rimfactory.io로 문의해주세요"}
-            {locale === "ja" && "修正が必要な場合は info@rimfactory.io へ"}
-            {locale === "en" && "To make changes later, contact info@rimfactory.io"}
+            {locale === "ko" && "수정이 필요하면 sajuastrology@gmail.com로 문의해주세요"}
+            {locale === "ja" && "修正が必要な場合は sajuastrology@gmail.com へ"}
+            {locale === "en" && "To make changes later, contact sajuastrology@gmail.com"}
           </p>
 
           <div className="bg-[rgba(255,255,255,0.04)] rounded-2xl p-4 sm:p-5 space-y-3 mb-6">

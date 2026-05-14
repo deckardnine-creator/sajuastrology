@@ -84,7 +84,7 @@ export async function GET() {
       <guid isPermaLink="true">${BASE}/blog/${post.slug}</guid>
       <description>${escapeXml(post.description)}</description>
       <pubDate>${rfc822(post.publishedAt)}</pubDate>
-      <author>info@rimfactory.io (Rimfactory)</author>
+      <author>sajuastrology@gmail.com (Rimfactory)</author>
     </item>`
     )
     .join("\n");
@@ -99,8 +99,8 @@ export async function GET() {
     <description>Celebrity Saju readings, classical Four Pillars theory, compatibility patterns, and AI-powered destiny analysis from SajuAstrology.com — the world's first multilingual AI Saju platform.</description>
     <language>en</language>
     <copyright>© 2026 Rimfactory. All rights reserved.</copyright>
-    <managingEditor>info@rimfactory.io (Rimfactory)</managingEditor>
-    <webMaster>info@rimfactory.io (Rimfactory)</webMaster>
+    <managingEditor>sajuastrology@gmail.com (Rimfactory)</managingEditor>
+    <webMaster>sajuastrology@gmail.com (Rimfactory)</webMaster>
     <lastBuildDate>${buildDate}</lastBuildDate>
     <pubDate>${buildDate}</pubDate>
     <ttl>60</ttl>

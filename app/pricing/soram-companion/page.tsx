@@ -166,8 +166,8 @@ export default function SoramCompanionPage() {
                 dashboard
               </Link>{" "}
               or by emailing{" "}
-              <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">
-                info@rimfactory.io
+              <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">
+                sajuastrology@gmail.com
               </a>
               . You can also cancel directly from your PayPal account under{" "}
               <em>Payments → Manage automatic payments</em>.

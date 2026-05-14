@@ -469,7 +469,7 @@ export function Navbar() {
                   {footerLabel.terms}
                 </Link>
                 <span>·</span>
-                <a href="mailto:info@rimfactory.io" onClick={closeMenu} className="hover:text-muted-foreground transition-colors">
+                <a href="mailto:sajuastrology@gmail.com" onClick={closeMenu} className="hover:text-muted-foreground transition-colors">
                   {footerLabel.contact}
                 </a>
               </div>

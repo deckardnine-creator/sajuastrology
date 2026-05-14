@@ -209,10 +209,10 @@ export function DashboardSidebar() {
             <p className="text-[10px] text-muted-foreground/50 leading-relaxed mb-2 px-1">
               {t("dash.changeViaSupportHint", locale)}{" "}
               <a
-                href="mailto:info@rimfactory.io"
+                href="mailto:sajuastrology@gmail.com"
                 className="text-muted-foreground/70 hover:text-primary transition-colors"
               >
-                info@rimfactory.io
+                sajuastrology@gmail.com
               </a>
             </p>
           )}

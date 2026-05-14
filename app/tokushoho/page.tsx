@@ -38,7 +38,7 @@ export default function TokushohoPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-1 md:gap-6 py-4 border-b border-border">
           <dt className="font-semibold text-primary">{"\u30e1\u30fc\u30eb\u30a2\u30c9\u30ec\u30b9"}</dt>
-          <dd dangerouslySetInnerHTML={{ __html: `<a href="mailto:info@rimfactory.io" class="text-primary hover:underline">info@rimfactory.io</a>` }} />
+          <dd dangerouslySetInnerHTML={{ __html: `<a href="mailto:sajuastrology@gmail.com" class="text-primary hover:underline">sajuastrology@gmail.com</a>` }} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-1 md:gap-6 py-4 border-b border-border">
           <dt className="font-semibold text-primary">{"\u4e8b\u696d\u8005\u767b\u9332\u756a\u53f7"}</dt>
@@ -98,7 +98,7 @@ export default function TokushohoPage() {
             <p className="mb-1">{"\u672c\u8868\u8a18\u306e\u5185\u5bb9\u306b\u95a2\u3059\u308b\u304a\u554f\u3044\u5408\u308f\u305b\u306f\u3001\u4e0b\u8a18\u307e\u3067\u304a\u9858\u3044\u3044\u305f\u3057\u307e\u3059\u3002"}</p>
             <p className="mt-2"><strong>{"Rimfactory\uff08\u4e8b\u696d\u8005\u767b\u9332\u756a\u53f7 402-44-01247\u3001\u901a\u4fe1\u8ca9\u58f2\u696d\u7533\u544a\u756a\u53f7 2025-Seoul Guro-2056\uff09"}</strong></p>
             <p>{"\u301208288 \u5927\u97d3\u6c11\u56fd\u30bd\u30a6\u30eb\u7279\u5225\u5e02\u4e5d\u8001\u533a\u30bb\u30de\u30eb\u8def97\u3001\u65b0\u9053\u6797\u30c6\u30af\u30ce\u30de\u30fc\u30c81\u968e243\u53f7"}</p>
-            <p className="mt-1">Email: <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a></p>
+            <p className="mt-1">Email: <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a></p>
           </section>
         </div>
       </div>

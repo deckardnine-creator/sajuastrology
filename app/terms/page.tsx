@@ -29,7 +29,7 @@ export default function TermsPage() {
                 <p><strong>Business Registration No.:</strong> 402-44-01247</p>
                 <p><strong>Mail-order Business Report No.:</strong> 2025-Seoul Guro-2056</p>
                 <p><strong>Address:</strong> 243, 1F, Sindorim Technomart, 97 Saemal-ro, Guro-gu, Seoul 08288, Republic of Korea</p>
-                <p><strong>Email:</strong> <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a></p>
+                <p><strong>Email:</strong> <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a></p>
                 <p><strong>Phone:</strong> +82-10-4648-6793</p>
               </div>
             </section>
@@ -52,14 +52,14 @@ export default function TermsPage() {
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">4. Eligibility and Age</h2>
               <p className="mb-2">By signing in to the Service, you represent that you are at least <strong>14 years of age</strong> (the minimum digital-consent age under Korea&rsquo;s Personal Information Protection Act) and that you have the legal capacity to agree to these Terms. EU/EEA residents must also meet the minimum digital-consent age in their member state (generally 16, lower in some countries).</p>
-              <p>We do not knowingly collect information from children under the applicable minimum age. If we learn that such data has been collected in violation of applicable law, we will delete it promptly. Parents or legal guardians who believe a minor has submitted information should contact <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>.</p>
+              <p>We do not knowingly collect information from children under the applicable minimum age. If we learn that such data has been collected in violation of applicable law, we will delete it promptly. Parents or legal guardians who believe a minor has submitted information should contact <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a>.</p>
             </section>
 
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">5. Accounts</h2>
               <p className="mb-2">Accounts are created exclusively via Google OAuth or Apple Sign-in. We do not operate username/password accounts. You are responsible for safeguarding access to the third-party identity provider account used to sign in. You agree to provide accurate information, including the birth data you voluntarily supply for readings. False or fraudulent use of the Service is grounds for immediate termination.</p>
               <p className="mb-2">Your account syncs between Website and App when you use the same sign-in method. To prevent account confusion across platforms, the iOS App offers Apple Sign-in only and the Android App offers Google Sign-in only; the Website offers both. Choose your preferred sign-in method consistently to keep one account.</p>
-              <p>Your primary saju (the birth data registered to your account for the dashboard, daily fortune, and Soram chat) is set once at sign-up. To change your primary saju thereafter, please contact <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. You may delete your account and all associated personal data at any time from your dashboard, or by contacting <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. Deletion will be completed within 30 days.</p>
+              <p>Your primary saju (the birth data registered to your account for the dashboard, daily fortune, and Soram chat) is set once at sign-up. To change your primary saju thereafter, please contact <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a>. You may delete your account and all associated personal data at any time from your dashboard, or by contacting <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a>. Deletion will be completed within 30 days.</p>
             </section>
 
             <section>
@@ -85,13 +85,13 @@ export default function TermsPage() {
               <p className="mb-2"><strong>Web payments</strong> are processed either through Creem.io (acting as our <strong>Merchant of Record</strong> for global card processing, including Korean cards) or through PayPal Checkout (which accepts PayPal, Visa, Mastercard, American Express, and other major cards). <strong>App payments</strong> are processed by the Apple App Store (iOS) or Google Play (Android) through in-app purchase. We do not receive, handle, or store your payment card details. As Merchant of Record on the Creem checkout flow, Creem is the contracting seller of record for the transaction (issuing the receipt and remitting any applicable taxes), while Rimfactory remains the supplier of the underlying digital reading.</p>
               <p className="mb-2">Digital content (AI-generated readings) is delivered immediately and uniquely for your birth chart upon purchase.</p>
               <ul className="list-disc pl-6 mb-2 space-y-1">
-                <li>If a technical error prevents your reading from being delivered, contact <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> within 7 days of purchase for a refund.</li>
+                <li>If a technical error prevents your reading from being delivered, contact <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a> within 7 days of purchase for a refund.</li>
                 <li>For in-app purchases (iOS/Android), refund requests must be submitted through Apple or Google according to their respective refund policies. We cannot process App Store refunds on your behalf.</li>
                 <li><strong>Soram Companion (subscription) — how to cancel:</strong>
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li><strong>iOS App Store:</strong> open <em>Settings → [your name] → Subscriptions</em>, tap <em>Soram Companion</em>, and tap <em>Cancel Subscription</em>.</li>
                     <li><strong>Google Play:</strong> open the Google Play Store app, tap your profile icon → <em>Payments &amp; subscriptions → Subscriptions</em>, select <em>Soram Companion</em>, and tap <em>Cancel subscription</em>.</li>
-                    <li><strong>Web (PayPal or Creem):</strong> cancel from your dashboard or by emailing <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>. If your subscription was processed by PayPal, you can also cancel directly from your PayPal account under <em>Payments → Manage automatic payments</em>. If your subscription was processed by Creem, the cancellation is handled in your dashboard or by writing to <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a>; Creem will stop billing the next cycle.</li>
+                    <li><strong>Web (PayPal or Creem):</strong> cancel from your dashboard or by emailing <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a>. If your subscription was processed by PayPal, you can also cancel directly from your PayPal account under <em>Payments → Manage automatic payments</em>. If your subscription was processed by Creem, the cancellation is handled in your dashboard or by writing to <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a>; Creem will stop billing the next cycle.</li>
                   </ul>
                   Cancellation stops the next billing cycle; you retain access through the end of the current paid period. Already-billed monthly periods are not refunded except as required by applicable consumer-protection law or by Apple / Google policy.
                 </li>
@@ -99,7 +99,7 @@ export default function TermsPage() {
                 <li><strong>EU/EEA consumers:</strong> Rights under Directive 2011/83/EU are preserved. By proceeding to purchase digital content that is delivered immediately upon payment, you acknowledge that performance begins at the moment of purchase, to the extent permitted by law.</li>
                 <li>Unused Master 5 Pack consultation credits remain on your account indefinitely, subject to account deletion.</li>
               </ul>
-              <p>Chargebacks initiated without first attempting resolution via <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> may result in account suspension.</p>
+              <p>Chargebacks initiated without first attempting resolution via <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a> may result in account suspension.</p>
             </section>
 
             <section>
@@ -155,7 +155,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-lg font-serif text-primary mb-3">15. Dispute Resolution</h2>
-              <p className="mb-2"><strong>Informal resolution first.</strong> Before initiating any formal proceeding, you agree to contact us at <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> and allow at least 30 days for us to attempt resolution in good faith.</p>
+              <p className="mb-2"><strong>Informal resolution first.</strong> Before initiating any formal proceeding, you agree to contact us at <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a> and allow at least 30 days for us to attempt resolution in good faith.</p>
               <p className="mb-2"><strong>Governing law.</strong> These Terms are governed by the laws of the Republic of Korea, without regard to its conflict-of-laws principles. Mandatory consumer-protection rights in your country of residence are not affected.</p>
               <p className="mb-2"><strong>Jurisdiction.</strong> Subject to mandatory local consumer-protection laws, the Seoul Central District Court of Korea shall have exclusive jurisdiction, except that either party may bring a small-claims action in the court of the other party&rsquo;s residence for claims that qualify for small-claims procedures.</p>
               <p><strong>No class actions.</strong> To the maximum extent permitted by law, you and Rimfactory agree that any dispute will be resolved on an individual basis only, and neither party will participate in a class action, consolidated action, or representative action against the other.</p>
@@ -176,7 +176,7 @@ export default function TermsPage() {
               <div className="bg-card/50 border border-border rounded-xl p-4">
                 <p><strong>Rimfactory</strong> — 243, 1F, Sindorim Technomart, 97 Saemal-ro, Guro-gu, Seoul 08288, Republic of Korea</p>
                 <p className="mt-1">Business Registration No.: 402-44-01247 · Mail-order Business Report No.: 2025-Seoul Guro-2056</p>
-                <p className="mt-1">Email: <a href="mailto:info@rimfactory.io" className="text-primary hover:underline">info@rimfactory.io</a> · Phone: +82-10-4648-6793</p>
+                <p className="mt-1">Email: <a href="mailto:sajuastrology@gmail.com" className="text-primary hover:underline">sajuastrology@gmail.com</a> · Phone: +82-10-4648-6793</p>
               </div>
             </section>
           </div>

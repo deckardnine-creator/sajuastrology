@@ -260,7 +260,7 @@ export function Footer() {
               {bb.desc}
             </p>
             <p className="text-primary font-semibold text-sm sm:text-base select-all">
-              info@rimfactory.io
+              sajuastrology@gmail.com
             </p>
           </div>
 
@@ -280,7 +280,7 @@ export function Footer() {
                 <span>CEO: Yun Choyeon</span>
               </div>
               <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground/55">
-                <span>info@rimfactory.io</span>
+                <span>sajuastrology@gmail.com</span>
                 <span className="hidden sm:inline">|</span>
                 <span>+82-10-4648-6793</span>
               </div>
