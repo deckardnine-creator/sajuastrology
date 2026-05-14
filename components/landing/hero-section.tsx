@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 import { NvidiaInceptionStrip } from "@/components/trust/nvidia-inception-strip"
 import { useLanguage } from "@/lib/language-context"
@@ -35,6 +35,19 @@ const pillars = [
 export function HeroSection() {
   const [particles, setParticles] = useState<{x: string; y: string; scale: number; duration: number}[]>([])
   const [showCountryRanking, setShowCountryRanking] = useState(false)
+  const [heroImageIdx, setHeroImageIdx] = useState(0)
+
+  const heroImages = [
+    { src: "/soram/soram_consultation.webp", alt: "Soram \u2014 A cat scholar reading saju" },
+    { src: "/chandler_soram.png", alt: "Chandler and Soram at Golden Gate Bridge" },
+  ]
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroImageIdx((prev) => (prev + 1) % heroImages.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [heroImages.length])
 
   useEffect(() => {
     setParticles(
@@ -385,7 +398,7 @@ export function HeroSection() {
               ))}
             </div>
 
-            {/* Soram cinematic image — display only, no link */}
+            {/* Hero image carousel — scholar Soram + bridge photo, 5s fade cycle */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -393,41 +406,25 @@ export function HeroSection() {
               className="block w-full max-w-[480px] mt-2"
               aria-label={t("hero.soramCaption")}
             >
-              <div
-                className="relative w-full aspect-[16/9] rounded-[14px] overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.4)]"
-              >
-                {/* Use plain <img> with eager loading (first-impression element; no lazy) */}
-                <img
-                  src="/soram/soram_consultation.webp"
-                  alt="Soram — A cat scholar reading saju"
-                  loading="eager"
-                  fetchPriority="high"
-                  className="w-full h-full object-cover"
-                  draggable={false}
-                />
+              <div className="relative w-full aspect-[16/9] rounded-[14px] overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.4)]">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={heroImageIdx}
+                    src={heroImages[heroImageIdx].src}
+                    alt={heroImages[heroImageIdx].alt}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.8 }}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    draggable={false}
+                  />
+                </AnimatePresence>
               </div>
               <p className="text-center mt-3 text-[13px] italic tracking-[0.3px] font-serif"
                  style={{ color: "rgba(234, 179, 8, 0.85)", fontFamily: "Georgia, 'Times New Roman', serif" }}>
                 — {t("hero.soramCaption")} —
               </p>
-            </motion.div>
-
-            {/* Chandler + Soram at Golden Gate Bridge — human touch */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 1.0 }}
-              className="block w-full max-w-[480px]"
-            >
-              <div className="relative w-full aspect-[4/3] rounded-[14px] overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.4)]">
-                <img
-                  src="/chandler_soram.png"
-                  alt="Chandler and Soram at Golden Gate Bridge"
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                  draggable={false}
-                />
-              </div>
             </motion.div>
           </motion.div>
 
