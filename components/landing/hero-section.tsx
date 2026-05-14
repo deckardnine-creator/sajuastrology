@@ -292,7 +292,9 @@ export function HeroSection() {
                 href="/whitepaper"
                 className="group flex items-center gap-3 rounded-xl border border-blue-400/20 bg-blue-500/[0.04] hover:bg-blue-500/[0.08] hover:border-blue-400/35 transition-all px-4 py-2.5"
               >
-                <span className="flex-1 text-[13px] text-blue-200/90">{t("hero.whitepaperLink")}</span>
+                <span className="flex-1 text-[13px] text-blue-200/90">
+                  {locale === "ko" ? "📄 림사주 엔진 v2 백서" : locale === "ja" ? "📄 RimSaju\u30A8\u30F3\u30B8\u30F3 v2 \u767D\u66F8" : "📄 RimSaju Engine v2 Whitepaper"}
+                </span>
                 <ArrowRight className="w-3.5 h-3.5 text-blue-400/50 shrink-0 transition-transform group-hover:translate-x-0.5" />
               </Link>
 
@@ -300,7 +302,9 @@ export function HeroSection() {
                 href="/blog/llm-saju-self-evaluation"
                 className="group flex items-center gap-3 rounded-xl border border-blue-400/20 bg-blue-500/[0.04] hover:bg-blue-500/[0.08] hover:border-blue-400/35 transition-all px-4 py-2.5"
               >
-                <span className="flex-1 text-[13px] text-blue-200/90">{t("hero.llmExperimentBadge")}</span>
+                <span className="flex-1 text-[13px] text-blue-200/90">
+                  {locale === "ko" ? "🤖 최신 LLM에게 Rim엔진V1과 비교한 자기점수를 물었습니다" : locale === "ja" ? "🤖 \u6700\u65B0LLM\u306BRim\u30A8\u30F3\u30B8\u30F3V1\u3068\u306E\u6BD4\u8F03\u81EA\u5DF1\u8A55\u4FA1\u3092\u805E\u3044\u305F" : "🤖 We asked top LLMs to self-score against RimSaju V1"}
+                </span>
                 <ArrowRight className="w-3.5 h-3.5 text-blue-400/50 shrink-0 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>
@@ -309,21 +313,21 @@ export function HeroSection() {
             <div className="flex flex-col gap-2 w-full max-w-[420px] self-center sm:self-start mt-3">
               <Link href="/calculate" className="block">
                 <div className="group flex items-center gap-3 rounded-xl border border-amber-400/40 bg-amber-500/[0.08] hover:bg-amber-500/[0.14] hover:border-amber-400/60 transition-all px-4 py-3 cursor-pointer">
-                  <span className="flex-1 text-[14px] font-medium text-amber-100">{t("hero.cta")}</span>
+                  <span className="flex-1 text-[14px] font-medium text-amber-100">{"\u2728 "}{t("hero.cta")}</span>
                   <ArrowRight className="w-4 h-4 text-amber-400/70 shrink-0 transition-transform group-hover:translate-x-0.5" />
                 </div>
               </Link>
 
               <Link href="/compatibility" className="block">
                 <div className="group flex items-center gap-3 rounded-xl border border-orange-400/20 bg-orange-500/[0.04] hover:bg-orange-500/[0.08] hover:border-orange-400/35 transition-all px-4 py-3 cursor-pointer">
-                  <span className="flex-1 text-[14px] text-orange-200/90">{t("hero.ctaCompatibility")}</span>
+                  <span className="flex-1 text-[14px] text-orange-200/90">{"\uD83D\uDC95 "}{t("hero.ctaCompatibility")}</span>
                   <ArrowRight className="w-3.5 h-3.5 text-orange-400/50 shrink-0 transition-transform group-hover:translate-x-0.5" />
                 </div>
               </Link>
 
               <button onClick={handleSoramClick} className="text-left">
                 <div className="group flex items-center gap-3 rounded-xl border border-orange-400/20 bg-orange-500/[0.04] hover:bg-orange-500/[0.08] hover:border-orange-400/35 transition-all px-4 py-3 cursor-pointer">
-                  <span className="flex-1 text-[14px] text-orange-200/90">{t("hero.askSoram")}</span>
+                  <span className="flex-1 text-[14px] text-orange-200/90">{"\uD83D\uDCAC "}{t("hero.askSoram")}</span>
                   <ArrowRight className="w-3.5 h-3.5 text-orange-400/50 shrink-0 transition-transform group-hover:translate-x-0.5" />
                 </div>
               </button>
@@ -351,7 +355,9 @@ export function HeroSection() {
                 href="/letter"
                 className="group flex items-center gap-3 rounded-xl border border-emerald-400/20 bg-emerald-500/[0.04] hover:bg-emerald-500/[0.08] hover:border-emerald-400/35 transition-all px-4 py-2.5"
               >
-                <span className="flex-1 text-[13px] text-emerald-200/90">{t("hero.letterLink")}</span>
+                <span className="flex-1 text-[13px] text-emerald-200/90">
+                  {locale === "ko" ? "🏛️ 림팩토리의 편지" : locale === "ja" ? "🏛️ Rimfactoryの手紙" : "🏛️ A letter from Rimfactory"}
+                </span>
                 <ArrowRight className="w-3.5 h-3.5 text-emerald-400/50 shrink-0 transition-transform group-hover:translate-x-0.5" />
               </Link>
 
@@ -361,7 +367,9 @@ export function HeroSection() {
                 rel="noopener noreferrer"
                 className="group flex items-center gap-3 rounded-xl border border-emerald-400/20 bg-emerald-500/[0.04] hover:bg-emerald-500/[0.08] hover:border-emerald-400/35 transition-all px-4 py-2.5"
               >
-                <span className="flex-1 text-[13px] text-emerald-200/90">{t("hero.discordLink")}</span>
+                <span className="flex-1 text-[13px] text-emerald-200/90">
+                  {locale === "ko" ? "🐱 소람의 아지트 (Discord)" : locale === "ja" ? "🐱 ソラムのアジト (Discord)" : "🐱 Soram's Den (Discord)"}
+                </span>
                 <ArrowRight className="w-3.5 h-3.5 text-emerald-400/50 shrink-0 transition-transform group-hover:translate-x-0.5" />
               </a>
             </div>
