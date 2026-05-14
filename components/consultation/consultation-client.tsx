@@ -475,7 +475,7 @@ export function ConsultationClient() {
   /* ─── Purchase handler ─── */
   const handlePurchase = async () => {
     if (!user) {
-      if (isNative) { requestAuth("google"); } else { openSignInModal(); }
+      openSignInModal();
       return;
     }
 

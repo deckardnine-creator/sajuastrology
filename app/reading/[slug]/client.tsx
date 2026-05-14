@@ -11,7 +11,6 @@ import { TechBadge } from "@/components/reading/tech-badge";
 import { Button } from "@/components/ui/button";
 import { ELEMENTS, type Element } from "@/lib/saju-calculator";
 import { DAY_MASTER_DISPLAY } from "@/lib/constants";
-import { GoogleIcon } from "@/components/ui/google-icon";
 import { useAuth } from "@/lib/auth-context";
 import { useNativeApp } from "@/lib/native-app";
 import { requestIAP, requestAuth, onFlutterMessage } from "@/lib/flutter-bridge";
@@ -1322,8 +1321,8 @@ export default function ReadingPageClient() {
                   <p className="text-sm font-medium mb-1">{t("reading.saveShare", locale)}</p>
                   <p className="text-xs text-muted-foreground mb-3">{t("reading.saveShareDesc", locale)}</p>
                   <Button variant="outline" size="sm" className="text-xs h-9 gap-2" onClick={requestSignInWithClaimHandoff}>
-                    <GoogleIcon />
-                    {t("signIn.continueGoogle", locale)}
+                    <Sparkles className="w-4 h-4" />
+                    {t("reading.saveShare", locale)}
                   </Button>
                   <p className="text-[10px] text-[rgba(148,163,184,0.50)] mt-2">{t("reading.free3s", locale)}</p>
                 </div>
@@ -1837,8 +1836,8 @@ export default function ReadingPageClient() {
                 <h3 className="font-serif text-2xl font-bold text-primary-foreground mb-2">{t("reading.shareCosmicId", locale)}</h3>
                 <p className="text-primary-foreground/80 mb-4">{t("reading.shareCosmicIdSub", locale)}</p>
                 <Button variant="secondary" className="bg-background text-foreground hover:bg-background/90 gap-2" onClick={requestSignInWithClaimHandoff}>
-                  <GoogleIcon />
-                  {t("signIn.continueGoogle", locale)}
+                  <Sparkles className="w-4 h-4" />
+                  {t("reading.saveShare", locale)}
                 </Button>
               </div>
             )}
