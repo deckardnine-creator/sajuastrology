@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { NvidiaInceptionStrip } from "@/components/trust/nvidia-inception-strip"
 import { useLanguage } from "@/lib/language-context"
 import { useNativeApp } from "@/lib/native-app"
@@ -272,224 +271,90 @@ export function HeroSection() {
             </div>
             )}
 
-            <div className="flex flex-col items-center sm:items-start gap-3">
-              {/* NVIDIA strip — web only (Apple Guideline 5.2.5: no third-
-                  party marks in the native binary). Now FIRST in authority stack. */}
+            {/* ════ GROUP 1: Trust & Authority (Blue theme) ════ */}
+            <div className="flex flex-col gap-2 w-full max-w-[420px] self-center sm:self-start">
               <NvidiaInceptionStrip />
 
               <Link
                 href="/whitepaper"
-                className="group relative w-[280px] lg:w-auto lg:min-w-[280px] block"
+                className="group flex items-center gap-3 rounded-xl border border-blue-400/20 bg-blue-500/[0.04] hover:bg-blue-500/[0.08] hover:border-blue-400/35 transition-all px-4 py-2.5"
               >
-                {/* Glow halo */}
-                <span
-                  aria-hidden
-                  className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-amber-500/30 via-amber-300/40 to-amber-500/30 opacity-60 blur-md group-hover:opacity-90 transition-opacity"
-                />
-                <span
-                  aria-hidden
-                  className="absolute inset-0 rounded-xl ring-1 ring-amber-300/50 group-hover:ring-amber-200/70 transition-colors"
-                />
-                <div className="relative rounded-xl bg-gradient-to-r from-amber-500/[0.08] via-amber-400/[0.12] to-amber-500/[0.08] backdrop-blur-sm px-4 py-3 flex items-center gap-3">
-                  <span className="flex-1 min-w-0 text-[13.5px] sm:text-[14px] leading-snug font-medium text-amber-100 group-hover:text-amber-50 transition-colors">
-                    {t("hero.whitepaperLink")}
-                  </span>
-                  <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
-                </div>
+                <span className="text-[13px] text-blue-300/80">📄</span>
+                <span className="flex-1 text-[13px] text-blue-200/90">{t("hero.whitepaperLink")}</span>
+                <ArrowRight className="w-3.5 h-3.5 text-blue-400/50 shrink-0 transition-transform group-hover:translate-x-0.5" />
               </Link>
 
-              {/* ════════════════════════════════════════════════════════
-                  v6.18.4: LLM self-evaluation experiment badge
-                  
-                  Sits at the bottom of the authority stack (Whitepaper →
-                  NVIDIA → LLM Experiment). Cyan/sky tone marks this as
-                  a playful experiment vs the credential signals above.
-                  Same shape language (rounded card + ring + arrow) keeps
-                  the stack coherent.
-                  
-                  Links to /blog/llm-saju-self-evaluation, an English-only
-                  static page (no Navbar, no language toggle) per chandler
-                  spec — this is the only blog page reachable from home.
-              ════════════════════════════════════════════════════════ */}
               <Link
                 href="/blog/llm-saju-self-evaluation"
-                className="group relative w-[280px] lg:w-auto lg:min-w-[280px] block"
+                className="group flex items-center gap-3 rounded-xl border border-blue-400/20 bg-blue-500/[0.04] hover:bg-blue-500/[0.08] hover:border-blue-400/35 transition-all px-4 py-2.5"
               >
-                <span
-                  aria-hidden
-                  className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-cyan-500/25 via-sky-300/35 to-cyan-500/25 opacity-50 blur-md group-hover:opacity-80 transition-opacity"
-                />
-                <span
-                  aria-hidden
-                  className="absolute inset-0 rounded-xl ring-1 ring-cyan-300/40 group-hover:ring-cyan-200/60 transition-colors"
-                />
-                <div className="relative rounded-xl bg-gradient-to-r from-cyan-500/[0.06] via-sky-400/[0.10] to-cyan-500/[0.06] backdrop-blur-sm px-4 py-3 flex items-center gap-3">
-                  <span className="flex-1 min-w-0 text-[13.5px] sm:text-[14px] leading-snug font-medium text-cyan-100 group-hover:text-cyan-50 transition-colors">
-                    {t("hero.llmExperimentBadge")}
-                  </span>
-                  <ArrowRight className="w-4 h-4 text-cyan-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
-                </div>
+                <span className="text-[13px] text-blue-300/80">🤖</span>
+                <span className="flex-1 text-[13px] text-blue-200/90">{t("hero.llmExperimentBadge")}</span>
+                <ArrowRight className="w-3.5 h-3.5 text-blue-400/50 shrink-0 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>
 
-            {/* ════════════════════════════════════════════════════════
-                v1.3 Sprint 2-B v6.9: Soram CTA + primary CTAs unified
-                
-                Why this used to look "off" on mobile (chandler's bug
-                report, image 2): the Soram card lived OUTSIDE the
-                CTA stack wrapper. The wrapper has
-                `items-center sm:items-start` so on mobile the two
-                primary CTAs are centered, but the Soram card —
-                being a sibling of the wrapper, not a child — sat in
-                the parent flex (which is flex-col with default
-                stretch/start), reading as left-justified at 280px
-                width. The two yellow buttons looked centered, the
-                gold accent card looked detached and shoved left.
-                Result: visual triplet but feels like 1 + 2 instead
-                of one stack of three.
-                
-                Fix: move the Soram card INTO the same wrapper as
-                the primary CTAs, as the FIRST child. All three are
-                now inside one flex column, all 280px on mobile, all
-                centered together. Reads as one cohesive triplet.
-            ════════════════════════════════════════════════════════ */}
-            <div className="flex flex-col items-center sm:items-start gap-3 mt-1 sm:mt-2">
-
-              {/* chandler 2026-05-01 (rev): primary CTAs FIRST, Soram card
-                  AFTER. The hero already has the whitepaper glow button +
-                  NVIDIA strip carrying authority signals at the top — the
-                  conversion CTAs (Reading / Compatibility) deserve the prime
-                  adjacent slot. Soram is a returning-user / depth tool and
-                  lives just below, still in the same stack. */}
-
-              {/* Primary: Free saju reading */}
-              <Link href="/calculate" className="block w-[280px] lg:w-auto">
-                <Button
-                  size="lg"
-                  className="gold-gradient text-primary-foreground font-semibold text-base px-6 group w-full lg:w-auto transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(234,179,8,0.35)] active:scale-[0.99]"
-                >
-                  <span className="truncate lg:overflow-visible lg:whitespace-nowrap">{t("hero.cta")}</span>
-                  <ArrowRight className="ml-2 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
-                </Button>
+            {/* ════ GROUP 2: Core Actions (Gold / Coral theme) ════ */}
+            <div className="flex flex-col gap-2 w-full max-w-[420px] self-center sm:self-start mt-3">
+              <Link href="/calculate" className="block">
+                <div className="group flex items-center gap-3 rounded-xl border border-amber-400/40 bg-amber-500/[0.08] hover:bg-amber-500/[0.14] hover:border-amber-400/60 transition-all px-4 py-3 cursor-pointer">
+                  <span className="text-[14px] text-amber-300">✨</span>
+                  <span className="flex-1 text-[14px] font-medium text-amber-100">{t("hero.cta")}</span>
+                  <ArrowRight className="w-4 h-4 text-amber-400/70 shrink-0 transition-transform group-hover:translate-x-0.5" />
+                </div>
               </Link>
 
-              {/* Secondary: Compatibility check (free) */}
-              <Link href="/compatibility" className="block w-[280px] lg:w-auto">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="bg-transparent border-2 border-[rgba(234,179,8,0.55)] text-[#EAB308] hover:bg-[rgba(234,179,8,0.1)] hover:border-[rgba(234,179,8,0.85)] hover:text-[#F5D76E] font-semibold text-base px-6 group w-full lg:w-auto transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99]"
-                >
-                  <span className="truncate lg:overflow-visible lg:whitespace-nowrap">{t("hero.ctaCompatibility")}</span>
-                  <ArrowRight className="ml-2 h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
-                </Button>
+              <Link href="/compatibility" className="block">
+                <div className="group flex items-center gap-3 rounded-xl border border-orange-400/20 bg-orange-500/[0.04] hover:bg-orange-500/[0.08] hover:border-orange-400/35 transition-all px-4 py-3 cursor-pointer">
+                  <span className="text-[14px] text-orange-300/80">💕</span>
+                  <span className="flex-1 text-[14px] text-orange-200/90">{t("hero.ctaCompatibility")}</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-orange-400/50 shrink-0 transition-transform group-hover:translate-x-0.5" />
+                </div>
               </Link>
 
-              {/* CEO message card (chandler 2026-05-05) — kept in sync with
-                  components/landing/hero-section.tsx. See that file for the
-                  full rationale comment. */}
-              <details className="group relative w-[280px] lg:w-[420px] rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-500/5 to-transparent open:bg-amber-500/[0.06] transition-colors">
-                <div className="absolute inset-y-0 left-0 w-1 bg-amber-400/60 rounded-l-xl" />
-                <summary className="cursor-pointer list-none p-3 sm:p-4 pl-5 select-none">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[13px] sm:text-[14px] font-semibold text-amber-100/90 leading-snug">
-                        {t("hero.ceoMsgTitle")}
-                      </div>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-amber-300/70 shrink-0 transition-transform group-open:rotate-90" />
-                  </div>
-                </summary>
-                <div className="px-4 sm:px-5 pb-4 sm:pb-5 pl-5 pt-1">
-                  <p className="whitespace-pre-line text-[12.5px] sm:text-[13px] text-amber-100/85 leading-relaxed break-keep">
-                    {t("hero.ceoMsgBody")}
-                  </p>
-                  <a
-                    href={
-                      locale === "ko"
-                        ? "https://ko.wikipedia.org/wiki/%ED%8A%B9%EC%88%98:%EA%B2%80%EC%83%89"
-                        : locale === "ja"
-                        ? "https://ja.wikipedia.org/wiki/%E7%89%B9%E5%88%A5:%E6%A4%9C%E7%B4%A2"
-                        : locale === "zh-TW"
-                        ? "https://zh.wikipedia.org/wiki/Special:Search"
-                        : locale === "es"
-                        ? "https://es.wikipedia.org/wiki/Especial:Buscar"
-                        : locale === "fr"
-                        ? "https://fr.wikipedia.org/wiki/Sp%C3%A9cial:Recherche"
-                        : locale === "pt"
-                        ? "https://pt.wikipedia.org/wiki/Especial:Pesquisar"
-                        : "https://en.wikipedia.org/wiki/Special:Search"
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 mt-3 text-[12.5px] sm:text-[13px] font-semibold text-amber-300 hover:text-amber-200 underline decoration-amber-400/40 underline-offset-4 hover:decoration-amber-200/70 transition-colors"
-                  >
-                    {t("hero.ceoMsgWiki")}
-                  </a>
-                </div>
-              </details>
-
-              {/* Soram CTA card — moved BELOW the primary CTAs (chandler rev) */}
-              <button
-                onClick={handleSoramClick}
-                className="group relative w-[280px] lg:w-auto lg:min-w-[280px] text-left rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/10 to-amber-700/5 p-3 sm:p-4 hover:border-amber-300/60 hover:from-amber-500/15 hover:to-amber-700/10 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.2)] active:scale-[0.99]"
-              >
-                <div className="absolute inset-y-0 left-0 w-1 bg-amber-400/70 rounded-l-xl" />
-                <div className="flex items-center gap-3 pl-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[15px] font-semibold text-amber-100">
-                      {t("hero.askSoram")}
-                    </div>
-                    <p className="text-[12px] text-amber-200/70 mt-0.5 leading-snug">
-                      {t("hero.askSoramSub")}
-                    </p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-amber-300/80 shrink-0 transition-transform group-hover:translate-x-1" />
-                </div>
-                <div className="mt-3 pl-2">
-                  <img
-                    src="/chandler_soram.png"
-                    alt="Chandler and Soram"
-                    className="w-full max-w-[220px] sm:max-w-[240px] rounded-lg border border-amber-400/15"
-                    loading="lazy"
-                  />
-                  <p className="mt-2 text-[11px] sm:text-[12px] text-amber-200/60 leading-relaxed">
-                    {t("hero.soramChandlerMsg")}
-                  </p>
+              <button onClick={handleSoramClick} className="text-left">
+                <div className="group flex items-center gap-3 rounded-xl border border-orange-400/20 bg-orange-500/[0.04] hover:bg-orange-500/[0.08] hover:border-orange-400/35 transition-all px-4 py-3 cursor-pointer">
+                  <span className="text-[14px] text-orange-300/80">💬</span>
+                  <span className="flex-1 text-[14px] text-orange-200/90">{t("hero.askSoram")}</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-orange-400/50 shrink-0 transition-transform group-hover:translate-x-0.5" />
                 </div>
               </button>
             </div>
 
-            {/* App download buttons moved above authority stack */}
+            {/* ════ GROUP 3: News & Community (Green theme) ════ */}
+            <div className="flex flex-col gap-2 w-full max-w-[420px] self-center sm:self-start mt-3">
+              <details className="group rounded-xl border border-emerald-400/20 bg-emerald-500/[0.04] transition-colors open:bg-emerald-500/[0.06]">
+                <summary className="cursor-pointer list-none flex items-center gap-3 px-4 py-2.5 select-none">
+                  <span className="text-[13px] text-emerald-300/80">📢</span>
+                  <span className="flex-1 text-[13px] text-emerald-200/90">{t("hero.ceoMsgTitle")}</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-emerald-400/50 shrink-0 transition-transform group-open:rotate-90" />
+                </summary>
+                <div className="px-4 pb-3 pl-10 pt-0">
+                  <p className="whitespace-pre-line text-[12px] text-emerald-100/80 leading-relaxed break-keep">
+                    {t("hero.ceoMsgBody")}
+                  </p>
+                </div>
+              </details>
 
-            {/* ════════════════════════════════════════════════════════
-                v1.3 Sprint 2-B: Letter + Celebrity links MOVED HERE,
-                below app download buttons (per chandler 12-item brief).
-                Previously they sat above the CTA stack and competed with
-                the primary "Get reading" path. Demoted to small links so
-                Soram + Reading + Compatibility can own the prime real
-                estate.
-            ════════════════════════════════════════════════════════ */}
-            <div className="flex flex-col gap-2 mt-1">
-              {/* Letter + Discord — thin box links at bottom */}
-              <div className="flex flex-col gap-2 self-center sm:self-start w-full max-w-xs">
-                <Link
-                  href="/letter"
-                  className="text-[12px] sm:text-[13px] text-muted-foreground/70 hover:text-primary transition-colors inline-flex items-center gap-1.5 px-4 py-2 border border-white/10 hover:border-white/25 rounded-lg"
-                >
-                  <span>🏛️</span>
-                  <span>{t("hero.letterLink")}</span>
-                </Link>
-                <a
-                  href="https://discord.gg/ynf9tHVt3"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[12px] sm:text-[13px] text-muted-foreground/70 hover:text-primary transition-colors inline-flex items-center gap-1.5 px-4 py-2 border border-white/10 hover:border-white/25 rounded-lg"
-                >
-                  <span>🐱</span>
-                  <span>{t("hero.discordLink")}</span>
-                </a>
-              </div>
+              <Link
+                href="/letter"
+                className="group flex items-center gap-3 rounded-xl border border-emerald-400/20 bg-emerald-500/[0.04] hover:bg-emerald-500/[0.08] hover:border-emerald-400/35 transition-all px-4 py-2.5"
+              >
+                <span className="text-[13px] text-emerald-300/80">🏛️</span>
+                <span className="flex-1 text-[13px] text-emerald-200/90">{t("hero.letterLink")}</span>
+                <ArrowRight className="w-3.5 h-3.5 text-emerald-400/50 shrink-0 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+
+              <a
+                href="https://discord.gg/ynf9tHVt3"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-3 rounded-xl border border-emerald-400/20 bg-emerald-500/[0.04] hover:bg-emerald-500/[0.08] hover:border-emerald-400/35 transition-all px-4 py-2.5"
+              >
+                <span className="text-[13px] text-emerald-300/80">🐱</span>
+                <span className="flex-1 text-[13px] text-emerald-200/90">{t("hero.discordLink")}</span>
+                <ArrowRight className="w-3.5 h-3.5 text-emerald-400/50 shrink-0 transition-transform group-hover:translate-x-0.5" />
+              </a>
             </div>
           </motion.div>
 
@@ -545,6 +410,24 @@ export function HeroSection() {
                  style={{ color: "rgba(234, 179, 8, 0.85)", fontFamily: "Georgia, 'Times New Roman', serif" }}>
                 — {t("hero.soramCaption")} —
               </p>
+            </motion.div>
+
+            {/* Chandler + Soram at Golden Gate Bridge — human touch */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.0 }}
+              className="block w-full max-w-[480px]"
+            >
+              <div className="relative w-full aspect-[4/3] rounded-[14px] overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.4)]">
+                <img
+                  src="/chandler_soram.png"
+                  alt="Chandler and Soram at Golden Gate Bridge"
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  draggable={false}
+                />
+              </div>
             </motion.div>
           </motion.div>
 
