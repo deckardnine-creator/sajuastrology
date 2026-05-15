@@ -129,7 +129,7 @@ export function HeroSection() {
             transition={{ duration: 0.3 }}
             className="absolute top-2 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl"
           >
-            <div className="flex items-start gap-2.5 rounded-lg border border-[#C8A961]/25 bg-[#C8A961]/8 px-3.5 py-2.5 sm:px-4 sm:py-3">
+            <div className="flex items-start gap-2.5 rounded-lg px-3.5 py-2.5 sm:px-4 sm:py-3" style={{ border: "0.5px solid rgba(200,169,97,0.25)", background: "rgba(200,169,97,0.08)" }}>
               <span className="mt-0.5 shrink-0 text-sm text-[#C8A961]">{"\u26A0"}</span>
               <p className="flex-1 text-xs leading-relaxed text-[#bbb] sm:text-[13px]">
                 {t({
