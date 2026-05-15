@@ -151,54 +151,6 @@ export function HeroSection() {
 
       <div className="relative w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* Solar term fix notice banner */}
-        <AnimatePresence>
-          {!noticeDismissed && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-              transition={{ duration: 0.3 }}
-              className="mb-4"
-            >
-              <div className="max-w-xl flex items-center gap-2.5 rounded-lg px-3.5 py-2.5" style={{ border: "0.5px solid rgba(200,169,97,0.25)", background: "rgba(200,169,97,0.08)" }}>
-                <span className="shrink-0 text-sm text-[#C8A961]">{"\u26A0"}</span>
-                <p className="flex-1 text-xs leading-relaxed text-[#bbb] sm:text-[13px]">
-                  {locale === "ko"
-                    ? "\uC808\uAE30\uACC4\uC0B0 \uBC84\uADF8\uAC00 \uC218\uC815\uB418\uC5C8\uC2B5\uB2C8\uB2E4. 4\uC6D4-6\uC6D4\uAE4C\uC9C0\uB294 \uD14C\uC2A4\uD2B8 \uAE30\uAC04\uC774\uB2C8 \uC591\uD574\uBC14\uB78D\uB2C8\uB2E4."
-                    : locale === "ja"
-                    ? "\u7BC0\u6C17\u8A08\u7B97\u306E\u30D0\u30B0\u304C\u4FEE\u6B63\u3055\u308C\u307E\u3057\u305F\u30024\u6708\uFF5E6\u6708\u306F\u30C6\u30B9\u30C8\u671F\u9593\u3067\u3059\u306E\u3067\u3054\u4E86\u627F\u304F\u3060\u3055\u3044\u3002"
-                    : locale === "es"
-                    ? "Se corrigi\u00F3 un error en el c\u00E1lculo de t\u00E9rminos solares. Abr\u2013Jun es periodo de prueba."
-                    : locale === "fr"
-                    ? "Un bug de calcul des termes solaires a \u00E9t\u00E9 corrig\u00E9. Avr\u2013Juin est une p\u00E9riode de test."
-                    : locale === "pt"
-                    ? "Um bug no c\u00E1lculo dos termos solares foi corrigido. Abr\u2013Jun \u00E9 per\u00EDodo de testes."
-                    : locale === "zh-TW"
-                    ? "\u7BC0\u6C23\u8A08\u7B97\u932F\u8AA4\u5DF2\u4FEE\u6B63\u30024\u6708\u20136\u6708\u70BA\u6E2C\u8A66\u671F\u9593\uFF0C\u656C\u8ACB\u8AD2\u89E3\u3002"
-                    : locale === "ru"
-                    ? "\u041E\u0448\u0438\u0431\u043A\u0430 \u0440\u0430\u0441\u0447\u0451\u0442\u0430 \u0441\u043E\u043B\u043D\u0435\u0447\u043D\u044B\u0445 \u0442\u0435\u0440\u043C\u0438\u043D\u043E\u0432 \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0430. \u0410\u043F\u0440\u2013\u0438\u044E\u043D\u044C \u2014 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0439 \u043F\u0435\u0440\u0438\u043E\u0434."
-                    : locale === "hi"
-                    ? "\u0938\u094C\u0930 \u0936\u092C\u094D\u0926 \u0917\u0923\u0928\u093E \u092C\u0917 \u0920\u0940\u0915 \u0915\u0930 \u0926\u093F\u092F\u093E \u0917\u092F\u093E \u0939\u0948\u0964 \u0905\u092A\u094D\u0930\u0948\u0932\u2013\u091C\u0942\u0928 \u092A\u0930\u0940\u0915\u094D\u0937\u0923 \u0905\u0935\u0927\u093F \u0939\u0948\u0964"
-                    : locale === "id"
-                    ? "Bug perhitungan istilah surya telah diperbaiki. Apr\u2013Jun adalah periode pengujian."
-                    : "A solar term calculation bug has been fixed. Apr\u2013Jun is our testing period\u2014thank you for your patience."}
-                </p>
-                <button
-                  onClick={() => {
-                    setNoticeDismissed(true)
-                    try { localStorage.setItem("notice-solar-term-fix-dismissed", "1") } catch {}
-                  }}
-                  className="shrink-0 p-0.5 text-[#666] transition-colors hover:text-[#999] text-base leading-none"
-                  aria-label="Dismiss notice"
-                >
-                  {"\u00D7"}
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         <div className="grid lg:grid-cols-2 lg:gap-8 items-center lg:min-h-[calc(100vh-8rem)]">
 
           {/* Left: Text */}
@@ -208,6 +160,54 @@ export function HeroSection() {
             transition={{ duration: 0.8 }}
             className="flex flex-col gap-2.5 sm:gap-4 pt-1 pb-4 sm:py-6 lg:py-0"
           >
+            {/* Solar term fix notice banner — above heading */}
+            <AnimatePresence>
+              {!noticeDismissed && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="mb-1"
+                >
+                  <div className="flex items-center gap-2.5 rounded-lg px-3.5 py-2.5" style={{ border: "0.5px solid rgba(200,169,97,0.25)", background: "rgba(200,169,97,0.08)" }}>
+                    <span className="shrink-0 text-sm text-[#C8A961]">{"\u26A0"}</span>
+                    <p className="flex-1 text-xs leading-relaxed text-[#bbb] sm:text-[13px]">
+                      {locale === "ko"
+                        ? "\uC808\uAE30\uACC4\uC0B0 \uBC84\uADF8\uAC00 \uC218\uC815\uB418\uC5C8\uC2B5\uB2C8\uB2E4. 4\uC6D4-6\uC6D4\uAE4C\uC9C0\uB294 \uD14C\uC2A4\uD2B8 \uAE30\uAC04\uC774\uB2C8 \uC591\uD574\uBC14\uB78D\uB2C8\uB2E4."
+                        : locale === "ja"
+                        ? "\u7BC0\u6C17\u8A08\u7B97\u306E\u30D0\u30B0\u304C\u4FEE\u6B63\u3055\u308C\u307E\u3057\u305F\u30024\u6708\uFF5E6\u6708\u306F\u30C6\u30B9\u30C8\u671F\u9593\u3067\u3059\u306E\u3067\u3054\u4E86\u627F\u304F\u3060\u3055\u3044\u3002"
+                        : locale === "es"
+                        ? "Se corrigi\u00F3 un error en el c\u00E1lculo de t\u00E9rminos solares. Abr\u2013Jun es periodo de prueba."
+                        : locale === "fr"
+                        ? "Un bug de calcul des termes solaires a \u00E9t\u00E9 corrig\u00E9. Avr\u2013Juin est une p\u00E9riode de test."
+                        : locale === "pt"
+                        ? "Um bug no c\u00E1lculo dos termos solares foi corrigido. Abr\u2013Jun \u00E9 per\u00EDodo de testes."
+                        : locale === "zh-TW"
+                        ? "\u7BC0\u6C23\u8A08\u7B97\u932F\u8AA4\u5DF2\u4FEE\u6B63\u30024\u6708\u20136\u6708\u70BA\u6E2C\u8A66\u671F\u9593\uFF0C\u656C\u8ACB\u8AD2\u89E3\u3002"
+                        : locale === "ru"
+                        ? "\u041E\u0448\u0438\u0431\u043A\u0430 \u0440\u0430\u0441\u0447\u0451\u0442\u0430 \u0441\u043E\u043B\u043D\u0435\u0447\u043D\u044B\u0445 \u0442\u0435\u0440\u043C\u0438\u043D\u043E\u0432 \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0430. \u0410\u043F\u0440\u2013\u0438\u044E\u043D\u044C \u2014 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0439 \u043F\u0435\u0440\u0438\u043E\u0434."
+                        : locale === "hi"
+                        ? "\u0938\u094C\u0930 \u0936\u092C\u094D\u0926 \u0917\u0923\u0928\u093E \u092C\u0917 \u0920\u0940\u0915 \u0915\u0930 \u0926\u093F\u092F\u093E \u0917\u092F\u093E \u0939\u0948\u0964 \u0905\u092A\u094D\u0930\u0948\u0932\u2013\u091C\u0942\u0928 \u092A\u0930\u0940\u0915\u094D\u0937\u0923 \u0905\u0935\u0927\u093F \u0939\u0948\u0964"
+                        : locale === "id"
+                        ? "Bug perhitungan istilah surya telah diperbaiki. Apr\u2013Jun adalah periode pengujian."
+                        : "A solar term calculation bug has been fixed. Apr\u2013Jun is our testing period\u2014thank you for your patience."}
+                    </p>
+                    <button
+                      onClick={() => {
+                        setNoticeDismissed(true)
+                        try { localStorage.setItem("notice-solar-term-fix-dismissed", "1") } catch {}
+                      }}
+                      className="shrink-0 p-0.5 text-[#666] transition-colors hover:text-[#999] text-base leading-none"
+                      aria-label="Dismiss notice"
+                    >
+                      {"\u00D7"}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <h1 className="font-serif text-[1.625rem] xs:text-[1.875rem] sm:text-4xl lg:text-4xl xl:text-5xl font-bold leading-[1.1] break-words">
               {t("hero.title1")}
               <br className="sm:hidden" />
@@ -255,9 +255,9 @@ export function HeroSection() {
                   {/* Header */}
                   <div className="flex items-center justify-between px-4 py-3 border-b border-emerald-400/20 shrink-0">
                     <span className="text-xs font-mono text-emerald-300/80 tracking-wider">
-                      {locale === "ko" ? "국가별 방문순위 (GA4 실데이터 — May 9)" :
-                       locale === "ja" ? "国別訪問ランキング（GA4実データ — May 9）" :
-                       "Country Rankings (GA4 Live Data — May 9)"}
+                      {locale === "ko" ? "국가별 방문순위 (GA4 실데이터 — May 15)" :
+                       locale === "ja" ? "国別訪問ランキング（GA4実データ — May 15）" :
+                       "Country Rankings (GA4 Live Data — May 15)"}
                     </span>
                     <button
                       onClick={() => setShowCountryRanking(false)}
@@ -269,7 +269,7 @@ export function HeroSection() {
                   {/* Scrollable image */}
                   <div className="flex-1 overflow-y-auto p-3">
                     <img
-                      src="/population.png"
+                      src="/ga4_65.png"
                       alt="GA4 Country Rankings"
                       className="w-full h-auto rounded"
                       loading="lazy"
