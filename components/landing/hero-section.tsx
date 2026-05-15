@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, X } from "lucide-react"
 import { NvidiaInceptionStrip } from "@/components/trust/nvidia-inception-strip"
 import { useLanguage } from "@/lib/language-context"
 import { useNativeApp } from "@/lib/native-app"
@@ -36,6 +36,7 @@ export function HeroSection() {
   const [particles, setParticles] = useState<{x: string; y: string; scale: number; duration: number}[]>([])
   const [showCountryRanking, setShowCountryRanking] = useState(false)
   const [heroImageIdx, setHeroImageIdx] = useState(0)
+  const [noticeDismissed, setNoticeDismissed] = useState(true)
 
   const heroImages = [
     { src: "/soram/soram_consultation.webp", alt: "Soram \u2014 A cat scholar reading saju" },
@@ -58,6 +59,10 @@ export function HeroSection() {
         duration: Math.random() * 10 + 10,
       }))
     )
+    try {
+      const dismissed = localStorage.getItem("notice-solar-term-fix-dismissed")
+      if (!dismissed) setNoticeDismissed(false)
+    } catch {}
   }, [])
   const { t, locale } = useLanguage()
   const isNativeApp = useNativeApp()
@@ -113,6 +118,40 @@ export function HeroSection() {
        `lg:min-h-screen` so the split two-column layout still occupies
        the full viewport with vertically aligned columns. */
     <section className="relative overflow-hidden lg:min-h-screen pt-page pb-8 sm:pb-12 lg:flex lg:items-center">
+
+      {/* Solar term fix notice banner */}
+      <AnimatePresence>
+        {!noticeDismissed && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="absolute top-2 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl"
+          >
+            <div className="flex items-start gap-2.5 rounded-lg border border-[#C8A961]/25 bg-[#C8A961]/8 px-3.5 py-2.5 sm:px-4 sm:py-3">
+              <span className="mt-0.5 shrink-0 text-sm text-[#C8A961]">{"\u26A0"}</span>
+              <p className="flex-1 text-xs leading-relaxed text-[#bbb] sm:text-[13px]">
+                {t({
+                  EN: "A solar term calculation bug has been fixed. We\u2019re in beta (~3 months)\u2014thank you for your patience.",
+                  KO: "\uC0AC\uC8FC\uD480\uC774 \uC808\uAE30 \uACC4\uC0B0 \uBC84\uADF8\uAC00 \uC218\uC815\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uBCA0\uD0C0 \uC11C\uBE44\uC2A4 \uAE30\uAC04(~3\uAC1C\uC6D4)\uC774\uB2C8 \uC591\uD574 \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4.",
+                  JA: "\u7BC0\u6C17\u8A08\u7B97\u306E\u30D0\u30B0\u304C\u4FEE\u6B63\u3055\u308C\u307E\u3057\u305F\u3002\u30D9\u30FC\u30BF\u671F\u9593\uFF08\u7D043\u30F6\u6708\uFF09\u3067\u3059\u306E\u3067\u3054\u4E86\u627F\u304F\u3060\u3055\u3044\u3002",
+                })}
+              </p>
+              <button
+                onClick={() => {
+                  setNoticeDismissed(true)
+                  try { localStorage.setItem("notice-solar-term-fix-dismissed", "1") } catch {}
+                }}
+                className="shrink-0 p-0.5 text-[#666] transition-colors hover:text-[#999]"
+                aria-label="Dismiss notice"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Glow orbs */}
       <motion.div
