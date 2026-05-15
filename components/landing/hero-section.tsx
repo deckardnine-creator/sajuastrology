@@ -119,40 +119,6 @@ export function HeroSection() {
        the full viewport with vertically aligned columns. */
     <section className="relative overflow-hidden lg:min-h-screen pt-page pb-8 sm:pb-12 lg:flex lg:items-center">
 
-      {/* Solar term fix notice banner */}
-      <AnimatePresence>
-        {!noticeDismissed && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="absolute top-[4.5rem] left-0 right-0 z-40 px-4 sm:px-6 lg:px-8"
-          >
-            <div className="mx-auto max-w-2xl flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 sm:px-4 sm:py-3 text-center" style={{ border: "0.5px solid rgba(200,169,97,0.25)", background: "rgba(200,169,97,0.08)", backdropFilter: "blur(8px)" }}>
-              <span className="shrink-0 text-sm text-[#C8A961]">{"\u26A0"}</span>
-              <p className="flex-1 text-xs leading-relaxed text-[#bbb] sm:text-[13px]">
-                {locale === "ko"
-                  ? "\uC0AC\uC8FC\uD480\uC774 \uC808\uAE30 \uACC4\uC0B0 \uBC84\uADF8\uAC00 \uC218\uC815\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uBCA0\uD0C0 \uC11C\uBE44\uC2A4 \uAE30\uAC04(~3\uAC1C\uC6D4)\uC774\uB2C8 \uC591\uD574 \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4."
-                  : locale === "ja"
-                  ? "\u7BC0\u6C17\u8A08\u7B97\u306E\u30D0\u30B0\u304C\u4FEE\u6B63\u3055\u308C\u307E\u3057\u305F\u3002\u30D9\u30FC\u30BF\u671F\u9593(\u7D043\u30F6\u6708)\u3067\u3059\u306E\u3067\u3054\u4E86\u627F\u304F\u3060\u3055\u3044\u3002"
-                  : "A solar term calculation bug has been fixed. We\u2019re in beta (~3 months)\u2014thank you for your patience."}
-              </p>
-              <button
-                onClick={() => {
-                  setNoticeDismissed(true)
-                  try { localStorage.setItem("notice-solar-term-fix-dismissed", "1") } catch {}
-                }}
-                className="shrink-0 p-0.5 text-[#666] transition-colors hover:text-[#999] text-base leading-none"
-                aria-label="Dismiss notice"
-              >
-                {"\u00D7"}
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Glow orbs */}
       <motion.div
         animate={{ y: [0, -40, 0], x: [0, 20, 0] }}
@@ -184,6 +150,41 @@ export function HeroSection() {
       </div>
 
       <div className="relative w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+        {/* Solar term fix notice banner */}
+        <AnimatePresence>
+          {!noticeDismissed && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mb-4"
+            >
+              <div className="mx-auto max-w-2xl flex items-center gap-2.5 rounded-lg px-3.5 py-2.5" style={{ border: "0.5px solid rgba(200,169,97,0.25)", background: "rgba(200,169,97,0.08)" }}>
+                <span className="shrink-0 text-sm text-[#C8A961]">{"\u26A0"}</span>
+                <p className="flex-1 text-xs leading-relaxed text-[#bbb] sm:text-[13px]">
+                  {locale === "ko"
+                    ? "\uC808\uAE30\uACC4\uC0B0 \uBC84\uADF8\uAC00 \uC218\uC815\uB418\uC5C8\uC2B5\uB2C8\uB2E4. 4\uC6D4-6\uC6D4\uAE4C\uC9C0\uB294 \uD14C\uC2A4\uD2B8 \uAE30\uAC04\uC774\uB2C8 \uC591\uD574\uBC14\uB78D\uB2C8\uB2E4."
+                    : locale === "ja"
+                    ? "\u7BC0\u6C17\u8A08\u7B97\u306E\u30D0\u30B0\u304C\u4FEE\u6B63\u3055\u308C\u307E\u3057\u305F\u30024\u6708\uFF5E6\u6708\u306F\u30C6\u30B9\u30C8\u671F\u9593\u3067\u3059\u306E\u3067\u3054\u4E86\u627F\u304F\u3060\u3055\u3044\u3002"
+                    : "A solar term calculation bug has been fixed. Apr\u2013Jun is our testing period\u2014thank you for your patience."}
+                </p>
+                <button
+                  onClick={() => {
+                    setNoticeDismissed(true)
+                    try { localStorage.setItem("notice-solar-term-fix-dismissed", "1") } catch {}
+                  }}
+                  className="shrink-0 p-0.5 text-[#666] transition-colors hover:text-[#999] text-base leading-none"
+                  aria-label="Dismiss notice"
+                >
+                  {"\u00D7"}
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="grid lg:grid-cols-2 lg:gap-8 items-center lg:min-h-[calc(100vh-8rem)]">
 
           {/* Left: Text */}
