@@ -127,10 +127,10 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="absolute top-2 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl"
+            className="absolute top-[4.5rem] left-0 right-0 z-40 px-4 sm:px-6 lg:px-8"
           >
-            <div className="flex items-start gap-2.5 rounded-lg px-3.5 py-2.5 sm:px-4 sm:py-3" style={{ border: "0.5px solid rgba(200,169,97,0.25)", background: "rgba(200,169,97,0.08)" }}>
-              <span className="mt-0.5 shrink-0 text-sm text-[#C8A961]">{"\u26A0"}</span>
+            <div className="mx-auto max-w-2xl flex items-center gap-2.5 rounded-lg px-3.5 py-2.5 sm:px-4 sm:py-3 text-center" style={{ border: "0.5px solid rgba(200,169,97,0.25)", background: "rgba(200,169,97,0.08)", backdropFilter: "blur(8px)" }}>
+              <span className="shrink-0 text-sm text-[#C8A961]">{"\u26A0"}</span>
               <p className="flex-1 text-xs leading-relaxed text-[#bbb] sm:text-[13px]">
                 {locale === "ko"
                   ? "\uC0AC\uC8FC\uD480\uC774 \uC808\uAE30 \uACC4\uC0B0 \uBC84\uADF8\uAC00 \uC218\uC815\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uBCA0\uD0C0 \uC11C\uBE44\uC2A4 \uAE30\uAC04(~3\uAC1C\uC6D4)\uC774\uB2C8 \uC591\uD574 \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4."
