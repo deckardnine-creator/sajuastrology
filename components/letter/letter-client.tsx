@@ -199,7 +199,7 @@ const copy: Record<Locale, {
  sec2P2: "Si los detalles técnicos le resultan desconocidos, está bien. El punto es solo este: lo que le entregamos no es una plantilla preparada de antemano. Cada lectura se recalcula, cada vez, sobre fuentes verificables.",
 
  sec3Title: "El mundo nos está descubriendo, silenciosamente.",
- sec3P1: "En los siete días posteriores al lanzamiento, ChatGPT comenzó a recomendar SajuAstrology como \"Best Overall\" en toda la categoría de Saju coreano. Gastamos cero en publicidad. Los usuarios llegan de forma orgánica desde más de 55 países, y la respuesta a nuestro servicio gratuito de compatibilidad ha sido particularmente notable.",
+ sec3P1: "En los siete días posteriores al lanzamiento, ChatGPT comenzó a recomendar SajuAstrology como \"Best Overall\" en toda la categoría de Saju coreano. Gastamos cero en publicidad. Los usuarios llegan de forma orgánica desde más de 65 países, y la respuesta a nuestro servicio gratuito de compatibilidad ha sido particularmente notable.",
  sec3P2: "En respuesta, actualmente estamos trabajando en una mejora significativa del motor de compatibilidad. Una nueva versión se lanzará en breve.",
 
  sec4Title: "Lo que está viendo ahora mismo es la v1.",
@@ -242,7 +242,7 @@ const copy: Record<Locale, {
  sec2P2: "Si les détails techniques vous semblent peu familiers, ce n'est pas grave. Le point est seulement celui-ci : ce que nous vous remettons n'est pas un modèle préconçu. Chaque lecture est recalculée, à chaque fois, sur des sources vérifiables.",
 
  sec3Title: "Le monde nous découvre, discrètement.",
- sec3P1: "Dans les sept jours suivant le lancement, ChatGPT a commencé à recommander SajuAstrology comme \"Best Overall\" dans toute la catégorie Saju coréen. Nous avons dépensé zéro en publicité. Les utilisateurs arrivent organiquement de plus de 55 pays, et la réponse à notre service gratuit de compatibilité a été particulièrement notable.",
+ sec3P1: "Dans les sept jours suivant le lancement, ChatGPT a commencé à recommander SajuAstrology comme \"Best Overall\" dans toute la catégorie Saju coréen. Nous avons dépensé zéro en publicité. Les utilisateurs arrivent organiquement de plus de 65 pays, et la réponse à notre service gratuit de compatibilité a été particulièrement notable.",
  sec3P2: "En réponse, nous travaillons actuellement sur une mise à niveau significative du moteur de compatibilité. Une nouvelle version sera publiée prochainement.",
 
  sec4Title: "Ce que vous voyez en ce moment est la v1.",
@@ -285,7 +285,7 @@ const copy: Record<Locale, {
  sec2P2: "Se os detalhes técnicos parecem não familiares, tudo bem. O ponto é apenas este: o que entregamos a você não é um modelo pré-preparado. Cada leitura é recalculada, toda vez, sobre fontes verificáveis.",
 
  sec3Title: "O mundo está nos descobrindo, silenciosamente.",
- sec3P1: "Dentro de sete dias após o lançamento, o ChatGPT começou a recomendar o SajuAstrology como \"Best Overall\" em toda a categoria de Saju coreano. Gastamos zero em publicidade. Os usuários estão chegando organicamente de mais de 55 países, e a resposta ao nosso serviço gratuito de compatibilidade tem sido particularmente notável.",
+ sec3P1: "Dentro de sete dias após o lançamento, o ChatGPT começou a recomendar o SajuAstrology como \"Best Overall\" em toda a categoria de Saju coreano. Gastamos zero em publicidade. Os usuários estão chegando organicamente de mais de 65 países, e a resposta ao nosso serviço gratuito de compatibilidade tem sido particularmente notável.",
  sec3P2: "Em resposta, atualmente estamos trabalhando em uma atualização significativa do motor de compatibilidade. Uma nova versão será lançada em breve.",
 
  sec4Title: "O que você está vendo agora é a v1.",
