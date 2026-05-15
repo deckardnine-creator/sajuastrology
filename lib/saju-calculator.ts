@@ -1,6 +1,8 @@
 // Saju (Four Pillars of Destiny) Calculator
 // Based on traditional Korean/Chinese astrology calculations
 
+import { getSajuMonthFromDate, getLichunTimestamp } from "./solar-terms";
+
 // Heavenly Stems (천간/天干)
 export const HEAVENLY_STEMS = [
   { ko: "갑", zh: "甲", en: "Yang Wood", element: "wood", yinYang: "yang" },
@@ -86,32 +88,42 @@ export interface SajuChart {
   harmonyScore: number;
 }
 
-// Calculate Year Pillar
-function getYearPillar(year: number): Pillar {
-  // The 60-year cycle starts from 4 CE (Year of Jiazi)
-  const stemIndex = (year - 4) % 10;
-  const branchIndex = (year - 4) % 12;
+// Calculate Year Pillar — uses 立春 (Lichun) as year boundary
+function getYearPillar(year: number, month: number, day: number, hour: number = 12): Pillar {
+  // Year pillar changes at 立春 (around Feb 4), NOT Jan 1
+  const birthMs = Date.UTC(year, month - 1, day, hour);
+  const lichunMs = getLichunTimestamp(year);
+  const effectiveYear = birthMs < lichunMs ? year - 1 : year;
+
+  const stemIndex = ((effectiveYear - 4) % 10 + 10) % 10;
+  const branchIndex = ((effectiveYear - 4) % 12 + 12) % 12;
   
   return {
-    stem: HEAVENLY_STEMS[stemIndex >= 0 ? stemIndex : stemIndex + 10],
-    branch: EARTHLY_BRANCHES[branchIndex >= 0 ? branchIndex : branchIndex + 12],
+    stem: HEAVENLY_STEMS[stemIndex],
+    branch: EARTHLY_BRANCHES[branchIndex],
     pillarName: "year",
   };
 }
 
-// Calculate Month Pillar (based on year stem and lunar month)
-function getMonthPillar(year: number, month: number): Pillar {
-  // Month stem follows the Five Tiger Method (五虎遁月)
-  // 甲己年→丙寅始, 乙庚年→戊寅始, 丙辛年→庚寅始, 丁壬年→壬寅始, 戊癸年→甲寅始
-  const yearStemIndex = ((year - 4) % 10 + 10) % 10;
-  const stemIndex = ((yearStemIndex % 5) * 2 + 2 + (month - 1)) % 10;
-  
-  // Month branch: month 1 (around Feb) = Tiger (寅, index 2)
-  const branchIndex = (month + 1) % 12;
-  
+// Calculate Month Pillar — uses solar terms (節氣) for month boundaries
+function getMonthPillar(year: number, month: number, day: number, hour: number = 12): Pillar {
+  // Get saju month from solar term boundaries (NOT from calendar month)
+  const { sajuMonth, sajuYear } = getSajuMonthFromDate(year, month - 1, day, hour);
+
+  // Month branch: sajuMonth 1 = 寅 (index 2), 2 = 卯 (index 3), ..., 12 = 丑 (index 1)
+  const branchIndex = (sajuMonth + 1) % 12;
+
+  // Month stem: determined by year stem using 五虎遁年起月法
+  // Use the effective year (accounting for 立春 boundary)
+  const birthMs = Date.UTC(year, month - 1, day, hour);
+  const lichunMs = getLichunTimestamp(year);
+  const effectiveYear = birthMs < lichunMs ? year - 1 : year;
+  const yearStemIndex = ((effectiveYear - 4) % 10 + 10) % 10;
+  const stemIndex = ((yearStemIndex % 5) * 2 + 2 + (sajuMonth - 1)) % 10;
+
   return {
-    stem: HEAVENLY_STEMS[stemIndex >= 0 ? stemIndex : stemIndex + 10],
-    branch: EARTHLY_BRANCHES[branchIndex >= 0 ? branchIndex : branchIndex + 12],
+    stem: HEAVENLY_STEMS[stemIndex],
+    branch: EARTHLY_BRANCHES[branchIndex],
     pillarName: "month",
   };
 }
@@ -208,16 +220,19 @@ function getDominantTenGod(dayMaster: HeavenlyStem, pillars: SajuChart["pillars"
         (relationships[samePolarity ? "eatingGod" : "hurtingOfficer"] || 0) + 1;
     } else if (ELEMENTS[dayMasterElement as Element].controls === stemElement) {
       // Day master controls this element (wealth)
-      relationships[samePolarity ? "directWealth" : "indirectWealth"] = 
-        (relationships[samePolarity ? "directWealth" : "indirectWealth"] || 0) + 1;
+      // Same polarity = 偏財 (indirect), different = 正財 (direct)
+      relationships[samePolarity ? "indirectWealth" : "directWealth"] = 
+        (relationships[samePolarity ? "indirectWealth" : "directWealth"] || 0) + 1;
     } else if (ELEMENTS[stemElement as Element].controls === dayMasterElement) {
       // This element controls day master (power/authority)
-      relationships[samePolarity ? "directOfficer" : "sevenKillings"] = 
-        (relationships[samePolarity ? "directOfficer" : "sevenKillings"] || 0) + 1;
+      // Same polarity = 七殺/偏官 (seven killings), different = 正官 (direct officer)
+      relationships[samePolarity ? "sevenKillings" : "directOfficer"] = 
+        (relationships[samePolarity ? "sevenKillings" : "directOfficer"] || 0) + 1;
     } else if (ELEMENTS[stemElement as Element].produces === dayMasterElement) {
       // This element produces day master (resource)
-      relationships[samePolarity ? "directResource" : "indirectResource"] = 
-        (relationships[samePolarity ? "directResource" : "indirectResource"] || 0) + 1;
+      // Same polarity = 偏印 (indirect), different = 正印 (direct)
+      relationships[samePolarity ? "indirectResource" : "directResource"] = 
+        (relationships[samePolarity ? "indirectResource" : "directResource"] || 0) + 1;
     }
   });
   
@@ -334,8 +349,8 @@ export function calculateSaju(
   }
   
   // Calculate pillars
-  const yearPillar = getYearPillar(year);
-  const monthPillar = getMonthPillar(year, month);
+  const yearPillar = getYearPillar(year, month, day, hour);
+  const monthPillar = getMonthPillar(year, month, day, hour);
   const dayPillar = getDayPillar(year, month, day);
   const hourPillar = getHourPillar(dayPillar.stem, hour);
   
