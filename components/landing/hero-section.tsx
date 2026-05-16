@@ -174,24 +174,24 @@ export function HeroSection() {
                     <span className="shrink-0 text-sm text-[#C8A961]">{"\u26A0"}</span>
                     <p className="flex-1 text-xs leading-relaxed text-[#bbb] sm:text-[13px]">
                       {locale === "ko"
-                        ? "\uC808\uAE30\uACC4\uC0B0 \uBC84\uADF8\uAC00 \uC218\uC815\uB418\uC5C8\uC2B5\uB2C8\uB2E4. 4\uC6D4-6\uC6D4\uAE4C\uC9C0\uB294 \uD14C\uC2A4\uD2B8 \uAE30\uAC04\uC774\uB2C8 \uC591\uD574\uBC14\uB78D\uB2C8\uB2E4."
+                        ? "\uC808\uAE30\uACC4\uC0B0 \uBC84\uADF8\uAC00 \uC218\uC815\uB418\uC5C8\uC2B5\uB2C8\uB2E4.(15\uC77C) \uC18C\uB78C\uC5D0\uAC8C \uBB3B\uAE30\uC5D0\uC11C \uC18C\uB78C\uC774 \uC804\uBCF4\uB2E4 \uB611\uB611\uD574\uC84C\uC2B5\uB2C8\uB2E4.(16\uC77C) 4\uC6D4-6\uC6D4\uAE4C\uC9C0\uB294 \uD14C\uC2A4\uD2B8 \uAE30\uAC04\uC774\uB2C8 \uC591\uD574\uBC14\uB78D\uB2C8\uB2E4."
                         : locale === "ja"
-                        ? "\u7BC0\u6C17\u8A08\u7B97\u306E\u30D0\u30B0\u304C\u4FEE\u6B63\u3055\u308C\u307E\u3057\u305F\u30024\u6708\uFF5E6\u6708\u306F\u30C6\u30B9\u30C8\u671F\u9593\u3067\u3059\u306E\u3067\u3054\u4E86\u627F\u304F\u3060\u3055\u3044\u3002"
+                        ? "\u7BC0\u6C17\u8A08\u7B97\u306E\u30D0\u30B0\u3092\u4FEE\u6B63\u3057\u307E\u3057\u305F(15\u65E5)\u3002\u300C\u30BD\u30E9\u30E0\u306B\u805E\u304F\u300D\u3067\u30BD\u30E9\u30E0\u304C\u4EE5\u524D\u3088\u308A\u8CE2\u304F\u306A\u308A\u307E\u3057\u305F(16\u65E5)\u30024\u6708\uFF5E6\u6708\u306F\u30C6\u30B9\u30C8\u671F\u9593\u3067\u3059\u306E\u3067\u3054\u4E86\u627F\u304F\u3060\u3055\u3044\u3002"
                         : locale === "es"
-                        ? "Se corrigi\u00F3 un error en el c\u00E1lculo de t\u00E9rminos solares. Abr\u2013Jun es periodo de prueba."
+                        ? "Bug de c\u00E1lculo solar corregido (d\u00EDa 15). Soram es m\u00E1s inteligente ahora (d\u00EDa 16). Abr\u2013Jun es periodo de prueba."
                         : locale === "fr"
-                        ? "Un bug de calcul des termes solaires a \u00E9t\u00E9 corrig\u00E9. Avr\u2013Juin est une p\u00E9riode de test."
+                        ? "Bug de calcul solaire corrig\u00E9 (15). Soram est plus intelligent maintenant (16). Avr\u2013Juin est une p\u00E9riode de test."
                         : locale === "pt"
-                        ? "Um bug no c\u00E1lculo dos termos solares foi corrigido. Abr\u2013Jun \u00E9 per\u00EDodo de testes."
+                        ? "Bug de c\u00E1lculo solar corrigido (dia 15). Soram ficou mais inteligente (dia 16). Abr\u2013Jun \u00E9 per\u00EDodo de testes."
                         : locale === "zh-TW"
-                        ? "\u7BC0\u6C23\u8A08\u7B97\u932F\u8AA4\u5DF2\u4FEE\u6B63\u30024\u6708\u20136\u6708\u70BA\u6E2C\u8A66\u671F\u9593\uFF0C\u656C\u8ACB\u8AD2\u89E3\u3002"
+                        ? "\u7BC0\u6C23\u8A08\u7B97\u932F\u8AA4\u5DF2\u4FEE\u6B63(15\u65E5)\u3002\u7D22\u85CD\u8B8A\u5F97\u66F4\u806F\u660E\u4E86(16\u65E5)\u30024\u6708\u20136\u6708\u70BA\u6E2C\u8A66\u671F\u9593\uFF0C\u656C\u8ACB\u8AD2\u89E3\u3002"
                         : locale === "ru"
-                        ? "\u041E\u0448\u0438\u0431\u043A\u0430 \u0440\u0430\u0441\u0447\u0451\u0442\u0430 \u0441\u043E\u043B\u043D\u0435\u0447\u043D\u044B\u0445 \u0442\u0435\u0440\u043C\u0438\u043D\u043E\u0432 \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0430. \u0410\u043F\u0440\u2013\u0438\u044E\u043D\u044C \u2014 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0439 \u043F\u0435\u0440\u0438\u043E\u0434."
+                        ? "\u041E\u0448\u0438\u0431\u043A\u0430 \u0440\u0430\u0441\u0447\u0451\u0442\u0430 \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0430 (15-\u0435). \u0421\u043E\u0440\u0430\u043C \u0441\u0442\u0430\u043B \u0443\u043C\u043D\u0435\u0435 (16-\u0435). \u0410\u043F\u0440\u2013\u0438\u044E\u043D\u044C \u2014 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0439 \u043F\u0435\u0440\u0438\u043E\u0434."
                         : locale === "hi"
-                        ? "\u0938\u094C\u0930 \u0936\u092C\u094D\u0926 \u0917\u0923\u0928\u093E \u092C\u0917 \u0920\u0940\u0915 \u0915\u0930 \u0926\u093F\u092F\u093E \u0917\u092F\u093E \u0939\u0948\u0964 \u0905\u092A\u094D\u0930\u0948\u0932\u2013\u091C\u0942\u0928 \u092A\u0930\u0940\u0915\u094D\u0937\u0923 \u0905\u0935\u0927\u093F \u0939\u0948\u0964"
+                        ? "\u0938\u094C\u0930 \u0917\u0923\u0928\u093E \u092C\u0917 \u0920\u0940\u0915 (15\u0935\u0940\u0902)\u0964 \u0938\u094B\u0930\u093E\u092E \u0905\u092C \u092A\u0939\u0932\u0947 \u0938\u0947 \u0938\u094D\u092E\u093E\u0930\u094D\u091F \u0939\u0948 (16\u0935\u0940\u0902)\u0964 \u0905\u092A\u094D\u0930\u0948\u0932\u2013\u091C\u0942\u0928 \u092A\u0930\u0940\u0915\u094D\u0937\u0923 \u0905\u0935\u0927\u093F\u0964"
                         : locale === "id"
-                        ? "Bug perhitungan istilah surya telah diperbaiki. Apr\u2013Jun adalah periode pengujian."
-                        : "A solar term calculation bug has been fixed. Apr\u2013Jun is our testing period\u2014thank you for your patience."}
+                        ? "Bug perhitungan solar diperbaiki (tgl 15). Soram sekarang lebih pintar (tgl 16). Apr\u2013Jun adalah periode pengujian."
+                        : "Solar term calculation bug fixed (15th). Soram is smarter now in Ask Soram (16th). Apr\u2013Jun is our testing period\u2014thank you for your patience."}
                     </p>
                     <button
                       onClick={() => {
