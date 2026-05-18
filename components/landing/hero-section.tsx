@@ -60,7 +60,7 @@ export function HeroSection() {
       }))
     )
     try {
-      const dismissed = localStorage.getItem("notice-solar-term-fix-dismissed")
+      const dismissed = localStorage.getItem("notice-may18-output-upgrade")
       if (!dismissed) setNoticeDismissed(false)
     } catch {}
   }, [])
@@ -174,29 +174,29 @@ export function HeroSection() {
                     <span className="shrink-0 text-sm text-[#C8A961]">{"\u26A0"}</span>
                     <p className="flex-1 text-xs leading-relaxed text-[#bbb] sm:text-[13px]">
                       {locale === "ko"
-                        ? "\uC808\uAE30\uACC4\uC0B0 \uBC84\uADF8\uAC00 \uC218\uC815\uB418\uC5C8\uC2B5\uB2C8\uB2E4.(15\uC77C) \uC18C\uB78C\uC5D0\uAC8C \uBB3B\uAE30\uC5D0\uC11C \uC18C\uB78C\uC774 \uC804\uBCF4\uB2E4 \uB611\uB611\uD574\uC84C\uC2B5\uB2C8\uB2E4.(16\uC77C) 4\uC6D4-6\uC6D4\uAE4C\uC9C0\uB294 \uD14C\uC2A4\uD2B8 \uAE30\uAC04\uC774\uB2C8 \uC591\uD574\uBC14\uB78D\uB2C8\uB2E4."
+                        ? "18\uC77C \u2014 \uC0AC\uC8FC\uD480\uC774, \uC18C\uB78C\uACFC\uC758 \uB300\uD654, \uADB8\uD569\uC758 \uCD9C\uB825\uBB3C\uC744 \uACE0\uAC1D \uCE5C\uD654\uC801\uC73C\uB85C \uC5C5\uADF8\uB808\uC774\uB4DC \uD558\uC600\uC2B5\uB2C8\uB2E4. 4\uC6D4\u20136\uC6D4\uAE4C\uC9C0\uB294 \uD14C\uC2A4\uD2B8 \uAE30\uAC04\uC774\uB2C8 \uC591\uD574\uBC14\uB78D\uB2C8\uB2E4."
                         : locale === "ja"
-                        ? "\u7BC0\u6C17\u8A08\u7B97\u306E\u30D0\u30B0\u3092\u4FEE\u6B63\u3057\u307E\u3057\u305F(15\u65E5)\u3002\u300C\u30BD\u30E9\u30E0\u306B\u805E\u304F\u300D\u3067\u30BD\u30E9\u30E0\u304C\u4EE5\u524D\u3088\u308A\u8CE2\u304F\u306A\u308A\u307E\u3057\u305F(16\u65E5)\u30024\u6708\uFF5E6\u6708\u306F\u30C6\u30B9\u30C8\u671F\u9593\u3067\u3059\u306E\u3067\u3054\u4E86\u627F\u304F\u3060\u3055\u3044\u3002"
+                        ? "18\u65E5 \u2014 \u56DB\u67F1\u8AAD\u307F\u89E3\u304D\u30FB\u30BD\u30E9\u30E0\u3068\u306E\u5BFE\u8A71\u30FB\u76F8\u6027\u306E\u51FA\u529B\u3092\u304A\u5BA2\u69D8\u5411\u3051\u306B\u30A2\u30C3\u30D7\u30B0\u30EC\u30FC\u30C9\u3057\u307E\u3057\u305F\u30024\u6708\uFF5E6\u6708\u306F\u30C6\u30B9\u30C8\u671F\u9593\u3067\u3059\u306E\u3067\u3054\u4E86\u627F\u304F\u3060\u3055\u3044\u3002"
                         : locale === "es"
-                        ? "Bug de c\u00E1lculo solar corregido (d\u00EDa 15). Soram es m\u00E1s inteligente ahora (d\u00EDa 16). Abr\u2013Jun es periodo de prueba."
+                        ? "18 \u2014 Lectura, chat con Soram y compatibilidad mejorados para una mejor experiencia. Abr\u2013Jun es periodo de prueba."
                         : locale === "fr"
-                        ? "Bug de calcul solaire corrig\u00E9 (15). Soram est plus intelligent maintenant (16). Avr\u2013Juin est une p\u00E9riode de test."
+                        ? "18 \u2014 Lecture, chat avec Soram et compatibilit\u00E9 am\u00E9lior\u00E9s. Avr\u2013Juin est une p\u00E9riode de test."
                         : locale === "pt"
-                        ? "Bug de c\u00E1lculo solar corrigido (dia 15). Soram ficou mais inteligente (dia 16). Abr\u2013Jun \u00E9 per\u00EDodo de testes."
+                        ? "18 \u2014 Leitura, chat com Soram e compatibilidade aprimorados. Abr\u2013Jun \u00E9 per\u00EDodo de testes."
                         : locale === "zh-TW"
-                        ? "\u7BC0\u6C23\u8A08\u7B97\u932F\u8AA4\u5DF2\u4FEE\u6B63(15\u65E5)\u3002\u7D22\u85CD\u8B8A\u5F97\u66F4\u806F\u660E\u4E86(16\u65E5)\u30024\u6708\u20136\u6708\u70BA\u6E2C\u8A66\u671F\u9593\uFF0C\u656C\u8ACB\u8AD2\u89E3\u3002"
+                        ? "18\u65E5 \u2014 \u56DB\u67F1\u89E3\u8B80\u3001\u7D22\u85CD\u5C0D\u8A71\u3001\u5408\u76E4\u7684\u8F38\u51FA\u5DF2\u5347\u7D1A\u70BA\u66F4\u512A\u8CEA\u7684\u9AD4\u9A57\u30024\u6708\u20136\u6708\u70BA\u6E2C\u8A66\u671F\u9593\uFF0C\u656C\u8ACB\u8AD2\u89E3\u3002"
                         : locale === "ru"
-                        ? "\u041E\u0448\u0438\u0431\u043A\u0430 \u0440\u0430\u0441\u0447\u0451\u0442\u0430 \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0430 (15-\u0435). \u0421\u043E\u0440\u0430\u043C \u0441\u0442\u0430\u043B \u0443\u043C\u043D\u0435\u0435 (16-\u0435). \u0410\u043F\u0440\u2013\u0438\u044E\u043D\u044C \u2014 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0439 \u043F\u0435\u0440\u0438\u043E\u0434."
+                        ? "18-\u0435 \u2014 \u0427\u0442\u0435\u043D\u0438\u0435, \u0447\u0430\u0442 \u0441 \u0421\u043E\u0440\u0430\u043C \u0438 \u0441\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u043C\u043E\u0441\u0442\u044C \u0443\u043B\u0443\u0447\u0448\u0435\u043D\u044B. \u0410\u043F\u0440\u2013\u0438\u044E\u043D\u044C \u2014 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0439 \u043F\u0435\u0440\u0438\u043E\u0434."
                         : locale === "hi"
-                        ? "\u0938\u094C\u0930 \u0917\u0923\u0928\u093E \u092C\u0917 \u0920\u0940\u0915 (15\u0935\u0940\u0902)\u0964 \u0938\u094B\u0930\u093E\u092E \u0905\u092C \u092A\u0939\u0932\u0947 \u0938\u0947 \u0938\u094D\u092E\u093E\u0930\u094D\u091F \u0939\u0948 (16\u0935\u0940\u0902)\u0964 \u0905\u092A\u094D\u0930\u0948\u0932\u2013\u091C\u0942\u0928 \u092A\u0930\u0940\u0915\u094D\u0937\u0923 \u0905\u0935\u0927\u093F\u0964"
+                        ? "18 \u2014 \u0938\u093E\u091C\u0942 \u0930\u0940\u0921\u093F\u0902\u0917, \u0938\u094B\u0930\u093E\u092E \u091A\u0948\u091F \u0914\u0930 \u0905\u0928\u0941\u0915\u0942\u0932\u0924\u093E \u0915\u094B \u092C\u0947\u0939\u0924\u0930 \u0905\u0928\u0941\u092D\u0935 \u0915\u0947 \u0932\u093F\u090F \u0905\u092A\u0917\u094D\u0930\u0947\u0921 \u0915\u093F\u092F\u093E\u0964 \u0905\u092A\u094D\u0930\u0948\u0932\u2013\u091C\u0942\u0928 \u092A\u0930\u0940\u0915\u094D\u0937\u0923 \u0905\u0935\u0927\u093F\u0964"
                         : locale === "id"
-                        ? "Bug perhitungan solar diperbaiki (tgl 15). Soram sekarang lebih pintar (tgl 16). Apr\u2013Jun adalah periode pengujian."
-                        : "Solar term calculation bug fixed (15th). Soram is smarter now in Ask Soram (16th). Apr\u2013Jun is our testing period\u2014thank you for your patience."}
+                        ? "18 \u2014 Bacaan, chat Soram, dan kompatibilitas ditingkatkan. Apr\u2013Jun adalah periode pengujian."
+                        : "May 18 \u2014 Saju reading, Soram chat, and compatibility outputs upgraded for a better experience. Apr\u2013Jun is our testing period\u2014thank you for your patience."}
                     </p>
                     <button
                       onClick={() => {
                         setNoticeDismissed(true)
-                        try { localStorage.setItem("notice-solar-term-fix-dismissed", "1") } catch {}
+                        try { localStorage.setItem("notice-may18-output-upgrade", "1") } catch {}
                       }}
                       className="shrink-0 p-0.5 text-[#666] transition-colors hover:text-[#999] text-base leading-none"
                       aria-label="Dismiss notice"
