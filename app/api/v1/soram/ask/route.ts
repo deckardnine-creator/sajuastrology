@@ -363,7 +363,7 @@ async function fetchRecentTurns(
       .reverse()
       .map((r: any) => ({
         q: String(r.question || "").substring(0, 200),
-        a: String(r.answer || "").substring(0, 300),
+        a: String(r.answer || "").substring(0, 800),
         created_at: String(r.created_at || ""),
       }))
       .filter((t) => t.q && t.a);
@@ -444,7 +444,7 @@ async function fetchRelatedTurns(
       .slice(0, limit)
       .map((r: any) => ({
         q: String(r.question || "").substring(0, 200),
-        a: String(r.answer || "").substring(0, 300),
+        a: String(r.answer || "").substring(0, 800),
         created_at: String(r.created_at || ""),
       }))
       .filter((t) => t.q && t.a);
@@ -495,7 +495,7 @@ function renderMemorySection(memory: MemoryBundle, locale: string): string {
   if (!hasAny) return "";
 
   const parts: string[] = [];
-  parts.push("MEMORY OF THIS GUEST (use sparingly — reference only when it helps the answer feel continuous; do NOT recite it back):");
+  parts.push("MEMORY OF THIS GUEST (use ACTIVELY \u2014 reference past exchanges to make the conversation feel continuous and personal. The guest should feel that you remember them.):");
 
   if (memory.profileSummary) {
     parts.push(`\nWHAT YOU HAVE COME TO UNDERSTAND ABOUT THEM:\n${memory.profileSummary}`);
@@ -518,10 +518,10 @@ function renderMemorySection(memory: MemoryBundle, locale: string): string {
 
   parts.push(
     `\nHOW TO USE THIS MEMORY:
-- If the guest's current question naturally continues a past one, weave in a brief callback ("지난번에 말씀하신 그 일과 이어지는 결로…", "前にお話くださった件と…", "What you brought up before about…").
-- Do NOT list past topics. Do NOT ask "remember when?". Do NOT quote past answers verbatim.
-- If nothing in memory is relevant to today's question, ignore memory entirely and answer fresh.
-- Memory should feel like a wise friend remembering — never like a database read.`
+- ALWAYS reference relevant past exchanges. If the guest asked about career last time and asks about relationships today, connect them: "the same Metal energy that shapes your work choices also appears in how you choose partners."
+- If the guest returns after a gap, acknowledge continuity naturally: "the question you bring today touches the same thread as before \u2014 your chart has been moving toward this."
+- If nothing in memory connects, answer fresh \u2014 but this should be rare. Most questions from a returning guest connect to something.
+- Memory should feel like a wise friend who has been watching your life unfold \u2014 not like a database read.`
   );
 
   return parts.join("\n");
@@ -774,8 +774,12 @@ ROUTING: saju_question
 
 Categories:
 
-1. saju_question — A real question about life, fate, choices, relationships, work, identity, timing, energy, daily small decisions ("watermelon or melon?"), or anything Saju legitimately speaks to. ALSO short/vague messages where the guest clearly wants Saju guidance ("Read me today", "오늘 어때요?", "助けて").
-   Length: ~180-220 chars. Cite a classic naturally but BRIEFLY. This is the only category that gets charged. Be precise; do not pad. Remove generic openers.
+1. saju_question — A real question about life, fate, choices, relationships, work, identity, timing, energy, daily small decisions ("watermelon or melon?"), or anything Saju legitimately speaks to. ALSO short/vague messages where the guest clearly wants Saju guidance ("Read me today", "\uc624\ub298 \uc5b4\ub54c\uc694?", "\u52a9\u3051\u3066").
+   Length: 600-800 chars. Structure your answer in THREE movements:
+   (A) TODAY'S READING — Connect the guest's specific chart to today's pillar (${todayStem}${todayBranch}). Give a CONCRETE, specific answer to their question. Cite one classic naturally. This is the meat — make it feel like the scholar truly sees them.
+   (B) THE UNRESOLVED THREAD — Name something in their chart that today's energy is activating but that you will NOT fully explain. A tension, a turning point approaching, an element shift building. Leave it open — "this thread deserves a deeper reading" or "there is more to this pattern than today's question reveals."
+   (C) TOMORROW'S HOOK — End with ONE sentence about tomorrow's energy and how it contrasts or continues today's. Frame it as natural curiosity, not a command: "Tomorrow's pillar shifts to [X] — for your [day master element], that changes the current considerably." This gives the guest a reason to return tomorrow.
+   This is the only category that gets charged. Be generous with insight — the guest paid for this.
 
 2. social_greeting — Hellos, thank-yous, "how are you", small talk, "good morning", "I'm back", farewells, casual chat that isn't a real saju question.
    Length: ~80-150 chars. Reply warmly and briefly, like a wise friend would. Optionally weave in a tiny observation about today's pillar ("today's ${todayStem}${todayBranch} flows gently for someone of your day master"). Do not force a classical citation. End simply.
@@ -893,11 +897,11 @@ ${ragContextText || "(no specific match — speak from accumulated wisdom)"}
 
 ${memorySection}
 
-CLOSING — leave a thread, not a tether:
-- For saju_question and similar: end your answer with a small thread of curiosity that points forward without demanding a return ("내일의 ${todayStem}${todayBranch} 다음 일진은 또 다른 결로 다가옵니다", "the season turns toward 立夏 — the wood within you will breathe again").
+CLOSING \u2014 leave a thread that pulls them back tomorrow:
+- For saju_question: your LAST sentence MUST mention tomorrow's energy shift. Not "see you tomorrow" \u2014 but a factual observation about how tomorrow's pillar changes the picture for their specific day master. Example: "\ub0b4\uc77c\uc758 ${todayStem}${todayBranch} \ub2e4\uc74c \uc77c\uc9c4\uc740 \ub610 \ub2e4\ub978 \uacb0\ub85c \ub2e4\uac00\uc635\ub2c8\ub2e4 \u2014 \ud2b9\ud788 \uadf8\ub300\uc758 [element]\uc5d0\uac8c\ub294", "Tomorrow the pillar shifts to [X]\u2014for a [day master] like yours, that reverses today's current." This is the single most important retention mechanism.
 - For social_greeting: a warm, brief close. No tether.
 - For crisis: stay close. No future-pointing close. Just presence.
-- NEVER write "see you tomorrow", "come back", "ask me again", or any phrase that pressures the guest to return. The thread should feel like nature continuing — not like a request.
+- NEVER write "see you tomorrow", "come back", "ask me again" \u2014 let the factual observation about tomorrow's energy create the pull naturally.
 
 ANSWER RULES:
 1. Reply ONLY in ${langName}.
@@ -976,7 +980,7 @@ Guest's question:
 "${question}"
 
 ${langInstruction}
-Around 180-220 chars. Weave classical citations naturally but tight. No filler openers. Get to the insight quickly.
+Answer in 600-800 chars for saju questions (shorter for greetings/off-topic per routing rules). Structure: (A) today's reading tied to their chart, (B) an unresolved thread, (C) one sentence about tomorrow's energy shift for their day master. Weave classical citations naturally. No filler openers. Get to the insight immediately.
 End with "${getSoramSignature(locale)}" on a new line. Do NOT add anything after.`;
 }
 
@@ -1298,16 +1302,16 @@ export async function POST(request: NextRequest) {
     const sigForLocale = getSoramSignature(locale);
     answer = answer + "\n\n" + sigForLocale;
 
-    // Hard cap at 295 chars (DB constraint 300)
-    if (answer.length > 295) {
+    // v6.18: DB column changed from varchar(300) to text.
+    // Soft cap at 2000 chars for safety (prevent runaway generation).
+    if (answer.length > 2000) {
       const sigStart = answer.lastIndexOf("\n\n" + sigForLocale);
       if (sigStart > 0) {
         const sig = answer.substring(sigStart);
         const bodyPart = answer.substring(0, sigStart).trim();
-        const maxBodyLen = 295 - sig.length;
+        const maxBodyLen = 2000 - sig.length;
         let truncated = bodyPart.substring(0, maxBodyLen);
-        // Try to end at sentence boundary
-        const candidates = [".", "。", "요.", "다.", "요", "다"];
+        const candidates = [".", "\u3002", "\uc694.", "\ub2e4.", "\uc694", "\ub2e4"];
         let lastEnd = -1;
         for (const c of candidates) {
           const idx = truncated.lastIndexOf(c);
@@ -1318,7 +1322,7 @@ export async function POST(request: NextRequest) {
         }
         answer = truncated + sig;
       } else {
-        answer = answer.substring(0, 295);
+        answer = answer.substring(0, 2000);
       }
     }
 
@@ -1327,7 +1331,7 @@ export async function POST(request: NextRequest) {
     const insertData = {
       user_id: userId,
       question: question.trim(),
-      answer: answer.substring(0, 300),
+      answer: answer.substring(0, 2000),
       locale,
       primary_chart_snapshot: {
         day_master: primaryChart.day_master_element,
