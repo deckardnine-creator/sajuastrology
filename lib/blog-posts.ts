@@ -3920,6 +3920,312 @@ Hasta entonces — que tus cinco elementos permanezcan en equilibrio.
 
 *El Saju es un sistema cultural y filosófico. No reemplaza el juicio personal, la consejería profesional ni la orientación médica. Toda discusión sobre personas reales aquí es interpretación cultural respetuosa, no predicción ni juicio sobre vidas privadas.*`,
   },
+  // ════════════════════════════════════════════════════════════════
+  // 2026-05-19 BATCH — Funnel posts: PT, ES, JA, ID
+  // ════════════════════════════════════════════════════════════════
+  {
+    slug: "blackpink-newjeans-quimica-saju-elementos",
+    locale: "pt",
+    title: "BLACKPINK vs NewJeans: Qual grupo tem mais qu\u00EDmica segundo o Saju?",
+    description: "A astrologia coreana de 5.000 anos analisa a energia interna dos dois maiores grupos de K-pop. Descubra qual forma\u00E7\u00E3o elemental cria mais sinergia \u2014 e qual cria mais tens\u00E3o produtiva.",
+    date: "2026-05-19",
+    readTime: "8 min",
+    category: "Celebrity Series",
+    keywords: ["blackpink saju", "newjeans saju", "kpop astrologia coreana", "blackpink vs newjeans", "compatibilidade kpop", "quatro pilares kpop", "jennie saju", "minji saju", "kpop brasil", "kpop cinco elementos"],
+    content: `**Celebrity Analysis Series \u2014 K-pop Group Chemistry Edition**
+*An\u00E1lise de personalidade e energia \u2014 n\u00E3o previs\u00E3o. Entretenimento cultural baseado na tradi\u00E7\u00E3o coreana de Quatro Pilares.*
+
+# BLACKPINK vs NewJeans: Qual grupo tem mais qu\u00EDmica segundo o Saju?
+
+Voc\u00EA j\u00E1 percebeu que certos grupos de K-pop parecem funcionar como uma m\u00E1quina perfeita \u2014 e outros brilham justamente pelo atrito entre as pe\u00E7as? Isso n\u00E3o \u00E9 acaso. No **Saju (\uC0AC\uC8FC)**, o sistema coreano de Quatro Pilares do Destino, cada pessoa carrega um equil\u00EDbrio espec\u00EDfico de cinco elementos. Quando um grupo se forma, esses elementos interagem \u2014 gerando, controlando ou colidindo.
+
+Vamos analisar dois grupos que definiram \u00E9pocas diferentes do K-pop: **BLACKPINK** (a pot\u00EAncia de 2018\u20132024) e **NewJeans** (a revolu\u00E7\u00E3o de 2022 em diante).
+
+**Nota:** Usamos apenas datas de nascimento p\u00FAblicas (Wikipedia). Sem hora de nascimento, a an\u00E1lise \u00E9 baseada em ano e m\u00EAs \u2014 j\u00E1 suficiente para o perfil elemental b\u00E1sico.
+
+---
+
+## BLACKPINK: Fogo + Metal \u2014 a forja
+
+- **Jisoo** (3 de janeiro de 1995) \u2014 Ano do C\u00E3o de Madeira (\u7532\u620C). Madeira Yang: a \u00E1rvore grande, a l\u00EDder natural que d\u00E1 estrutura ao grupo.
+- **Jennie** (16 de janeiro de 1996) \u2014 Ano do Porco de Madeira (\u4E59\u4EA5). Madeira Yin: a videira, flex\u00EDvel, adaptativa, encontra caminhos que ningu\u00E9m v\u00EA. Nascida em janeiro, antes do \uB9BD\uCD98 (in\u00EDcio da primavera no Saju), pertence ao ano Saju 1995.
+- **Ros\u00E9** (11 de fevereiro de 1997) \u2014 Ano do Rato de Fogo (\u4E19\u5B50). Fogo Yang: o sol, a presen\u00E7a imposs\u00EDvel de ignorar, a voz que preenche qualquer espa\u00E7o.
+- **Lisa** (27 de mar\u00E7o de 1997) \u2014 Mesmo ano Saju que Ros\u00E9 (\u4E19\u5B50). Fogo Yang tamb\u00E9m \u2014 mas nascida na primavera (m\u00EAs do Coelho, Madeira forte), o que adiciona uma camada de criatividade e movimento ao Fogo.
+
+**A qu\u00EDmica do grupo:** Duas Madeiras + Dois Fogos. Madeira alimenta Fogo (\u6728\u751F\u706B) \u2014 \u00E9 o ciclo de gera\u00E7\u00E3o mais din\u00E2mico dos Cinco Elementos. Jisoo e Jennie produzem a mat\u00E9ria-prima criativa; Ros\u00E9 e Lisa a transformam em combust\u00E3o vis\u00EDvel. \u00C9 por isso que BLACKPINK funciona como um inc\u00EAndio: uma vez aceso, n\u00E3o para.
+
+A tens\u00E3o? Fogo sem controle consome Madeira. Quando o ritmo \u00E9 intenso demais, as Madeiras se esgotam alimentando as chamas. Na tradi\u00E7\u00E3o Saju, esse \u00E9 o padr\u00E3o cl\u00E1ssico de grupos que brilham intensamente mas precisam de pausas estrat\u00E9gicas \u2014 exatamente o que vimos nos hiatos de BLACKPINK.
+
+---
+
+## NewJeans: \u00C1gua + Terra \u2014 o jardim
+
+- **Minji** (7 de maio de 2004) \u2014 Ano do Macaco de Madeira (\u7532\u7533). Madeira Yang sobre Metal: estrutura encontra precis\u00E3o.
+- **Hanni** (6 de outubro de 2004) \u2014 Mesmo ano Saju. Nascida no m\u00EAs do C\u00E3o (Terra + Metal + Fogo escondidos): profundidade emocional sob uma superf\u00EDcie calma.
+- **Danielle** (11 de abril de 2005) \u2014 Ano do Galo de Madeira (\u4E59\u9149). Madeira Yin sobre Metal puro: a criativa que refina cada detalhe.
+- **Haerin** (15 de maio de 2006) \u2014 Ano do C\u00E3o de Fogo (\u4E19\u620C). Fogo Yang sobre Terra: presen\u00E7a solar ancorada em estabilidade.
+- **Hyein** (21 de abril de 2008) \u2014 Ano do Rato de Terra (\u620A\u5B50). Terra Yang sobre \u00C1gua: a base s\u00F3lida que absorve e estabiliza tudo ao redor.
+
+**A qu\u00EDmica do grupo:** Madeira + Metal + Fogo + Terra \u2014 quatro dos cinco elementos representados, com \u00C1gua escondida nos ramos internos. Na tradi\u00E7\u00E3o Saju, quando quase todos os elementos est\u00E3o presentes num grupo, o resultado \u00E9 **\u4E94\u884C\u6D41\u901A (o-haeng yu-tong / "fluxo dos Cinco Elementos")** \u2014 energia que circula sem bloqueio. \u00C9 por isso que NewJeans parece "f\u00E1cil" \u2014 n\u00E3o porque \u00E9 simples, mas porque a energia flui.
+
+A tens\u00E3o? Metal corta Madeira (\u91D1\u5243\u6728). Com tr\u00EAs integrantes carregando Madeira e Metal em conflito interno, as decis\u00F5es criativas podem gerar atrito \u2014 o tipo produtivo que produz m\u00FAsica diferente de tudo no mercado.
+
+---
+
+## O que isso significa para voc\u00EA?
+
+Se voc\u00EA \u00E9 f\u00E3 de BLACKPINK, provavelmente seu mapa tem elementos que ressoam com Fogo \u2014 paix\u00E3o, intensidade, express\u00E3o. Se voc\u00EA gravita para NewJeans, pode ser que seus elementos busquem equil\u00EDbrio e fluxo.
+
+A \u00FAnica forma de saber \u00E9 ver seu pr\u00F3prio mapa.
+
+\u2192 [**Descubra seu mapa Saju \u2014 gr\u00E1tis, 30 segundos**](https://sajuastrology.com/)
+\u2192 [**Compatibilidade com seu bias \u2014 gr\u00E1tis**](https://sajuastrology.com/compatibility)
+
+*O SajuAstrology usa 562 textos cl\u00E1ssicos coreanos e valida\u00E7\u00E3o cruzada por m\u00FAltiplos modelos de IA. Cada leitura \u00E9 calculada individualmente.*
+
+*Esta an\u00E1lise \u00E9 entretenimento cultural baseado na tradi\u00E7\u00E3o dos Quatro Pilares. N\u00E3o constitui previs\u00E3o nem julgamento sobre vidas privadas.*`,
+  },
+  {
+    slug: "mundial-2026-espana-saju-lamine-pedri",
+    locale: "es",
+    title: "Mundial 2026: El Saju analiza a Lamine Yamal, Pedri y Nico Williams",
+    description: "\u00BFQu\u00E9 dice la astrolog\u00EDa coreana de 5.000 a\u00F1os sobre los j\u00F3venes cracks de La Roja? An\u00E1lisis Saju de los Cinco Elementos de Lamine, Pedri y Nico \u2014 sin predicciones, solo estructura energ\u00E9tica.",
+    date: "2026-05-19",
+    readTime: "8 min",
+    category: "Celebrity Series",
+    keywords: ["mundial 2026 espana", "lamine yamal signo", "pedri astrologia", "nico williams signo", "saju futbol", "astrologia coreana mundial", "seleccion espanola 2026", "cuatro pilares futbol", "espana copa del mundo saju"],
+    content: `**Celebrity Analysis Series \u2014 Edici\u00F3n Mundial 2026**
+*An\u00E1lisis de personalidad y energ\u00EDa \u2014 no predicci\u00F3n de resultados. Entretenimiento cultural basado en la tradici\u00F3n coreana de Cuatro Pilares.*
+
+# Mundial 2026: El Saju analiza a Lamine Yamal, Pedri y Nico Williams
+
+El Mundial 2026 ya est\u00E1 aqu\u00ED y Espa\u00F1a llega como campeona de Europa. Mientras todos hablan de t\u00E1ctica y convocatoria, nosotros vamos a hacer algo diferente: mirar a los cracks de La Roja a trav\u00E9s del **Saju (\uC0AC\uC8FC)** \u2014 el sistema coreano de Cuatro Pilares del Destino, con m\u00E1s de 5.000 a\u00F1os de historia.
+
+No para predecir qui\u00E9n gana. Para entender **qu\u00E9 tipo de energ\u00EDa lleva cada jugador** y c\u00F3mo esas energ\u00EDas interact\u00FAan en el campo.
+
+**Importante:** An\u00E1lisis cultural y de entretenimiento. Sin hora de nacimiento (no es p\u00FAblica) y sin predicciones de resultados deportivos.
+
+---
+
+## C\u00F3mo lee el Saju la personalidad
+
+- **Maestro del D\u00EDa (\uC77C\uAC04 / \u65E5\u4E3B)** \u2014 el car\u00E1cter central de tu mapa. Define tu n\u00FAcleo energ\u00E9tico.
+- **Cinco Elementos (\uC624\uD589)** \u2014 Madera, Fuego, Tierra, Metal, Agua. Su equilibrio muestra c\u00F3mo te mueves por el mundo.
+- **A\u00F1o y Mes** \u2014 sin la hora, analizamos la energ\u00EDa del a\u00F1o y mes de nacimiento.
+
+---
+
+## 1. Lamine Yamal \u2014 El Fuego Yang del Verano
+
+* **Nacimiento**: 13 de julio de 2007
+* **A\u00F1o Saju**: \u4E01\u4EA5 (Cerdo de Fuego Yin)
+* **Mes**: Cabra de Fuego (\u4E01\u672A) \u2014 pleno verano
+
+Lamine naci\u00F3 en un a\u00F1o de **Fuego Yin (\u4E01)** \u2014 la llama de la vela, \u00EDntima, enfocada, penetrante. No es el sol que ilumina todo; es la luz que revela lo que otros no ven. En campo, eso se traduce en visi\u00F3n: Lamine no solo ve el hueco \u2014 ve el hueco que va a existir en dos segundos.
+
+El Cerdo (\u4EA5) en el a\u00F1o es Agua pura escondida bajo la superficie. Fuego sobre Agua: la tradici\u00F3n Saju lo llama **\u6C34\u706B\u65E2\u6E08 (su-hwa gi-je / "Agua y Fuego en equilibrio")** \u2014 una de las configuraciones m\u00E1s estables. Le da a Lamine una madurez emocional que no corresponde con su edad.
+
+El mes de julio duplica el Fuego. Dos pilares de Fuego significan que **bajo presi\u00F3n, Lamine no se apaga \u2014 brilla m\u00E1s**. Es la configuraci\u00F3n cl\u00E1sica del jugador de torneo: cuanto m\u00E1s importa el partido, mejor juega.
+
+**Energ\u00EDa dominante: Fuego Yin doble + Agua escondida \u2014 la llama que nunca se apaga.**
+
+---
+
+## 2. Pedri (\u54C8\uBE44)
+
+* **Nacimiento**: 25 de noviembre de 2002
+* **A\u00F1o Saju**: \u58EC\u5348 (Caballo de Agua Yang)
+* **Mes**: Cerdo de Agua (\u58EC\u4EA5) \u2014 invierno profundo
+
+Pedri es **Agua Yang (\u58EC)** \u2014 el r\u00EDo grande, imparable, que encuentra camino a trav\u00E9s de cualquier obst\u00E1culo. En Saju, \u58EC es el elemento de la inteligencia fluida: no fuerza, rodea. No rompe la defensa; la disuelve.
+
+El Caballo (\u5348) en el a\u00F1o es Fuego puro. Agua Yang sobre Fuego: tensi\u00F3n interna que genera vapor \u2014 energ\u00EDa transformadora. Es la configuraci\u00F3n que la tradici\u00F3n asocia con personas cuya calma exterior esconde una intensidad interna.
+
+Noviembre es mes del Cerdo (\u4EA5) \u2014 m\u00E1s Agua a\u00FAn. Pedri tiene un mapa dominado por Agua con Fuego escondido. En el campo, eso es **tempo**: la capacidad de controlar el ritmo del partido sin que nadie se d\u00E9 cuenta de que lo est\u00E1 haciendo.
+
+**Energ\u00EDa dominante: Agua Yang doble + Fuego interno \u2014 el metr\u00F3nomo invisible.**
+
+---
+
+## 3. Nico Williams \u2014 La Madera Yang del Verano
+
+* **Nacimiento**: 12 de julio de 2002
+* **A\u00F1o Saju**: \u58EC\u5348 (Caballo de Agua Yang) \u2014 mismo a\u00F1o Saju que Pedri
+* **Mes**: Cabra de Fuego (\u4E01\u672A) \u2014 pleno verano
+
+Dato que solo el Saju revela: **Nico y Pedri comparten el mismo pilar de a\u00F1o** \u2014 \u58EC\u5348, Caballo de Agua Yang. En la tradici\u00F3n Saju, esto se llama **\u6BD4\u80A9 (bi-gyeon / "hombro a hombro")** \u2014 energ\u00EDa id\u00E9ntica que crea entendimiento instintivo. Es la misma configuraci\u00F3n que encontramos entre Vin\u00EDcius Jr y Rodrygo en la Selecci\u00F3n de Brasil.
+
+La diferencia est\u00E1 en el mes. Nico naci\u00F3 en julio: Fuego fuerte. Pedri en noviembre: Agua profunda. El mismo a\u00F1o con meses opuestos crea un equilibrio perfecto \u2014 Nico trae la explosi\u00F3n, Pedri trae el control. Cuando juegan juntos, el ataque tiene las dos cosas.
+
+Julio le da a Nico un Fuego que alimenta su Madera interior (el Caballo esconde Fuego + Tierra). Es **velocidad con fundamento**: no corre por correr, corre porque su mapa genera energ\u00EDa cin\u00E9tica naturalmente.
+
+**Energ\u00EDa dominante: Agua Yang + Fuego de verano \u2014 la explosi\u00F3n controlada.**
+
+---
+
+## La qu\u00EDmica de La Roja
+
+- **Nico + Pedri (mismo pilar de a\u00F1o \u58EC\u5348)** = sinton\u00EDa instintiva, el \u6BD4\u80A9 cl\u00E1sico. Se entienden sin hablar.
+- **Lamine (Fuego Yin) + Nico/Pedri (Agua Yang)** = Agua y Fuego en di\u00E1logo. La tradici\u00F3n Saju asocia esta combinaci\u00F3n con equipos que crean jugadas impredecibles \u2014 porque la energ\u00EDa cambia de forma constantemente.
+- **Tres jugadores menores de 24 a\u00F1os, todos con Fuego y Agua en sus mapas** = la energ\u00EDa de una selecci\u00F3n que combina intensidad juvenil con inteligencia t\u00E1ctica. En Saju, Fuego + Agua en equilibrio es la f\u00F3rmula de la transformaci\u00F3n \u2014 el equipo que se adapta en tiempo real.
+
+---
+
+## Descubre tu propio mapa
+
+\u00BFCu\u00E1l es tu Maestro del D\u00EDa? \u00BFEres Fuego como Lamine, Agua como Pedri, o algo completamente diferente?
+
+\u2192 [**Descubre tu mapa Saju \u2014 gratis, 30 segundos**](https://sajuastrology.com/)
+\u2192 [**Compatibilidad con tu jugador favorito \u2014 gratis**](https://sajuastrology.com/compatibility)
+
+*SajuAstrology usa 562 textos cl\u00E1sicos coreanos y validaci\u00F3n cruzada por m\u00FAltiples modelos de IA. Cada lectura se calcula individualmente.*
+
+*Este an\u00E1lisis es entretenimiento cultural basado en la tradici\u00F3n de los Cuatro Pilares. No constituye predicci\u00F3n de resultados deportivos ni juicio sobre vidas privadas.*`,
+  },
+  {
+    slug: "newjeans-le-sserafim-aishou-shichusuimei",
+    locale: "ja",
+    title: "NewJeans vs LE SSERAFIM\uFF1A\u56DB\u67F1\u63A8\u547D\u304C\u8AAD\u307F\u89E3\u304F\u30B0\u30EB\u30FC\u30D7\u5185\u30B1\u30DF\u306E\u69CB\u9020",
+    description: "\u97D3\u56FD\u5F0F\u56DB\u67F1\u63A8\u547D\u304C\u660E\u304B\u3059\u3001\u4E8C\u3064\u306E\u4EBA\u6C17\u30B0\u30EB\u30FC\u30D7\u306E\u5185\u90E8\u30A8\u30CD\u30EB\u30AE\u30FC\u69CB\u9020\u3002\u4E94\u884C\u306E\u76F8\u4E92\u4F5C\u7528\u304B\u3089\u898B\u3048\u308B\u3001\u30E1\u30F3\u30D0\u30FC\u540C\u58EB\u306E\u76F8\u6027\u3068\u7DCA\u5F35\u3002",
+    date: "2026-05-19",
+    readTime: "8 min",
+    category: "\u82B8\u80FD\u5206\u6790",
+    keywords: ["newjeans \u76F8\u6027", "le sserafim \u56DB\u67F1\u63A8\u547D", "kpop \u76F8\u6027\u8A3A\u65AD", "\u56DB\u67F1\u63A8\u547D kpop", "minji \u56DB\u67F1\u63A8\u547D", "sakura \u56DB\u67F1\u63A8\u547D", "newjeans vs le sserafim", "\u97D3\u56FD \u5360\u3044 kpop", "\u4E94\u884C \u76F8\u6027"],
+    content: `**Celebrity Analysis Series \u2014 K-pop\u30B0\u30EB\u30FC\u30D7\u30B1\u30DF\u7DE8**
+*\u6027\u683C\u3068\u30A8\u30CD\u30EB\u30AE\u30FC\u306E\u5206\u6790\u3067\u3042\u308A\u3001\u4E88\u6E2C\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3002\u97D3\u56FD\u56DB\u67F1\u63A8\u547D\u306E\u4F1D\u7D71\u306B\u57FA\u3065\u304F\u6587\u5316\u7684\u30A8\u30F3\u30BF\u30FC\u30C6\u30A4\u30E1\u30F3\u30C8\u3067\u3059\u3002*
+
+# NewJeans vs LE SSERAFIM\uFF1A\u56DB\u67F1\u63A8\u547D\u304C\u8AAD\u307F\u89E3\u304F\u30B0\u30EB\u30FC\u30D7\u5185\u30B1\u30DF\u306E\u69CB\u9020
+
+\u306A\u305C\u3042\u306E\u30B0\u30EB\u30FC\u30D7\u306F\u4E00\u7DD2\u306B\u3044\u308B\u3068\u300C\u81EA\u7136\u300D\u306B\u898B\u3048\u308B\u306E\u304B\u3002\u306A\u305C\u5225\u306E\u30B0\u30EB\u30FC\u30D7\u306F\u300C\u7DCA\u5F35\u611F\u300D\u304C\u9B45\u529B\u306B\u306A\u308B\u306E\u304B\u3002**\u56DB\u67F1\u63A8\u547D\uFF08\u30B5\u30B8\u30E5\uFF09**\u306E\u4E94\u884C\u5206\u6790\u304B\u3089\u3001\u305D\u306E\u69CB\u9020\u3092\u8AAD\u307F\u89E3\u304D\u307E\u3059\u3002
+
+**\u6CE8\u610F\uFF1A** \u516C\u958B\u3055\u308C\u3066\u3044\u308B\u751F\u5E74\u6708\u65E5\uFF08Wikipedia\uFF09\u306E\u307F\u4F7F\u7528\u3002\u51FA\u751F\u6642\u523B\u304C\u4E0D\u660E\u306E\u305F\u3081\u3001\u5E74\u30FB\u6708\u306E\u30A8\u30CD\u30EB\u30AE\u30FC\u5206\u6790\u3067\u3059\u3002
+
+---
+
+## NewJeans\uFF1A\u6728\u00D7\u91D1 \u2014 \u7814\u304E\u6F84\u307E\u3055\u308C\u305F\u5275\u9020\u6027
+
+- **\u30DF\u30F3\u30B8** (2004\u5E745\u67087\u65E5) \u2014 \u7532\u7533\u5E74\uFF08\u967D\u306E\u6728\u00D7\u7533\uFF09\u3002\u967D\u306E\u6728\u306F\u5927\u6A39\u306E\u30A8\u30CD\u30EB\u30AE\u30FC\u3002\u30EA\u30FC\u30C0\u30FC\u3068\u3057\u3066\u306E\u5B58\u5728\u611F\u3092\u81EA\u7136\u306B\u653E\u3061\u307E\u3059\u3002
+- **\u30CF\u30CB** (2004\u5E7410\u67086\u65E5) \u2014 \u540C\u3058\u7532\u7533\u5E74\u3002\u79CB\u306E\u6708\uFF08\u620C\u6708\uFF09\u306B\u751F\u307E\u308C\u3001\u571F\u30FB\u91D1\u30FB\u706B\u304C\u96A0\u308C\u3066\u3044\u307E\u3059\u3002\u8868\u9762\u306E\u7A0F\u3084\u304B\u3055\u306E\u4E0B\u306B\u6DF1\u3044\u611F\u60C5\u304C\u3042\u308B\u69CB\u9020\u3002
+- **\u30C0\u30CB\u30A8\u30EB** (2005\u5E744\u670811\u65E5) \u2014 \u4E59\u9149\u5E74\uFF08\u9670\u306E\u6728\u00D7\u9149\uFF09\u3002\u9670\u306E\u6728\u306F\u8513\u306E\u3088\u3046\u306A\u67D4\u8EDF\u6027\u3002\u7D14\u91D1\u306E\u4E0A\u306B\u7ACB\u3064\u6728\u306F\u3001\u7D30\u90E8\u3092\u78E8\u304D\u4E0A\u3052\u308B\u30AF\u30EA\u30A8\u30A4\u30C6\u30A3\u30D3\u30C6\u30A3\u3002
+- **\u30D8\u30EA\u30F3** (2006\u5E745\u670815\u65E5) \u2014 \u4E19\u620C\u5E74\uFF08\u967D\u306E\u706B\u00D7\u620C\uFF09\u3002\u592A\u967D\u306E\u30A8\u30CD\u30EB\u30AE\u30FC\u304C\u571F\u306E\u4E0A\u306B\u7ACB\u3064\u69CB\u9020\u3002\u5B89\u5B9A\u611F\u306E\u3042\u308B\u5B58\u5728\u611F\u3002
+- **\u30D8\u30A4\u30F3** (2008\u5E744\u670821\u65E5) \u2014 \u620A\u5B50\u5E74\uFF08\u967D\u306E\u571F\u00D7\u5B50\uFF09\u3002\u571F\u304C\u6C34\u306E\u4E0A\u306B\u7ACB\u3064\u69CB\u9020\u2014\u5168\u4F53\u3092\u5438\u53CE\u3057\u5B89\u5B9A\u3055\u305B\u308B\u57FA\u76E4\u3002
+
+**\u30B0\u30EB\u30FC\u30D7\u306E\u30B1\u30DF\uFF1A** \u6728\u30FB\u91D1\u30FB\u706B\u30FB\u571F\u304C\u63C3\u3044\u3001\u4E94\u884C\u306E\u3046\u3061\u56DB\u3064\u304C\u5B58\u5728\u3002\u53E4\u5178\u3067\u306F\u3053\u308C\u3092**\u4E94\u884C\u6D41\u901A**\u3068\u547C\u3073\u3001\u30A8\u30CD\u30EB\u30AE\u30FC\u304C\u6EDE\u308A\u306A\u304F\u5FAA\u74B0\u3059\u308B\u72B6\u614B\u3002NewJeans\u306E\u97F3\u697D\u304C\u300C\u81EA\u7136\u300D\u306B\u611F\u3058\u308B\u7406\u7531\u304C\u3053\u3053\u306B\u3042\u308A\u307E\u3059\u3002
+
+---
+
+## LE SSERAFIM\uFF1A\u706B\u00D7\u6C34 \u2014 \u5909\u5BB9\u306E\u30A8\u30CD\u30EB\u30AE\u30FC
+
+- **\u30B5\u30AF\u30E9** (1998\u5E743\u670819\u65E5) \u2014 \u620A\u5BC5\u5E74\uFF08\u967D\u306E\u571F\u00D7\u5BC5\uFF09\u3002\u571F\u306E\u5B89\u5B9A\u611F\u306E\u4E0A\u306B\u6728\u306E\u6210\u9577\u529B\u3002\u7D4C\u9A13\u3068\u7D50\u679C\u3067\u8A9E\u308B\u30EA\u30FC\u30C0\u30FC\u3002
+- **\u30C1\u30A7\u30A6\u30A9\u30F3** (2003\u5E748\u67081\u65E5) \u2014 \u7678\u672A\u5E74\uFF08\u9670\u306E\u6C34\u00D7\u672A\uFF09\u3002\u6DF1\u3044\u6C34\u304C\u571F\u306E\u4E0A\u306B\u7ACB\u3064\u69CB\u9020\u3002\u9759\u304B\u306A\u5F37\u3055\u3002
+- **\u30E6\u30F3\u30B8\u30F3** (2003\u5E741\u670816\u65E5) \u2014 \u58EC\u5348\u5E74\uFF08\u967D\u306E\u6C34\u00D7\u5348\uFF09\u3002\u6C34\u3068\u706B\u306E\u5BFE\u7ACB\u304C\u5185\u5728\u3059\u308B\u69CB\u9020\u3002\u30C0\u30A4\u30CA\u30DF\u30BA\u30E0\u306E\u6E90\u6CC9\u3002
+- **\u30AB\u30BA\u30CF** (2003\u5E748\u67089\u65E5) \u2014 \u540C\u3058\u7678\u672A\u5E74\u3002\u30C1\u30A7\u30A6\u30A9\u30F3\u3068\u540C\u3058\u5E74\u306E\u67F1\u3092\u5171\u6709\u2014\u56DB\u67F1\u63A8\u547D\u3067\u306F**\u6BD4\u80A9**\uFF08\u808C\u3092\u4E26\u3079\u308B\u95A2\u4FC2\uFF09\u3002
+- **\u30DB\u30CB\u30F3** (2005\u5E7411\u670801\u65E5) \u2014 \u4E59\u9149\u5E74\uFF08\u9670\u306E\u6728\u00D7\u9149\uFF09\u3002NewJeans\u306E\u30C0\u30CB\u30A8\u30EB\u3068\u540C\u3058\u5E74\u306E\u67F1\u3002\u30B0\u30EB\u30FC\u30D7\u3092\u8D8A\u3048\u305F\u5171\u9CF4\u304C\u3042\u308B\u304B\u3082\u3057\u308C\u307E\u305B\u3093\u3002
+
+**\u30B0\u30EB\u30FC\u30D7\u306E\u30B1\u30DF\uFF1A** \u571F\u30FB\u6C34\u30FB\u6728\u304C\u4E2D\u5FC3\u3002\u571F\u304C\u6C34\u3092\u5236\u5FA1\u3057\uFF08\u571F\u5243\u6C34\uFF09\u3001\u6C34\u304C\u6728\u3092\u80B2\u3066\u308B\uFF08\u6C34\u751F\u6728\uFF09\u3002\u5236\u5FA1\u3068\u6210\u9577\u304C\u4EA4\u4E92\u306B\u4F5C\u7528\u3059\u308B\u69CB\u9020\u3067\u3001LE SSERAFIM\u306E\u300C\u5909\u5BB9\u3057\u7D9A\u3051\u308B\u300D\u30B9\u30BF\u30A4\u30EB\u3092\u4E94\u884C\u304C\u8AAC\u660E\u3057\u3066\u3044\u307E\u3059\u3002
+
+---
+
+## \u3042\u306A\u305F\u306E\u30AA\u30B7\u3068\u306E\u76F8\u6027\u3092\u78BA\u8A8D\u3057\u3088\u3046
+
+\u3042\u306A\u305F\u306E\u65E5\u4E3B\uFF08Day Master\uFF09\u306F\u4F55\u3067\u3059\u304B\uFF1F\u30E1\u30F3\u30D0\u30FC\u306E\u4E94\u884C\u3068\u3069\u3046\u76F8\u4E92\u4F5C\u7528\u3059\u308B\u304B\u3001\u78BA\u8A8D\u3057\u3066\u307F\u3066\u304F\u3060\u3055\u3044\u3002
+
+\u2192 [**\u7121\u6599\u3067\u56DB\u67F1\u63A8\u547D\u3092\u898B\u308B \u2014 30\u79D2**](https://sajuastrology.com/)
+\u2192 [**\u30AA\u30B7\u3068\u306E\u76F8\u6027\u3092\u30C1\u30A7\u30C3\u30AF \u2014 \u7121\u6599**](https://sajuastrology.com/compatibility)
+
+*SajuAstrology\u306F562\u306E\u53E4\u5178\u30C6\u30AD\u30B9\u30C8\u3068\u8907\u6570AI\u306B\u3088\u308B\u30AF\u30ED\u30B9\u691C\u8A3C\u3092\u4F7F\u7528\u3002\u5404\u30EA\u30FC\u30C7\u30A3\u30F3\u30B0\u306F\u500B\u5225\u8A08\u7B97\u3055\u308C\u307E\u3059\u3002*
+
+*\u3053\u306E\u5206\u6790\u306F\u56DB\u67F1\u63A8\u547D\u306E\u4F1D\u7D71\u306B\u57FA\u3065\u304F\u6587\u5316\u7684\u30A8\u30F3\u30BF\u30FC\u30C6\u30A4\u30E1\u30F3\u30C8\u3067\u3059\u3002\u4E88\u6E2C\u3084\u79C1\u7684\u751F\u6D3B\u3078\u306E\u5224\u65AD\u3067\u306F\u3042\u308A\u307E\u305B\u3093\u3002*`,
+  },
+  {
+    slug: "kpop-saju-indonesia-bts-blackpink-takdir",
+    locale: "id",
+    title: "Takdir K-pop Kamu: Analisis Saju untuk ARMY dan BLINK Indonesia",
+    description: "Apa kata astrologi Korea berusia 5.000 tahun tentang hubungan energimu dengan bias K-pop? Analisis Lima Elemen untuk penggemar BTS dan BLACKPINK di Indonesia.",
+    date: "2026-05-19",
+    readTime: "7 min",
+    category: "Celebrity Series",
+    keywords: ["kpop saju indonesia", "bts saju", "blackpink saju", "astrologi korea kpop", "kompatibilitas kpop", "empat pilar kpop", "jungkook saju", "lisa saju", "kpop indonesia", "takdir kpop"],
+    content: `**Celebrity Analysis Series \u2014 Edisi K-pop Indonesia**
+*Analisis kepribadian dan energi \u2014 bukan prediksi. Hiburan budaya berdasarkan tradisi Korea Empat Pilar.*
+
+# Takdir K-pop Kamu: Analisis Saju untuk ARMY dan BLINK Indonesia
+
+Indonesia adalah salah satu pasar K-pop terbesar di dunia. ARMY dan BLINK Indonesia bukan sekadar penggemar \u2014 mereka adalah komunitas yang mengubah kultur. Dan sekarang, ada cara baru untuk memahami koneksi energimu dengan bias: **Saju (\uC0AC\uC8FC)**, sistem astrologi Korea berusia 5.000 tahun.
+
+Bukan zodiak Barat yang membagi manusia menjadi 12 tipe. Saju menciptakan **518.400 profil unik** dari empat pilar kelahiranmu. Dan ketika dua profil bertemu, kita membaca bagaimana dua pola energi berinteraksi.
+
+**Catatan:** Analisis ini menggunakan tanggal lahir publik (Wikipedia) saja. Tanpa jam lahir, ini adalah profil energi dasar.
+
+---
+
+## Bagaimana Saju Membaca Kompatibilitas
+
+- **Penguasa Hari (\uC77C\uAC04 / \u65E5\u4E3B)** \u2014 karakter inti dirimu. Satu dari sepuluh identitas kosmis.
+- **Lima Elemen (\uC624\uD589)** \u2014 Kayu, Api, Tanah, Logam, Air. Keseimbangan mereka menentukan bagaimana kamu bergerak di dunia.
+- **Generasi dan Benturan (\u751F\u00B7\u6C96)** \u2014 hubungan struktural antara elemen yang menunjukkan di mana dua orang saling menguatkan dan di mana mereka bergesekan.
+
+---
+
+## BTS: Tiga Energi yang Mendefinisikan Generasi
+
+### Jungkook (\u30B8\u30E7\u30F3\u30B0\u30AF)
+* **Lahir**: 1 September 1997
+* **Tahun Saju**: \u4E01\u4E11 (Sapi Api Yin)
+
+Jungkook membawa **Api Yin (\u4E01)** \u2014 api lilin, intim dan fokus. Sapi (\u4E11) menyimpan Tanah, Logam, dan Air di dalamnya \u2014 kedalaman yang tidak terlihat di permukaan. Dalam tradisi Saju, ini adalah konfigurasi **\u591A\u85CF (ta-jang / "banyak yang tersembunyi")** \u2014 seseorang yang kapasitasnya jauh lebih besar dari apa yang ditunjukkan.
+
+Untuk penggemar dengan Penguasa Hari **Kayu (\u7532 atau \u4E59)**: Kayu memberi makan Api (Kayu \u2192 Api). Kamu secara alami memberi energi kreatif pada tipe Jungkook. Hubungan ini disebut **\u98DF\u795E (sik-sin / "bintang makanan")** \u2014 kamu menginspirasi tanpa menguras.
+
+### V (Taehyung)
+* **Lahir**: 30 Desember 1995
+* **Tahun Saju**: \u4E59\u4EA5 (Babi Kayu Yin)
+
+V adalah **Kayu Yin (\u4E59)** \u2014 tanaman merambat, fleksibel, adaptif. Babi (\u4EA5) adalah Air murni. Kayu di atas Air: pertumbuhan yang didorong oleh kedalaman emosional. Ini menjelaskan sisi artistik V yang berbeda dari anggota BTS lain \u2014 lebih puitis, lebih visual, lebih intuitif.
+
+Untuk penggemar dengan Penguasa Hari **Api (\u4E19 atau \u4E01)**: V memberi makan Api-mu. Kayu \u2192 Api adalah siklus generasi yang paling dinamis. Hubungan ini menciptakan energi kreatif yang saling menguatkan.
+
+### RM (Namjoon)
+* **Lahir**: 12 September 1994
+* **Tahun Saju**: \u7532\u620C (Anjing Kayu Yang)
+
+RM membawa **Kayu Yang (\u7532)** \u2014 pohon besar, prinsip yang teguh, pertumbuhan terus-menerus. Bulan September adalah bulan Ayam (\u9149), Logam murni. Logam memotong Kayu \u2014 dalam tradisi Saju, ini berarti pikiran yang terus-menerus diasah oleh disiplin internal.
+
+Untuk penggemar dengan Penguasa Hari **Air (\u58EC atau \u7678)**: Logam RM menghasilkan Air untukmu (Logam \u2192 Air). Ini disebut **\u5370\u661F (in-seong / "bintang yang memberi nutrisi")** \u2014 seseorang yang memberi nutrisi intelektual.
+
+---
+
+## BLACKPINK: Dua Energi yang Mengguncang Dunia
+
+### Lisa
+* **Lahir**: 27 Maret 1997
+* **Tahun Saju**: \u4E19\u5B50 (Tikus Api Yang)
+
+Lisa adalah **Api Yang (\u4E19)** \u2014 matahari itu sendiri. Tak bisa diabaikan, memancarkan energi ke segala arah. Bulan Maret (bulan Kelinci, Kayu murni) menambahkan kreativitas dan gerakan. Api + Kayu = pembakaran yang terus bergerak.
+
+Untuk penggemar dengan Penguasa Hari **Tanah (\u620A atau \u5DF1)**: Api Lisa menghasilkan Tanah untukmu (Api \u2192 Tanah). Kamu merasa "dihangatkan" dan distabilkan oleh energinya.
+
+### Jennie
+* **Lahir**: 16 Januari 1996
+* **Tahun Saju**: \u4E59\u4EA5 (Babi Kayu Yin) \u2014 lahir sebelum Ipchun, tahun Saju = 1995
+
+Jennie membawa **Kayu Yin (\u4E59)** \u2014 tanaman merambat yang menemukan jalan melalui tembok mana pun. Fleksibel, strategis, menemukan celah yang tidak dilihat orang lain.
+
+Untuk penggemar dengan Penguasa Hari **Logam (\u5E9A atau \u8F9B)**: Logam memotong Kayu (Logam \u2192 Kayu). Ini adalah hubungan pematung dan marmer \u2014 kamu mengagumi ketajaman yang berbeda darimu.
+
+---
+
+## Cek Kompatibilitasmu \u2014 Gratis
+
+Langkah pertama: ketahui Penguasa Hari-mu sendiri. 30 detik, tanpa daftar akun.
+
+\u2192 [**Lihat peta Saju-mu \u2014 gratis**](https://sajuastrology.com/)
+\u2192 [**Cek kompatibilitas dengan bias-mu \u2014 gratis**](https://sajuastrology.com/compatibility)
+
+*SajuAstrology menggunakan 562 teks klasik Korea dan validasi silang oleh beberapa model AI. Setiap pembacaan dihitung secara individual.*
+
+*Analisis ini adalah hiburan budaya berdasarkan tradisi Empat Pilar. Bukan prediksi atau penilaian tentang kehidupan pribadi.*`,
+  },
 ];
 
 
