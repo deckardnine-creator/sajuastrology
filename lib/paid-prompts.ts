@@ -174,18 +174,19 @@ ${chartSummary}
 RULES: 
 - ${getLanguageInstruction(locale)}
 - Every sentence must trace to THIS specific chart.
-- Flowing literary prose, no bullets/lists/headers inside the JSON values.
-- Warm but authoritative — like a beloved mentor who sees everything.
-- NEVER mention AI. Speak as the voice of ancient wisdom.
+- Use short, direct sentences. Maximum 25 words per sentence. No flowery language.
+- Warm but authoritative — like a sharp mentor who sees everything and speaks plainly.
+- NEVER mention AI. Speak as the voice of ancient wisdom applied with modern clarity.
 - Be SPECIFIC: name industries, career types, partner qualities, timing windows.
 - Use the person's element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : locale === "ru" ? "Russian (русский)" : locale === "hi" ? "Hindi (हिन्दी)" : locale === "id" ? "Indonesian (Bahasa Indonesia)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}${hindiTermingRule(locale)}${indonesianTermingRule(locale)}
+- THIS IS A PAID READING. The reader already received a free reading that identified a core TENSION POINT in their chart (a clash, missing element, or repeating pattern) but left it UNRESOLVED. Your job is to DELIVER THE ANSWERS they were promised. Be generous with insight, specific with timing, and concrete with advice. This is where the value lives.
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (\ud55c\uad6d\uc5b4)" : locale === "ja" ? "Japanese (\u65e5\u672c\u8a9e)" : locale === "es" ? "Spanish (espa\u00f1ol)" : locale === "fr" ? "French (fran\u00e7ais)" : locale === "pt" ? "Portuguese (portugu\u00eas)" : locale === "zh-TW" ? "Traditional Chinese (\u7e41\u9ad4\u4e2d\u6587)" : locale === "ru" ? "Russian (\u0440\u0443\u0441\u0441\u043a\u0438\u0439)" : locale === "hi" ? "Hindi (\u0939\u093f\u0928\u094d\u0926\u0940)" : locale === "id" ? "Indonesian (Bahasa Indonesia)" : "English"}. JSON keys must remain in English. Even if the chart data above is in English, your OUTPUT must be 100% in the specified language. NEVER output English text in JSON values when a non-English language is specified.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}${hindiTermingRule(locale)}${indonesianTermingRule(locale)}
 
 GENERATE as JSON:
 {
-  "career": "${lp}5-6 paragraphs of deep career analysis. Begin with what their Day Master reveals about their professional nature — not just what they're good at, but WHY they're drawn to certain work and what happens to their energy in different work environments. Then analyze how their archetype shapes leadership or collaboration style. Identify 3-4 specific industries or career paths that align with their elemental composition, explaining the energetic reason for each match. Discuss their relationship with money and wealth accumulation based on their wealth stars. Give precise timing guidance: which years in the next decade favor bold moves, which favor consolidation. End with their ultimate career calling based on the hidden dynamics between their pillars. Write approximately 500-600 words.",
+  "career": "${lp}5-6 paragraphs of deep career analysis. Begin with what their Day Master reveals about their professional nature \u2014 not just what they are good at, but WHY they are drawn to certain work and what happens to their energy in different work environments. Then analyze how their archetype shapes leadership or collaboration style. Identify 3-4 specific industries or career paths that align with their elemental composition, explaining the energetic reason for each match. Discuss their relationship with money and wealth accumulation based on their wealth stars. Give precise timing guidance: which years in the next decade favor bold moves, which favor consolidation. End with their ultimate career calling based on the hidden dynamics between their pillars. Write approximately 500-600 words.",
   
-  "love": "${lp}5-6 paragraphs of deep relationship analysis. Start with how their Day Master loves — the specific way they express and receive affection based on their element. Describe the exact type of partner energy that complements theirs (be specific about personality traits, communication style, even physical energy). Analyze their relationship patterns: what they unconsciously seek, what triggers withdrawal, what creates deepening intimacy. Discuss the role of their archetype in relationships — how it creates both magnetic attraction and potential friction. Map relationship timing: when their chart favors new connections, deepening commitments, or necessary solitude. Address their shadow pattern in love — the one blind spot that, once recognized, transforms their relationships. Write approximately 500-600 words."
+  "love": "${lp}5-6 paragraphs of deep relationship analysis. Start with how their Day Master loves \u2014 the specific way they express and receive affection based on their element. Describe the exact type of partner energy that complements theirs (be specific about personality traits, communication style, even physical energy). Analyze their relationship patterns: what they unconsciously seek, what triggers withdrawal, what creates deepening intimacy. Discuss the role of their archetype in relationships \u2014 how it creates both magnetic attraction and potential friction. Map relationship timing: when their chart favors new connections, deepening commitments, or necessary solitude. Address their shadow pattern in love \u2014 the one blind spot that, once recognized, transforms their relationships. Write approximately 500-600 words."
 }
 
 RESPOND WITH ONLY VALID JSON. No markdown fences, no explanation.${getLanguageFooter(locale)}`;
@@ -203,12 +204,13 @@ ${chartSummary}
 RULES:
 - ${getLanguageInstruction(locale)}
 - Every sentence must trace to THIS specific chart.
-- Flowing literary prose, no bullets/lists/headers inside the JSON values.
-- Warm but authoritative — like a beloved mentor who sees everything.
-- NEVER mention AI. Speak as the voice of ancient wisdom.
+- Use short, direct sentences. Maximum 25 words per sentence. No flowery language.
+- Warm but authoritative — like a sharp mentor who sees everything and speaks plainly.
+- NEVER mention AI. Speak as the voice of ancient wisdom applied with modern clarity.
 - Be SPECIFIC about timing, seasons, health practices, and yearly predictions.
 - Use element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : locale === "ru" ? "Russian (русский)" : locale === "hi" ? "Hindi (हिन्दी)" : locale === "id" ? "Indonesian (Bahasa Indonesia)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}${hindiTermingRule(locale)}${indonesianTermingRule(locale)}
+- THIS IS A PAID READING. Deliver concrete, actionable guidance the reader cannot get anywhere else.
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (\ud55c\uad6d\uc5b4)" : locale === "ja" ? "Japanese (\u65e5\u672c\u8a9e)" : locale === "es" ? "Spanish (espa\u00f1ol)" : locale === "fr" ? "French (fran\u00e7ais)" : locale === "pt" ? "Portuguese (portugu\u00eas)" : locale === "zh-TW" ? "Traditional Chinese (\u7e41\u9ad4\u4e2d\u6587)" : locale === "ru" ? "Russian (\u0440\u0443\u0441\u0441\u043a\u0438\u0439)" : locale === "hi" ? "Hindi (\u0939\u093f\u0928\u094d\u0926\u0940)" : locale === "id" ? "Indonesian (Bahasa Indonesia)" : "English"}. JSON keys must remain in English. Even if the chart data above is in English, your OUTPUT must be 100% in the specified language. NEVER output English text in JSON values when a non-English language is specified.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}${hindiTermingRule(locale)}${indonesianTermingRule(locale)}
 
 GENERATE as JSON:
 {
@@ -232,12 +234,13 @@ ${chartSummary}
 RULES:
 - ${getLanguageInstruction(locale)}
 - Every sentence must trace to THIS specific chart.
-- Flowing literary prose, no bullets/lists/headers inside the JSON values.
-- Warm but authoritative — like a beloved mentor who sees everything.
-- NEVER mention AI. Speak as the voice of ancient wisdom.
+- Use short, direct sentences. Maximum 25 words per sentence. No flowery language.
+- Warm but authoritative — like a sharp mentor who sees everything and speaks plainly.
+- NEVER mention AI. Speak as the voice of ancient wisdom applied with modern clarity.
 - The hidden_talent section should be the most MEMORABLE part of the entire reading.
 - Use element interactions to justify every insight.
-- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (한국어)" : locale === "ja" ? "Japanese (日本語)" : locale === "es" ? "Spanish (español)" : locale === "fr" ? "French (français)" : locale === "pt" ? "Portuguese (português)" : locale === "zh-TW" ? "Traditional Chinese (繁體中文)" : locale === "ru" ? "Russian (русский)" : locale === "hi" ? "Hindi (हिन्दी)" : locale === "id" ? "Indonesian (Bahasa Indonesia)" : "English"}. JSON keys must remain in English.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}${hindiTermingRule(locale)}${indonesianTermingRule(locale)}
+- THIS IS A PAID READING. The hidden_talent section is the crown jewel — make it worth sharing.
+- CRITICAL LANGUAGE RULE: ALL text values in the JSON MUST be written entirely in ${locale === "ko" ? "Korean (\ud55c\uad6d\uc5b4)" : locale === "ja" ? "Japanese (\u65e5\u672c\u8a9e)" : locale === "es" ? "Spanish (espa\u00f1ol)" : locale === "fr" ? "French (fran\u00e7ais)" : locale === "pt" ? "Portuguese (portugu\u00eas)" : locale === "zh-TW" ? "Traditional Chinese (\u7e41\u9ad4\u4e2d\u6587)" : locale === "ru" ? "Russian (\u0440\u0443\u0441\u0441\u043a\u0438\u0439)" : locale === "hi" ? "Hindi (\u0939\u093f\u0928\u094d\u0926\u0940)" : locale === "id" ? "Indonesian (Bahasa Indonesia)" : "English"}. JSON keys must remain in English. Even if the chart data above is in English, your OUTPUT must be 100% in the specified language. NEVER output English text in JSON values when a non-English language is specified.${spanishTermingRule(locale)}${frenchTermingRule(locale)}${portugueseTermingRule(locale)}${traditionalChineseTermingRule(locale)}${russianTermingRule(locale)}${hindiTermingRule(locale)}${indonesianTermingRule(locale)}
 
 GENERATE as JSON:
 {
