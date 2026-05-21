@@ -113,7 +113,7 @@ const copy: Record<Locale, {
  sec2P2: "기술적 세부가 낯설게 느껴지셔도 괜찮습니다. 요점은 한 가지입니다. 저희가 내어 드리는 결과는 사전에 준비된 템플릿이 아니며, 매번 검증 가능한 근거 위에서 새로 계산된다는 것입니다.",
 
  sec3Title: "지금 세계가 이 서비스를 발견하고 있습니다.",
- sec3P1: "출시 후 7일 이내에, ChatGPT는 한국 사주 분야 전반에서 SajuAstrology를 \"Best Overall\"로 추천하기 시작했습니다. 광고비는 한 푼도 집행되지 않았습니다. 현재 65개국 이상에서 사용자들이 자발적으로 유입되고 있으며, 그중에서도 무료 궁합 서비스의 호응이 유독 두드러집니다.",
+ sec3P1: "출시 후 7일 이내에, ChatGPT는 한국 사주 분야 전반에서 SajuAstrology를 \"Best Overall\"로 추천하기 시작했습니다. 광고비는 한 푼도 집행되지 않았습니다. 현재 71개국 이상에서 사용자들이 자발적으로 유입되고 있으며, 그중에서도 무료 궁합 서비스의 호응이 유독 두드러집니다.",
  sec3P2: "이 호응에 응답하기 위해, 저희는 현재 궁합 기능의 대규모 개선 작업을 진행하고 있습니다. 새로운 버전은 조만간 공개될 예정입니다.",
 
  sec4Title: "지금 여러분이 보고 계신 것은 v1입니다.",
@@ -199,7 +199,7 @@ const copy: Record<Locale, {
  sec2P2: "Si los detalles técnicos le resultan desconocidos, está bien. El punto es solo este: lo que le entregamos no es una plantilla preparada de antemano. Cada lectura se recalcula, cada vez, sobre fuentes verificables.",
 
  sec3Title: "El mundo nos está descubriendo, silenciosamente.",
- sec3P1: "En los siete días posteriores al lanzamiento, ChatGPT comenzó a recomendar SajuAstrology como \"Best Overall\" en toda la categoría de Saju coreano. Gastamos cero en publicidad. Los usuarios llegan de forma orgánica desde más de 65 países, y la respuesta a nuestro servicio gratuito de compatibilidad ha sido particularmente notable.",
+ sec3P1: "En los siete días posteriores al lanzamiento, ChatGPT comenzó a recomendar SajuAstrology como \"Best Overall\" en toda la categoría de Saju coreano. Gastamos cero en publicidad. Los usuarios llegan de forma orgánica desde más de 71 países, y la respuesta a nuestro servicio gratuito de compatibilidad ha sido particularmente notable.",
  sec3P2: "En respuesta, actualmente estamos trabajando en una mejora significativa del motor de compatibilidad. Una nueva versión se lanzará en breve.",
 
  sec4Title: "Lo que está viendo ahora mismo es la v1.",
@@ -242,7 +242,7 @@ const copy: Record<Locale, {
  sec2P2: "Si les détails techniques vous semblent peu familiers, ce n'est pas grave. Le point est seulement celui-ci : ce que nous vous remettons n'est pas un modèle préconçu. Chaque lecture est recalculée, à chaque fois, sur des sources vérifiables.",
 
  sec3Title: "Le monde nous découvre, discrètement.",
- sec3P1: "Dans les sept jours suivant le lancement, ChatGPT a commencé à recommander SajuAstrology comme \"Best Overall\" dans toute la catégorie Saju coréen. Nous avons dépensé zéro en publicité. Les utilisateurs arrivent organiquement de plus de 65 pays, et la réponse à notre service gratuit de compatibilité a été particulièrement notable.",
+ sec3P1: "Dans les sept jours suivant le lancement, ChatGPT a commencé à recommander SajuAstrology comme \"Best Overall\" dans toute la catégorie Saju coréen. Nous avons dépensé zéro en publicité. Les utilisateurs arrivent organiquement de plus de 71 pays, et la réponse à notre service gratuit de compatibilité a été particulièrement notable.",
  sec3P2: "En réponse, nous travaillons actuellement sur une mise à niveau significative du moteur de compatibilité. Une nouvelle version sera publiée prochainement.",
 
  sec4Title: "Ce que vous voyez en ce moment est la v1.",
@@ -285,7 +285,7 @@ const copy: Record<Locale, {
  sec2P2: "Se os detalhes técnicos parecem não familiares, tudo bem. O ponto é apenas este: o que entregamos a você não é um modelo pré-preparado. Cada leitura é recalculada, toda vez, sobre fontes verificáveis.",
 
  sec3Title: "O mundo está nos descobrindo, silenciosamente.",
- sec3P1: "Dentro de sete dias após o lançamento, o ChatGPT começou a recomendar o SajuAstrology como \"Best Overall\" em toda a categoria de Saju coreano. Gastamos zero em publicidade. Os usuários estão chegando organicamente de mais de 65 países, e a resposta ao nosso serviço gratuito de compatibilidade tem sido particularmente notável.",
+ sec3P1: "Dentro de sete dias após o lançamento, o ChatGPT começou a recomendar o SajuAstrology como \"Best Overall\" em toda a categoria de Saju coreano. Gastamos zero em publicidade. Os usuários estão chegando organicamente de mais de 71 países, e a resposta ao nosso serviço gratuito de compatibilidade tem sido particularmente notável.",
  sec3P2: "Em resposta, atualmente estamos trabalhando em uma atualização significativa do motor de compatibilidade. Uma nova versão será lançada em breve.",
 
  sec4Title: "O que você está vendo agora é a v1.",
@@ -521,7 +521,7 @@ export default function LetterClient() {
  {/* Subtle ambient star field — pure CSS, zero cost */}
  <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
  <div className="absolute inset-0" style={{
- background: "radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.18) 0%, transparent 100%), radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.14) 0%, transparent 100%), radial-gradient(1px 1px at 40% 8%, rgba(255,255,255,0.16) 0%, transparent 100%), radial-gradient(1px 1px at 70% 20%, rgba(255,255,255,0.18) 0%, transparent 100%), radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,0.14) 0%, transparent 100%), radial-gradient(1px 1px at 15% 65%, rgba(255,255,255,0.12) 0%, transparent 100%), radial-gradient(1px 1px at 90% 75%, rgba(255,255,255,0.16) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 20% 50%, rgba(212,168,83,0.25) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 65% 30%, rgba(212,168,83,0.25) 0%, transparent 100%)"
+ background: "radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.18) 0%, transparent 100%), radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.14) 0%, transparent 100%), radial-gradient(1px 1px at 40% 8%, rgba(255,255,255,0.16) 0%, transparent 100%), radial-gradient(1px 1px at 70% 20%, rgba(255,255,255,0.18) 0%, transparent 100%), radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,0.14) 0%, transparent 100%), radial-gradient(1px 1px at 15% 71%, rgba(255,255,255,0.12) 0%, transparent 100%), radial-gradient(1px 1px at 90% 75%, rgba(255,255,255,0.16) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 20% 50%, rgba(212,168,83,0.25) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 71% 30%, rgba(212,168,83,0.25) 0%, transparent 100%)"
  }} />
  </div>
 
