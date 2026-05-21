@@ -255,9 +255,9 @@ export function HeroSection() {
                   {/* Header */}
                   <div className="flex items-center justify-between px-4 py-3 border-b border-emerald-400/20 shrink-0">
                     <span className="text-xs font-mono text-emerald-300/80 tracking-wider">
-                      {locale === "ko" ? "국가별 방문순위 (GA4 실데이터 — May 15)" :
-                       locale === "ja" ? "国別訪問ランキング（GA4実データ — May 15）" :
-                       "Country Rankings (GA4 Live Data — May 15)"}
+                      {locale === "ko" ? "국가별 방문순위 (GA4 실데이터 — May 20)" :
+                       locale === "ja" ? "国別訪問ランキング（GA4実データ — May 20）" :
+                       "Country Rankings (GA4 Live Data — May 20)"}
                     </span>
                     <button
                       onClick={() => setShowCountryRanking(false)}
@@ -269,7 +269,7 @@ export function HeroSection() {
                   {/* Scrollable image */}
                   <div className="flex-1 overflow-y-auto p-3">
                     <img
-                      src="/ga4_65.png"
+                      src="/71_ga4.png"
                       alt="GA4 Country Rankings"
                       className="w-full h-auto rounded"
                       loading="lazy"
